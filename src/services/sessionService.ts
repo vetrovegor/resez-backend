@@ -1,0 +1,140 @@
+import { Request } from 'express';
+import geoip from 'geoip-lite';
+import { Details } from 'express-useragent';
+
+import { UserTokenInfo } from 'types/user';
+import { ReqInfo, SessionSaveResult } from 'types/session';
+import tokenService from './tokenService';
+import Session from '../db/models/Session';
+
+class SessionService {
+    // добавить параметр shouldCreateNotify
+    async saveSession(req: Request, userTokenInfo: UserTokenInfo): Promise<SessionSaveResult> {
+        const { id: userId } = userTokenInfo;
+        const sessionData = await this.findCurrentSession(req, userId);
+
+        const date = Date.now();
+        const expiredDate = date + 30 * 24 * 60 * 60 * 1000;
+        let sessionId;
+
+        if (sessionData) {
+            if (!sessionData.get("isActive")) {
+                // await notifyService.createSessionNotify('В ваш аккаунт был выполнен вход', sessionData);
+            }
+
+            await sessionData.update({
+                isActive: true,
+                date,
+                expiredDate
+            });
+
+            sessionId = sessionData.id;
+        } else {
+            const newSession = await this.createSession(req, userId, true, new Date(date), new Date(expiredDate));
+
+            sessionId = newSession.id;
+
+            // if (shouldCreateNotify) {
+            //     await notifyService.createSessionNotify('В ваш аккаунт был выполнен вход с нового устройства', newSession);
+            //     await logService.createNewDeviceLoginLogEntry(userId, sessionId);
+            // }
+        }
+
+        const { accessToken, refreshToken } = tokenService.generateTokens(userTokenInfo);
+        tokenService.saveToken(refreshToken, sessionId);
+
+        return {
+            sessionId,
+            accessToken,
+            refreshToken
+        }
+    }
+
+    async createSession(req: Request, userId: number, isActive: boolean, date: Date, expiredDate: Date): Promise<Session> {
+        const reqInfo = this.getReqInfo(req);
+        const { ip, country, city, deviceType, browser, browserVersion, os, platform } = reqInfo;
+
+        return await Session.create({
+            userId,
+            isActive,
+            date,
+            expiredDate,
+            ip,
+            deviceType,
+            country,
+            city,
+            browser,
+            browserVersion,
+            os,
+            platform
+        });
+    }
+
+    async endCurrentSession(req: Request, userId: number): Promise<Session> {
+        const currentSession = await this.findCurrentSession(req, userId);
+
+        if (currentSession) {
+            await tokenService.deleteTokenBySessionId(currentSession.id);
+
+            return await currentSession.update({
+                isActive: false
+            });
+        }
+
+        const date = new Date();
+
+        return await this.createSession(req, userId, false, date, date);
+    }
+
+    async findCurrentSession(req: Request, userId: number): Promise<Session> {
+        const { ip, country, city, browser, browserVersion, os, platform, deviceType } = this.getReqInfo(req);
+
+        return await Session.findOne({
+            where: {
+                userId,
+                ip,
+                country,
+                city,
+                browser,
+                browserVersion,
+                os,
+                platform,
+                deviceType
+            }
+        });
+    }
+
+    getReqInfo(req: Request): ReqInfo {
+        let { ip } = req;
+        ip = ip.replace("::ffff:", "");
+        const geoData = geoip.lookup(ip);
+        const { country = null, city = null } = geoData || {};
+        const { useragent } = req;
+        let { browser, version: browserVersion, os, platform } = useragent;
+        browser = browser != 'unknown' ? browser : null;
+        browserVersion = browserVersion != 'unknown' ? browserVersion : null;
+        os = os != 'unknown' ? os : null;
+        platform = platform != 'unknown' ? platform : null;
+        const deviceType = this.detectDeviceType(useragent)
+
+        return { ip, country, city, browser, browserVersion, os, platform, deviceType };
+    }
+
+    detectDeviceType(useragent: Details): string {
+        if (useragent.isBot) {
+            return "bot";
+        } else if (useragent.isSmartTV) {
+            return "tv";
+        } else if (useragent.isMobile) {
+            return "mobile";
+        } else if (useragent.isTablet) {
+            return "tablet";
+        } else if (useragent.isDesktop) {
+            return "desktop";
+        }
+
+        return null;
+    }
+}
+
+export default new SessionService();
