@@ -1,11 +1,14 @@
 import { Request } from 'express';
 import geoip from 'geoip-lite';
 import { Details } from 'express-useragent';
+import { Op } from "sequelize";
 
 import { UserTokenInfo } from 'types/user';
-import { ReqInfo, SessionSaveResult } from 'types/session';
+import { ReqInfo, SessionDTO, SessionSaveResult } from 'types/session';
 import tokenService from './tokenService';
 import Session from '../db/models/Session';
+import { PaginationDTO } from '../dto/PaginationDTO';
+import { ApiError } from '../apiError';
 
 class SessionService {
     // добавить параметр shouldCreateNotify
@@ -134,6 +137,99 @@ class SessionService {
         }
 
         return null;
+    }
+
+    async findOrCreateCurrentSession(req: Request, userId: number): Promise<Session> {
+        const currentSession = await this.findCurrentSession(req, userId);
+
+        if (!currentSession) {
+            const date = Date.now();
+            const expiredDate = date + 30 * 24 * 60 * 60 * 1000;
+            return await this.createSession(req, userId, true, new Date(date), new Date(expiredDate));
+        }
+
+        return currentSession
+    }
+
+    // типизировать
+    async getUserSessions(req: Request, userId: number, limit: number, offset: number) {
+        const currentSession = await this.findOrCreateCurrentSession(req, userId);
+
+        const whereOptions = {
+            id: {
+                [Op.ne]: currentSession.id
+            },
+            userId
+        };
+
+        const otherSessions = await Session.findAll({
+            where: whereOptions,
+            order: [['date', 'DESC']],
+            limit,
+            offset
+        });
+
+        const otherSessionDtos = otherSessions.map(session => session.toDTO());
+
+        const otherTotalCount = await Session.count({
+            where: whereOptions
+        });
+
+        const paginationDTO = new PaginationDTO("other", otherSessionDtos, otherTotalCount, limit, offset);
+
+        return {
+            current: currentSession.toDTO(),
+            ...paginationDTO
+        };
+    }
+
+    async endSessionById(id: number, userId: number): Promise<void> {
+        const session = await Session.findOne({
+            where: {
+                id,
+                userId
+            }
+        });
+
+        if (!session) {
+            throw ApiError.badRequest('Сессия не найдена');
+        }
+
+        await session.update({
+            isActive: false
+        });
+
+        await tokenService.deleteTokenBySessionId(id);
+
+        // socketService.emitToRoom(Number(sessionId), EVENT_TYPES.END_SESSION);
+    }
+
+    // типизировать
+    async endAllSessions(req: Request, userId: number, limit: number, offset: number) {
+        const currentSession = await this.findOrCreateCurrentSession(req, userId);
+
+        const sessions = await Session.findAll({
+            where: {
+                id: {
+                    [Op.ne]: currentSession.id
+                },
+                userId,
+                isActive: true,
+            }
+        });
+
+        for (const session of sessions) {
+            await session.update({
+                isActive: false,
+                tokenId: null
+            });
+
+            await tokenService.deleteTokenBySessionId(session.id);
+
+            // socketService.emitToRoom(Number(session.id), EVENT_TYPES.END_SESSION);
+        }
+
+        return this.getUserSessions(req, userId, limit, offset);
     }
 }
 

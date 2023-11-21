@@ -2,6 +2,7 @@ import { Table, Column, Model, DataType, HasMany, ForeignKey, BelongsTo } from "
 
 import Token from "./Token";
 import User from "./User";
+import { SessionDTO } from "types/session";
 
 @Table({
     timestamps: false,
@@ -73,6 +74,22 @@ class Session extends Model {
 
     @HasMany(() => Token)
     tokens: Token[];
+
+    toDTO(): SessionDTO {
+        return {
+            id: this.get('id'),
+            isActive: this.get('isActive'),
+            date: this.get('date'),
+            ip: this.get('ip'),
+            deviceType: this.get('deviceType'),
+            country: this.get('country'),
+            city: this.get('city'),
+            browser: this.get('browser'),
+            browserVersion: this.get('browserVersion'),
+            os: this.get('os'),
+            platform: this.get('platform'),
+        };
+    }
 }
 
 export default Session;

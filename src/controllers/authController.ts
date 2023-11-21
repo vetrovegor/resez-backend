@@ -113,7 +113,7 @@ class AuthController {
 
             await codeService.sendRecoveryPasswordCode(nickname);
 
-            res.send();
+            res.send(200);
         } catch (error) {
             next(error);
         }
@@ -131,7 +131,7 @@ class AuthController {
 
             await codeService.verifyRecoveryPasswordCode(nickname, code);
 
-            res.send();
+            res.send(200);
         } catch (error) {
             next(error);
         }
@@ -150,7 +150,7 @@ class AuthController {
             await codeService.verifyRecoveryPasswordCode(nickname, code);
             await userService.recoveryPassword(nickname, password);
 
-            res.send();
+            res.send(200);
         } catch (error) {
             next(error);
         }

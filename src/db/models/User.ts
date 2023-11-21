@@ -93,7 +93,7 @@ class User extends Model {
         type: DataType.BOOLEAN,
         defaultValue: false,
     })
-    isShowAvatars: boolean;
+    isHideAvatars: boolean;
 
     @HasMany(() => Session)
     sessions: Session[];

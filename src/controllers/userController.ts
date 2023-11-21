@@ -20,7 +20,7 @@ class UserhController {
 
             await codeService.sendChangePasswordCode(req.user.id, oldPassword);
 
-            res.send();
+            res.send(200);
         } catch (error) {
             next(error);
         }
@@ -40,7 +40,7 @@ class UserhController {
             await codeService.verifyChangePasswordCode(id, code);
             await userService.changePassword(id, oldPassword, newPassword);
 
-            res.send();
+            res.send(200);
         } catch (error) {
             next(error);
         }

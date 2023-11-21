@@ -19,3 +19,17 @@ export type SessionSaveResult = {
     accessToken: string;
     refreshToken: string;
 }
+
+export type SessionDTO = {
+    id: number;
+    isActive: boolean;
+    date: Date;
+    ip: string;
+    deviceType: string;
+    country: string;
+    city: string;
+    browser: string;
+    browserVersion: string;
+    os: string;
+    platform: string;
+}

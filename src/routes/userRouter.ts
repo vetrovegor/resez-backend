@@ -14,7 +14,7 @@ userRouter.post(
     userController.sendChangePasswordCode
 );
 
-userRouter.put('/verify-change-password-code',
+userRouter.patch('/verify-change-password-code',
     body('oldPassword').isLength({ min: 8, max: 32 }),
     body('newPassword').isLength({ min: 8, max: 32 }),
     body('code').matches(/^[0-9]{6}$/),

@@ -50,7 +50,7 @@ authRouter.post('/verify-recovery-password-code',
     authController.verifyRecoveryPasswordCode
 );
 
-authRouter.put('/recovery-password',
+authRouter.patch('/recovery-password',
     body('nickname').matches(/^[a-zA-Z0-9_]{3,20}$/),
     body('code').matches(/^[0-9]{6}$/),
     body('password').isLength({ min: 8, max: 32 }),

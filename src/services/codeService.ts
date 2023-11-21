@@ -6,7 +6,7 @@ import userService from "./userService";
 import telegramService from "./telegramService";
 import { ApiError } from "../apiError";
 
-// подумать как сделать лучше
+// подумать как сделать лучше, как вынести в файл с типами
 export const enum CodeTypes {
     VERIFY = 'VERIFY',
     RECOVERY = 'RECOVERY',
@@ -42,7 +42,7 @@ class CodeService {
             // socketService.emitToRoom(
             //     userId,
             //     EVENT_TYPES.VERIFICATION_CODE_UPDATED,
-            //     { verificationCodeData: verificationCodeDto }
+            //     { verificationCodeData: verificationCodeDTO }
             // );
 
             return verificationCodeData;
