@@ -4,7 +4,7 @@ export class PaginationDTO<T> {
     isLast: boolean
     elementsCount: number
 
-    constructor(elementsProperty: string, elements: any[], totalCount: number, limit: number, offset: number) {
+    constructor(elementsProperty: string, elements: T[], totalCount: number, limit: number, offset: number) {
         this[elementsProperty] = elements;
         this.totalCount = totalCount;
         this.isLast = totalCount <= offset + limit;

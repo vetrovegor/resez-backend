@@ -76,18 +76,20 @@ class Session extends Model {
     tokens: Token[];
 
     toDTO(): SessionDTO {
+        const { id, isActive, date, ip, deviceType, country, city, browser, browserVersion, os, platform } = this.get();
+
         return {
-            id: this.get('id'),
-            isActive: this.get('isActive'),
-            date: this.get('date'),
-            ip: this.get('ip'),
-            deviceType: this.get('deviceType'),
-            country: this.get('country'),
-            city: this.get('city'),
-            browser: this.get('browser'),
-            browserVersion: this.get('browserVersion'),
-            os: this.get('os'),
-            platform: this.get('platform'),
+            id,
+            isActive,
+            date,
+            ip,
+            deviceType,
+            country,
+            city,
+            browser,
+            browserVersion,
+            os,
+            platform,
         };
     }
 }

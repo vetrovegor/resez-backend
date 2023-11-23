@@ -28,3 +28,9 @@ export type UserChangePasswordDTO = {
     newPassword: string
     code: string
 }
+
+export type UserPreview = {
+    id: number,
+    nickname: string,
+    avatar: string
+}

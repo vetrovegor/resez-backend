@@ -1,8 +1,9 @@
 import { Table, Column, Model, DataType, HasMany } from "sequelize-typescript";
 
-import { UserShortInfo, UserTokenInfo } from "types/user.js";
-import Session from "./Session.js";
-import Code from "./Code.js";
+import { UserPreview, UserShortInfo, UserTokenInfo } from "types/user";
+import Session from "./Session";
+import Code from "./Code";
+import Collection from "./Collection";
 
 @Table({
     timestamps: false,
@@ -101,21 +102,38 @@ class User extends Model {
     @HasMany(() => Code)
     codes: Code[];
 
+    @HasMany(() => Collection)
+    collections: Collection[];
+
     toTokenInfo(): UserTokenInfo {
+        const { id, nickname } = this.get();
+
         return {
-            id: this.get('id'),
-            nickname: this.get('nickname')
+            id,
+            nickname
         };
     }
-    
+
     toShortInfo(): UserShortInfo {
+        const { id, nickname, isVerified, isBlocked, avatar, level } = this.get();
+
         return {
-            id: this.get('id'),
-            nickname: this.get('nickname'),
-            isVerified: this.get('isVerified'),
-            isBlocked: this.get('isBlocked'),
-            avatar: this.get('avatar'),
-            level: this.get('level')
+            id,
+            nickname,
+            isVerified,
+            isBlocked,
+            avatar,
+            level
+        };
+    }
+
+    toPreview(): UserPreview {
+        const { id, nickname, avatar } = this.get();
+
+        return {
+            id,
+            nickname,
+            avatar
         };
     }
 }

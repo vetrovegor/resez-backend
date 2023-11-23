@@ -175,7 +175,7 @@ class SessionService {
             where: whereOptions
         });
 
-        const paginationDTO = new PaginationDTO("other", otherSessionDtos, otherTotalCount, limit, offset);
+        const paginationDTO = new PaginationDTO<SessionDTO>("other", otherSessionDtos, otherTotalCount, limit, offset);
 
         return {
             current: currentSession.toDTO(),
