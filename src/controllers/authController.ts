@@ -3,7 +3,7 @@ import { validationResult } from 'express-validator';
 
 import { ApiError } from '../apiError';
 import authService from '../services/authService';
-import { RequestWithBody, RequestWithUserTokenInfo } from 'types/request';
+import { RequestWithBody, RequestWithUser } from 'types/request';
 import { UserAuthDTO, UserRecoveryPasswordDTO } from 'types/user';
 import sessionService from '../services/sessionService';
 import codeService from '../services/codeService';
@@ -63,7 +63,7 @@ class AuthController {
         }
     }
 
-    async logout(req: RequestWithUserTokenInfo, res: Response, next: NextFunction) {
+    async logout(req: RequestWithUser, res: Response, next: NextFunction) {
         try {
             const { id } = req.user;
 
@@ -75,7 +75,7 @@ class AuthController {
         }
     }
 
-    async refresh(req: RequestWithUserTokenInfo, res: Response, next: NextFunction) {
+    async refresh(req: RequestWithUser, res: Response, next: NextFunction) {
         try {
             const { accessToken, refreshToken } = await sessionService.saveSession(req, req.user);
 
@@ -89,7 +89,7 @@ class AuthController {
         }
     }
 
-    async sendVerificationCode(req: RequestWithUserTokenInfo, res: Response, next: NextFunction) {
+    async sendVerificationCode(req: RequestWithUser, res: Response, next: NextFunction) {
         try {
             const verificationCodeData = await codeService.createVerificationCode(req.user.id);
 

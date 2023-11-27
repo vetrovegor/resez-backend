@@ -1,7 +1,12 @@
 import bcrypt from 'bcrypt';
+import path from 'path';
+import fs from 'fs';
 
 import User from "../db/models/User";
 import { ApiError } from '../apiError';
+import { UserProfileInfo, UserShortInfo } from 'types/user';
+import { STATIC_PATH } from '../consts/STATIC_PATH';
+import { FILE_EXTENSIONS } from '../consts/FILE-EXTENSIONS';
 
 class UserService {
     async getUserById(id: number): Promise<User> {
@@ -28,6 +33,12 @@ class UserService {
             password,
             registrationDate: Date.now()
         });
+    }
+
+    async getUserShortInfo(userId: number): Promise<UserShortInfo> {
+        const user = await this.getUserById(userId);
+
+        return user.toShortInfo();
     }
 
     async verifyUser(userId: number, telegramChatId: string): Promise<User> {
@@ -66,6 +77,67 @@ class UserService {
         user.set('password', hashPassword);
 
         return await user.save();
+    }
+
+    async getUserBlockStatusById(userId: number): Promise<boolean> {
+        const user = await this.getUserById(userId);
+
+        return user.get('isBlocked');
+    }
+
+    async getProfileInfo(userId: number): Promise<UserProfileInfo> {
+        const user = await this.getUserById(userId);
+
+        return user.toProfileInfo();
+    }
+
+    async updateProfile(userId: number, firstName: string, lastName: string, birthDate: Date, gender: string): Promise<UserProfileInfo> {
+        const user = await this.getUserById(userId);
+
+        user.set('firstName', firstName);
+        user.set('lastName', lastName);
+        user.set('birthDate', birthDate);
+        user.set('gender', gender);
+
+        await user.save();
+
+        return user.toProfileInfo();
+    }
+
+    // типизировать avatar
+    async setAvatar(userId: number, avatar): Promise<UserShortInfo> {
+        const user = await User.findByPk(userId);
+        const { avatar: oldAvatarName } = user;
+
+        if (oldAvatarName) {
+            const oldAvatarPath = path.resolve(STATIC_PATH, oldAvatarName);
+            fs.existsSync(oldAvatarPath) && fs.unlinkSync(oldAvatarPath);
+        }
+
+        const avatarExtension = FILE_EXTENSIONS[avatar.mimetype] || '.jpg';
+        const avatarName = Date.now() + avatarExtension;
+
+        avatar.mv(path.resolve(STATIC_PATH, avatarName));
+
+        user.set('avatar', avatarName);
+        await user.save();
+
+        return user.toShortInfo();
+    }
+
+    async deleteAvatar(userId: number): Promise<UserShortInfo> {
+        const user = await User.findByPk(userId);
+        const avatar = user.get('avatar');
+
+        if (avatar) {
+            const avatarPath = path.resolve(STATIC_PATH, avatar);
+            fs.existsSync(avatarPath) && fs.unlinkSync(avatarPath);
+        }
+
+        user.set('avatar', null);
+        await user.save();
+
+        return user.toShortInfo();
     }
 }
 

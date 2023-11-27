@@ -1,10 +1,10 @@
 import { Response, NextFunction } from 'express';
 
-import { RequestWithUserTokenInfo } from 'types/request';
+import { RequestWithUser } from 'types/request';
 import { ApiError } from '../apiError';
 import tokenService from '../services/tokenService';
 
-export const accessTokenMiddleware = async (req: RequestWithUserTokenInfo, res: Response, next: NextFunction) => {
+export const accessTokenMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
         const authorizationHeader = req.headers.authorization;
 
@@ -28,7 +28,7 @@ export const accessTokenMiddleware = async (req: RequestWithUserTokenInfo, res: 
         req.user = userData;
 
         next();
-    } catch (e) {
+    } catch (error) {
         return next(ApiError.unauthorizedError());
     }
 }

@@ -34,3 +34,11 @@ export type UserPreview = {
     nickname: string,
     avatar: string
 }
+
+export type UserProfileInfo = {
+    id: number,
+    firstName: string;
+    lastName: string;
+    birthDate: Date;
+    gender: string;
+}

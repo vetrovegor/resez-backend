@@ -1,6 +1,6 @@
 import { Table, Column, Model, DataType, HasMany } from "sequelize-typescript";
 
-import { UserPreview, UserShortInfo, UserTokenInfo } from "types/user";
+import { UserPreview, UserProfileInfo, UserShortInfo, UserTokenInfo } from "types/user";
 import Session from "./Session";
 import Code from "./Code";
 import Collection from "./Collection";
@@ -134,6 +134,18 @@ class User extends Model {
             id,
             nickname,
             avatar
+        };
+    }
+
+    toProfileInfo(): UserProfileInfo {
+        const { id, firstName, lastName, birthDate, gender } = this.get();
+
+        return {
+            id,
+            firstName,
+            lastName,
+            birthDate,
+            gender
         };
     }
 }

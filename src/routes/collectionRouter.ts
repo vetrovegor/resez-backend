@@ -4,6 +4,7 @@ import { body, param } from "express-validator";
 import collectionController from "../controllers/collectionController";
 import { accessTokenMiddleware } from "../middlewares/accessTokenMiddleware";
 import { paginationMiddleware } from "../middlewares/paginationMiddleware";
+import { blockedMiddleware } from "../middlewares/blockedMiddleware";
 
 export const collectionRouter = Router();
 
@@ -17,6 +18,7 @@ collectionRouter.post(
     body('QAPairs.*.question').isString().isLength({ max: 250 }),
     body('QAPairs.*.answer').isString().isLength({ max: 250 }),
     accessTokenMiddleware,
+    blockedMiddleware,
     collectionController.createCollection
 );
 
@@ -24,6 +26,7 @@ collectionRouter.get(
     '/',
     paginationMiddleware,
     accessTokenMiddleware,
+    blockedMiddleware,
     collectionController.getUserCollections
 );
 
@@ -31,6 +34,7 @@ collectionRouter.get(
     '/:id',
     param('id').isNumeric(),
     accessTokenMiddleware,
+    blockedMiddleware,
     collectionController.getCollectionById
 );
 
@@ -38,6 +42,7 @@ collectionRouter.delete(
     '/:id',
     param('id').isNumeric(),
     accessTokenMiddleware,
+    blockedMiddleware,
     collectionController.deleteCollectionById
 );
 
@@ -52,5 +57,6 @@ collectionRouter.patch(
     body('QAPairs.*.question').isString().isLength({ max: 250 }),
     body('QAPairs.*.answer').isString().isLength({ max: 250 }),
     accessTokenMiddleware,
+    blockedMiddleware,
     collectionController.updateCollectionById
 );

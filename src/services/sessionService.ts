@@ -4,7 +4,7 @@ import { Details } from 'express-useragent';
 import { Op } from "sequelize";
 
 import { UserTokenInfo } from 'types/user';
-import { ReqInfo, SessionDTO, SessionSaveResult } from 'types/session';
+import { ReqInfo, SessionDTO, SessionPagination, SessionSaveResult } from 'types/session';
 import tokenService from './tokenService';
 import Session from '../db/models/Session';
 import { PaginationDTO } from '../dto/PaginationDTO';

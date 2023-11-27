@@ -2,12 +2,12 @@ import { Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 
 import { ApiError } from '../apiError';
-import { PaginationParams, RequestWithBodyAndUserTokenInfo, RequestWithParamsAndBodyAndUser, RequestWithParamsAndUserTokenInfo, RequestWithQueryAndUserTokenInfo, WithId } from 'types/request';
+import { PaginationParams, RequestWithBodyAndUser, RequestWithParamsAndBodyAndUser, RequestWithParamsAndUser, RequestWithQueryAndUser, WithId } from 'types/request';
 import { CollectionBodyDTO } from 'types/collection';
 import collectionService from '../services/collectionService';
 
 class CollectionController {
-    async createCollection(req: RequestWithBodyAndUserTokenInfo<CollectionBodyDTO>, res: Response, next: NextFunction) {
+    async createCollection(req: RequestWithBodyAndUser<CollectionBodyDTO>, res: Response, next: NextFunction) {
         try {
             const errors = validationResult(req);
 
@@ -25,7 +25,7 @@ class CollectionController {
         }
     }
 
-    async getUserCollections(req: RequestWithQueryAndUserTokenInfo<PaginationParams>, res: Response, next: NextFunction) {
+    async getUserCollections(req: RequestWithQueryAndUser<PaginationParams>, res: Response, next: NextFunction) {
         try {
             const { limit, offset } = req.query;
 
@@ -37,7 +37,7 @@ class CollectionController {
         }
     }
 
-    async getCollectionById(req: RequestWithParamsAndUserTokenInfo<WithId>, res: Response, next: NextFunction) {
+    async getCollectionById(req: RequestWithParamsAndUser<WithId>, res: Response, next: NextFunction) {
         try {
             const errors = validationResult(req);
 
@@ -53,7 +53,7 @@ class CollectionController {
         }
     }
 
-    async deleteCollectionById(req: RequestWithParamsAndUserTokenInfo<WithId>, res: Response, next: NextFunction) {
+    async deleteCollectionById(req: RequestWithParamsAndUser<WithId>, res: Response, next: NextFunction) {
         try {
             const errors = validationResult(req);
 

@@ -4,7 +4,11 @@ import { ApiError } from "../apiError.js";
 
 export const errorMiddleWare = (err: TypeError, req: Request, res: Response, next: NextFunction) => {
     if (err instanceof ApiError) {
-        return res.status(err.status).json({ error: true, message: err.message, errors: err.errors });
+        return res.status(err.status).json({
+            error: true,
+            message: err.message,
+            errors: err.errors
+        });
     }
 
     console.log(err);

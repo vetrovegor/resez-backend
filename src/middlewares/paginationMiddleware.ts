@@ -1,9 +1,9 @@
 import { Response, NextFunction } from "express";
 
-import { PaginationParams, RequestWithQueryAndUserTokenInfo } from "types/request.js";
+import { PaginationParams, RequestWithQueryAndUser } from "types/request.js";
 import { ApiError } from "../apiError";
 
-export const paginationMiddleware = async (req: RequestWithQueryAndUserTokenInfo<PaginationParams>, res: Response, next: NextFunction) => {
+export const paginationMiddleware = async (req: RequestWithQueryAndUser<PaginationParams>, res: Response, next: NextFunction) => {
     try {
         let { limit = 5, offset = 0 } = req.query;
 

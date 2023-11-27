@@ -2,9 +2,9 @@ import { Response, NextFunction } from 'express';
 
 import { ApiError } from '../apiError';
 import tokenService from '../services/tokenService';
-import { RequestWithUserTokenInfo } from 'types/request';
+import { RequestWithUser } from 'types/request';
 
-export const refreshTokenMiddleware = async (req: RequestWithUserTokenInfo, res: Response, next: NextFunction) => {
+export const refreshTokenMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
         const { refreshToken } = req.cookies;
         
@@ -23,7 +23,7 @@ export const refreshTokenMiddleware = async (req: RequestWithUserTokenInfo, res:
         req.user = userData;
 
         next();
-    } catch (e) {
+    } catch (error) {
         return next(ApiError.unauthorizedError());
     }
 }

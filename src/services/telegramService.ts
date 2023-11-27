@@ -33,7 +33,6 @@ class TelegramService {
         return this.bot.telegram.sendMessage(telegramChatId, 'Добро пожаловать!');
     }
 
-    // типизировать
     private async handleStart(ctx: ContextWithStartPayload): Promise<Message.TextMessage> {
         const startPayload = ctx.startPayload;
         const telegramChatId = ctx.message.chat.id.toString();

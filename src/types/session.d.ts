@@ -1,3 +1,5 @@
+import { PaginationDTO } from "dto/PaginationDTO"
+
 export type Tokens = {
     accessToken: string,
     refreshToken: string
@@ -32,4 +34,8 @@ export type SessionDTO = {
     browserVersion: string;
     os: string;
     platform: string;
+}
+
+export type SessionPagination = PaginationDTO<SessionDTO> & {
+    current: SessionDTO
 }

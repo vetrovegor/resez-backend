@@ -4,6 +4,7 @@ import { body } from 'express-validator';
 import authController from "../controllers/authController";
 import { refreshTokenMiddleware } from "../middlewares/refreshTokenMiddleware";
 import { accessTokenMiddleware } from "../middlewares/accessTokenMiddleware";
+import { blockedMiddleware } from "../middlewares/blockedMiddleware";
 
 export const authRouter = Router();
 
@@ -35,6 +36,7 @@ authRouter.get(
 
 authRouter.get('/send-verification-code',
     accessTokenMiddleware,
+    blockedMiddleware,
     authController.sendVerificationCode
 );
 

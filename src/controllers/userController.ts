@@ -4,11 +4,21 @@ import { validationResult } from 'express-validator';
 import { ApiError } from '../apiError';
 import codeService from '../services/codeService';
 import userService from '../services/userService';
-import { RequestWithBodyAndUserTokenInfo } from 'types/request';
-import { UserChangePasswordDTO } from 'types/user';
+import { RequestWithBodyAndUser, RequestWithUser } from 'types/request';
+import { UserChangePasswordDTO, UserProfileInfo } from 'types/user';
 
 class UserhController {
-    async sendChangePasswordCode(req: RequestWithBodyAndUserTokenInfo<UserChangePasswordDTO>, res: Response, next: NextFunction) {
+    async getUserShortInfo(req: RequestWithUser, res: Response, next: NextFunction) {
+        try {
+            const user = await userService.getUserShortInfo(req.user.id);
+
+            res.json({ user });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async sendChangePasswordCode(req: RequestWithBodyAndUser<UserChangePasswordDTO>, res: Response, next: NextFunction) {
         try {
             const errors = validationResult(req);
 
@@ -26,7 +36,7 @@ class UserhController {
         }
     }
 
-    async verifyChangePasswordCode(req: RequestWithBodyAndUserTokenInfo<UserChangePasswordDTO>, res: Response, next: NextFunction) {
+    async verifyChangePasswordCode(req: RequestWithBodyAndUser<UserChangePasswordDTO>, res: Response, next: NextFunction) {
         try {
             const errors = validationResult(req);
 
@@ -41,6 +51,48 @@ class UserhController {
             await userService.changePassword(id, oldPassword, newPassword);
 
             res.send(200);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getProfileInfo(req: RequestWithUser, res: Response, next: NextFunction) {
+        try {
+            const user = await userService.getProfileInfo(req.user.id);
+
+            res.json({ user });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async updateProfile(req: RequestWithBodyAndUser<UserProfileInfo>, res: Response, next: NextFunction) {
+        try {
+            const { firstName, lastName, birthDate, gender } = req.body;
+
+            const user = await userService.updateProfile(req.user.id, firstName, lastName, birthDate, gender);
+
+            res.json({ user });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async setAvatar(req: RequestWithUser, res: Response, next: NextFunction) {
+        try {
+            const user = await userService.setAvatar(req.user.id, req.files.avatar);
+
+            res.json({ user });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async deleteAvatar(req: RequestWithUser, res: Response, next: NextFunction) {
+        try {
+            const user = await userService.deleteAvatar(req.user.id);
+
+            res.json({ user });
         } catch (error) {
             next(error);
         }

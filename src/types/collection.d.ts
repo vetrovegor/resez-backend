@@ -27,14 +27,6 @@ export type CollectionShortInfo = {
     user: UserPreview
 }
 
-export type CollectionFullInfo = {
-    id: number,
-    collection: string,
-    pairsCount: number,
-    description: string,
-    isPrivate: boolean,
-    createdAt: Date,
-    updatedAt: Date,
-    user: UserPreview,
+export type CollectionFullInfo = CollectionShortInfo & {
     QAPairs: QAPair[]
 }
