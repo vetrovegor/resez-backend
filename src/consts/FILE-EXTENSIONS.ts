@@ -1,4 +1,4 @@
-export const FILE_EXTENSIONS = {
+export const FILE_EXTENSIONS: Record<string, string> = {
     'image/jpeg': '.jpg',
     'image/png': '.png',
     'image/gif': '.gif',
@@ -9,4 +9,4 @@ export const FILE_EXTENSIONS = {
     'application/vnd.ms-excel': '.xls',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
     'application/msword': 'doc'
-}
+};

@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+import { UploadedFile } from 'express-fileupload';
 import path from 'path';
 import fs from 'fs';
 
@@ -104,8 +105,7 @@ class UserService {
         return user.toProfileInfo();
     }
 
-    // типизировать avatar
-    async setAvatar(userId: number, avatar): Promise<UserShortInfo> {
+    async setAvatar(userId: number, avatar: UploadedFile): Promise<UserShortInfo> {
         const user = await User.findByPk(userId);
         const { avatar: oldAvatarName } = user;
 

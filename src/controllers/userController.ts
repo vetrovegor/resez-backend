@@ -4,15 +4,19 @@ import { validationResult } from 'express-validator';
 import { ApiError } from '../apiError';
 import codeService from '../services/codeService';
 import userService from '../services/userService';
+import sessionService from '../services/sessionService';
 import { RequestWithBodyAndUser, RequestWithUser } from 'types/request';
 import { UserChangePasswordDTO, UserProfileInfo } from 'types/user';
 
 class UserhController {
     async getUserShortInfo(req: RequestWithUser, res: Response, next: NextFunction) {
         try {
-            const user = await userService.getUserShortInfo(req.user.id);
+            const userId = req.user.id;
+            
+            const user = await userService.getUserShortInfo(userId);
+            const { id: sessionId } = await sessionService.findCurrentSession(req, userId);
 
-            res.json({ user });
+            res.json({ user, sessionId });
         } catch (error) {
             next(error);
         }

@@ -25,6 +25,7 @@ collectionRouter.post(
 collectionRouter.get(
     '/',
     paginationMiddleware,
+    // подумать как исправить
     accessTokenMiddleware,
     blockedMiddleware,
     collectionController.getUserCollections
