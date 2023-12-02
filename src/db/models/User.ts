@@ -1,9 +1,11 @@
-import { Table, Column, Model, DataType, HasMany } from "sequelize-typescript";
+import { Table, Column, Model, DataType, HasMany, BelongsToMany } from "sequelize-typescript";
 
 import { UserPreview, UserProfileInfo, UserShortInfo, UserTokenInfo } from "types/user";
 import Session from "./Session";
 import Code from "./Code";
 import Collection from "./Collection";
+import UserRole from "./UserRole";
+import Role from "./Role";
 
 @Table({
     timestamps: false,
@@ -113,6 +115,9 @@ class User extends Model {
             nickname
         };
     }
+
+    @BelongsToMany(() => Role, () => UserRole)
+    roles: Role[];
 
     toShortInfo(): UserShortInfo {
         const { id, nickname, isVerified, isBlocked, avatar, level } = this.get();

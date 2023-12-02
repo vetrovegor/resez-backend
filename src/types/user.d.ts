@@ -1,3 +1,5 @@
+import { PermissionDto } from "./permission"
+
 export type UserAuthDTO = {
     nickname: string,
     password: string

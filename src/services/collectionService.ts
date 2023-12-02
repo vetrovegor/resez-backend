@@ -2,8 +2,8 @@ import { Op } from "sequelize";
 
 import Collection from "../db/models/Collection";
 import { CollectionFullInfo, CollectionShortInfo, QAPair } from "types/collection";
-import QAService from "./QAService";
 import { PaginationDTO } from "../dto/PaginationDTO";
+import qaService from "./qaService";
 import { ApiError } from "../apiError";
 
 class CollectionService {
@@ -15,7 +15,7 @@ class CollectionService {
             isPrivate
         });
 
-        await QAService.createQAFromPairs(QAPairs, createdCollection.id);
+        await qaService.createQAFromPairs(QAPairs, createdCollection.id);
 
         return await createdCollection.toShortInfo();
     }
@@ -94,8 +94,8 @@ class CollectionService {
         collectionData.isPrivate = isPrivate;
         await collectionData.save();
 
-        await QAService.deleteQAByCollectionId(collectionId);
-        await QAService.createQAFromPairs(QAPairs, collectionId);
+        await qaService.deleteQAByCollectionId(collectionId);
+        await qaService.createQAFromPairs(QAPairs, collectionId);
 
         return await collectionData.toShortInfo();
     }

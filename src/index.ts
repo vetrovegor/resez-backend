@@ -10,6 +10,7 @@ import { errorMiddleWare } from "./middlewares/errorMiddleware";
 import { sequelize } from "./db/connection";
 import telegramService from "./services/telegramService";
 import { STATIC_PATH } from "./consts/STATIC_PATH";
+import permissionService from "./services/permissionService";
 
 const app = express();
 
@@ -33,6 +34,8 @@ const start = async () => {
     // }
 
     await sequelize.sync({ alter: true });
+
+    // await permissionService.initPermissions();
 
     telegramService.init();
 
