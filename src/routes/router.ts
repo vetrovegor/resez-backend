@@ -5,7 +5,7 @@ import { authRouter } from "./authRouter";
 import { userRouter } from "./userRouter";
 import { sessionRouter } from "./sessionRouter";
 import { collectionRouter } from "./collectionRouter";
-import { adminRouter } from "./adminRouter";
+import { adminRouter } from "./admin/adminRouter";
 
 export const router = Router();
 

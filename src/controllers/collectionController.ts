@@ -2,7 +2,7 @@ import { Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 
 import { ApiError } from '../apiError';
-import { PaginationParams, RequestWithBodyAndUser, RequestWithParamsAndBodyAndUser, RequestWithParamsAndUser, RequestWithQueryAndUser, WithId } from 'types/request';
+import { PaginationQuery, RequestWithBodyAndUser, RequestWithParamsAndBodyAndUser, RequestWithParamsAndUser, RequestWithQueryAndUser, WithId } from 'types/request';
 import { CollectionBodyDTO } from 'types/collection';
 import collectionService from '../services/collectionService';
 
@@ -25,7 +25,7 @@ class CollectionController {
         }
     }
 
-    async getUserCollections(req: RequestWithQueryAndUser<PaginationParams>, res: Response, next: NextFunction) {
+    async getUserCollections(req: RequestWithQueryAndUser<PaginationQuery>, res: Response, next: NextFunction) {
         try {
             const { limit, offset } = req.query;
 

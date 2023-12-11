@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 
-import { PaginationParams, RequestWithParams, RequestWithParamsAndUser, RequestWithQueryAndUser, WithId } from 'types/request';
+import { PaginationQuery, RequestWithParams, RequestWithParamsAndUser, RequestWithQueryAndUser, WithId } from 'types/request';
 import sessionService from '../services/sessionService';
 import { ApiError } from '../apiError';
 
 class SessionController {
-    async getUserSessions(req: RequestWithQueryAndUser<PaginationParams>, res: Response, next: NextFunction) {
+    async getUserSessions(req: RequestWithQueryAndUser<PaginationQuery>, res: Response, next: NextFunction) {
         try {
             const { id } = req.user;
             const { limit, offset } = req.query;
@@ -38,7 +38,7 @@ class SessionController {
         }
     }
 
-    async endAllSessions(req: RequestWithQueryAndUser<PaginationParams>, res: Response, next: NextFunction) {
+    async endAllSessions(req: RequestWithQueryAndUser<PaginationQuery>, res: Response, next: NextFunction) {
         try {
             const { id } = req.user;
             const { limit, offset } = req.query;

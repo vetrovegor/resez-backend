@@ -5,13 +5,13 @@ import { UserTokenInfo } from './user';
 export type RequestWithBody<T> = Request<{}, {}, T>;
 export type RequestWithQuery<T> = Request<{}, {}, {}, T>;
 export type RequestWithParams<T> = Request<T>;
-export type RequestWithParamsAndBody<T, B> = Request<T, {}, B>;
+export type RequestWithParamsAndBody<P, B> = Request<P, {}, B>;
 
 export type RequestWithUser = Request & { user: UserTokenInfo };
 
 export type RequestWithBodyAndUser<T> = RequestWithBody<T> & { user: UserTokenInfo };
 
-export type PaginationParams = {
+export type PaginationQuery = {
     limit: number,
     offset: number
 }
