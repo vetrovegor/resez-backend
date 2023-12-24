@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import useragent from "express-useragent";
 import fileUpload from "express-fileupload";
+import swaggerUi from "swagger-ui-express";
 
 import { CORS_OPTIONS } from "./consts/CORS_OPTIONS";
 import { router } from "./routes/router";
@@ -11,6 +12,7 @@ import { sequelize } from "./db/connection";
 import telegramService from "./services/telegramService";
 import { STATIC_PATH } from "./consts/STATIC_PATH";
 import permissionService from "./services/permissionService";
+import swaggerDocument from "./swagger.json";
 
 const app = express();
 
@@ -22,6 +24,7 @@ app.set('trust proxy', true);
 app.use(fileUpload());
 app.use('/api', router);
 app.use('/api', express.static(STATIC_PATH));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(errorMiddleWare);
 
 const start = async () => {

@@ -192,7 +192,7 @@ class SessionService {
         });
 
         if (!session) {
-            throw ApiError.badRequest('Сессия не найдена');
+            throw ApiError.notFound('Сессия не найдена');
         }
 
         await session.update({

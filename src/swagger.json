@@ -1,0 +1,806 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Resez API",
+        "description": "API documentation for the best project in the world",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/api",
+            "description": "Development server"
+        }
+    ],
+    "paths": {
+        "/health": {
+            "get": {
+                "summary": "Check API health",
+                "tags": ["General"],
+                "responses": {
+                    "200": {
+                        "description": "API is healthy"
+                    }
+                }
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "summary": "User registration",
+                "tags": [
+                    "Authorization"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "nickname": "Reiser95",
+                                "password": "123123123"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User registered successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsIm5pY2tuYW1lIjoiUmVpc2VyOTUiLCJpYXQiOjE3MDM0MzcwNTMsImV4cCI6ODgxMDM0MzcwNTN9.qBS16VSWcYqqDKRy0eAvSAnnC6cRiWPDczmuJ8fLzFo",
+                                    "sessionId": 10,
+                                    "user": {
+                                        "id": 10,
+                                        "nickname": "Reiser95",
+                                        "isVerified": false,
+                                        "isBlocked": false,
+                                        "avatar": null,
+                                        "level": 1
+                                    },
+                                    "verificationCodeData": {
+                                        "code": "303461",
+                                        "lifetime": 30000
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "error": true,
+                                    "message": "Пользователь с таким никнеймом уже существует",
+                                    "errors": []
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "summary": "User login",
+                "tags": [
+                    "Authorization"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "nickname": "Reiser95",
+                                "password": "123123123"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User logged in successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsIm5pY2tuYW1lIjoiUmVpc2VyOTUiLCJpYXQiOjE3MDM0MzgxNzIsImV4cCI6ODgxMDM0MzgxNzJ9.y2FZVsoAGqrjYzbjSP0TpI69S0OcltBFJb_TTPO-7KQ",
+                                    "sessionId": 10,
+                                    "user": {
+                                        "id": 10,
+                                        "nickname": "Reiser95",
+                                        "isVerified": false,
+                                        "isBlocked": false,
+                                        "avatar": null,
+                                        "level": 1
+                                    },
+                                    "verificationCodeData": {
+                                        "code": "303461",
+                                        "lifetime": 30000
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "error": true,
+                                    "message": "Неверное имя пользователя или пароль",
+                                    "errors": []
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/logout": {
+            "get": {
+                "summary": "User logout",
+                "tags": [
+                    "Authorization"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User logged out successfully"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                }
+            }
+        },
+        "/auth/refresh": {
+            "get": {
+                "summary": "Refresh tokens",
+                "tags": [
+                    "Authorization"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tokens refreshed successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Nywibmlja25hbWUiOiJ4dzFuY2hlc3RlciIsImlhdCI6MTcwMzQzOTAwNiwiZXhwIjo4ODEwMzQzOTAwNn0.IwcR-KlJxAi2m7AKlqX-P4mLhRG8F7cYtqX7kOiLhlk"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                }
+            }
+        },
+        "/auth/send-recovery-password-code": {
+            "post": {
+                "summary": "Send recovery password code",
+                "tags": [
+                    "Authorization"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "nickname": "Reiser95"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Recovery password code sent successfully"
+                    }
+                }
+            }
+        },
+        "/auth/verify-recovery-password-code": {
+            "post": {
+                "summary": "Verify recovery password code",
+                "tags": [
+                    "Authorization"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "nickname": "Reiser95",
+                                "code": "822589"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Recovery password code verified successfully"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Incorrect code"
+                    }
+                }
+            }
+        },
+        "/auth/recovery-password": {
+            "post": {
+                "summary": "Recover password",
+                "tags": [
+                    "Authorization"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "nickname": "Reiser95",
+                                "code": "765109",
+                                "password": "123123123"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password recovered successfully"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Incorrect code"
+                    }
+                }
+            }
+        },
+        "/session": {
+            "get": {
+                "summary": "Get user sessions",
+                "tags": ["Sessions"],
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Number of sessions to retrieve",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 5
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "description": "Offset for pagination",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 0
+                        }
+                    }
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User sessions retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "current": {
+                                        "id": 11,
+                                        "isActive": true,
+                                        "date": "2023-12-24T18:20:53.216Z",
+                                        "ip": "::1",
+                                        "deviceType": "bot",
+                                        "country": null,
+                                        "city": null,
+                                        "browser": "PostmanRuntime",
+                                        "browserVersion": "7.36.0",
+                                        "os": null,
+                                        "platform": null
+                                    },
+                                    "totalCount": 1,
+                                    "isLast": true,
+                                    "elementsCount": 1,
+                                    "other": [
+                                        {
+                                            "id": 9,
+                                            "isActive": true,
+                                            "date": "2023-12-11T18:51:13.110Z",
+                                            "ip": "::1",
+                                            "deviceType": "bot",
+                                            "country": null,
+                                            "city": null,
+                                            "browser": "PostmanRuntime",
+                                            "browserVersion": "7.35.0",
+                                            "os": null,
+                                            "platform": null
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                }
+            }
+        },
+        "/session/end/{sessionId}": {
+            "patch": {
+                "summary": "End a specific user session",
+                "tags": ["Sessions"],
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "description": "ID of the session to end",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Session ended successfully"
+                    },
+                    "404": {
+                        "description": "Session not found",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "error": true,
+                                    "message": "Сессия не найдена",
+                                    "errors": []
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                }
+            }
+        },
+        "/session/end-all": {
+            "patch": {
+                "summary": "End all user sessions",
+                "tags": ["Sessions"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "All sessions ended successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "current": {
+                                        "id": 11,
+                                        "isActive": true,
+                                        "date": "2023-12-24T18:20:53.216Z",
+                                        "ip": "::1",
+                                        "deviceType": "bot",
+                                        "country": null,
+                                        "city": null,
+                                        "browser": "PostmanRuntime",
+                                        "browserVersion": "7.36.0",
+                                        "os": null,
+                                        "platform": null
+                                    },
+                                    "totalCount": 1,
+                                    "isLast": true,
+                                    "elementsCount": 1,
+                                    "other": [
+                                        {
+                                            "id": 9,
+                                            "isActive": false,
+                                            "date": "2023-12-11T18:51:13.110Z",
+                                            "ip": "::1",
+                                            "deviceType": "bot",
+                                            "country": null,
+                                            "city": null,
+                                            "browser": "PostmanRuntime",
+                                            "browserVersion": "7.35.0",
+                                            "os": null,
+                                            "platform": null
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                }
+            }
+        },
+        "/collection": {
+            "post": {
+                "summary": "Create a new collection",
+                "tags": ["Collections"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "collection": "Коллекция",
+                                "description": "Описание",
+                                "isPrivate": false,
+                                "QAPairs": [
+                                    {
+                                        "question": "Вопрос 1",
+                                        "answer": "Ответ 1"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Collection created successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "collection": {
+                                        "id": 7,
+                                        "collection": "Коллекция",
+                                        "pairsCount": 3,
+                                        "description": "Описание",
+                                        "isPrivate": false,
+                                        "createdAt": "2023-12-24T18:39:09.224Z",
+                                        "updatedAt": "2023-12-24T18:39:09.224Z",
+                                        "user": {
+                                            "id": 7,
+                                            "nickname": "xw1nchester",
+                                            "avatar": "1703443145300.jpg"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "summary": "Get collections",
+                "tags": ["Collections"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Number of collections to retrieve",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 5
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "description": "Offset for pagination",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 0
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Collections retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "totalCount": 2,
+                                    "isLast": true,
+                                    "elementsCount": 2,
+                                    "collections": [
+                                        {
+                                            "id": 7,
+                                            "collection": "Коллекция",
+                                            "pairsCount": 3,
+                                            "description": "Описание",
+                                            "isPrivate": false,
+                                            "createdAt": "2023-12-24T18:39:09.224Z",
+                                            "updatedAt": "2023-12-24T18:39:09.224Z",
+                                            "user": {
+                                                "id": 7,
+                                                "nickname": "xw1nchester",
+                                                "avatar": "1703443145300.jpg"
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                }
+            }
+        },
+        "/collection/{collectionId}": {
+            "get": {
+                "summary": "Get a specific collection",
+                "tags": ["Collections"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "collectionId",
+                        "in": "path",
+                        "description": "ID of the collection to retrieve",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Collection retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "collection": {
+                                        "id": 7,
+                                        "collection": "Коллекция",
+                                        "pairsCount": 3,
+                                        "description": "Описание",
+                                        "isPrivate": false,
+                                        "createdAt": "2023-12-24T18:39:09.224Z",
+                                        "updatedAt": "2023-12-24T18:39:09.224Z",
+                                        "user": {
+                                            "id": 7,
+                                            "nickname": "xw1nchester",
+                                            "avatar": "1703443145300.jpg"
+                                        },
+                                        "QAPairs": [
+                                            {
+                                                "id": 29,
+                                                "question": "Вопрос 1",
+                                                "answer": "Ответ 1"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Collection not found",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "error": true,
+                                    "message": "Коллекция не найдена",
+                                    "errors": []
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete a specific collection",
+                "tags": ["Collections"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "collectionId",
+                        "in": "path",
+                        "description": "ID of the collection to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Collection deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "collection": {
+                                        "id": 7,
+                                        "collection": "Коллекция",
+                                        "pairsCount": 3,
+                                        "description": "Описание",
+                                        "isPrivate": false,
+                                        "createdAt": "2023-12-24T18:39:09.224Z",
+                                        "updatedAt": "2023-12-24T18:39:09.224Z",
+                                        "user": {
+                                            "id": 7,
+                                            "nickname": "xw1nchester",
+                                            "avatar": "1703443145300.jpg"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Collection not found",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "error": true,
+                                    "message": "Коллекция не найдена",
+                                    "errors": []
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                }
+            },
+            "patch": {
+                "summary": "Update a specific collection",
+                "tags": ["Collections"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "collectionId",
+                        "in": "path",
+                        "description": "ID of the collection to update",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "collection": {
+                                    "collection": "Коллекция",
+                                    "pairsCount": 5,
+                                    "description": "Описание",
+                                    "isPrivate": false,
+                                    "createdAt": "2023-12-24T18:38:30.434Z",
+                                    "updatedAt": "2023-12-24T18:38:30.434Z",
+                                    "user": {
+                                        "id": 7,
+                                        "nickname": "xw1nchester",
+                                        "avatar": "1703443145300.jpg"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Collection updated successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "collection": {
+                                        "id": 6,
+                                        "collection": "Коллекция",
+                                        "pairsCount": 5,
+                                        "description": "Описание",
+                                        "isPrivate": false,
+                                        "createdAt": "2023-12-24T18:38:30.434Z",
+                                        "updatedAt": "2023-12-24T18:38:30.434Z",
+                                        "user": {
+                                            "id": 7,
+                                            "nickname": "xw1nchester",
+                                            "avatar": "1703443145300.jpg"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Collection not found",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "error": true,
+                                    "message": "Коллекция не найдена",
+                                    "errors": []
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                }
+            }
+        }            
+    },
+    "components": {
+        "responses": {
+            "Unauthorized": {
+                "description": "Unauthorized",
+                "content": {
+                    "application/json": {
+                        "example": {
+                            "error": true,
+                            "message": "Пользователь не авторизован",
+                            "errors": []
+                        }
+                    }
+                }
+            },
+            "Incorrect code": {
+                "description": "Incorrect code",
+                "content": {
+                    "application/json": {
+                        "example": {
+                            "error": true,
+                            "message": "Некорректный код",
+                            "errors": []
+                        }
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    }
+}

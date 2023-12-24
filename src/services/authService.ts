@@ -7,7 +7,8 @@ import codeService from './codeService';
 import { VerificationCodeData } from 'types/code';
 
 class AuthService {
-    async register(nickname: string, password: string): Promise<User> {
+    // типизировать Promise<{ user: User, verificationCodeData: VerificationCodeData }>
+    async register(nickname: string, password: string): Promise<{ user: User, verificationCodeData: VerificationCodeData }> {
         const existedUser = await userService.getUserByNickname(nickname);
 
         if (existedUser) {
@@ -17,10 +18,20 @@ class AuthService {
         const hashPassword = await bcrypt.hash(password, 3);
         const user = await userService.registerUser(nickname, hashPassword);
 
-        return user;
+        const { id, isVerified } = user.toJSON();
+
+        if (!isVerified) {
+            var verificationCodeData = await codeService.createVerificationCode(id);
+        }
+
+        return {
+            user,
+            verificationCodeData
+        };
     }
 
-    async login(nickname: string, password: string): Promise<{user: User, verificationCodeData: VerificationCodeData }> {
+    // типизировать Promise<{ user: User, verificationCodeData: VerificationCodeData }>
+    async login(nickname: string, password: string): Promise<{ user: User, verificationCodeData: VerificationCodeData }> {
         const user = await userService.getUserByNickname(nickname);
 
         if (!user) {
@@ -35,7 +46,7 @@ class AuthService {
 
         const { id, isVerified } = user.toJSON();
 
-        if(!isVerified) {
+        if (!isVerified) {
             var verificationCodeData = await codeService.createVerificationCode(id);
         }
 

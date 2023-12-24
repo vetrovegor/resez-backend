@@ -20,7 +20,7 @@ class AuthController {
 
             const { nickname, password } = req.body;
 
-            const user = await authService.register(nickname, password);
+            const { user, verificationCodeData }= await authService.register(nickname, password);
 
             const { accessToken, refreshToken, sessionId } = await sessionService.saveSession(req, user.toTokenInfo());
 
@@ -29,7 +29,8 @@ class AuthController {
             res.json({
                 accessToken,
                 sessionId,
-                user: user.toShortInfo()
+                user: user.toShortInfo(),
+                verificationCodeData
             });
         } catch (error) {
             next(error);
