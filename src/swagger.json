@@ -7,15 +7,16 @@
     },
     "servers": [
         {
-            "url": "/api",
-            "description": "Development server"
+            "url": "/api"
         }
     ],
     "paths": {
         "/health": {
             "get": {
                 "summary": "Check API health",
-                "tags": ["General"],
+                "tags": [
+                    "General"
+                ],
                 "responses": {
                     "200": {
                         "description": "API is healthy"
@@ -34,7 +35,7 @@
                     "content": {
                         "application/json": {
                             "example": {
-                                "nickname": "Reiser95",
+                                "nickname": "xw1nchester",
                                 "password": "123123123"
                             }
                         }
@@ -42,27 +43,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "User registered successfully",
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsIm5pY2tuYW1lIjoiUmVpc2VyOTUiLCJpYXQiOjE3MDM0MzcwNTMsImV4cCI6ODgxMDM0MzcwNTN9.qBS16VSWcYqqDKRy0eAvSAnnC6cRiWPDczmuJ8fLzFo",
-                                    "sessionId": 10,
-                                    "user": {
-                                        "id": 10,
-                                        "nickname": "Reiser95",
-                                        "isVerified": false,
-                                        "isBlocked": false,
-                                        "avatar": null,
-                                        "level": 1
-                                    },
-                                    "verificationCodeData": {
-                                        "code": "303461",
-                                        "lifetime": 30000
-                                    }
-                                }
-                            }
-                        }
+                        "$ref": "#/components/responses/AuthResponse"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -90,7 +71,7 @@
                     "content": {
                         "application/json": {
                             "example": {
-                                "nickname": "Reiser95",
+                                "nickname": "xw1nchester",
                                 "password": "123123123"
                             }
                         }
@@ -98,27 +79,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "User logged in successfully",
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsIm5pY2tuYW1lIjoiUmVpc2VyOTUiLCJpYXQiOjE3MDM0MzgxNzIsImV4cCI6ODgxMDM0MzgxNzJ9.y2FZVsoAGqrjYzbjSP0TpI69S0OcltBFJb_TTPO-7KQ",
-                                    "sessionId": 10,
-                                    "user": {
-                                        "id": 10,
-                                        "nickname": "Reiser95",
-                                        "isVerified": false,
-                                        "isBlocked": false,
-                                        "avatar": null,
-                                        "level": 1
-                                    },
-                                    "verificationCodeData": {
-                                        "code": "303461",
-                                        "lifetime": 30000
-                                    }
-                                }
-                            }
-                        }
+                        "$ref": "#/components/responses/AuthResponse"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -195,7 +156,7 @@
                     "content": {
                         "application/json": {
                             "example": {
-                                "nickname": "Reiser95"
+                                "nickname": "xw1nchester"
                             }
                         }
                     }
@@ -218,7 +179,7 @@
                     "content": {
                         "application/json": {
                             "example": {
-                                "nickname": "Reiser95",
+                                "nickname": "xw1nchester",
                                 "code": "822589"
                             }
                         }
@@ -245,7 +206,7 @@
                     "content": {
                         "application/json": {
                             "example": {
-                                "nickname": "Reiser95",
+                                "nickname": "xw1nchester",
                                 "code": "765109",
                                 "password": "123123123"
                             }
@@ -265,7 +226,9 @@
         "/session": {
             "get": {
                 "summary": "Get user sessions",
-                "tags": ["Sessions"],
+                "tags": [
+                    "Sessions"
+                ],
                 "parameters": [
                     {
                         "name": "limit",
@@ -303,14 +266,14 @@
                                         "id": 11,
                                         "isActive": true,
                                         "date": "2023-12-24T18:20:53.216Z",
-                                        "ip": "::1",
-                                        "deviceType": "bot",
-                                        "country": null,
-                                        "city": null,
-                                        "browser": "PostmanRuntime",
+                                        "ip": "51.159.125.156",
+                                        "deviceType": "desktop",
+                                        "country": "FR",
+                                        "city": "Paris",
+                                        "browser": "Chrome",
                                         "browserVersion": "7.36.0",
-                                        "os": null,
-                                        "platform": null
+                                        "os": "Windows 10.0",
+                                        "platform": "Microsoft Windows"
                                     },
                                     "totalCount": 1,
                                     "isLast": true,
@@ -320,14 +283,14 @@
                                             "id": 9,
                                             "isActive": true,
                                             "date": "2023-12-11T18:51:13.110Z",
-                                            "ip": "::1",
-                                            "deviceType": "bot",
-                                            "country": null,
-                                            "city": null,
-                                            "browser": "PostmanRuntime",
+                                            "ip": "51.159.125.156",
+                                            "deviceType": "desktop",
+                                            "country": "FR",
+                                            "city": "Paris",
+                                            "browser": "Chrome",
                                             "browserVersion": "7.35.0",
-                                            "os": null,
-                                            "platform": null
+                                            "os": "Windows 10.0",
+                                            "platform": "Microsoft Windows"
                                         }
                                     ]
                                 }
@@ -343,7 +306,9 @@
         "/session/end/{sessionId}": {
             "patch": {
                 "summary": "End a specific user session",
-                "tags": ["Sessions"],
+                "tags": [
+                    "Sessions"
+                ],
                 "parameters": [
                     {
                         "name": "sessionId",
@@ -385,7 +350,9 @@
         "/session/end-all": {
             "patch": {
                 "summary": "End all user sessions",
-                "tags": ["Sessions"],
+                "tags": [
+                    "Sessions"
+                ],
                 "security": [
                     {
                         "bearerAuth": []
@@ -401,14 +368,14 @@
                                         "id": 11,
                                         "isActive": true,
                                         "date": "2023-12-24T18:20:53.216Z",
-                                        "ip": "::1",
-                                        "deviceType": "bot",
-                                        "country": null,
-                                        "city": null,
-                                        "browser": "PostmanRuntime",
+                                        "ip": "51.159.125.156",
+                                        "deviceType": "desktop",
+                                        "country": "FR",
+                                        "city": "Paris",
+                                        "browser": "Chrome",
                                         "browserVersion": "7.36.0",
-                                        "os": null,
-                                        "platform": null
+                                        "os": "Windows 10.0",
+                                        "platform": "Microsoft Windows"
                                     },
                                     "totalCount": 1,
                                     "isLast": true,
@@ -418,14 +385,14 @@
                                             "id": 9,
                                             "isActive": false,
                                             "date": "2023-12-11T18:51:13.110Z",
-                                            "ip": "::1",
-                                            "deviceType": "bot",
-                                            "country": null,
-                                            "city": null,
-                                            "browser": "PostmanRuntime",
+                                            "ip": "51.159.125.156",
+                                            "deviceType": "desktop",
+                                            "country": "FR",
+                                            "city": "Paris",
+                                            "browser": "Chrome",
                                             "browserVersion": "7.35.0",
-                                            "os": null,
-                                            "platform": null
+                                            "os": "Windows 10.0",
+                                            "platform": "Microsoft Windows"
                                         }
                                     ]
                                 }
@@ -441,7 +408,9 @@
         "/collection": {
             "post": {
                 "summary": "Create a new collection",
-                "tags": ["Collections"],
+                "tags": [
+                    "Collections"
+                ],
                 "security": [
                     {
                         "bearerAuth": []
@@ -482,7 +451,7 @@
                                         "user": {
                                             "id": 7,
                                             "nickname": "xw1nchester",
-                                            "avatar": "1703443145300.jpg"
+                                            "avatar": "http://localhost:8080/static/1703443145300.jpg"
                                         }
                                     }
                                 }
@@ -493,7 +462,9 @@
             },
             "get": {
                 "summary": "Get collections",
-                "tags": ["Collections"],
+                "tags": [
+                    "Collections"
+                ],
                 "security": [
                     {
                         "bearerAuth": []
@@ -542,7 +513,7 @@
                                             "user": {
                                                 "id": 7,
                                                 "nickname": "xw1nchester",
-                                                "avatar": "1703443145300.jpg"
+                                                "avatar": "http://localhost:8080/static/1703443145300.jpg"
                                             }
                                         }
                                     ]
@@ -559,7 +530,9 @@
         "/collection/{collectionId}": {
             "get": {
                 "summary": "Get a specific collection",
-                "tags": ["Collections"],
+                "tags": [
+                    "Collections"
+                ],
                 "security": [
                     {
                         "bearerAuth": []
@@ -593,7 +566,7 @@
                                         "user": {
                                             "id": 7,
                                             "nickname": "xw1nchester",
-                                            "avatar": "1703443145300.jpg"
+                                            "avatar": "http://localhost:8080/static/1703443145300.jpg"
                                         },
                                         "QAPairs": [
                                             {
@@ -608,16 +581,7 @@
                         }
                     },
                     "404": {
-                        "description": "Collection not found",
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "error": true,
-                                    "message": "Коллекция не найдена",
-                                    "errors": []
-                                }
-                            }
-                        }
+                        "$ref": "#/components/responses/Collection not found"
                     },
                     "401": {
                         "$ref": "#/components/responses/Unauthorized"
@@ -626,7 +590,9 @@
             },
             "delete": {
                 "summary": "Delete a specific collection",
-                "tags": ["Collections"],
+                "tags": [
+                    "Collections"
+                ],
                 "security": [
                     {
                         "bearerAuth": []
@@ -660,7 +626,7 @@
                                         "user": {
                                             "id": 7,
                                             "nickname": "xw1nchester",
-                                            "avatar": "1703443145300.jpg"
+                                            "avatar": "http://localhost:8080/static/1703443145300.jpg"
                                         }
                                     }
                                 }
@@ -668,16 +634,7 @@
                         }
                     },
                     "404": {
-                        "description": "Collection not found",
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "error": true,
-                                    "message": "Коллекция не найдена",
-                                    "errors": []
-                                }
-                            }
-                        }
+                        "$ref": "#/components/responses/Collection not found"
                     },
                     "401": {
                         "$ref": "#/components/responses/Unauthorized"
@@ -686,7 +643,9 @@
             },
             "patch": {
                 "summary": "Update a specific collection",
-                "tags": ["Collections"],
+                "tags": [
+                    "Collections"
+                ],
                 "security": [
                     {
                         "bearerAuth": []
@@ -708,19 +667,15 @@
                     "content": {
                         "application/json": {
                             "example": {
-                                "collection": {
-                                    "collection": "Коллекция",
-                                    "pairsCount": 5,
-                                    "description": "Описание",
-                                    "isPrivate": false,
-                                    "createdAt": "2023-12-24T18:38:30.434Z",
-                                    "updatedAt": "2023-12-24T18:38:30.434Z",
-                                    "user": {
-                                        "id": 7,
-                                        "nickname": "xw1nchester",
-                                        "avatar": "1703443145300.jpg"
+                                "collection": "Коллекция 3",
+                                "description": "Описание обновленное",
+                                "isPrivate": true,
+                                "QAPairs": [
+                                    {
+                                        "question": "1",
+                                        "answer": "2"
                                     }
-                                }
+                                ]
                             }
                         }
                     }
@@ -733,16 +688,16 @@
                                 "example": {
                                     "collection": {
                                         "id": 6,
-                                        "collection": "Коллекция",
+                                        "collection": "Коллекция 3",
                                         "pairsCount": 5,
-                                        "description": "Описание",
-                                        "isPrivate": false,
+                                        "description": "Описание обновленное",
+                                        "isPrivate": true,
                                         "createdAt": "2023-12-24T18:38:30.434Z",
                                         "updatedAt": "2023-12-24T18:38:30.434Z",
                                         "user": {
                                             "id": 7,
                                             "nickname": "xw1nchester",
-                                            "avatar": "1703443145300.jpg"
+                                            "avatar": "http://localhost:8080/static/1703443145300.jpg"
                                         }
                                     }
                                 }
@@ -750,26 +705,40 @@
                         }
                     },
                     "404": {
-                        "description": "Collection not found",
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "error": true,
-                                    "message": "Коллекция не найдена",
-                                    "errors": []
-                                }
-                            }
-                        }
+                        "$ref": "#/components/responses/Collection not found"
                     },
                     "401": {
                         "$ref": "#/components/responses/Unauthorized"
                     }
                 }
             }
-        }            
+        }
     },
     "components": {
         "responses": {
+            "AuthResponse": {
+                "description": "User authorized successfully",
+                "content": {
+                    "application/json": {
+                        "example": {
+                            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsIm5pY2tuYW1lIjoiUmVpc2VyOTUiLCJpYXQiOjE3MDM0MzcwNTMsImV4cCI6ODgxMDM0MzcwNTN9.qBS16VSWcYqqDKRy0eAvSAnnC6cRiWPDczmuJ8fLzFo",
+                            "sessionId": 10,
+                            "user": {
+                                "id": 10,
+                                "nickname": "xw1nchester",
+                                "isVerified": false,
+                                "isBlocked": false,
+                                "avatar": null,
+                                "level": 1
+                            },
+                            "verificationCodeData": {
+                                "code": "303461",
+                                "lifetime": 30000
+                            }
+                        }
+                    }
+                }
+            },
             "Unauthorized": {
                 "description": "Unauthorized",
                 "content": {
@@ -789,6 +758,18 @@
                         "example": {
                             "error": true,
                             "message": "Некорректный код",
+                            "errors": []
+                        }
+                    }
+                }
+            },
+            "Collection not found": {
+                "description": "Collection not found",
+                "content": {
+                    "application/json": {
+                        "example": {
+                            "error": true,
+                            "message": "Коллекция не найдена",
                             "errors": []
                         }
                     }

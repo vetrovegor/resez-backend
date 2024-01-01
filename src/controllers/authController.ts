@@ -1,7 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
-import { validationResult } from 'express-validator';
+import { Response, NextFunction } from 'express';
 
-import { ApiError } from '../apiError';
 import authService from '../services/authService';
 import { RequestWithBody, RequestWithUser } from 'types/request';
 import { UserAuthDTO, UserRecoveryPasswordDTO } from 'types/user';
@@ -12,12 +10,6 @@ import userService from '../services/userService';
 class AuthController {
     async register(req: RequestWithBody<UserAuthDTO>, res: Response, next: NextFunction) {
         try {
-            const errors = validationResult(req);
-
-            if (!errors.isEmpty()) {
-                return next(ApiError.validationError(errors.array()));
-            }
-
             const { nickname, password } = req.body;
 
             const { user, verificationCodeData }= await authService.register(nickname, password);
@@ -39,12 +31,6 @@ class AuthController {
 
     async login(req: RequestWithBody<UserAuthDTO>, res: Response, next: NextFunction) {
         try {
-            const errors = validationResult(req);
-
-            if (!errors.isEmpty()) {
-                return next(ApiError.validationError(errors.array()));
-            }
-
             const { nickname, password } = req.body;
 
             const { user, verificationCodeData } = await authService.login(nickname, password);
@@ -104,12 +90,6 @@ class AuthController {
 
     async sendRecoveryPasswordCode(req: RequestWithBody<UserRecoveryPasswordDTO>, res: Response, next: NextFunction) {
         try {
-            const errors = validationResult(req);
-
-            if (!errors.isEmpty()) {
-                return next(ApiError.validationError(errors.array()));
-            }
-
             const { nickname } = req.body;
 
             await codeService.sendRecoveryPasswordCode(nickname);
@@ -121,13 +101,7 @@ class AuthController {
     }
 
     async verifyRecoveryPasswordCode(req: RequestWithBody<UserRecoveryPasswordDTO>, res: Response, next: NextFunction) {
-        try {
-            const errors = validationResult(req);
-
-            if (!errors.isEmpty()) {
-                return next(ApiError.validationError(errors.array()));
-            }
-            
+        try {            
             const { nickname, code } = req.body;
 
             await codeService.verifyRecoveryPasswordCode(nickname, code);
@@ -139,13 +113,7 @@ class AuthController {
     }
 
     async recoveryPassword(req: RequestWithBody<UserRecoveryPasswordDTO>, res: Response, next: NextFunction) {
-        try {
-            const errors = validationResult(req);
-
-            if (!errors.isEmpty()) {
-                return next(ApiError.validationError(errors.array()));
-            }
-            
+        try {            
             const { nickname, code, password } = req.body;
 
             await codeService.verifyRecoveryPasswordCode(nickname, code);

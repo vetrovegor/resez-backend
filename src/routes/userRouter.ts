@@ -7,6 +7,7 @@ import { blockedMiddleware } from "../middlewares/blockedMiddleware";
 import { userProfileMiddleware } from "../middlewares/userProfileMiddleware";
 import { fileMiddleware } from "../middlewares/fileMiddleware";
 import { imageMiddleware } from "../middlewares/imageMiddleware";
+import { validationMiddleware } from "../middlewares/validationMiddleware";
 
 export const userRouter = Router();
 
@@ -20,6 +21,7 @@ userRouter.post(
     '/send-change-password-code',
     body('oldPassword').isLength({ min: 8, max: 32 }),
     body('newPassword').isLength({ min: 8, max: 32 }),
+    validationMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,
     userController.sendChangePasswordCode
@@ -30,6 +32,7 @@ userRouter.patch(
     body('oldPassword').isLength({ min: 8, max: 32 }),
     body('newPassword').isLength({ min: 8, max: 32 }),
     body('code').matches(/^[0-9]{6}$/),
+    validationMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,
     userController.verifyChangePasswordCode

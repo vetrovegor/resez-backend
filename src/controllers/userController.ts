@@ -1,7 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
-import { validationResult } from 'express-validator';
+import { Response, NextFunction } from 'express';
 
-import { ApiError } from '../apiError';
 import codeService from '../services/codeService';
 import userService from '../services/userService';
 import sessionService from '../services/sessionService';
@@ -24,12 +22,6 @@ class UserhController {
 
     async sendChangePasswordCode(req: RequestWithBodyAndUser<UserChangePasswordDTO>, res: Response, next: NextFunction) {
         try {
-            const errors = validationResult(req);
-
-            if (!errors.isEmpty()) {
-                return next(ApiError.validationError(errors.array()));
-            }
-
             const { oldPassword } = req.body;
 
             await codeService.sendChangePasswordCode(req.user.id, oldPassword);
@@ -42,12 +34,6 @@ class UserhController {
 
     async verifyChangePasswordCode(req: RequestWithBodyAndUser<UserChangePasswordDTO>, res: Response, next: NextFunction) {
         try {
-            const errors = validationResult(req);
-
-            if (!errors.isEmpty()) {
-                return next(ApiError.validationError(errors.array()));
-            }
-
             const { id } = req.user;
             const { oldPassword, newPassword, code } = req.body;
 
@@ -84,6 +70,7 @@ class UserhController {
 
     async setAvatar(req: RequestWithUser, res: Response, next: NextFunction) {
         try {
+            // типизировать
             const user = await userService.setAvatar(req.user.id, req.files.avatar);
 
             res.json({ user });

@@ -107,6 +107,9 @@ class User extends Model {
     @HasMany(() => Collection)
     collections: Collection[];
 
+    @BelongsToMany(() => Role, () => UserRole)
+    roles: Role[];
+
     toTokenInfo(): UserTokenInfo {
         const { id, nickname } = this.get();
 
@@ -116,9 +119,6 @@ class User extends Model {
         };
     }
 
-    @BelongsToMany(() => Role, () => UserRole)
-    roles: Role[];
-
     toShortInfo(): UserShortInfo {
         const { id, nickname, isVerified, isBlocked, avatar, level } = this.get();
 
@@ -127,7 +127,7 @@ class User extends Model {
             nickname,
             isVerified,
             isBlocked,
-            avatar,
+            avatar: process.env.STATIC_URL + avatar,
             level
         };
     }
@@ -138,7 +138,7 @@ class User extends Model {
         return {
             id,
             nickname,
-            avatar
+            avatar: process.env.STATIC_URL + avatar,
         };
     }
 

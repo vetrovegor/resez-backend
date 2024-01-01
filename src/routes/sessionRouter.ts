@@ -5,6 +5,7 @@ import { paginationMiddleware } from "../middlewares/paginationMiddleware";
 import sessionController from "../controllers/sessionController";
 import { accessTokenMiddleware } from "../middlewares/accessTokenMiddleware";
 import { blockedMiddleware } from "../middlewares/blockedMiddleware";
+import { validationMiddleware } from "../middlewares/validationMiddleware";
 
 export const sessionRouter = Router();
 
@@ -19,6 +20,7 @@ sessionRouter.get(
 sessionRouter.patch(
     '/end/:id',
     param('id').isNumeric(),
+    validationMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,
     sessionController.endSessionById

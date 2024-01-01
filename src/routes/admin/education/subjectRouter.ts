@@ -5,7 +5,7 @@ import { subjectTasksMiddleware } from "../../../middlewares/subjectTasksMiddlew
 import { accessTokenMiddleware } from "../../../middlewares/accessTokenMiddleware";
 import { blockedMiddleware } from "../../../middlewares/blockedMiddleware";
 import subjectController from "../../../controllers/education/subjectController";
-import { paginationMiddleware } from "../../../middlewares/paginationMiddleware";
+import { validationMiddleware } from "../../../middlewares/validationMiddleware";
 
 export const subjectsRouter = Router();
 
@@ -23,6 +23,7 @@ subjectsRouter.post(
     body('durationMinutes').isNumeric(),
     body('isMark').isBoolean(),
     body('isPublished').isBoolean(),
+    validationMiddleware,
     subjectTasksMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,
@@ -47,6 +48,7 @@ subjectsRouter.patch(
     body('durationMinutes').isNumeric(),
     body('isMark').isBoolean(),
     body('isPublished').isBoolean(),
+    validationMiddleware,
     subjectTasksMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,
@@ -57,6 +59,7 @@ subjectsRouter.patch(
 subjectsRouter.get(
     '/:id',
     param('id').isNumeric(),
+    validationMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,
     // permissionMiddleware(PERMISSIONS.SUBJECTS),
@@ -66,6 +69,7 @@ subjectsRouter.get(
 subjectsRouter.delete(
     '/:id/archive',
     param('id').isNumeric(),
+    validationMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,
     // permissionMiddleware(PERMISSIONS.DELETE_SUBJECTS),
@@ -76,6 +80,7 @@ subjectsRouter.delete(
 subjectsRouter.put(
     '/:id/restore',
     param('id').isNumeric(),
+    validationMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,
     // permissionMiddleware(PERMISSIONS.ARCHIVE),
@@ -85,6 +90,7 @@ subjectsRouter.put(
 subjectsRouter.delete(
     '/:id',
     param('id').isNumeric(),
+    validationMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,
     // permissionMiddleware(PERMISSIONS.DELETE_SUBJECTS),

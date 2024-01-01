@@ -23,7 +23,7 @@ app.use(useragent.express());
 app.set('trust proxy', true);
 app.use(fileUpload());
 app.use('/api', router);
-app.use('/api', express.static(STATIC_PATH));
+app.use('/static', express.static(STATIC_PATH));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(errorMiddleWare);
 
