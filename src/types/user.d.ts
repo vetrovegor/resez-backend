@@ -1,4 +1,6 @@
-import { PermissionDto } from "./permission"
+import User from "db/models/User"
+import { PermissionDTO } from "./permission"
+import { VerificationCodeData } from "./code"
 
 export type UserAuthDTO = {
     nickname: string,
@@ -16,7 +18,13 @@ export type UserShortInfo = {
     isVerified: boolean,
     isBlocked: boolean,
     avatar: string,
-    level: number
+    level: number,
+    permissions: PermissionDTO[]
+}
+
+export type AuthResponse = {
+    user: User,
+    verificationCodeData: VerificationCodeData
 }
 
 export type UserRecoveryPasswordDTO = {

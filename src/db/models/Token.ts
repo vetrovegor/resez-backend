@@ -3,8 +3,8 @@ import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from 'sequelize
 import Session from './Session.js';
 
 @Table({
-    tableName: 'tokens',
     timestamps: false,
+    tableName: 'tokens'
 })
 class Token extends Model {
     @Column({

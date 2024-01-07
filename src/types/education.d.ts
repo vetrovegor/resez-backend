@@ -1,4 +1,3 @@
-// переименовать на Post или Body
 export type SubjectBodyDTO = {
     subject: string,
     subjectTasks: SubjectTaskBodyDTO[],
@@ -7,7 +6,6 @@ export type SubjectBodyDTO = {
     isPublished: boolean
 }
 
-// переименовать на Post или Body
 export type SubjectTaskBodyDTO = {
     id: number,
     theme: string,
@@ -16,7 +14,6 @@ export type SubjectTaskBodyDTO = {
     subThemes: SubThemeBodyDTO[]
 }   
 
-// переименовать на Post или Body
 export type SubThemeBodyDTO = {
     id: number,
     subTheme: string
@@ -53,4 +50,20 @@ export type SubjectFullInfo = {
     isMark: boolean,
     isPublished: boolean,
     subjectTasks: SubjectTaskDTO[]
+}
+
+export type ScoreConversionItem = {
+    id: number,
+    primaryScore: number,
+    secondaryScore: number,
+    minScore: number,
+    maxScore: number,
+    mark: number,
+    isRed: boolean,
+    isGreen: boolean
+}
+
+export type ScoreConversionDTO = {
+    isMark: boolean,
+    scoreConversion: ScoreConversionItem[]
 }

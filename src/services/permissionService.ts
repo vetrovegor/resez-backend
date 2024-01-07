@@ -1,7 +1,8 @@
-import {Op} from "sequelize";
+import { Op } from "sequelize";
 
 import Permission from "../db/models/Permission";
-import { Permissions } from "types/permission";
+import { PermissionHierarchy, PermissionHierarchyItem, Permissions } from "types/permission";
+import { ApiError } from "../apiError";
 
 const permissionsHierarchy = [
     {
@@ -36,7 +37,7 @@ const permissionsHierarchy = [
         parent: Permissions.Roles
     },
     {
-        permission: Permissions.IssueRoles,
+        permission: Permissions.AssignRoles,
         parent: Permissions.Roles
     },
     {
@@ -126,6 +127,7 @@ class PermissionService {
             const existedPermission = await this.getPermissionByPermission(permission);
             let parentId = null;
 
+
             if (parent) {
                 const parentPermission = await this.getPermissionByPermission(parent);
                 parentId = parentPermission.id;
@@ -155,6 +157,10 @@ class PermissionService {
         });
     }
 
+    async getPermissionById(permissionId: number): Promise<Permission> {
+        return await Permission.findByPk(permissionId);
+    }
+
     async getPermissionByPermission(permission: string): Promise<Permission> {
         return await Permission.findOne({
             where: {
@@ -165,6 +171,55 @@ class PermissionService {
 
     async getPermissons(): Promise<Permission[]> {
         return await Permission.findAll();
+    }
+
+    async validatePermissionIDs(permissionIDs: number[]): Promise<number[]> {
+        permissionIDs = [...new Set(permissionIDs)];
+
+        for (const permissionId of permissionIDs) {
+            if (isNaN(permissionId)) {
+                throw ApiError.badRequest(`Некорректное значение id: ${permissionId}`);
+            }
+
+            const existedPermission = await this.getPermissionById(permissionId);
+
+            if (!existedPermission) {
+                throw ApiError.badRequest(`permission с id ${permissionId} не найден`);
+            }
+        }
+
+        return permissionIDs;
+    }
+
+    async getPermissionsHierarchy(): Promise<PermissionHierarchyItem[]> {
+        const permissions = await Permission.findAll({
+            raw: true
+        });
+
+        const permissionsMap: PermissionHierarchy = {};
+        const topLevelPermissions: PermissionHierarchyItem[] = [];
+
+        permissions.forEach((permissionItem) => {
+            const { id, permission } = permissionItem;
+
+            permissionsMap[id] = {
+                id,
+                permission,
+                childrens: [],
+            };
+        });
+
+        permissions.forEach((permissionItem) => {
+            const { id, parentId } = permissionItem;
+
+            if (parentId === null) {
+                topLevelPermissions.push(permissionsMap[id]);
+            } else {
+                permissionsMap[parentId].childrens.push(permissionsMap[id]);
+            }
+        });
+
+        return topLevelPermissions;
     }
 }
 

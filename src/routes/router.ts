@@ -6,6 +6,7 @@ import { userRouter } from "./userRouter";
 import { sessionRouter } from "./sessionRouter";
 import { collectionRouter } from "./collectionRouter";
 import { adminRouter } from "./admin/adminRouter";
+import { messengerRouter } from "./messenger/mesengerRouter";
 
 export const router = Router();
 
@@ -20,3 +21,5 @@ router.use('/session', sessionRouter);
 router.use('/collection', collectionRouter);
 
 router.use('/admin', adminRouter);
+
+router.use('/messenger', messengerRouter);

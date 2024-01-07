@@ -4,8 +4,8 @@ import Test from "./Test";
 import Task from "./Task";
 
 @Table({
-    tableName: 'tests_tasks',
-    timestamps: false
+    timestamps: false,
+    tableName: 'tests_tasks'
 })
 class TestTask extends Model {
     @ForeignKey(() => Test)

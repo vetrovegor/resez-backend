@@ -86,6 +86,16 @@ class SubjectTaskService {
             }
         });
     }
+
+    async getTotalPrimaryScoreBySubjectId(subjectId: number): Promise<number> {
+        const totalPrimaryScore = await SubjectTask.sum('primaryScore', {
+            where: {
+                subjectId
+            }
+        });
+
+        return totalPrimaryScore || 0;
+    }
 }
 
 export default new SubjectTaskService();

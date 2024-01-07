@@ -1,8 +1,7 @@
-import { Table, Column, Model, DataType, ForeignKey } from "sequelize-typescript";
+import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from "sequelize-typescript";
 
 import Role from "./Role";
 import User from "./User";
-import { PermissionDto } from "types/permission";
 
 @Table({
     timestamps: false,
@@ -20,6 +19,9 @@ class UserRole extends Model {
         type: DataType.INTEGER
     })
     roleId: number;
+
+    @BelongsTo(() => Role)
+    role: Role;
 }
 
 export default UserRole;

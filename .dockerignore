@@ -1,0 +1,10 @@
+/node_modules
+/src
+/static/*
+Dockerfile
+docker-compose.yml
+.dockerignore
+.gitignore
+nodemon.json
+tsconfig.json
+.git

@@ -82,16 +82,16 @@ class CollectionService {
         return collectionShortInfo;
     }
 
-    async updateCollectionById(collectionId: number, userId: number, collection: string, description: string, isPrivate: boolean, QAPairs: QAPair[]): Promise<CollectionShortInfo> {
+    async updateCollection(collectionId: number, userId: number, collection: string, description: string, isPrivate: boolean, QAPairs: QAPair[]): Promise<CollectionShortInfo> {
         const collectionData = await this.findUserCollection(collectionId, userId);
 
         if (!collectionData) {
             this.throwCollectionNotFound();
         }
 
-        collectionData.collection = collection;
-        collectionData.description = description;
-        collectionData.isPrivate = isPrivate;
+        collectionData.set('collection', collection);
+        collectionData.set('description', description);
+        collectionData.set('isPrivate', isPrivate);
         await collectionData.save();
 
         await qaService.deleteQAByCollectionId(collectionId);

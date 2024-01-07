@@ -3,14 +3,14 @@ import { Response, NextFunction } from 'express';
 import codeService from '../services/codeService';
 import userService from '../services/userService';
 import sessionService from '../services/sessionService';
-import { RequestWithBodyAndUser, RequestWithUser } from 'types/request';
+import { PaginationQuery, RequestWithBodyAndUser, RequestWithQueryAndUser, RequestWithUser, UserSearchQuery } from 'types/request';
 import { UserChangePasswordDTO, UserProfileInfo } from 'types/user';
 
 class UserhController {
     async getUserShortInfo(req: RequestWithUser, res: Response, next: NextFunction) {
         try {
             const userId = req.user.id;
-            
+
             const user = await userService.getUserShortInfo(userId);
             const { id: sessionId } = await sessionService.findCurrentSession(req, userId);
 
@@ -26,7 +26,7 @@ class UserhController {
 
             await codeService.sendChangePasswordCode(req.user.id, oldPassword);
 
-            res.send(200);
+            res.sendStatus(200);
         } catch (error) {
             next(error);
         }
@@ -40,7 +40,7 @@ class UserhController {
             await codeService.verifyChangePasswordCode(id, code);
             await userService.changePassword(id, oldPassword, newPassword);
 
-            res.send(200);
+            res.sendStatus(200);
         } catch (error) {
             next(error);
         }
@@ -84,6 +84,18 @@ class UserhController {
             const user = await userService.deleteAvatar(req.user.id);
 
             res.json({ user });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async searchUsers(req: RequestWithQueryAndUser<UserSearchQuery>, res: Response, next: NextFunction) {
+        try {
+            const { search, limit, offset } = req.query;
+
+            const data = await userService.searchUsers(search, limit, offset);
+
+            res.json(data);
         } catch (error) {
             next(error);
         }

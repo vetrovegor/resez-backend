@@ -3,9 +3,10 @@ import { Table, Column, Model, DataType, HasMany } from 'sequelize-typescript';
 import SubjectTask from './SubjectTask';
 import Task from './Task';
 import ScoreConversion from './ScoreConversion';
-import { SubjectFullInfo, SubjectShortInfo } from 'types/education';
+import { ScoreConversionDTO, SubjectFullInfo, SubjectShortInfo } from 'types/education';
 
 @Table({
+    timestamps: true,
     tableName: 'subjects'
 })
 class Subject extends Model {
@@ -51,9 +52,8 @@ class Subject extends Model {
     scoreConversions: ScoreConversion[];
 
     async toShortInfo(): Promise<SubjectShortInfo> {
-        const { id, subject, isPublished } = this.get();        
+        const { id, subject, isPublished } = this.get();
 
-        // попробовать сразу обратиться к this.subjectTasks.count()
         const subjectTasksCount = await SubjectTask.count({
             where: {
                 subjectId: id
@@ -98,6 +98,25 @@ class Subject extends Model {
             isPublished,
             subjectTasks
         }
+    }
+
+    async getScoreConversion(): Promise<ScoreConversionDTO> {
+        const { id: subjectId, isMark } = this.get();
+
+        const scoreConversionData = await ScoreConversion.findAll({
+            where: {
+                subjectId
+            }
+        });
+
+        const scoreConversion = scoreConversionData.map(
+            scoreConversionItem => scoreConversionItem.toDTO()
+        );
+
+        return {
+            isMark,
+            scoreConversion
+        };
     }
 }
 

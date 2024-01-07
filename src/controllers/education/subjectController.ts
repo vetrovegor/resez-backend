@@ -1,4 +1,4 @@
-import { Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 
 import { PaginationQuery, RequestWithBody, RequestWithParams, RequestWithParamsAndBody, RequestWithQuery, WithId } from 'types/request';
 import { SubjectBodyDTO } from 'types/education';
@@ -18,6 +18,16 @@ class SubjectController {
             );
 
             res.json({ subject: createdSubject });
+        } catch (error) {
+            next(error);
+        }
+    }
+    
+    async getSubjects(req: Request, res: Response, next: NextFunction) {
+        try {
+            const subjects = await subjectService.getSubjects();
+
+            res.json(subjects);
         } catch (error) {
             next(error);
         }

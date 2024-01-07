@@ -7,7 +7,7 @@ export const enum Permissions {
     CreateRoles = 'Создание ролей',
     UpdateRoles = 'Редактирование ролей',
     DeleteRoles = 'Удаление ролей',
-    IssueRoles = 'Выдача ролей',
+    AssignRoles = 'Выдача ролей',
     Themes = 'Темы',
     CreateThemes = 'Создание тем',
     UpdateThemes = 'Редактирование тем',
@@ -29,7 +29,21 @@ export const enum Permissions {
     Archive = 'Архив'
 }
 
-export type PermissionDto = {
+export type PermissionDTO = {
     id: number,
     permission: string
 }
+
+export type ExtendedPermissionDTO = PermissionDTO & {
+    isActive: boolean;
+};
+
+export type PermissionHierarchyItem = {
+    id: number,
+    permission: string,
+    childrens: PermissionHierarchyItem[]
+}
+
+export type PermissionHierarchy = {
+    [id: number]: PermissionHierarchyItem;
+  };

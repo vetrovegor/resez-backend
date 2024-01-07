@@ -21,7 +21,7 @@ class AuthController {
             res.json({
                 accessToken,
                 sessionId,
-                user: user.toShortInfo(),
+                user: await user.toShortInfo(),
                 verificationCodeData
             });
         } catch (error) {
@@ -42,7 +42,7 @@ class AuthController {
             res.json({
                 accessToken,
                 sessionId,
-                user: user.toShortInfo(),
+                user: await user.toShortInfo(),
                 verificationCodeData
             });
         } catch (error) {
@@ -94,7 +94,7 @@ class AuthController {
 
             await codeService.sendRecoveryPasswordCode(nickname);
 
-            res.send(200);
+            res.sendStatus(200);
         } catch (error) {
             next(error);
         }
@@ -106,7 +106,7 @@ class AuthController {
 
             await codeService.verifyRecoveryPasswordCode(nickname, code);
 
-            res.send(200);
+            res.sendStatus(200);
         } catch (error) {
             next(error);
         }
@@ -119,7 +119,7 @@ class AuthController {
             await codeService.verifyRecoveryPasswordCode(nickname, code);
             await userService.recoveryPassword(nickname, password);
 
-            res.send(200);
+            res.sendStatus(200);
         } catch (error) {
             next(error);
         }

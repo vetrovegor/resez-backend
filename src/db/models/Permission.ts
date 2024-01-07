@@ -1,8 +1,8 @@
-import { Table, Column, Model, DataType, ForeignKey, BelongsToMany } from "sequelize-typescript";
+import { Table, Column, Model, DataType, ForeignKey, BelongsToMany, HasMany } from "sequelize-typescript";
 
 import Role from "./Role";
 import RolePermission from "./RolePermission";
-import { PermissionDto } from "types/permission";
+import { PermissionDTO } from "types/permission";
 
 @Table({
     timestamps: false,
@@ -23,7 +23,29 @@ class Permission extends Model {
     @BelongsToMany(() => Role, () => RolePermission)
     roles: Role[];
 
-    toDto(): PermissionDto {
+    @HasMany(() => RolePermission, {
+        onDelete: 'CASCADE'
+    })
+    rolePermissions: RolePermission[];
+
+    async getChildPermissionIDs(): Promise<number[]> {
+        const childPermissions = await Permission.findAll({
+            where: {
+                parentId: this.get('id')
+            }
+        });
+
+        let childPermissionIDs = childPermissions.map(permission => permission.id);
+
+        for (const permission of childPermissions) {
+            const grandchildrenIDs = await permission.getChildPermissionIDs();
+            childPermissionIDs = childPermissionIDs.concat(grandchildrenIDs);
+        }
+
+        return childPermissionIDs;
+    }
+
+    toDTO(): PermissionDTO {
         const { id, permission } = this.get();
 
         return {

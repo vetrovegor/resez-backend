@@ -5,10 +5,10 @@ import { ApiError } from "../apiError";
 import User from '../db/models/User';
 import codeService from './codeService';
 import { VerificationCodeData } from 'types/code';
+import { AuthResponse } from 'types/user';
 
 class AuthService {
-    // типизировать Promise<{ user: User, verificationCodeData: VerificationCodeData }>
-    async register(nickname: string, password: string): Promise<{ user: User, verificationCodeData: VerificationCodeData }> {
+    async register(nickname: string, password: string): Promise<AuthResponse> {
         const existedUser = await userService.getUserByNickname(nickname);
 
         if (existedUser) {
@@ -30,8 +30,7 @@ class AuthService {
         };
     }
 
-    // типизировать Promise<{ user: User, verificationCodeData: VerificationCodeData }>
-    async login(nickname: string, password: string): Promise<{ user: User, verificationCodeData: VerificationCodeData }> {
+    async login(nickname: string, password: string): Promise<AuthResponse> {
         const user = await userService.getUserByNickname(nickname);
 
         if (!user) {

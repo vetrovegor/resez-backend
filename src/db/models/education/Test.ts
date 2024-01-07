@@ -5,6 +5,7 @@ import Task from './Task';
 import TestTask from './TestTask';
 
 @Table({
+    timestamps: true,
     tableName: 'tests'
 })
 class Test extends Model {  

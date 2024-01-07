@@ -6,16 +6,15 @@ import tokenService from '../services/tokenService';
 
 export const accessTokenMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
-        const authorizationHeader = req.headers.authorization;
+        const { authorization } = req.headers;
 
-        if (!authorizationHeader) {
+        if (!authorization || !authorization.startsWith('Bearer')) {
             return next(ApiError.unauthorizedError());
         }
 
-        const bearer = authorizationHeader.split(' ')[0];
-        const accessToken = authorizationHeader.split(' ')[1];
+        const accessToken = authorization.split(' ')[1];
 
-        if (bearer != 'Bearer' || !accessToken) {
+        if (!accessToken) {
             return next(ApiError.unauthorizedError());
         }
 

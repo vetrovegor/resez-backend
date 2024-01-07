@@ -5,8 +5,8 @@ import Task from './Task';
 import { SubThemeDTO } from 'types/education';
 
 @Table({
-    tableName: 'sub-themes',
-    timestamps: false
+    timestamps: false,
+    tableName: 'sub-themes'
 })
 class SubTheme extends Model {    
     @Column({

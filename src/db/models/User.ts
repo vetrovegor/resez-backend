@@ -6,6 +6,10 @@ import Code from "./Code";
 import Collection from "./Collection";
 import UserRole from "./UserRole";
 import Role from "./Role";
+import Message from "./messenger/Message";
+import Chat from "./messenger/Chat";
+import UserChat from "./messenger/UserChat";
+import { PermissionDTO } from "types/permission";
 
 @Table({
     timestamps: false,
@@ -110,6 +114,45 @@ class User extends Model {
     @BelongsToMany(() => Role, () => UserRole)
     roles: Role[];
 
+    @BelongsToMany(() => Chat, () => UserChat)
+    chats: Chat[];
+
+    @HasMany(() => Message, {
+        onDelete: 'CASCADE'
+    })
+    messages: Message[];
+
+    async getRoles(): Promise<Role[]> {
+        const userRoles = await UserRole.findAll({
+            where: { userId: this.get('id') },
+            attributes: [],
+            include: [{ model: Role }]
+        });
+
+        return userRoles.map(userRole => userRole.get('role'));
+    }
+
+    async getPermissions(): Promise<PermissionDTO[]> {
+        const roles = await this.getRoles();
+        const permissions: PermissionDTO[] = [];
+
+        for (const role of roles) {
+            const rolePermissions = await role.getPermissions();
+
+            const rolePermissionDTOs = rolePermissions.map(
+                permission => permission.toDTO()
+            );
+
+            for (const permission of rolePermissionDTOs) {
+                if (!permissions.some((p) => p.id === permission.id)) {
+                    permissions.push(permission);
+                }
+            }
+        }
+
+        return permissions;
+    }
+
     toTokenInfo(): UserTokenInfo {
         const { id, nickname } = this.get();
 
@@ -119,16 +162,19 @@ class User extends Model {
         };
     }
 
-    toShortInfo(): UserShortInfo {
+    async toShortInfo(): Promise<UserShortInfo> {
         const { id, nickname, isVerified, isBlocked, avatar, level } = this.get();
+
+        const permissions = await this.getPermissions();
 
         return {
             id,
             nickname,
             isVerified,
             isBlocked,
-            avatar: process.env.STATIC_URL + avatar,
-            level
+            avatar: avatar ? process.env.STATIC_URL + avatar : null,
+            level,
+            permissions
         };
     }
 
@@ -138,7 +184,7 @@ class User extends Model {
         return {
             id,
             nickname,
-            avatar: process.env.STATIC_URL + avatar,
+            avatar: avatar ? process.env.STATIC_URL + avatar : null,
         };
     }
 

@@ -6,53 +6,43 @@ import { accessTokenMiddleware } from "../../../middlewares/accessTokenMiddlewar
 import { blockedMiddleware } from "../../../middlewares/blockedMiddleware";
 import subjectController from "../../../controllers/education/subjectController";
 import { validationMiddleware } from "../../../middlewares/validationMiddleware";
+import { permissionMiddleware } from "../../../middlewares/permissionMiddleware";
+import { Permissions } from "types/permission";
+import { subjectBodyMiddleware } from "../../../middlewares/education/subjectBodyMiddleware";
+import scoreConversionController from "../../../controllers/education/scoreConversionController";
 
 export const subjectsRouter = Router();
 
 subjectsRouter.post(
     '/',
-    // вынести
-    body('subject').isString().notEmpty().isLength({ max: 75 }),
-    body('subjectTasks').isArray({ min: 1 }),
-    body('subjectTasks.*.theme').isString().notEmpty().isLength({ max: 150 }),
-    body('subjectTasks.*.primaryScore').isNumeric(),
-    body('subjectTasks.*.isDetailedAnswer').isBoolean(),
-    body('subjectTasks.*.subThemes').isArray({ min: 1 }),
-    body('subjectTasks.*.subThemes.*').isObject(),
-    body('subjectTasks.*.subThemes.*.subTheme').isString().notEmpty().isLength({ max: 150 }),
-    body('durationMinutes').isNumeric(),
-    body('isMark').isBoolean(),
-    body('isPublished').isBoolean(),
+    subjectBodyMiddleware,
     validationMiddleware,
     subjectTasksMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,
-    // permissionMiddleware(PERMISSIONS.CREATE_SUBJECTS),
+    permissionMiddleware(Permissions.CreateSubjects),
     subjectController.createSubject
+);
+
+subjectsRouter.get(
+    '/',
+    accessTokenMiddleware,
+    blockedMiddleware,
+    permissionMiddleware(Permissions.Subjects),
+    subjectController.getSubjects
 );
 
 subjectsRouter.patch(
     '/:id',
-    // вынести
     param('id').isNumeric(),
-    body('subject').isString().notEmpty().isLength({ max: 75 }),
-    body('subjectTasks').isArray({ min: 1 }),
+    subjectBodyMiddleware,
     body('subjectTasks.*.id').isNumeric().optional(),
-    body('subjectTasks.*.theme').isString().notEmpty().isLength({ max: 75 }),
-    body('subjectTasks.*.primaryScore').isNumeric(),
-    body('subjectTasks.*.isDetailedAnswer').isBoolean(),
-    body('subjectTasks.*.subThemes').isArray({ min: 1 }),
-    body('subjectTasks.*.subThemes.*').isObject(),
     body('subjectTasks.*.subThemes.*.id').isNumeric().optional(),
-    body('subjectTasks.*.subThemes.*.subTheme').isString().notEmpty().isLength({ max: 75 }),
-    body('durationMinutes').isNumeric(),
-    body('isMark').isBoolean(),
-    body('isPublished').isBoolean(),
     validationMiddleware,
     subjectTasksMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,
-    // permissionMiddleware(PERMISSIONS.UPDATE_SUBJECTS),
+    permissionMiddleware(Permissions.UpdateSubjects),
     subjectController.updateSubject
 );
 
@@ -62,7 +52,7 @@ subjectsRouter.get(
     validationMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,
-    // permissionMiddleware(PERMISSIONS.SUBJECTS),
+    permissionMiddleware(Permissions.Subjects),
     subjectController.getSubjectFullInfo
 );
 
@@ -72,18 +62,17 @@ subjectsRouter.delete(
     validationMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,
-    // permissionMiddleware(PERMISSIONS.DELETE_SUBJECTS),
+    permissionMiddleware(Permissions.DeleteSubjects),
     subjectController.archiveSubject
 );
 
-// право на восстановление предмета?
-subjectsRouter.put(
+subjectsRouter.patch(
     '/:id/restore',
     param('id').isNumeric(),
     validationMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,
-    // permissionMiddleware(PERMISSIONS.ARCHIVE),
+    permissionMiddleware(Permissions.Archive),
     subjectController.restoreSubject
 );
 
@@ -93,6 +82,42 @@ subjectsRouter.delete(
     validationMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,
-    // permissionMiddleware(PERMISSIONS.DELETE_SUBJECTS),
+    permissionMiddleware(Permissions.DeleteSubjects),
     subjectController.deleteSubject
+);
+
+subjectsRouter.post(
+    '/:id/score-conversion',
+    param('id').isNumeric()
+        .withMessage('Идентификатор предмета должен быть числовым'),
+    body('scoreConversion').isArray({ min: 1 })
+        .withMessage('scoreConversion должен быть массивом с минимальной длиной 1'),
+    body('scoreConversion.*.primaryScore').isNumeric().optional()
+        .withMessage('primaryScore должен быть числовым значением (опционально)'),
+    body('scoreConversion.*.secondaryScore').isNumeric().optional()
+        .withMessage('secondaryScore должен быть числовым значением (опционально)'),
+    body('scoreConversion.*.minScore').isNumeric().optional()
+        .withMessage('minScore должен быть числовым значением (опционально)'),
+    body('scoreConversion.*.maxScore').isNumeric().optional()
+        .withMessage('maxScore должен быть числовым значением (опционально)'),
+    body('scoreConversion.*.grade').isNumeric().optional()
+        .withMessage('grade должен быть числовым значением (опционально)'),
+    body('scoreConversion.*.isRed').isBoolean()
+        .withMessage('isRed должен быть логическим значением'),
+    body('scoreConversion.*.isGreen').isBoolean()
+        .withMessage('isGreen должен быть логическим значением'),
+    validationMiddleware,
+    accessTokenMiddleware,
+    blockedMiddleware,
+    permissionMiddleware(Permissions.CreateSubjects),
+    scoreConversionController.saveScoreConversion
+);
+
+subjectsRouter.get(
+    '/:id/score-conversion',
+    validationMiddleware,
+    accessTokenMiddleware,
+    blockedMiddleware,
+    permissionMiddleware(Permissions.CreateSubjects),
+    scoreConversionController.getScoreConversion
 );

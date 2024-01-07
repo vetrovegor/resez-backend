@@ -41,6 +41,16 @@ class SubjectService {
         return await createdSubject.toShortInfo();
     }
 
+    async getSubjects(): Promise<SubjectShortInfo[]> {
+        const subjects = await Subject.findAll();
+
+        return await Promise.all(
+            subjects.map(async subject =>
+                await subject.toShortInfo()
+            )
+        );
+    }
+
     async updateSubject(subjectId: number, subject: string, subjectTasks: SubjectTaskBodyDTO[], durationMinutes: number, isMark: boolean, isPublished: boolean): Promise<SubjectShortInfo> {
         const subjectData = await this.getSubjectById(subjectId);
 
@@ -65,7 +75,7 @@ class SubjectService {
         subjectData.set('isPublished', isPublished);
         await subjectData.save();
 
-        subjectTaskService.updateSubjectTasks(subjectTasks, subjectId);
+        await subjectTaskService.updateSubjectTasks(subjectTasks, subjectId);
 
         return await subjectData.toShortInfo();
     }
@@ -111,6 +121,9 @@ class SubjectService {
 
     async deleteSubject(subjectId: number): Promise<SubjectShortInfo> {
         const subject = await this.getSubjectById(subjectId);
+
+        // довести до ума (сделать чтобы работало каскадное удаление)
+        await scoreConversionService.deleteScoreConversionBySubjectId(subjectId);
 
         await subject.destroy();
 

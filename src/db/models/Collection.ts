@@ -5,6 +5,7 @@ import QA from "./QA";
 import { CollectionFullInfo, CollectionShortInfo } from "types/collection";
 
 @Table({
+    timestamps: true,
     tableName: "collections"
 })
 class Collection extends Model {

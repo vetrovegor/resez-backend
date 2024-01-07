@@ -6,8 +6,8 @@ import Task from './Task';
 import { SubjectTaskDTO } from 'types/education';
 
 @Table({
-    tableName: 'subjects_task',
-    timestamps: false
+    timestamps: false,
+    tableName: 'subjects_task'
 })
 class SubjectTask extends Model {    
     @Column({

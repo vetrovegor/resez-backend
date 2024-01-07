@@ -25,7 +25,7 @@ class SessionController {
 
             await sessionService.endSessionById(sessionId, userId);
 
-            res.send(200);
+            res.sendStatus(200);
         } catch (error) {
             next(error);
         }

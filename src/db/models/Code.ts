@@ -2,7 +2,6 @@ import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from 'sequelize
 
 import User from './User';
 
-@Table
 @Table({
     timestamps: false,
     tableName: "codes"

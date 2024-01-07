@@ -9,20 +9,27 @@ export type RequestWithParamsAndBody<P, B> = Request<P, {}, B>;
 
 export type RequestWithUser = Request & { user: UserTokenInfo };
 
-export type RequestWithBodyAndUser<T> = RequestWithBody<T> & { user: UserTokenInfo };
+export type RequestWithBodyAndUser<T> = RequestWithBody<T>
+    & { user: UserTokenInfo };
 
 export type PaginationQuery = {
     limit: number,
     offset: number
 }
 
-export type RequestWithQueryAndUser<T> = RequestWithQuery<T> & { user: UserTokenInfo };
+export type RequestWithQueryAndUser<T> = RequestWithQuery<T>
+    & { user: UserTokenInfo };
 
 // подумать над другим названием
 export type WithId = {
     id: number
 }
 
-export type RequestWithParamsAndUser<T> = RequestWithParams<T> & { user: UserTokenInfo };
+export type RequestWithParamsAndUser<T> = RequestWithParams<T>
+    & { user: UserTokenInfo };
 
-export type RequestWithParamsAndBodyAndUser<P, B> = RequestWithParamsAndBody<P, B> & { user: UserTokenInfo };
+export type RequestWithParamsAndBodyAndUser<P, B> = RequestWithParamsAndBody<P, B>
+    & { user: UserTokenInfo };
+
+export type UserSearchQuery = PaginationQuery
+    & { search: string };

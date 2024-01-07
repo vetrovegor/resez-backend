@@ -112,7 +112,7 @@
                         "description": "User logged out successfully"
                     },
                     "401": {
-                        "$ref": "#/components/responses/Unauthorized"
+                        "$ref": "#/components/responses/Error"
                     }
                 }
             }
@@ -140,7 +140,7 @@
                         }
                     },
                     "401": {
-                        "$ref": "#/components/responses/Unauthorized"
+                        "$ref": "#/components/responses/Error"
                     }
                 }
             }
@@ -190,7 +190,7 @@
                         "description": "Recovery password code verified successfully"
                     },
                     "400": {
-                        "$ref": "#/components/responses/Incorrect code"
+                        "$ref": "#/components/responses/Error"
                     }
                 }
             }
@@ -218,7 +218,7 @@
                         "description": "Password recovered successfully"
                     },
                     "400": {
-                        "$ref": "#/components/responses/Incorrect code"
+                        "$ref": "#/components/responses/Error"
                     }
                 }
             }
@@ -298,7 +298,7 @@
                         }
                     },
                     "401": {
-                        "$ref": "#/components/responses/Unauthorized"
+                        "$ref": "#/components/responses/Error"
                     }
                 }
             }
@@ -342,7 +342,7 @@
                         }
                     },
                     "401": {
-                        "$ref": "#/components/responses/Unauthorized"
+                        "$ref": "#/components/responses/Error"
                     }
                 }
             }
@@ -400,7 +400,7 @@
                         }
                     },
                     "401": {
-                        "$ref": "#/components/responses/Unauthorized"
+                        "$ref": "#/components/responses/Error"
                     }
                 }
             }
@@ -522,7 +522,7 @@
                         }
                     },
                     "401": {
-                        "$ref": "#/components/responses/Unauthorized"
+                        "$ref": "#/components/responses/Error"
                     }
                 }
             }
@@ -581,10 +581,10 @@
                         }
                     },
                     "404": {
-                        "$ref": "#/components/responses/Collection not found"
+                        "$ref": "#/components/responses/Error"
                     },
                     "401": {
-                        "$ref": "#/components/responses/Unauthorized"
+                        "$ref": "#/components/responses/Error"
                     }
                 }
             },
@@ -634,10 +634,10 @@
                         }
                     },
                     "404": {
-                        "$ref": "#/components/responses/Collection not found"
+                        "$ref": "#/components/responses/Error"
                     },
                     "401": {
-                        "$ref": "#/components/responses/Unauthorized"
+                        "$ref": "#/components/responses/Error"
                     }
                 }
             },
@@ -705,10 +705,776 @@
                         }
                     },
                     "404": {
-                        "$ref": "#/components/responses/Collection not found"
+                        "$ref": "#/components/responses/Error"
                     },
                     "401": {
-                        "$ref": "#/components/responses/Unauthorized"
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
+        "/admin/subject": {
+            "post": {
+                "summary": "Create a new subject",
+                "tags": [
+                    "Subjects"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "subject": "Математика",
+                                "subjectTasks": [
+                                    {
+                                        "theme": "Тема 1",
+                                        "primaryScore": "1",
+                                        "isDetailedAnswer": false,
+                                        "subThemes": [
+                                            {
+                                                "subTheme": "Подтема 1"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "durationMinutes": 240,
+                                "isMark": false,
+                                "isPublished": true
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Subject"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            },
+            "get": {
+                "summary": "Get all subjects",
+                "tags": [
+                    "Subjects"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Subjects retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "example": [
+                                    {
+                                        "id": 8,
+                                        "subject": "Математика",
+                                        "isPublished": true,
+                                        "subjectTasksCount": 18,
+                                        "tasksCount": 255
+                                    },
+                                    {
+                                        "id": 9,
+                                        "subject": "Информатика",
+                                        "isPublished": false,
+                                        "subjectTasksCount": 27,
+                                        "tasksCount": 341
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
+        "/admin/subject/{subjectId}": {
+            "patch": {
+                "summary": "Update a specific subject",
+                "tags": [
+                    "Subjects"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "subjectId",
+                        "in": "path",
+                        "description": "ID of the subject to update",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "id": 1,
+                                "subject": "Предмет измененный",
+                                "durationMinutes": 255,
+                                "isMark": true,
+                                "isPublished": false,
+                                "subjectTasks": [
+                                    {
+                                        "id": 1,
+                                        "theme": "Тема 1 измененная",
+                                        "primaryScore": 5,
+                                        "isDetailedAnswer": false,
+                                        "subThemes": [
+                                            {
+                                                "subTheme": "Подтема 1 измененная"
+                                            },
+                                            {
+                                                "id": 22,
+                                                "subTheme": "Подтема 2 измененная"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Subject"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            },
+            "get": {
+                "summary": "Get details of a specific subject",
+                "tags": [
+                    "Subjects"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "subjectId",
+                        "in": "path",
+                        "description": "ID of the subject to retrieve",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Subject details retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "subject": {
+                                        "id": 7,
+                                        "subject": "Математика",
+                                        "durationMinutes": 255,
+                                        "isMark": true,
+                                        "isPublished": false,
+                                        "subjectTasks": [
+                                            {
+                                                "id": 37,
+                                                "number": 1,
+                                                "theme": "Алгебра",
+                                                "primaryScore": 5,
+                                                "isDetailedAnswer": false,
+                                                "totalTasksCount": 0,
+                                                "subThemes": [
+                                                    {
+                                                        "id": 37,
+                                                        "subTheme": "Уравнения",
+                                                        "tasksCount": 0
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete a specific subject",
+                "tags": [
+                    "Subjects"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "subjectId",
+                        "in": "path",
+                        "description": "ID of the subject to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Subject"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
+        "/admin/subject/{subjectId}/score-conversion": {
+            "post": {
+                "summary": "Set score conversion for a specific subject",
+                "tags": [
+                    "Subjects"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "subjectId",
+                        "in": "path",
+                        "description": "ID of the subject for which to set score conversion",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "scoreConversion": [
+                                    {
+                                        "primaryScore": 4,
+                                        "secondaryScore": 22,
+                                        "isRed": true,
+                                        "isGreen": false
+                                    },
+                                    {
+                                        "minScore": 4,
+                                        "maxScore": 5,
+                                        "mark": 4,
+                                        "isRed": false,
+                                        "isGreen": true
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Score conversion set successfully"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            },
+            "get": {
+                "summary": "Get score conversion for a specific subject",
+                "tags": [
+                    "Subjects"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "subjectId",
+                        "in": "path",
+                        "description": "ID of the subject for which to retrieve score conversion",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Score conversion retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "isMark": false,
+                                    "scoreConversion": [
+                                        {
+                                            "id": 33,
+                                            "minScore": null,
+                                            "maxScore": null,
+                                            "mark": null,
+                                            "primaryScore": 4,
+                                            "secondaryScore": 20,
+                                            "isRed": true,
+                                            "isGreen": false
+                                        },
+                                        {
+                                            "id": 34,
+                                            "minScore": 12,
+                                            "maxScore": 16,
+                                            "mark": 4,
+                                            "primaryScore": null,
+                                            "secondaryScore": null,
+                                            "isRed": false,
+                                            "isGreen": true
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
+        "/admin/subject/{subjectId}/archive": {
+            "delete": {
+                "summary": "Archive a specific subject",
+                "tags": [
+                    "Subjects"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "subjectId",
+                        "in": "path",
+                        "description": "ID of the subject to archive",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Subject"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
+        "/admin/subject/{subjectId}/restore": {
+            "patch": {
+                "summary": "Restore a specific subject",
+                "tags": [
+                    "Subjects"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "subjectId",
+                        "in": "path",
+                        "description": "ID of the subject to restore",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Subject"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
+        "/admin/archive/subject": {
+            "get": {
+                "summary": "Get all archived subjects",
+                "tags": ["Archive"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Subjects retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "example": [
+                                    {
+                                        "id": 8,
+                                        "subject": "Математика",
+                                        "isPublished": true,
+                                        "subjectTasksCount": 18,
+                                        "tasksCount": 255
+                                    },
+                                    {
+                                        "id": 9,
+                                        "subject": "Информатика",
+                                        "isPublished": false,
+                                        "subjectTasksCount": 27,
+                                        "tasksCount": 341
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/role": {
+            "post": {
+                "summary": "Create a new role",
+                "tags": ["Roles"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "role": "Админ",
+                                "permissions": [1,2,5,6,7,8,9],
+                                "textColor": "#AAAB",
+                                "backgroundColor": "#DDDB"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Role created successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "role": {
+                                        "id": 6,
+                                        "role": "Админ",
+                                        "textColor": "#AAAB",
+                                        "backgroundColor": "#DDDB",
+                                        "permissionsCount": 7,
+                                        "usersCount": 0
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            },
+            "get": {
+                "summary": "Get roles with limit and offset",
+                "tags": ["Roles"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Number of roles to retrieve",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "description": "Number of roles to skip for pagination",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Roles retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "totalCount": 5,
+                                    "isLast": false,
+                                    "elementsCount": 1,
+                                    "roles": [
+                                        {
+                                            "id": 6,
+                                            "role": "Хелпер",
+                                            "textColor": "#AAAB",
+                                            "backgroundColor": "#DDDB",
+                                            "permissionsCount": 7,
+                                            "usersCount": 0
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
+        "/admin/role/{roleId}": {
+            "get": {
+                "summary": "Get details of a specific role",
+                "tags": ["Roles"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "roleId",
+                        "in": "path",
+                        "description": "ID of the role to retrieve",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Role details retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "id": 6,
+                                    "role": "Изич",
+                                    "textColor": "#AAAB",
+                                    "backgroundColor": "#DDDB",
+                                    "permissions": [
+                                        {
+                                            "id": 1,
+                                            "permission": "Админка",
+                                            "isActive": false
+                                        },
+                                        {
+                                            "id": 2,
+                                            "permission": "Пользователи",
+                                            "isActive": false
+                                        },
+                                        {
+                                            "id": 5,
+                                            "permission": "Роли",
+                                            "isActive": true
+                                        },
+                                        {
+                                            "id": 6,
+                                            "permission": "Создание ролей",
+                                            "isActive": true
+                                        },
+                                        {
+                                            "id": 7,
+                                            "permission": "Редактирование ролей",
+                                            "isActive": true
+                                        },
+                                        {
+                                            "id": 8,
+                                            "permission": "Удаление ролей",
+                                            "isActive": true
+                                        },
+                                        {
+                                            "id": 9,
+                                            "permission": "Выдача ролей",
+                                            "isActive": true
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            },
+            "patch": {
+                "summary": "Update a specific role",
+                "tags": ["Roles"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "roleId",
+                        "in": "path",
+                        "description": "ID of the role to update",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "role": "Хелпер",
+                                "permissions": [1,2,3,4,5],
+                                "textColor": "#CCC",
+                                "backgroundColor": "#CCC"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Role updated successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "role": {
+                                        "id": 5,
+                                        "role": "Хелпер",
+                                        "textColor": "#CCC",
+                                        "backgroundColor": "#CCC",
+                                        "permissionsCount": 5,
+                                        "usersCount": 1
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
+        "/admin/role/assign": {
+            "post": {
+                "summary": "Assign a role to a user",
+                "tags": ["Roles"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "userId": 3,
+                                "roleId": 5
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Role assigned to user successfully"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
+        "/admin/permission": {
+            "get": {
+                "summary": "Get all permissions",
+                "tags": ["Roles"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Permissions retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "permissions": [
+                                        {
+                                            "id": 1,
+                                            "permission": "Админка",
+                                            "childrens": [
+                                                {
+                                                    "id": 2,
+                                                    "permission": "Пользователи",
+                                                    "childrens": [
+                                                        {
+                                                            "id": 3,
+                                                            "permission": "Блокировка пользователей",
+                                                            "childrens": []
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "id": 4,
+                                                    "permission": "Отправка уведомлений",
+                                                    "childrens": []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Error"
                     }
                 }
             }
@@ -739,38 +1505,30 @@
                     }
                 }
             },
-            "Unauthorized": {
-                "description": "Unauthorized",
+            "Error": {
+                "description": "Error",
                 "content": {
                     "application/json": {
                         "example": {
                             "error": true,
-                            "message": "Пользователь не авторизован",
+                            "message": "Error message",
                             "errors": []
                         }
                     }
                 }
             },
-            "Incorrect code": {
-                "description": "Incorrect code",
+            "Subject": {
+                "description": "Subject",
                 "content": {
                     "application/json": {
                         "example": {
-                            "error": true,
-                            "message": "Некорректный код",
-                            "errors": []
-                        }
-                    }
-                }
-            },
-            "Collection not found": {
-                "description": "Collection not found",
-                "content": {
-                    "application/json": {
-                        "example": {
-                            "error": true,
-                            "message": "Коллекция не найдена",
-                            "errors": []
+                            "subject": {
+                                "id": 7,
+                                "subject": "Математика",
+                                "isPublished": true,
+                                "subjectTasksCount": 24,
+                                "tasksCount": 0
+                            }
                         }
                     }
                 }

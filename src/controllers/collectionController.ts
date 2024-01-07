@@ -49,11 +49,11 @@ class CollectionController {
         }
     }
 
-    async updateCollectionById(req: RequestWithParamsAndBodyAndUser<WithId, CollectionBodyDTO>, res: Response, next: NextFunction) {
+    async updateCollection(req: RequestWithParamsAndBodyAndUser<WithId, CollectionBodyDTO>, res: Response, next: NextFunction) {
         try {
             const { collection, description, isPrivate, QAPairs } = req.body;
 
-            const updatedCollection = await collectionService.updateCollectionById(req.params.id, req.user.id, collection, description, isPrivate, QAPairs);
+            const updatedCollection = await collectionService.updateCollection(req.params.id, req.user.id, collection, description, isPrivate, QAPairs);
 
             res.json({ collection: updatedCollection });
         } catch (error) {

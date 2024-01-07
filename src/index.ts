@@ -27,22 +27,22 @@ app.use('/static', express.static(STATIC_PATH));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(errorMiddleWare);
 
+const PORT = process.env.PORT || 8080;
+
 const start = async () => {
     await sequelize.authenticate();
 
-    // if (process.env.SEQUELIZE_SYNC_MODE == 'alter') {
-    //     await sequelize.sync({ alter: true });
-    // } else {
-    //     await sequelize.sync();
-    // }
+    if (process.env.SEQUELIZE_SYNC_MODE == 'alter') {
+        await sequelize.sync({ alter: true });
 
-    await sequelize.sync({ alter: true });
-
-    // await permissionService.initPermissions();
+        await permissionService.initPermissions();
+    } else {
+        await sequelize.sync();
+    }
 
     telegramService.init();
 
-    app.listen(8080, () => console.log('Server started'));
+    app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 }
 
 start();
