@@ -1,17 +1,26 @@
 version: '3'
 
 services:
-  db:
-    image: postgres
-    container_name: db
+  resez-db:
+    image: postgres:16
+    container_name: resez-db
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=resez-db
-  app:
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+
+  resez-app:
     image: xw1nchester/resez-backend
-    container_name: app
+    container_name: resez-app
     ports:
       - 8080:8080
+    env_file:
+      - .production.env
     depends_on:
-      - db
+      - resez-db
+    restart: always
+
+volumes:
+  pgdata:

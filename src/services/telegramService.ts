@@ -40,6 +40,12 @@ class TelegramService {
         if (!startPayload) {
             this.sendInfoMessage(telegramChatId);
         }
+        
+        // сделать проверку, если есть пользователь с таким chatId
+        // В startPayload должен быть socketId
+        // найти sessionId по этому socketId
+        // авторизовать его
+        // отправить emit с данными авторизации
 
         const codeData = await codeService.validateVerifyCode(startPayload);
 

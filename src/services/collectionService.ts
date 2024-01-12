@@ -28,7 +28,7 @@ class CollectionService {
             offset
         });
 
-        const collectionDtos = await Promise.all(
+        const collectionDTOs = await Promise.all(
             collections.map(
                 async collection => await collection.toShortInfo()
             )
@@ -38,7 +38,7 @@ class CollectionService {
             where: { userId }
         });
 
-        return new PaginationDTO<CollectionShortInfo>("collections", collectionDtos, totalCount, limit, offset);
+        return new PaginationDTO<CollectionShortInfo>("collections", collectionDTOs, totalCount, limit, offset);
     }
 
     async getCollectionById(collectionId: number, userId: number): Promise<CollectionFullInfo> {

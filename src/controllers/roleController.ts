@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 
 import { PaginationQuery, RequestWithBody, RequestWithParams, RequestWithParamsAndBody, RequestWithQuery, WithId } from 'types/request';
 import roleService from '../services/roleService';
-import { AssignRoleBodyDto, RoleBodyDto } from 'types/role';
+import { AssignRoleBodyDTO, RoleBodyDTO } from 'types/role';
 import permissionService from '../services/permissionService';
 
 class RoleController {
@@ -17,7 +17,7 @@ class RoleController {
         }
     }
 
-    async createRole(req: RequestWithBody<RoleBodyDto>, res: Response, next: NextFunction) {
+    async createRole(req: RequestWithBody<RoleBodyDTO>, res: Response, next: NextFunction) {
         try {
             const { role, permissions, textColor, backgroundColor } = req.body;
 
@@ -56,7 +56,7 @@ class RoleController {
         }
     }
 
-    async updateRole(req: RequestWithParamsAndBody<WithId, RoleBodyDto>, res: Response, next: NextFunction) {
+    async updateRole(req: RequestWithParamsAndBody<WithId, RoleBodyDTO>, res: Response, next: NextFunction) {
         try {
             const { role, permissions, textColor, backgroundColor } = req.body;
 
@@ -74,7 +74,7 @@ class RoleController {
         }
     }
 
-    async assignRoleToUser(req: RequestWithBody<AssignRoleBodyDto>, res: Response, next: NextFunction) {
+    async assignRoleToUser(req: RequestWithBody<AssignRoleBodyDTO>, res: Response, next: NextFunction) {
         try {
             const { roleId, userId } = req.body;
 

@@ -4,6 +4,7 @@ import cors from "cors";
 import useragent from "express-useragent";
 import fileUpload from "express-fileupload";
 import swaggerUi from "swagger-ui-express";
+import http from 'http';
 
 import { CORS_OPTIONS } from "./consts/CORS_OPTIONS";
 import { router } from "./routes/router";
@@ -13,6 +14,8 @@ import telegramService from "./services/telegramService";
 import { STATIC_PATH } from "./consts/STATIC_PATH";
 import permissionService from "./services/permissionService";
 import swaggerDocument from "./swagger.json";
+import messageTypeService from "./services/messenger/messageTypeService";
+import socketService from "./services/socketService";
 
 const app = express();
 
@@ -29,6 +32,8 @@ app.use(errorMiddleWare);
 
 const PORT = process.env.PORT || 8080;
 
+const server = http.createServer(app);
+
 const start = async () => {
     await sequelize.authenticate();
 
@@ -36,13 +41,16 @@ const start = async () => {
         await sequelize.sync({ alter: true });
 
         await permissionService.initPermissions();
+
+        await messageTypeService.initMessageTypes();
     } else {
         await sequelize.sync();
     }
 
     telegramService.init();
+    socketService.init(server);
 
-    app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+    server.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 }
 
 start();

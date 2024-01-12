@@ -2,12 +2,12 @@ import { Request, Response, NextFunction } from "express";
 
 import { ApiError } from "../apiError";
 
-export const fileMiddleware = (maxMb: number) => {
+export const fileMiddleware = (maxMb: number, required: boolean = true) => {
     return async (req: Request, res: Response, next: NextFunction) => {
         try {
             const files = req.files;
 
-            if (!files || Object.keys(files).length === 0) {
+            if (required && (!files || Object.keys(files).length === 0)) {
                 throw ApiError.badRequest('Файлы не найдены');
             }
 

@@ -117,6 +117,11 @@ class User extends Model {
     @BelongsToMany(() => Chat, () => UserChat)
     chats: Chat[];
 
+    @HasMany(() => UserChat, {
+        onDelete: 'CASCADE'
+    })
+    userChats: UserChat[];
+
     @HasMany(() => Message, {
         onDelete: 'CASCADE'
     })

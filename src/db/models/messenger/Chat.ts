@@ -19,6 +19,8 @@ class Chat extends Model {
     })
     isGroup: boolean;
 
+    // isSaved / isFavorites
+
     @Column({
         type: DataType.STRING,
     })
@@ -38,6 +40,19 @@ class Chat extends Model {
 
     @BelongsToMany(() => User, () => UserChat)
     users: User[];
+
+    @HasMany(() => UserChat, {
+        onDelete: 'CASCADE'
+    })
+    userChats: UserChat[];
+
+    async getMembersCount(): Promise<number> {
+        return await UserChat.count({
+            where: {
+                chatId: this.get('id')
+            }
+        });
+    }
 }
 
 export default Chat;

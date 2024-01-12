@@ -85,7 +85,7 @@ class RoleService {
             offset
         });
 
-        const roleDtos = await Promise.all(
+        const roleDTOs = await Promise.all(
             roles.map(
                 async role => await role.toShortInfo()
             )
@@ -93,7 +93,7 @@ class RoleService {
 
         const totalCount = await Role.count();
 
-        return new PaginationDTO("roles", roleDtos, totalCount, limit, offset);
+        return new PaginationDTO("roles", roleDTOs, totalCount, limit, offset);
     }
 
     async getRole(roleId: number): Promise<RoleFullInfo> {

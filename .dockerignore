@@ -4,7 +4,8 @@
 Dockerfile
 docker-compose.yml
 .dockerignore
+.git
 .gitignore
 nodemon.json
 tsconfig.json
-.git
+*.env

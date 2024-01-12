@@ -1,6 +1,6 @@
 import { ExtendedPermissionDTO } from "./permission"
 
-export type RoleBodyDto = {
+export type RoleBodyDTO = {
     role: string,
     permissions: number[],
     textColor: string,
@@ -24,7 +24,7 @@ export type RoleFullInfo = {
     permissions: ExtendedPermissionDTO[]
 }
 
-export type AssignRoleBodyDto = {
+export type AssignRoleBodyDTO = {
     roleId: number,
     userId: number
 }

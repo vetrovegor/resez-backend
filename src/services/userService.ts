@@ -158,13 +158,23 @@ class UserService {
             offset
         });
 
-        const userDtos = users.map(user => user.toPreview());
+        const userDTOs = users.map(user => user.toPreview());
 
         const totalCount = await User.count({
             where: whereOptions
         });
 
-        return new PaginationDTO<UserPreview>("users", userDtos, totalCount, limit, offset);
+        return new PaginationDTO<UserPreview>("users", userDTOs, totalCount, limit, offset);
+    }
+
+    async validateUserIDs(userIDs: number[]): Promise<void> {
+        for (const userId of userIDs) {
+            if (isNaN(Number(userId))) {
+                throw ApiError.badRequest('id пользователя должен быть числом');
+            }
+            
+            await this.getUserById(userId);
+        }
     }
 }
 

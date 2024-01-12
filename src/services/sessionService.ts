@@ -169,13 +169,13 @@ class SessionService {
             offset
         });
 
-        const otherSessionDtos = otherSessions.map(session => session.toDTO());
+        const otherSessionDTOs = otherSessions.map(session => session.toDTO());
 
         const otherTotalCount = await Session.count({
             where: whereOptions
         });
 
-        const paginationDTO = new PaginationDTO<SessionDTO>("other", otherSessionDtos, otherTotalCount, limit, offset);
+        const paginationDTO = new PaginationDTO<SessionDTO>("other", otherSessionDTOs, otherTotalCount, limit, offset);
 
         return {
             current: currentSession.toDTO(),
