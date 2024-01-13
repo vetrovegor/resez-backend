@@ -10,6 +10,8 @@ import { UserPreview, UserProfileInfo, UserShortInfo } from 'types/user';
 import { STATIC_PATH } from '../consts/STATIC_PATH';
 import { FILE_EXTENSIONS } from '../consts/FILE-EXTENSIONS';
 import { PaginationDTO } from '../dto/PaginationDTO';
+import socketService from './socketService';
+import { Emits } from 'types/socket';
 
 class UserService {
     async getUserById(id: number): Promise<User> {
@@ -63,6 +65,12 @@ class UserService {
 
         user.set('isVerified', true);
         user.set('telegramChatId', telegramChatId);
+
+        socketService.emitToRoom(
+            userId.toString(),
+            Emits.Verify,
+            { user: user.toShortInfo() }
+        );
 
         return await user.save();
     }
