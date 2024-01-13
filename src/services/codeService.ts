@@ -7,6 +7,7 @@ import telegramService from "./telegramService";
 import { ApiError } from "../apiError";
 import socketService from "./socketService";
 import User from "../db/models/User";
+import { Emits } from "types/socket";
 
 // подумать как сделать лучше, как вынести в файл с типами
 export const enum CodeTypes {
@@ -42,11 +43,11 @@ class CodeService {
                 retryDate
             });
 
-            // socketService.emitToRoom(
-            //     userId,
-            //     EVENT_TYPES.VERIFICATION_CODE_UPDATED,
-            //     { verificationCodeData: verificationCodeDTO }
-            // );
+            socketService.emitToRoom(
+                userId.toString(),
+                Emits.VerifyCodeUpdated,
+                { verificationCodeData }
+            );
 
             return verificationCodeData;
         }
