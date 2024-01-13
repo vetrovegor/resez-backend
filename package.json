@@ -12,7 +12,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/socket.io": "^3.0.2",
     "bcrypt": "5.1.1",
     "cookie-parser": "1.4.6",
     "cors": "2.8.5",
@@ -29,7 +28,7 @@
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
     "telegraf": "4.15.0",
-    "uuid": "9.0.1"
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@types/bcrypt": "5.0.2",
@@ -48,6 +47,8 @@
     "concurrently": "8.2.2",
     "nodemon": "3.0.1",
     "rimraf": "^5.0.5",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "@types/socket.io": "^3.0.2",
+    "@types/uuid": "^9.0.7"
   }
 }

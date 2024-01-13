@@ -30,6 +30,14 @@ class UserService {
         });
     }
 
+    async getUserByTelegramChatId(telegramChatId: string): Promise<User> {
+        return await User.findOne({
+            where: {
+                telegramChatId
+            }
+        });
+    }
+
     async getUserTelegramChatId(userId: number): Promise<string> {
         const user = await this.getUserById(userId);
 

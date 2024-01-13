@@ -2,10 +2,10 @@ import bcrypt from 'bcrypt';
 
 import userService from "./userService";
 import { ApiError } from "../apiError";
-import User from '../db/models/User';
 import codeService from './codeService';
-import { VerificationCodeData } from 'types/code';
-import { AuthResponse } from 'types/user';
+import { AuthResponse, UserTokenInfo } from 'types/user';
+import tokenService from './tokenService';
+import socketService from './socketService';
 
 class AuthService {
     async register(nickname: string, password: string): Promise<AuthResponse> {

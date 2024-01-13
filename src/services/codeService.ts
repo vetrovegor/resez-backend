@@ -5,12 +5,15 @@ import { VerificationCodeData } from "types/code";
 import userService from "./userService";
 import telegramService from "./telegramService";
 import { ApiError } from "../apiError";
+import socketService from "./socketService";
+import User from "../db/models/User";
 
 // подумать как сделать лучше, как вынести в файл с типами
 export const enum CodeTypes {
     VERIFY = 'VERIFY',
     RECOVERY = 'RECOVERY',
-    CHANGE = 'CHANGE'
+    CHANGE = 'CHANGE',
+    AUTH = 'AUTH'
 }
 
 class CodeService {
@@ -65,7 +68,6 @@ class CodeService {
         return code.toString();
     }
 
-    // модифицировать чтобы мог не принимать code
     async validateCode(type: CodeTypes, code?: string, userId?: number): Promise<Code> {
         const whereOptions: any = {
             type,
@@ -155,7 +157,28 @@ class CodeService {
         return;
     }
 
-    async saveCode(userId: number, telegramChatId: string, type: CodeTypes, message: string, cooldown: number = 60000, lifetime: number = 60000): Promise<Code> {
+    // типизировать
+    async createAndEmitAuthCode(userId: number, uniqueId: string) {
+        // вынести время жизни, кулдаун в env, попробовать сделать чтобы код авторизации жил 1 секунду
+        const createdCode = await this.saveCode(userId, null, CodeTypes.AUTH, null, 0, 60000, false);
+        socketService.emitAuthCode(uniqueId, createdCode.get('code'));
+    }
+
+    // сделать как-то чтобы не зависило от пользователя
+    async verifyAuthCode(code: string): Promise<User> {
+        const codeData = await this.validateCode(CodeTypes.AUTH, code);
+
+        if (!codeData) {
+            this.throwInvalidCode();
+        }
+
+        // желательно сразу удалить код
+
+        return userService.getUserById(codeData.get('userId'));
+    }
+
+    async saveCode(userId: number, telegramChatId: string, type: CodeTypes, message: string,
+        cooldown: number = 60000, lifetime: number = 60000, shouldSendMessage: boolean = true): Promise<Code> {
         const codeData = await this.validateCode(type, null, userId);
 
         const code = this.generateCode();
@@ -164,7 +187,9 @@ class CodeService {
         const expiredDate = currentDate + lifetime;
 
         if (!codeData) {
-            await telegramService.sendCode(telegramChatId, message, code);
+            if (shouldSendMessage) {
+                await telegramService.sendCode(telegramChatId, message, code);
+            }
 
             return await Code.create({
                 code,
@@ -176,10 +201,12 @@ class CodeService {
         }
 
         if (Number(codeData.get('retryDate')) > currentDate) {
-            throw ApiError.badRequest('Код был отправлен менее 60 секунд назад');
+            throw ApiError.badRequest('Код уже выслан');
         }
 
-        await telegramService.sendCode(telegramChatId, message, code);
+        if (shouldSendMessage) {
+            await telegramService.sendCode(telegramChatId, message, code);
+        }
 
         return await codeData.update({
             code,

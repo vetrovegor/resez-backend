@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { body } from 'express-validator';
+import { body, param } from 'express-validator';
 
 import authController from "../controllers/authController";
 import { refreshTokenMiddleware } from "../middlewares/refreshTokenMiddleware";
@@ -23,6 +23,13 @@ authRouter.post(
     body('password').isLength({ min: 8, max: 32 }),
     validationMiddleware,
     authController.login
+);
+
+authRouter.post(
+    '/login/:code',
+    param('code').isString(),
+    validationMiddleware,
+    authController.loginByCode
 );
 
 authRouter.get(

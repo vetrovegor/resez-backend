@@ -50,6 +50,8 @@ const start = async () => {
     telegramService.init();
     socketService.init(server);
 
+    // сделать очистку просроченных кодов кодов
+
     server.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 }
 

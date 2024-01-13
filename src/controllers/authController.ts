@@ -1,18 +1,19 @@
 import { Response, NextFunction } from 'express';
 
 import authService from '../services/authService';
-import { RequestWithBody, RequestWithUser } from 'types/request';
+import { RequestWithBody, RequestWithParams, RequestWithUser } from 'types/request';
 import { UserAuthDTO, UserRecoveryPasswordDTO } from 'types/user';
 import sessionService from '../services/sessionService';
 import codeService from '../services/codeService';
 import userService from '../services/userService';
+import { CodeAuthParam } from 'types/code';
 
 class AuthController {
     async register(req: RequestWithBody<UserAuthDTO>, res: Response, next: NextFunction) {
         try {
             const { nickname, password } = req.body;
 
-            const { user, verificationCodeData }= await authService.register(nickname, password);
+            const { user, verificationCodeData } = await authService.register(nickname, password);
 
             const { accessToken, refreshToken, sessionId } = await sessionService.saveSession(req, user.toTokenInfo());
 
@@ -44,6 +45,25 @@ class AuthController {
                 sessionId,
                 user: await user.toShortInfo(),
                 verificationCodeData
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // отрефакторить
+    async loginByCode(req: RequestWithParams<CodeAuthParam>, res: Response, next: NextFunction) {
+        try {
+            const user = await codeService.verifyAuthCode(req.params.code);
+
+            const { accessToken, refreshToken, sessionId } = await sessionService.saveSession(req, user.toTokenInfo());
+
+            res.cookie('refreshToken', refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
+
+            res.json({
+                accessToken,
+                sessionId,
+                user: await user.toShortInfo()
             });
         } catch (error) {
             next(error);
@@ -101,7 +121,7 @@ class AuthController {
     }
 
     async verifyRecoveryPasswordCode(req: RequestWithBody<UserRecoveryPasswordDTO>, res: Response, next: NextFunction) {
-        try {            
+        try {
             const { nickname, code } = req.body;
 
             await codeService.verifyRecoveryPasswordCode(nickname, code);
@@ -113,7 +133,7 @@ class AuthController {
     }
 
     async recoveryPassword(req: RequestWithBody<UserRecoveryPasswordDTO>, res: Response, next: NextFunction) {
-        try {            
+        try {
             const { nickname, code, password } = req.body;
 
             await codeService.verifyRecoveryPasswordCode(nickname, code);

@@ -42,9 +42,9 @@ class SocketService {
 
                 // await activityService.createUserLoginActivity(userId);
 
-                const user = {
+                const authUser = {
                     userId,
-                    socketId: socket.id
+                    socketId
                 };
 
                 const existedAuthUser = this.connectedAuthUsers.find(
@@ -52,7 +52,7 @@ class SocketService {
                 );
 
                 if (!existedAuthUser) {
-                    this.connectedAuthUsers.push(user);
+                    this.connectedAuthUsers.push(authUser);
                 }
             });
 
@@ -106,6 +106,20 @@ class SocketService {
 
     emitToRoom(room: string, event: Emits, data: any) {
         this.io.to(room).emit(event, data);
+    }
+
+    emitAuthCode(uniqueId: string, code: string) {
+        const existedConnectedUser = this.connectedUsers.find(
+            u => u.uniqueId === uniqueId
+        );
+
+        if (existedConnectedUser) {
+            this.emitToRoom(
+                existedConnectedUser.socketId,
+                Emits.Auth,
+                { code }
+            );
+        }
     }
 
     emitNewPermissionsToUsers(userIDs: number[], permissions: PermissionDTO[]) {

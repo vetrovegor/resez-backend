@@ -23,5 +23,6 @@ export const enum Emits {
     Blocked = 'blocked',
     Unblocked = 'unblocked',
     Message = 'message',
-    NewPermissions = 'new-permissions'
+    NewPermissions = 'new-permissions',
+    Auth = 'auth'
 }
