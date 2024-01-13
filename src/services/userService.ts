@@ -60,19 +60,19 @@ class UserService {
         return await user.toShortInfo();
     }
 
-    async verifyUser(userId: number, telegramChatId: string): Promise<User> {
+    async verifyUser(userId: number, telegramChatId: string): Promise<void> {
         const user = await this.getUserById(userId);
 
         user.set('isVerified', true);
         user.set('telegramChatId', telegramChatId);
+
+        await user.save()
 
         socketService.emitToRoom(
             userId.toString(),
             Emits.Verify,
             { user: user.toShortInfo() }
         );
-
-        return await user.save();
     }
 
     async validateUserPassword(userId: number, oldPassword: string): Promise<void> {
