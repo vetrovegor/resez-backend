@@ -36,9 +36,12 @@ class SocketService {
             }
 
             socket.on(Events.Join, async (userId: string, sessionId: string) => {
+                userId = userId.toString();
+                sessionId = sessionId.toString();
+
                 // попробовать в будущем socket.join([userId, sessionId]);
-                await socket.join(userId.toString());
-                await socket.join(sessionId.toString());
+                await socket.join(userId);
+                await socket.join(sessionId);
 
                 const authUser = {
                     userId,

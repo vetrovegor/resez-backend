@@ -140,6 +140,37 @@
                 }
             }
         },
+        "/auth/send-verification-code": {
+            "get": {
+                "summary": "Send verification code",
+                "tags": [
+                    "Authorization"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Verification code sent successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "verificationCodeData": {
+                                        "code": "704779",
+                                        "lifetime": 30000
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
         "/auth/send-recovery-password-code": {
             "post": {
                 "summary": "Send recovery password code",
@@ -211,6 +242,275 @@
                 "responses": {
                     "200": {
                         "description": "Password recovered successfully"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
+        "/api/user/short-info": {
+            "get": {
+                "summary": "Get short information about the user",
+                "tags": [
+                    "Users"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/UserShortInfo"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
+        "/api/user/send-change-password-code": {
+            "post": {
+                "summary": "Send code for changing the password",
+                "tags": [
+                    "Users"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "oldPassword": "123123123",
+                                "newPassword": "321321321"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password change code sent successfully"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
+        "/api/user/verify-change-password-code": {
+            "patch": {
+                "summary": "Verify and change the password",
+                "tags": [
+                    "Users"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "code": "170543",
+                                "oldPassword": "123123123",
+                                "newPassword": "123123123"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/UserShortInfo"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
+        "/api/user/profile-info": {
+            "get": {
+                "summary": "Get user profile information",
+                "tags": [
+                    "Users"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User profile information retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "user": {
+                                        "id": 2,
+                                        "firstName": "Илья",
+                                        "lastName": "Шилов",
+                                        "birthDate": "2023-07-26 18:06:08.79+05",
+                                        "gender": "Мужской"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            },
+            "patch": {
+                "summary": "Update user profile information",
+                "tags": [
+                    "Users"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "firstName": "Илья",
+                                "lastName": "Шилов",
+                                "birthDate": "2023-07-26 18:06:08.79+05",
+                                "gender": "Мужской"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User profile information updated successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "user": {
+                                        "id": 2,
+                                        "firstName": "Илья",
+                                        "lastName": "Шилов",
+                                        "birthDate": "2023-07-26 18:06:08.79+05",
+                                        "gender": "Мужской"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
+        "/api/user/avatar": {
+            "post": {
+                "summary": "Update user avatar",
+                "tags": [
+                    "Users"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "avatar": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/UserShortInfo"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete user avatar",
+                "tags": [
+                    "Users"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/UserShortInfo"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
+        "/api/user": {
+            "get": {
+                "summary": "Search users",
+                "tags": [
+                    "Users"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search term for user",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Users retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "totalCount": 1,
+                                    "isLast": true,
+                                    "elementsCount": 1,
+                                    "users": [
+                                        {
+                                            "id": 2,
+                                            "nickname": "l4ndar",
+                                            "avatar": "http://localhost:8080/static/1705345662196.jpg"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
                     },
                     "400": {
                         "$ref": "#/components/responses/Error"
@@ -1128,7 +1428,9 @@
         "/admin/archive/subject": {
             "get": {
                 "summary": "Get all archived subjects",
-                "tags": ["Archive"],
+                "tags": [
+                    "Archive"
+                ],
                 "security": [
                     {
                         "bearerAuth": []
@@ -1164,7 +1466,9 @@
         "/admin/role": {
             "post": {
                 "summary": "Create a new role",
-                "tags": ["Roles"],
+                "tags": [
+                    "Roles"
+                ],
                 "security": [
                     {
                         "bearerAuth": []
@@ -1176,7 +1480,15 @@
                         "application/json": {
                             "example": {
                                 "role": "Админ",
-                                "permissions": [1,2,5,6,7,8,9],
+                                "permissions": [
+                                    1,
+                                    2,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9
+                                ],
                                 "textColor": "#AAAB",
                                 "backgroundColor": "#DDDB"
                             }
@@ -1208,7 +1520,9 @@
             },
             "get": {
                 "summary": "Get roles with limit and offset",
-                "tags": ["Roles"],
+                "tags": [
+                    "Roles"
+                ],
                 "security": [
                     {
                         "bearerAuth": []
@@ -1266,7 +1580,9 @@
         "/admin/role/{roleId}": {
             "get": {
                 "summary": "Get details of a specific role",
-                "tags": ["Roles"],
+                "tags": [
+                    "Roles"
+                ],
                 "security": [
                     {
                         "bearerAuth": []
@@ -1341,7 +1657,9 @@
             },
             "patch": {
                 "summary": "Update a specific role",
-                "tags": ["Roles"],
+                "tags": [
+                    "Roles"
+                ],
                 "security": [
                     {
                         "bearerAuth": []
@@ -1364,7 +1682,13 @@
                         "application/json": {
                             "example": {
                                 "role": "Хелпер",
-                                "permissions": [1,2,3,4,5],
+                                "permissions": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5
+                                ],
                                 "textColor": "#CCC",
                                 "backgroundColor": "#CCC"
                             }
@@ -1398,7 +1722,9 @@
         "/admin/role/assign": {
             "post": {
                 "summary": "Assign a role to a user",
-                "tags": ["Roles"],
+                "tags": [
+                    "Roles"
+                ],
                 "security": [
                     {
                         "bearerAuth": []
@@ -1428,7 +1754,9 @@
         "/admin/permission": {
             "get": {
                 "summary": "Get all permissions",
-                "tags": ["Roles"],
+                "tags": [
+                    "Roles"
+                ],
                 "security": [
                     {
                         "bearerAuth": []
@@ -1490,12 +1818,42 @@
                                 "isVerified": false,
                                 "isBlocked": false,
                                 "avatar": null,
-                                "level": 1
+                                "level": 1,
+                                "permissions": [
+                                    {
+                                        "id": 1,
+                                        "permission": "Админка"
+                                    }
+                                ]
                             },
                             "verificationCodeData": {
                                 "code": "303461",
                                 "lifetime": 30000
                             }
+                        }
+                    }
+                }
+            },
+            "UserShortInfo": {
+                "description": "User authorized successfully",
+                "content": {
+                    "application/json": {
+                        "example": {
+                            "user": {
+                                "id": 10,
+                                "nickname": "xw1nchester",
+                                "isVerified": false,
+                                "isBlocked": false,
+                                "avatar": "http://localhost:8080/static/1705345662196.jpg",
+                                "level": 1,
+                                "permissions": [
+                                    {
+                                        "id": 1,
+                                        "permission": "Админка"
+                                    }
+                                ]
+                            },
+                            "sessionId": 10
                         }
                     }
                 }

@@ -47,15 +47,15 @@ userRouter.get(
 );
 
 userRouter.patch(
-    '/update-profile',
+    '/profile-info',
     userProfileMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,
     userController.updateProfile
 );
 
-userRouter.patch(
-    '/set-avatar',
+userRouter.post(
+    '/avatar',
     accessTokenMiddleware,
     blockedMiddleware,
     fileMiddleware(2),
@@ -63,8 +63,8 @@ userRouter.patch(
     userController.setAvatar
 );
 
-userRouter.patch(
-    '/delete-avatar',
+userRouter.delete(
+    '/avatar',
     accessTokenMiddleware,
     blockedMiddleware,
     userController.deleteAvatar

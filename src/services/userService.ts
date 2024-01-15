@@ -71,7 +71,7 @@ class UserService {
         socketService.emitToRoom(
             userId.toString(),
             Emits.Verify,
-            { user: user.toShortInfo() }
+            { user: await user.toShortInfo() }
         );
     }
 

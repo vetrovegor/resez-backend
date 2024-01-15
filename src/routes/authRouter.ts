@@ -44,7 +44,8 @@ authRouter.get(
     authController.refresh
 );
 
-authRouter.get('/send-verification-code',
+authRouter.get(
+    '/send-verification-code',
     accessTokenMiddleware,
     blockedMiddleware,
     authController.sendVerificationCode
