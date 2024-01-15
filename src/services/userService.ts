@@ -66,7 +66,7 @@ class UserService {
         user.set('isVerified', true);
         user.set('telegramChatId', telegramChatId);
 
-        await user.save()
+        await user.save();
 
         socketService.emitToRoom(
             userId.toString(),
@@ -117,14 +117,14 @@ class UserService {
     }
 
     async updateProfile(userId: number, firstName: string, lastName: string, birthDate: Date, gender: string): Promise<UserProfileInfo> {
-        const user = await this.getUserById(userId);        
+        const user = await this.getUserById(userId);
 
         user.set('firstName', firstName);
         user.set('lastName', lastName);
         user.set('birthDate', birthDate);
         user.set('gender', gender);
 
-        await user.save();       
+        await user.save();
 
         return user.toProfileInfo();
     }
@@ -188,7 +188,7 @@ class UserService {
             if (isNaN(Number(userId))) {
                 throw ApiError.badRequest('id пользователя должен быть числом');
             }
-            
+
             await this.getUserById(userId);
         }
     }

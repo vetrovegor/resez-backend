@@ -96,6 +96,29 @@
                 }
             }
         },
+        "/auth/refresh": {
+            "get": {
+                "summary": "Refresh tokens",
+                "tags": [
+                    "Authorization"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tokens refreshed successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Nywibmlja25hbWUiOiJ4dzFuY2hlc3RlciIsImlhdCI6MTcwMzQzOTAwNiwiZXhwIjo4ODEwMzQzOTAwNn0.IwcR-KlJxAi2m7AKlqX-P4mLhRG8F7cYtqX7kOiLhlk"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
         "/auth/logout": {
             "get": {
                 "summary": "User logout",
@@ -110,34 +133,6 @@
                 "responses": {
                     "200": {
                         "description": "User logged out successfully"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/Error"
-                    }
-                }
-            }
-        },
-        "/auth/refresh": {
-            "get": {
-                "summary": "Refresh tokens",
-                "tags": [
-                    "Authorization"
-                ],
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Tokens refreshed successfully",
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Nywibmlja25hbWUiOiJ4dzFuY2hlc3RlciIsImlhdCI6MTcwMzQzOTAwNiwiZXhwIjo4ODEwMzQzOTAwNn0.IwcR-KlJxAi2m7AKlqX-P4mLhRG8F7cYtqX7kOiLhlk"
-                                }
-                            }
-                        }
                     },
                     "401": {
                         "$ref": "#/components/responses/Error"

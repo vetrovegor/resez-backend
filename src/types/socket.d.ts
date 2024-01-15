@@ -4,7 +4,7 @@ export type ConnectedUser = {
 }
 
 export type AuthConnectedUser = {
-    userId: number,
+    userId: string,
     socketId: string
 }
 

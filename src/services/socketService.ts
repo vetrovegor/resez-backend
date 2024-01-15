@@ -35,12 +35,10 @@ class SocketService {
                 this.connectedUsers.push(user);
             }
 
-            socket.on(Events.Join, async (userId, sessionId) => {
-                // попробовать socket.join([userId, sessionId]);
-                socket.join(userId);
-                socket.join(sessionId);
-
-                // await activityService.createUserLoginActivity(userId);
+            socket.on(Events.Join, async (userId: string, sessionId: string) => {
+                // попробовать в будущем socket.join([userId, sessionId]);
+                await socket.join(userId.toString());
+                await socket.join(sessionId.toString());
 
                 const authUser = {
                     userId,
