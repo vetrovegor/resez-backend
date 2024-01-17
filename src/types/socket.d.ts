@@ -4,18 +4,19 @@ export type ConnectedUser = {
 }
 
 export type AuthConnectedUser = {
+    socketId: string,
     userId: string,
-    socketId: string
+    sessionId: string
 }
 
-export const enum Events {
+export const enum EventTypes {
     Join = 'join',
     Leave = 'leave',
     Stats = 'stats',
     Disconnect = 'disconnect'
 }
 
-export const enum Emits {
+export const enum EmitTypes {
     Verify = 'verify',
     VerifyCodeUpdated = 'verify-code-updated',
     Notify = 'notify',

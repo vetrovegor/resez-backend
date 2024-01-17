@@ -1008,6 +1008,232 @@
                 }
             }
         },
+        "/api/admin/notify": {
+            "post": {
+                "summary": "Send notification",
+                "tags": ["Notifies"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "title": "Киффлом",
+                                "author": "Админ",
+                                "users": [2],
+                                "notifyTypeId": 4,
+                                "date": "2024-01-18T00:14:00.000+05:00",
+                                "content": "Контент"
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Notification sent successfully",
+                            "content": {
+                                "application/json": {
+                                    "example": {
+                                        "notify": {
+                                            "id": 1,
+                                            "type": "Информация",
+                                            "title": "Киффлом",
+                                            "content": "Контент",
+                                            "author": "Админ",
+                                            "date": "2024-01-18T00:14:00.000+05:00",
+                                            "isRead": false
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "400": {
+                            "$ref": "#/components/responses/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/notify": {
+            "get": {
+                "summary": "Get notifications",
+                "tags": ["Notifies"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Limit the number of notifications to retrieve",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 5
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "description": "Offset for paginated results",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 0
+                        }
+                    },
+                    {
+                        "name": "unread",
+                        "in": "query",
+                        "description": "Filter to retrieve only unread notifications",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Notifications retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "totalCount": 4,
+                                    "isLast": true,
+                                    "elementsCount": 4,
+                                    "notifies": [
+                                        {
+                                            "id": 4,
+                                            "type": "Информация",
+                                            "title": "Киффлом",
+                                            "content": "Контент",
+                                            "author": "Админ",
+                                            "date": "2024-01-17T19:22:00.061Z",
+                                            "isRead": false
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
+        "/api/notify/read/{notifyId}": {
+            "patch": {
+                "summary": "Mark a notification as read",
+                "tags": ["Notifies"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "notifyId",
+                        "in": "path",
+                        "description": "ID of the notification to mark as read",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Notification marked as read successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "notify": {
+                                        "id": 4,
+                                        "type": "Информация",
+                                        "title": "Киффлом",
+                                        "content": "Контент",
+                                        "author": "Админ",
+                                        "date": "2024-01-17T19:14:00.906Z",
+                                        "isRead": true
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
+        "/api/notify/read-all": {
+            "patch": {
+                "summary": "Mark all notifications as read",
+                "tags": ["Notifies"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Limit the number of notifications to retrieve",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 5
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "description": "Offset for paginated results",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 0
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "All notifications marked as read successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "totalCount": 4,
+                                    "isLast": true,
+                                    "elementsCount": 4,
+                                    "notifies": [
+                                        {
+                                            "id": 4,
+                                            "type": "Информация",
+                                            "title": "Киффлом",
+                                            "content": "Контент",
+                                            "author": "Админ",
+                                            "date": "2024-01-17T19:22:00.061Z",
+                                            "isRead": false
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
         "/admin/subject": {
             "post": {
                 "summary": "Create a new subject",

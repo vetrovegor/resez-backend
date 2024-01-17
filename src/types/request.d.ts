@@ -30,6 +30,3 @@ export type RequestWithParamsAndUser<T> = RequestWithParams<T>
 
 export type RequestWithParamsAndBodyAndUser<P, B> = RequestWithParamsAndBody<P, B>
     & { user: UserTokenInfo };
-
-export type UserSearchQuery = PaginationQuery
-    & { search: string };

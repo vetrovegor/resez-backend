@@ -4,8 +4,10 @@ WORKDIR /app
 
 COPY package*.json .
 
-RUN npm install
+RUN mkdir static && npm install
 
-COPY . .
+COPY build build
+
+EXPOSE 8080
 
 CMD ["npm", "start"]

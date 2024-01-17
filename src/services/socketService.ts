@@ -2,7 +2,7 @@ import http from 'http';
 import { Server, Socket } from "socket.io";
 
 import { CORS_OPTIONS } from "../consts/CORS_OPTIONS";
-import { Events, ConnectedUser, AuthConnectedUser, Emits } from 'types/socket';
+import { EventTypes, ConnectedUser, AuthConnectedUser, EmitTypes } from 'types/socket';
 import { PermissionDTO } from 'types/permission';
 
 class SocketService {
@@ -22,44 +22,38 @@ class SocketService {
             const socketId = socket.id;
             const uniqueId = socket.handshake.auth.uniqueId;
 
-            const user = {
-                socketId,
-                uniqueId
-            };
-
             const existedConnectedUser = this.connectedUsers.find(
                 u => u.uniqueId === uniqueId
             );
 
             if (!existedConnectedUser) {
-                this.connectedUsers.push(user);
+                this.connectedUsers.push({
+                    socketId,
+                    uniqueId
+                });
             }
 
-            socket.on(Events.Join, async (userId: string, sessionId: string) => {
+            socket.on(EventTypes.Join, async (userId: string, sessionId: string) => {
                 userId = userId.toString();
                 sessionId = sessionId.toString();
-
-                // попробовать в будущем socket.join([userId, sessionId]);
-                await socket.join(userId);
-                await socket.join(sessionId);
-
-                const authUser = {
-                    userId,
-                    socketId
-                };
 
                 const existedAuthUser = this.connectedAuthUsers.find(
                     u => u.userId == userId
                 );
 
                 if (!existedAuthUser) {
-                    this.connectedAuthUsers.push(authUser);
+                    await socket.join(userId);
+
+                    this.connectedAuthUsers.push({
+                        socketId,
+                        userId,
+                        sessionId
+                    });
                 }
             });
 
-            socket.on(Events.Leave, (userId, sessionId) => {
+            socket.on(EventTypes.Leave, (userId) => {
                 socket.leave(userId);
-                socket.leave(sessionId);
 
                 this.disconnectAuthUser(socketId);
             });
@@ -78,7 +72,7 @@ class SocketService {
             //     }, 5000);
             // });
 
-            socket.on(Events.Disconnect, async () => {
+            socket.on(EventTypes.Disconnect, async () => {
                 const index = this.connectedUsers.findIndex(
                     user => user.socketId == socketId
                 );
@@ -105,8 +99,22 @@ class SocketService {
         }
     }
 
-    emitToRoom(room: string, event: Emits, data: any) {
-        this.io.to(room).emit(event, data);
+    // в будущем может сделать чтобы передавался userId вместо room
+    // и искался авторизованнный пользователь по userId
+    // брался его socketId и в комнату socketId отправлялся emit
+    // сделать два метода emitByUserId и emitBySessionId (или emitToUser, emitToSession)
+    emitToRoom(room: string, emitType: EmitTypes, data?: any): void {
+        this.io.to(room).emit(emitType, data);
+    }
+
+    emitEndSession(sessionId: number): void {
+        const existedAuthUser = this.connectedAuthUsers.find(
+            u => u.sessionId === sessionId.toString()
+        );
+
+        if (existedAuthUser) {
+            this.emitToRoom(existedAuthUser.userId, EmitTypes.EndSession);
+        }
     }
 
     emitAuthCode(uniqueId: string, code: string) {
@@ -117,7 +125,7 @@ class SocketService {
         if (existedConnectedUser) {
             this.emitToRoom(
                 existedConnectedUser.socketId,
-                Emits.Auth,
+                EmitTypes.Auth,
                 { code }
             );
         }
@@ -128,7 +136,7 @@ class SocketService {
         userIDs.forEach(userId => {
             this.emitToRoom(
                 userId.toString(),
-                Emits.NewPermissions,
+                EmitTypes.NewPermissions,
                 { permissions }
             );
         });

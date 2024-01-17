@@ -7,7 +7,7 @@ import telegramService from "./telegramService";
 import { ApiError } from "../apiError";
 import socketService from "./socketService";
 import User from "../db/models/User";
-import { Emits } from "types/socket";
+import { EmitTypes } from "types/socket";
 
 // подумать как сделать лучше, как вынести в файл с типами
 export const enum CodeTypes {
@@ -45,7 +45,7 @@ class CodeService {
 
             socketService.emitToRoom(
                 userId.toString(),
-                Emits.VerifyCodeUpdated,
+                EmitTypes.VerifyCodeUpdated,
                 { verificationCodeData }
             );
 
@@ -158,10 +158,8 @@ class CodeService {
         return;
     }
 
-    // типизировать
-    async createAndEmitAuthCode(userId: number, uniqueId: string) {
-        // вынести время жизни, кулдаун в env, попробовать сделать чтобы код авторизации жил 1 секунду
-        const createdCode = await this.saveCode(userId, null, CodeTypes.AUTH, null, 0, 60000, false);
+    async createAndEmitAuthCode(userId: number, uniqueId: string): Promise<void> {
+        const createdCode = await this.saveCode(userId, null, CodeTypes.AUTH, null, 0, 5000, false);
         socketService.emitAuthCode(uniqueId, createdCode.get('code'));
     }
 
@@ -173,9 +171,15 @@ class CodeService {
             this.throwInvalidCode();
         }
 
-        // желательно сразу удалить код
+        const user = await userService.getUserById(codeData.get('userId'));
 
-        return userService.getUserById(codeData.get('userId'));
+        await Code.destroy({
+            where: {
+                id: codeData.id
+            }
+        });
+
+        return user;
     }
 
     async saveCode(userId: number, telegramChatId: string, type: CodeTypes, message: string,

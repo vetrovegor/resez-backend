@@ -20,7 +20,7 @@ class ChatService {
 
     async createChat(userIDs: number[], chat: string = null, isGroup: boolean = false,
         picture: string = null, adminId: number = null): Promise<Chat> {
-        await userService.validateUserIDs(userIDs);
+        const validatedUserIDs = await userService.validateUserIDs(userIDs);
 
         const createdChat = await Chat.create({
             chat,
@@ -29,7 +29,7 @@ class ChatService {
             adminId
         });
 
-        for (const userId of userIDs) {
+        for (const userId of validatedUserIDs) {
             await this.createUserChat(createdChat.get('id'), userId);
         }
 

@@ -3,7 +3,7 @@ import { Op } from "sequelize";
 import MessageType from "../../db/models/messenger/MessageType";
 import { MessageTypes } from "types/messenger";
 
-const initialMessageTypes: string[] = [
+const initialTypes: string[] = [
     MessageTypes.Default,
     MessageTypes.Deleted,
     MessageTypes.System,
@@ -13,7 +13,7 @@ const initialMessageTypes: string[] = [
 
 class MessageTypeService {
     async initMessageTypes() {
-        initialMessageTypes.forEach(async (type) => {
+        initialTypes.forEach(async (type) => {
             const existedType = await MessageType.findOne({
                 where: {
                     type
@@ -30,13 +30,13 @@ class MessageTypeService {
         return await MessageType.destroy({
             where: {
                 type: {
-                    [Op.notIn]: initialMessageTypes
+                    [Op.notIn]: initialTypes
                 }
             }
         });
     }
 
-    async getMessageTypeIdByType(type: string): Promise<MessageType> {
+    async getMessageTypeIdByType(type: string): Promise<number> {
         const messageType = await MessageType.findOne({
             where: {
                 type

@@ -3,8 +3,8 @@ import { Response, NextFunction } from 'express';
 import codeService from '../services/codeService';
 import userService from '../services/userService';
 import sessionService from '../services/sessionService';
-import { PaginationQuery, RequestWithBodyAndUser, RequestWithQueryAndUser, RequestWithUser, UserSearchQuery } from 'types/request';
-import { UserChangePasswordDTO, UserProfileInfo } from 'types/user';
+import { PaginationQuery, RequestWithBodyAndUser, RequestWithQueryAndUser, RequestWithUser } from 'types/request';
+import { UserChangePasswordDTO, UserProfileInfo, UserSearchQuery } from 'types/user';
 
 class UserhController {
     async getUserShortInfo(req: RequestWithUser, res: Response, next: NextFunction) {
@@ -89,7 +89,7 @@ class UserhController {
         }
     }
 
-    async searchUsers(req: RequestWithQueryAndUser<UserSearchQuery>, res: Response, next: NextFunction) {
+    async searchUsers(req: RequestWithQueryAndUser<PaginationQuery & UserSearchQuery>, res: Response, next: NextFunction) {
         try {
             const { search, limit, offset } = req.query;
 

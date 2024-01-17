@@ -11,7 +11,7 @@ import { STATIC_PATH } from '../consts/STATIC_PATH';
 import { FILE_EXTENSIONS } from '../consts/FILE-EXTENSIONS';
 import { PaginationDTO } from '../dto/PaginationDTO';
 import socketService from './socketService';
-import { Emits } from 'types/socket';
+import { EmitTypes } from 'types/socket';
 
 class UserService {
     async getUserById(id: number): Promise<User> {
@@ -32,9 +32,10 @@ class UserService {
         });
     }
 
-    async getUserByTelegramChatId(telegramChatId: string): Promise<User> {
+    async getVerifiedUserByTelegramChatId(telegramChatId: string): Promise<User> {
         return await User.findOne({
             where: {
+                isVerified: true,
                 telegramChatId
             }
         });
@@ -70,7 +71,7 @@ class UserService {
 
         socketService.emitToRoom(
             userId.toString(),
-            Emits.Verify,
+            EmitTypes.Verify,
             { user: await user.toShortInfo() }
         );
     }
@@ -183,7 +184,9 @@ class UserService {
         return new PaginationDTO<UserPreview>("users", userDTOs, totalCount, limit, offset);
     }
 
-    async validateUserIDs(userIDs: number[]): Promise<void> {
+    async validateUserIDs(userIDs: number[]): Promise<number[]> {
+        userIDs = [...new Set(userIDs)];
+
         for (const userId of userIDs) {
             if (isNaN(Number(userId))) {
                 throw ApiError.badRequest('id пользователя должен быть числом');
@@ -191,6 +194,14 @@ class UserService {
 
             await this.getUserById(userId);
         }
+
+        return userIDs;
+    }
+
+    async getAllUserIDs(): Promise<number[]> {
+        const users = await User.findAll();
+
+        return users.map(user => user.get('id'));
     }
 }
 

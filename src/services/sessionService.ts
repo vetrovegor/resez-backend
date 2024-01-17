@@ -9,6 +9,7 @@ import tokenService from './tokenService';
 import Session from '../db/models/Session';
 import { PaginationDTO } from '../dto/PaginationDTO';
 import { ApiError } from '../apiError';
+import socketService from './socketService';
 
 class SessionService {
     // добавить параметр shouldCreateNotify
@@ -201,7 +202,7 @@ class SessionService {
 
         await tokenService.deleteTokenBySessionId(id);
 
-        // socketService.emitToRoom(Number(sessionId), EVENT_TYPES.END_SESSION);
+        socketService.emitEndSession(id);
     }
 
     // типизировать
@@ -226,7 +227,7 @@ class SessionService {
 
             await tokenService.deleteTokenBySessionId(session.id);
 
-            // socketService.emitToRoom(Number(session.id), EVENT_TYPES.END_SESSION);
+            socketService.emitEndSession(session.get('id'));
         }
 
         return this.getUserSessions(req, userId, limit, offset);

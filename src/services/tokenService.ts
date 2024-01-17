@@ -44,9 +44,6 @@ class TokenService {
     validateAccessToken(token: string): UserTokenInfo {
         const { id, nickname } = jwt.verify(token, process.env.JWT_ACCESS_SECRET) as UserTokenInfo;
 
-        // сделать поиск в бд бользователей по данному id и нику
-        // вернуть user.toTokeInfo()
-
         return {
             id,
             nickname
@@ -55,9 +52,6 @@ class TokenService {
 
     validateRefreshToken(token: string): UserTokenInfo {
         const { id, nickname } = jwt.verify(token, process.env.JWT_REFRESH_SECRET) as UserTokenInfo;
-
-        // сделать поиск в бд бользователей по данному id и нику
-        // вернуть user.toTokeInfo()
 
         return {
             id,

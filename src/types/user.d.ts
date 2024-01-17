@@ -52,3 +52,7 @@ export type UserProfileInfo = {
     birthDate: Date;
     gender: string;
 }
+
+export type UserSearchQuery = {
+    search: string
+};

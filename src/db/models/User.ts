@@ -10,6 +10,8 @@ import Message from "./messenger/Message";
 import Chat from "./messenger/Chat";
 import UserChat from "./messenger/UserChat";
 import { PermissionDTO } from "types/permission";
+import Notify from "./notifies/Notify";
+import UserNotify from "./notifies/UserNotify";
 
 @Table({
     timestamps: false,
@@ -102,10 +104,14 @@ class User extends Model {
     })
     isHideAvatars: boolean;
 
-    @HasMany(() => Session)
+    @HasMany(() => Session, {
+        onDelete: 'CASCADE'
+    })
     sessions: Session[];
 
-    @HasMany(() => Code)
+    @HasMany(() => Code, {
+        onDelete: 'CASCADE'
+    })
     codes: Code[];
 
     @HasMany(() => Collection)
@@ -113,6 +119,19 @@ class User extends Model {
 
     @BelongsToMany(() => Role, () => UserRole)
     roles: Role[];
+
+    @BelongsToMany(() => Notify, () => UserNotify)
+    notifies: Notify[];
+
+    @HasMany(() => Notify, {
+        onDelete: 'CASCADE'
+    })
+    sentNotifies: Notify[];
+
+    @HasMany(() => UserNotify, {
+        onDelete: 'CASCADE'
+    })
+    userNotifies: UserNotify[];
 
     @BelongsToMany(() => Chat, () => UserChat)
     chats: Chat[];
