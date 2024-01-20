@@ -1,6 +1,6 @@
 import { Response, NextFunction } from "express";
 
-import { ApiError } from "../apiError";
+import { ApiError } from "../ApiError";
 import { RequestWithBody } from "types/request";
 import { SubjectBodyDTO } from "types/education";
 

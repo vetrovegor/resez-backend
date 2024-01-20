@@ -1,7 +1,7 @@
 import { Response, NextFunction } from 'express';
 
 import { RequestWithUser } from 'types/request';
-import { ApiError } from '../apiError';
+import { ApiError } from '../ApiError';
 import userService from '../services/userService';
 
 export const permissionMiddleware = (requiredPermission: string) => {

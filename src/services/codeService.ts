@@ -4,7 +4,7 @@ import Code from "../db/models/Code";
 import { VerificationCodeData } from "types/code";
 import userService from "./userService";
 import telegramService from "./telegramService";
-import { ApiError } from "../apiError";
+import { ApiError } from "../ApiError";
 import socketService from "./socketService";
 import User from "../db/models/User";
 import { EmitTypes } from "types/socket";

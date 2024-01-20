@@ -2,7 +2,7 @@ import { Op } from "sequelize";
 
 import NotifyType from "../../db/models/notifies/NotifyType";
 import { NotifyTypes } from "types/notify";
-import { ApiError } from "../../apiError";
+import { ApiError } from "../../ApiError";
 
 const initialTypes: string[] = [
     NotifyTypes.Info,

@@ -1,6 +1,6 @@
 import { Response, NextFunction } from "express";
 
-import { ApiError } from "../apiError";
+import { ApiError } from "../ApiError";
 import { NotifyTypes, SendNotifiesDTO } from "types/notify";
 import { RequestWithBody } from "types/request";
 import userService from "../services/userService";

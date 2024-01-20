@@ -1,7 +1,7 @@
 import { Response, NextFunction } from 'express';
 
 import { RequestWithUser } from 'types/request';
-import { ApiError } from '../apiError';
+import { ApiError } from '../ApiError';
 import tokenService from '../services/tokenService';
 
 export const accessTokenMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {

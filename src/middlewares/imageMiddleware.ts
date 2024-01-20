@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import mimeTypes from 'mime-types';
 
-import { ApiError } from '../apiError';
+import { ApiError } from '../ApiError';
 
 export const imageMiddleware = (req: Request, res: Response, next: NextFunction) => {
     // тиипизровать

@@ -2,7 +2,7 @@ import { Op } from "sequelize";
 
 import { SubThemeBodyDTO } from "types/education";
 import SubTheme from "../../db/models/education/SubTheme";
-import { ApiError } from "../../apiError";
+import { ApiError } from "../../ApiError";
 
 class SubjectThemeService {
     async createSubTheme(subTheme: string, subjectTaskId: number): Promise<SubTheme> {

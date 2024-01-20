@@ -1,7 +1,7 @@
 import { Op } from "sequelize";
 
 import Subject from "../../db/models/education/Subject";
-import { ApiError } from "../../apiError";
+import { ApiError } from "../../ApiError";
 import { SubjectShortInfo, SubjectTaskBodyDTO } from "types/education";
 import subjectTaskService from "./subjectTaskService";
 import scoreConversionService from "./scoreConversionService";

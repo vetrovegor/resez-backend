@@ -1,7 +1,7 @@
 import { Op } from "sequelize";
 import { UploadedFile } from 'express-fileupload';
 
-import { ApiError } from "../../apiError";
+import { ApiError } from "../../ApiError";
 import Chat from "../../db/models/messenger/Chat";
 import UserChat from "../../db/models/messenger/UserChat";
 import { PaginationDTO } from "../../dto/PaginationDTO";

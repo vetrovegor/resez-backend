@@ -8,7 +8,7 @@ import { ReqInfo, SessionDTO, SessionPagination, SessionSaveResult } from 'types
 import tokenService from './tokenService';
 import Session from '../db/models/Session';
 import { PaginationDTO } from '../dto/PaginationDTO';
-import { ApiError } from '../apiError';
+import { ApiError } from '../ApiError';
 import socketService from './socketService';
 
 class SessionService {

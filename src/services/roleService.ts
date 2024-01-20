@@ -1,7 +1,7 @@
 import { Op } from "sequelize";
 
 import Role from "../db/models/Role";
-import { ApiError } from "../apiError";
+import { ApiError } from "../ApiError";
 import userService from "./userService";
 import permissionService from "./permissionService";
 import RolePermission from "../db/models/RolePermission";

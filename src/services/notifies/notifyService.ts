@@ -5,7 +5,7 @@ import Notify from "../../db/models/notifies/Notify";
 import UserNotify from "../../db/models/notifies/UserNotify";
 import { EmitTypes } from "types/socket";
 import { PaginationDTO } from "../../dto/PaginationDTO";
-import { ApiError } from "../../apiError";
+import { ApiError } from "../../ApiError";
 import { NotifyDTO } from "types/notify";
 
 class NotifyService {

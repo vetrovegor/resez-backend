@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 
 import userService from "./userService";
-import { ApiError } from "../apiError";
+import { ApiError } from "../ApiError";
 import codeService from './codeService';
 import { AuthResponse, UserTokenInfo } from 'types/user';
 import tokenService from './tokenService';

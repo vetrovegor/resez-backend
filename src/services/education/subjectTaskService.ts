@@ -3,7 +3,7 @@ import { Op } from "sequelize";
 import { SubjectTaskBodyDTO } from "types/education";
 import SubjectTask from "../../db/models/education/SubjectTask";
 import subThemeService from "./subThemeService";
-import { ApiError } from "../../apiError";
+import { ApiError } from "../../ApiError";
 
 class SubjectTaskService {
     async createSubjectTask(number: number, theme: string, isDetailedAnswer: boolean, primaryScore: number, subjectId: number): Promise<SubjectTask> {

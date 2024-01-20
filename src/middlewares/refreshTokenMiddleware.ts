@@ -1,6 +1,6 @@
 import { Response, NextFunction } from 'express';
 
-import { ApiError } from '../apiError';
+import { ApiError } from '../ApiError';
 import tokenService from '../services/tokenService';
 import { RequestWithUser } from 'types/request';
 

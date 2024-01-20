@@ -5,7 +5,7 @@ import fs from 'fs';
 import { Op } from "sequelize";
 
 import User from "../db/models/User";
-import { ApiError } from '../apiError';
+import { ApiError } from '../ApiError';
 import { UserPreview, UserProfileInfo, UserShortInfo } from 'types/user';
 import { STATIC_PATH } from '../consts/STATIC_PATH';
 import { FILE_EXTENSIONS } from '../consts/FILE-EXTENSIONS';

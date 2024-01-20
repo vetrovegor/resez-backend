@@ -1,7 +1,7 @@
 import { ScoreConversionDTO, ScoreConversionItem } from "types/education";
 import ScoreConversion from "../../db/models/education/ScoreConversion";
 import subjectService from "./subjectService";
-import { ApiError } from "../../apiError";
+import { ApiError } from "../../ApiError";
 import subjectTaskService from "./subjectTaskService";
 
 class ScoreConversionService {

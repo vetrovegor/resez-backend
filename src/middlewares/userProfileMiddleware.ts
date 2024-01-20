@@ -1,7 +1,7 @@
 import { Response, NextFunction } from 'express';
 
 import { RequestWithBody } from 'types/request';
-import { ApiError } from '../apiError';
+import { ApiError } from '../ApiError';
 import { UserProfileInfo } from 'types/user';
 
 export const userProfileMiddleware = async (req: RequestWithBody<UserProfileInfo>, res: Response, next: NextFunction) => {
