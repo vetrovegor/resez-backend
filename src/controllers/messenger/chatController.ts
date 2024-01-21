@@ -1,4 +1,5 @@
 import { Response, NextFunction } from "express";
+import { UploadedFile } from "express-fileupload";
 
 import { PaginationQuery, RequestWithBodyAndUser, RequestWithParamsAndUser, RequestWithQueryAndUser } from "types/request";
 import { GroupCreateRequestDTO, UserChatParams } from "types/messenger";
@@ -17,13 +18,14 @@ class ChatController {
         }
     }
 
+    // типизировать запрос, который будет принимать картинку
     async createGroup(req: RequestWithBodyAndUser<GroupCreateRequestDTO>, res: Response, next: NextFunction) {
         try {
             const { chat, users } = req.body;
 
             const picture = req?.files?.picture ? req.files.picture : null;
 
-            await chatService.createGroup(chat, users, picture, req.user.id);
+            await chatService.createGroup(chat, users, picture as UploadedFile, req.user.id);
 
             res.sendStatus(200);
         } catch (error) {

@@ -20,8 +20,7 @@ export type PaginationQuery = {
 export type RequestWithQueryAndUser<T> = RequestWithQuery<T>
     & { user: UserTokenInfo };
 
-// подумать над другим названием
-export type WithId = {
+export type IdParam = {
     id: number
 }
 

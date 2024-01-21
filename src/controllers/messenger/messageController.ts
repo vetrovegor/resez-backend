@@ -1,11 +1,11 @@
 import { Response, NextFunction } from 'express';
 
-import { RequestWithParamsAndBodyAndUser, WithId } from 'types/request';
+import { RequestWithParamsAndBodyAndUser, IdParam } from 'types/request';
 import messageService from '../../services/messenger/messageService';
 import { MessageRequestBodyDTO } from 'types/messenger';
 
 class MessageController {
-    async sendMessageToUser(req: RequestWithParamsAndBodyAndUser<WithId, MessageRequestBodyDTO>, res: Response, next: NextFunction) {
+    async sendMessageToUser(req: RequestWithParamsAndBodyAndUser<IdParam, MessageRequestBodyDTO>, res: Response, next: NextFunction) {
         try {
             const message = await messageService.sendMessageToUser(
                 req.user.id,
@@ -19,7 +19,7 @@ class MessageController {
         }
     }
 
-    async sendMessageToChat(req: RequestWithParamsAndBodyAndUser<WithId, MessageRequestBodyDTO>, res: Response, next: NextFunction) {
+    async sendMessageToChat(req: RequestWithParamsAndBodyAndUser<IdParam, MessageRequestBodyDTO>, res: Response, next: NextFunction) {
         try {
             const message = await messageService.sendMessageToChat(
                 req.user.id,

@@ -1,9 +1,9 @@
 import { Op } from "sequelize";
 
-import Collection from "../db/models/Collection";
+import Collection from "../../db/models/memory/Collection";
 import { CollectionFullInfo, CollectionShortInfo, QAPair } from "types/collection";
-import { PaginationDTO } from "../dto/PaginationDTO";
-import { ApiError } from "../ApiError";
+import { PaginationDTO } from "../../dto/PaginationDTO";
+import { ApiError } from "../../ApiError";
 import qaService from "./qaService";
 
 class CollectionService {

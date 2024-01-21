@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 
-import permissionService from '../services/permissionService';
+import permissionService from '../../services/roles/permissionService';
 
 class PermissionController {
     async getPermissionsHierarchy(req: Request, res: Response, next: NextFunction) {

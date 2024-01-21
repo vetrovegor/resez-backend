@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 
-import { PaginationQuery, RequestWithBody, RequestWithParams, RequestWithParamsAndBody, RequestWithQuery, WithId } from 'types/request';
-import roleService from '../services/roleService';
+import { PaginationQuery, RequestWithBody, RequestWithParams, RequestWithParamsAndBody, RequestWithQuery, IdParam } from 'types/request';
+import roleService from '../../services/roles/roleService';
 import { AssignRoleBodyDTO, RoleBodyDTO } from 'types/role';
-import permissionService from '../services/permissionService';
+import permissionService from '../../services/roles/permissionService';
 
 class RoleController {
     // убрать в будущем
@@ -46,7 +46,7 @@ class RoleController {
         }
     }
 
-    async getRole(req: RequestWithParams<WithId>, res: Response, next: NextFunction) {
+    async getRole(req: RequestWithParams<IdParam>, res: Response, next: NextFunction) {
         try {
             const role = await roleService.getRole(req.params.id);
 
@@ -56,7 +56,7 @@ class RoleController {
         }
     }
 
-    async updateRole(req: RequestWithParamsAndBody<WithId, RoleBodyDTO>, res: Response, next: NextFunction) {
+    async updateRole(req: RequestWithParamsAndBody<IdParam, RoleBodyDTO>, res: Response, next: NextFunction) {
         try {
             const { role, permissions, textColor, backgroundColor } = req.body;
 

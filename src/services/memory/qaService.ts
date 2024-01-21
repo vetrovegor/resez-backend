@@ -1,4 +1,4 @@
-import QA from "../db/models/QA";
+import QA from "../../db/models/memory/QA";
 import { QAPair } from "types/collection";
 
 class QAService {

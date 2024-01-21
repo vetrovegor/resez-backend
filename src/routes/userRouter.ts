@@ -70,6 +70,15 @@ userRouter.delete(
     userController.deleteAvatar
 );
 
+userRouter.patch(
+    '/settings',
+    body('isPrivateAccount').isBoolean(),
+    body('isHideAvatars').isBoolean(),
+    accessTokenMiddleware,
+    blockedMiddleware,
+    userController.updateSettings
+);
+
 userRouter.get(
     '/',
     query('search').isString().withMessage('Параметр search является обязательным.'),

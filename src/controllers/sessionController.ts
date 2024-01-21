@@ -1,6 +1,6 @@
 import { Response, NextFunction } from 'express';
 
-import { PaginationQuery, RequestWithParamsAndUser, RequestWithQueryAndUser, WithId } from 'types/request';
+import { PaginationQuery, RequestWithParamsAndUser, RequestWithQueryAndUser, IdParam } from 'types/request';
 import sessionService from '../services/sessionService';
 
 class SessionController {
@@ -18,7 +18,7 @@ class SessionController {
         }
     }
 
-    async endSessionById(req: RequestWithParamsAndUser<WithId>, res: Response, next: NextFunction) {
+    async endSessionById(req: RequestWithParamsAndUser<IdParam>, res: Response, next: NextFunction) {
         try {
             const { id: sessionId } = req.params;
             const { id: userId } = req.user;

@@ -1,6 +1,6 @@
 import { Table, Column, Model, DataType, HasMany, ForeignKey, BelongsTo } from "sequelize-typescript";
 
-import User from "./User";
+import User from "../User";
 import QA from "./QA";
 import { CollectionFullInfo, CollectionShortInfo } from "types/collection";
 

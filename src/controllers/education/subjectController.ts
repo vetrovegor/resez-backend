@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 
-import { PaginationQuery, RequestWithBody, RequestWithParams, RequestWithParamsAndBody, RequestWithQuery, WithId } from 'types/request';
+import { PaginationQuery, RequestWithBody, RequestWithParams, RequestWithParamsAndBody, RequestWithQuery, IdParam } from 'types/request';
 import { SubjectBodyDTO } from 'types/education';
 import subjectService from '../../services/education/subjectService';
 
@@ -33,7 +33,7 @@ class SubjectController {
         }
     }
     
-    async updateSubject(req: RequestWithParamsAndBody<WithId, SubjectBodyDTO>, res: Response, next: NextFunction) {
+    async updateSubject(req: RequestWithParamsAndBody<IdParam, SubjectBodyDTO>, res: Response, next: NextFunction) {
         try {
             const { subject, subjectTasks, durationMinutes, isMark, isPublished } = req.body;
 
@@ -52,7 +52,7 @@ class SubjectController {
         }
     }
     
-    async getSubjectFullInfo(req: RequestWithParams<WithId>, res: Response, next: NextFunction) {
+    async getSubjectFullInfo(req: RequestWithParams<IdParam>, res: Response, next: NextFunction) {
         try {
             const subject = await subjectService.getSubjectFullInfo(req.params.id);
 
@@ -62,7 +62,7 @@ class SubjectController {
         }
     }
 
-    async archiveSubject(req: RequestWithParams<WithId>, res: Response, next: NextFunction) {
+    async archiveSubject(req: RequestWithParams<IdParam>, res: Response, next: NextFunction) {
         try {            
             const subject = await subjectService.setSubjectArchiveStatus(req.params.id, true);
 
@@ -72,7 +72,7 @@ class SubjectController {
         }
     }
 
-    async restoreSubject(req: RequestWithParams<WithId>, res: Response, next: NextFunction) {
+    async restoreSubject(req: RequestWithParams<IdParam>, res: Response, next: NextFunction) {
         try {            
             const subject = await subjectService.setSubjectArchiveStatus(req.params.id, false);
 
@@ -94,7 +94,7 @@ class SubjectController {
         }
     }
 
-    async deleteSubject(req: RequestWithParams<WithId>, res: Response, next: NextFunction) {
+    async deleteSubject(req: RequestWithParams<IdParam>, res: Response, next: NextFunction) {
         try {
             const subject = await subjectService.deleteSubject(req.params.id);
 

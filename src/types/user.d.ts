@@ -19,7 +19,12 @@ export type UserShortInfo = {
     isBlocked: boolean,
     avatar: string,
     level: number,
-    permissions: PermissionDTO[]
+    settings: {
+        isPrivateAccount: boolean,
+        isHideAvatars: boolean
+    }
+    permissions: PermissionDTO[],
+    unreadNotifiesCount: number
 }
 
 export type AuthResponse = {
@@ -51,6 +56,11 @@ export type UserProfileInfo = {
     lastName: string;
     birthDate: Date;
     gender: string;
+}
+
+export type UserSettingsInfo = {
+    isPrivateAccount: boolean,
+    isHideAvatars: boolean
 }
 
 export type UserSearchQuery = {

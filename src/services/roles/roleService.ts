@@ -1,13 +1,13 @@
 import { Op } from "sequelize";
 
-import Role from "../db/models/Role";
-import { ApiError } from "../ApiError";
-import userService from "./userService";
+import Role from "../../db/models/roles/Role";
+import { ApiError } from "../../ApiError";
+import userService from "../userService";
 import permissionService from "./permissionService";
-import RolePermission from "../db/models/RolePermission";
-import UserRole from "../db/models/UserRole";
+import RolePermission from "../../db/models/roles/RolePermission";
+import UserRole from "../../db/models/UserRole";
 import { RoleFullInfo, RoleShortInfo } from "types/role";
-import { PaginationDTO } from "../dto/PaginationDTO";
+import { PaginationDTO } from "../../dto/PaginationDTO";
 
 class RoleService {
     async getRoleById(roleId: number): Promise<Role> {

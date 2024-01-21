@@ -2,9 +2,8 @@ import { Table, Column, Model, DataType, BelongsToMany, HasMany } from "sequeliz
 
 import RolePermission from "./RolePermission";
 import Permission from "./Permission";
-import User from "./User";
-import UserRole from "./UserRole";
-import { PermissionDTO } from "types/permission";
+import User from "../User";
+import UserRole from "../UserRole";
 import { RoleFullInfo, RoleShortInfo } from "types/role";
 
 @Table({

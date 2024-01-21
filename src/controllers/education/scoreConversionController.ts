@@ -2,10 +2,10 @@ import { Request, Response, NextFunction } from 'express';
 
 import scoreConversionService from '../../services/education/scoreConversionService';
 import { ScoreConversionDTO } from 'types/education';
-import { RequestWithParams, RequestWithParamsAndBody, WithId } from 'types/request';
+import { RequestWithParams, RequestWithParamsAndBody, IdParam } from 'types/request';
 
 class ScoreConversionController {
-    async saveScoreConversion(req: RequestWithParamsAndBody<WithId, ScoreConversionDTO>, res: Response, next: NextFunction) {
+    async saveScoreConversion(req: RequestWithParamsAndBody<IdParam, ScoreConversionDTO>, res: Response, next: NextFunction) {
         try {
             await scoreConversionService.saveScoreConversion(req.params.id, req.body.scoreConversion);
     
@@ -15,7 +15,7 @@ class ScoreConversionController {
         }
     }
     
-    async getScoreConversion(req: RequestWithParams<WithId>, res: Response, next: NextFunction) {
+    async getScoreConversion(req: RequestWithParams<IdParam>, res: Response, next: NextFunction) {
         try {
             const data = await scoreConversionService.getScoreConversion(req.params.id);
     

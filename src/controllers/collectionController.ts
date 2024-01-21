@@ -1,8 +1,8 @@
 import { Response, NextFunction } from 'express';
 
-import { PaginationQuery, RequestWithBodyAndUser, RequestWithParamsAndBodyAndUser, RequestWithParamsAndUser, RequestWithQueryAndUser, WithId } from 'types/request';
+import { PaginationQuery, RequestWithBodyAndUser, RequestWithParamsAndBodyAndUser, RequestWithParamsAndUser, RequestWithQueryAndUser, IdParam } from 'types/request';
 import { CollectionBodyDTO } from 'types/collection';
-import collectionService from '../services/collectionService';
+import collectionService from '../services/memory/collectionService';
 
 class CollectionController {
     async createCollection(req: RequestWithBodyAndUser<CollectionBodyDTO>, res: Response, next: NextFunction) {
@@ -29,7 +29,7 @@ class CollectionController {
         }
     }
 
-    async getCollectionById(req: RequestWithParamsAndUser<WithId>, res: Response, next: NextFunction) {
+    async getCollectionById(req: RequestWithParamsAndUser<IdParam>, res: Response, next: NextFunction) {
         try {
             const collection = await collectionService.getCollectionById(req.params.id, req.user.id);
 
@@ -39,7 +39,7 @@ class CollectionController {
         }
     }
 
-    async deleteCollectionById(req: RequestWithParamsAndUser<WithId>, res: Response, next: NextFunction) {
+    async deleteCollectionById(req: RequestWithParamsAndUser<IdParam>, res: Response, next: NextFunction) {
         try {
             const collection = await collectionService.deleteCollectionById(req.params.id, req.user.id);
 
@@ -49,7 +49,7 @@ class CollectionController {
         }
     }
 
-    async updateCollection(req: RequestWithParamsAndBodyAndUser<WithId, CollectionBodyDTO>, res: Response, next: NextFunction) {
+    async updateCollection(req: RequestWithParamsAndBodyAndUser<IdParam, CollectionBodyDTO>, res: Response, next: NextFunction) {
         try {
             const { collection, description, isPrivate, QAPairs } = req.body;
 

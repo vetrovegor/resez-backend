@@ -1,10 +1,11 @@
 import { Response, NextFunction } from 'express';
+import { UploadedFile } from 'express-fileupload';
 
 import codeService from '../services/codeService';
 import userService from '../services/userService';
 import sessionService from '../services/sessionService';
 import { PaginationQuery, RequestWithBodyAndUser, RequestWithQueryAndUser, RequestWithUser } from 'types/request';
-import { UserChangePasswordDTO, UserProfileInfo, UserSearchQuery } from 'types/user';
+import { UserChangePasswordDTO, UserProfileInfo, UserSearchQuery, UserSettingsInfo } from 'types/user';
 
 class UserhController {
     async getUserShortInfo(req: RequestWithUser, res: Response, next: NextFunction) {
@@ -68,10 +69,22 @@ class UserhController {
         }
     }
 
+    async updateSettings(req: RequestWithBodyAndUser<UserSettingsInfo>, res: Response, next: NextFunction) {
+        try {
+            const { isPrivateAccount, isHideAvatars } = req.body;
+
+            const settings = await userService.updateSettings(req.user.id, isPrivateAccount, isHideAvatars);
+
+            res.json({ settings });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // типизировать запрос, который будет принимать картинку
     async setAvatar(req: RequestWithUser, res: Response, next: NextFunction) {
         try {
-            // типизировать
-            const user = await userService.setAvatar(req.user.id, req.files.avatar);
+            const user = await userService.setAvatar(req.user.id, req.files.avatar as UploadedFile);
 
             res.json({ user });
         } catch (error) {

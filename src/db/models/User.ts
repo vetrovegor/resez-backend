@@ -3,9 +3,9 @@ import { Table, Column, Model, DataType, HasMany, BelongsToMany } from "sequeliz
 import { UserPreview, UserProfileInfo, UserShortInfo, UserTokenInfo } from "types/user";
 import Session from "./Session";
 import Code from "./Code";
-import Collection from "./Collection";
+import Collection from "./memory/Collection";
 import UserRole from "./UserRole";
-import Role from "./Role";
+import Role from "./roles/Role";
 import Message from "./messenger/Message";
 import Chat from "./messenger/Chat";
 import UserChat from "./messenger/UserChat";
@@ -187,9 +187,16 @@ class User extends Model {
     }
 
     async toShortInfo(): Promise<UserShortInfo> {
-        const { id, nickname, isVerified, isBlocked, avatar, level } = this.get();
+        const { id, nickname, isVerified, isBlocked, avatar, level, isPrivateAccount, isHideAvatars } = this.get();
 
         const permissions = await this.getPermissions();
+
+        const unreadNotifiesCount = await UserNotify.count({
+            where: {
+                userId: id,
+                isRead: false
+            }
+        });
 
         return {
             id,
@@ -198,7 +205,12 @@ class User extends Model {
             isBlocked,
             avatar: avatar ? process.env.STATIC_URL + avatar : null,
             level,
-            permissions
+            settings: {
+                isPrivateAccount,
+                isHideAvatars
+            },
+            permissions,
+            unreadNotifiesCount
         };
     }
 

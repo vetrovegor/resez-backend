@@ -2,7 +2,7 @@ import { Response, NextFunction } from 'express';
 
 import notifyService from '../../services/notifies/notifyService';
 import { SendNotifiesDTO, UserNotifyQuery } from 'types/notify';
-import { PaginationQuery, RequestWithBodyAndUser, RequestWithParamsAndUser, RequestWithQueryAndUser, WithId } from 'types/request';
+import { PaginationQuery, RequestWithBodyAndUser, RequestWithParamsAndUser, RequestWithQueryAndUser, IdParam } from 'types/request';
 
 class NotifyController {
     async sendNotifies(req: RequestWithBodyAndUser<SendNotifiesDTO>, res: Response, next: NextFunction) {
@@ -40,7 +40,7 @@ class NotifyController {
         }
     }
 
-    async readNotify(req: RequestWithParamsAndUser<WithId>, res: Response, next: NextFunction) {
+    async readNotify(req: RequestWithParamsAndUser<IdParam>, res: Response, next: NextFunction) {
         try {
             const notify = await notifyService.readNotify(req.user.id, req.params.id);
 

@@ -59,7 +59,7 @@ class TelegramService {
         }
 
         if (existedVerifiedUser) {
-            return this.sendInfoMessage(telegramChatId);
+            return this.bot.telegram.sendMessage(telegramChatId, 'Ваш телеграм уже привязан к аккаунту ResEz!');
         }
 
         const codeData = await codeService.validateVerifyCode(startPayload);

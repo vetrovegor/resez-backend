@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { UploadedFile } from "express-fileupload";
 
 import { ApiError } from "../ApiError";
 
@@ -12,8 +13,7 @@ export const fileMiddleware = (maxMb: number, required: boolean = true) => {
             }
 
             for (let fileKey in files) {
-                const file = files[fileKey];
-                // типизировать
+                const file = files[fileKey] as UploadedFile;
                 const fileName = file.name;
 
                 if (file.size > maxMb * 1024 * 1024) {

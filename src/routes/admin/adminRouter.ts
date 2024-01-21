@@ -1,9 +1,9 @@
 import { Router } from "express";
 
-import { roleRouter } from "./roleRouter";
+import { roleRouter } from "./roles/roleRouter";
 import { subjectsRouter } from "./education/subjectRouter";
 import { archiveRouter } from "./archiveRouter";
-import { permissionRouter } from "./permissionRouter";
+import { permissionRouter } from "./roles/permissionRouter";
 import { notifyRouter } from "./notify/notifyRouter";
 import { notifyTypeRouter } from "./notify/notifyTypeRouter";
 

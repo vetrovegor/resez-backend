@@ -6,7 +6,7 @@ import { Op } from "sequelize";
 
 import User from "../db/models/User";
 import { ApiError } from '../ApiError';
-import { UserPreview, UserProfileInfo, UserShortInfo } from 'types/user';
+import { UserPreview, UserProfileInfo, UserSettingsInfo, UserShortInfo } from 'types/user';
 import { STATIC_PATH } from '../consts/STATIC_PATH';
 import { FILE_EXTENSIONS } from '../consts/FILE-EXTENSIONS';
 import { PaginationDTO } from '../dto/PaginationDTO';
@@ -128,6 +128,17 @@ class UserService {
         await user.save();
 
         return user.toProfileInfo();
+    }
+
+    async updateSettings(userId: number, isPrivateAccount: boolean, isHideAvatars: boolean): Promise<UserSettingsInfo> {
+        const user = await this.getUserById(userId);
+
+        user.set('isPrivateAccount', isPrivateAccount);
+        user.set('isHideAvatars', isHideAvatars);
+
+        await user.save();
+
+        return { isPrivateAccount, isHideAvatars }
     }
 
     async setAvatar(userId: number, avatar: UploadedFile): Promise<UserShortInfo> {

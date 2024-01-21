@@ -1,8 +1,8 @@
 import { Op } from "sequelize";
 
-import Permission from "../db/models/Permission";
+import Permission from "../../db/models/roles/Permission";
 import { PermissionHierarchy, PermissionHierarchyItem, Permissions } from "types/permission";
-import { ApiError } from "../ApiError";
+import { ApiError } from "../../ApiError";
 
 const permissionsHierarchy = [
     {

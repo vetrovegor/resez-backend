@@ -1011,7 +1011,9 @@
         "/api/admin/notify": {
             "post": {
                 "summary": "Send notification",
-                "tags": ["Notifies"],
+                "tags": [
+                    "Notifies"
+                ],
                 "security": [
                     {
                         "bearerAuth": []
@@ -1024,7 +1026,9 @@
                             "example": {
                                 "title": "Киффлом",
                                 "author": "Админ",
-                                "users": [2],
+                                "users": [
+                                    2
+                                ],
                                 "notifyTypeId": 4,
                                 "date": "2024-01-18T00:14:00.000+05:00",
                                 "content": "Контент"
@@ -1060,7 +1064,9 @@
         "/api/notify": {
             "get": {
                 "summary": "Get notifications",
-                "tags": ["Notifies"],
+                "tags": [
+                    "Notifies"
+                ],
                 "security": [
                     {
                         "bearerAuth": []
@@ -1131,7 +1137,9 @@
         "/api/notify/read/{notifyId}": {
             "patch": {
                 "summary": "Mark a notification as read",
-                "tags": ["Notifies"],
+                "tags": [
+                    "Notifies"
+                ],
                 "security": [
                     {
                         "bearerAuth": []
@@ -1176,7 +1184,9 @@
         "/api/notify/read-all": {
             "patch": {
                 "summary": "Mark all notifications as read",
-                "tags": ["Notifies"],
+                "tags": [
+                    "Notifies"
+                ],
                 "security": [
                     {
                         "bearerAuth": []
@@ -2036,24 +2046,24 @@
                 "content": {
                     "application/json": {
                         "example": {
-                            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsIm5pY2tuYW1lIjoiUmVpc2VyOTUiLCJpYXQiOjE3MDM0MzcwNTMsImV4cCI6ODgxMDM0MzcwNTN9.qBS16VSWcYqqDKRy0eAvSAnnC6cRiWPDczmuJ8fLzFo",
-                            "sessionId": 10,
+                            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Nywibmlja25hbWUiOiJsNG5kYXIxIiwiaWF0IjoxNzA1ODI4MjExLCJleHAiOjg4MTA1ODI4MjExfQ.ApLufD2-g0VKJOF65GCWReaSok_whCdHbqNsgMaA_Qg",
+                            "sessionId": 14,
                             "user": {
-                                "id": 10,
-                                "nickname": "xw1nchester",
+                                "id": 7,
+                                "nickname": "l4ndar1",
                                 "isVerified": false,
                                 "isBlocked": false,
                                 "avatar": null,
                                 "level": 1,
-                                "permissions": [
-                                    {
-                                        "id": 1,
-                                        "permission": "Админка"
-                                    }
-                                ]
+                                "settings": {
+                                    "isPrivateAccount": false,
+                                    "isHideAvatars": false
+                                },
+                                "permissions": [],
+                                "unreadNotifiesCount": 0
                             },
                             "verificationCodeData": {
-                                "code": "303461",
+                                "code": "416116",
                                 "lifetime": 30000
                             }
                         }
@@ -2065,21 +2075,27 @@
                 "content": {
                     "application/json": {
                         "example": {
+                            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwibmlja25hbWUiOiJsNG5kYXIiLCJpYXQiOjE3MDU4MjgzMTcsImV4cCI6ODgxMDU4MjgzMTd9.Tgou1J1NPt8-scxdvvXFyggoYa7Yejmp4NN1ZHrVyQw",
+                            "sessionId": 8,
                             "user": {
-                                "id": 10,
-                                "nickname": "xw1nchester",
-                                "isVerified": false,
+                                "id": 2,
+                                "nickname": "l4ndar",
+                                "isVerified": true,
                                 "isBlocked": false,
-                                "avatar": "http://localhost:8080/static/1705345662196.jpg",
+                                "avatar": "http://localhost:8080/static/1705826316354.jpg",
                                 "level": 1,
+                                "settings": {
+                                    "isPrivateAccount": false,
+                                    "isHideAvatars": true
+                                },
                                 "permissions": [
                                     {
                                         "id": 1,
                                         "permission": "Админка"
                                     }
-                                ]
-                            },
-                            "sessionId": 10
+                                ],
+                                "unreadNotifiesCount": 2
+                            }
                         }
                     }
                 }
