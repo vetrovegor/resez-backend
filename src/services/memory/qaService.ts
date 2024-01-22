@@ -1,8 +1,8 @@
 import QA from "../../db/models/memory/QA";
-import { QAPair } from "types/collection";
+import { qaPair } from "types/collection";
 
 class QAService {
-    async createQAFromPairs(QAPairs: QAPair[], collectionId: number): Promise<QA[]> {
+    async createQAFromPairs(QAPairs: qaPair[], collectionId: number): Promise<QA[]> {
         return await Promise.all(
             QAPairs.map(async ({ question, answer }) =>
                 await QA.create({

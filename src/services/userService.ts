@@ -12,6 +12,7 @@ import { FILE_EXTENSIONS } from '../consts/FILE-EXTENSIONS';
 import { PaginationDTO } from '../dto/PaginationDTO';
 import socketService from './socketService';
 import { EmitTypes } from 'types/socket';
+import { CollectionSettings } from 'types/collection';
 
 class UserService {
     async getUserById(id: number): Promise<User> {
@@ -213,6 +214,23 @@ class UserService {
         const users = await User.findAll();
 
         return users.map(user => user.get('id'));
+    }
+
+    async getUserCollectionSettings(userId: number): Promise<CollectionSettings> {
+        const user = await this.getUserById(userId);
+
+        return user.getCollectionSettings();
+    }
+
+    async updateCollectionSettings(userId: number, isShuffleCards: boolean, isDefinitionCardFront: boolean): Promise<CollectionSettings> {
+        const user = await this.getUserById(userId);
+
+        user.set('isShuffleCards', isShuffleCards);
+        user.set('isDefinitionCardFront', isDefinitionCardFront);
+
+        await user.save();
+
+        return { isShuffleCards, isDefinitionCardFront }
     }
 }
 

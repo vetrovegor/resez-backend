@@ -1,7 +1,7 @@
 import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from "sequelize-typescript";
 
 import Collection from "./Collection";
-import { QADTO } from "types/collection";
+import { Card } from "types/collection";
 
 @Table({
     timestamps: false,
@@ -25,13 +25,13 @@ class QA extends Model {
     @BelongsTo(() => Collection)
     collection: Collection;
 
-    toDTO(): QADTO {
+    toCard(isDefinitionCardFront: boolean = false): Card {
         const { id, question, answer } = this.get();
-        
+
         return {
             id,
-            question,
-            answer
+            question: isDefinitionCardFront ? answer : question,
+            answer: isDefinitionCardFront ? question : answer
         };
     }
 }

@@ -29,6 +29,13 @@ collectionRouter.get(
 );
 
 collectionRouter.get(
+    '/settings',
+    accessTokenMiddleware,
+    blockedMiddleware,
+    collectionController.getUserCollectionSettings
+);
+
+collectionRouter.get(
     '/:id',
     param('id').isNumeric(),
     validationMiddleware,
@@ -47,6 +54,16 @@ collectionRouter.delete(
 );
 
 collectionRouter.patch(
+    '/settings',
+    body('isShuffleCards').isBoolean().optional(),
+    body('isDefinitionCardFront').isBoolean().optional(),
+    validationMiddleware,
+    accessTokenMiddleware,
+    blockedMiddleware,
+    collectionController.updateCollectionSettings
+);
+
+collectionRouter.patch(
     '/:id',
     param('id').isNumeric(),
     collectionBodyMiddleware,
@@ -54,4 +71,13 @@ collectionRouter.patch(
     accessTokenMiddleware,
     blockedMiddleware,
     collectionController.updateCollection
+);
+
+collectionRouter.get(
+    '/:id/cards',
+    param('id').isNumeric(),
+    validationMiddleware,
+    accessTokenMiddleware,
+    blockedMiddleware,
+    collectionController.getCardsByCollectionId
 );

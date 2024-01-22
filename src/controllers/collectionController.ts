@@ -1,8 +1,9 @@
 import { Response, NextFunction } from 'express';
 
-import { PaginationQuery, RequestWithBodyAndUser, RequestWithParamsAndBodyAndUser, RequestWithParamsAndUser, RequestWithQueryAndUser, IdParam } from 'types/request';
-import { CollectionBodyDTO } from 'types/collection';
+import { PaginationQuery, RequestWithBodyAndUser, RequestWithParamsAndBodyAndUser, RequestWithParamsAndUser, RequestWithQueryAndUser, IdParam, RequestWithUser } from 'types/request';
+import { CollectionBodyDTO, CollectionSettings } from 'types/collection';
 import collectionService from '../services/memory/collectionService';
+import userService from '../services/userService';
 
 class CollectionController {
     async createCollection(req: RequestWithBodyAndUser<CollectionBodyDTO>, res: Response, next: NextFunction) {
@@ -56,6 +57,42 @@ class CollectionController {
             const updatedCollection = await collectionService.updateCollection(req.params.id, req.user.id, collection, description, isPrivate, QAPairs);
 
             res.json({ collection: updatedCollection });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getCardsByCollectionId(req: RequestWithParamsAndUser<IdParam>, res: Response, next: NextFunction) {
+        try {
+            const cards = await collectionService.getCardsByCollectionId(req.params.id, req.user.id);
+
+            res.json({ cards });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getUserCollectionSettings(req: RequestWithUser, res: Response, next: NextFunction) {
+        try {
+            const settings = await userService.getUserCollectionSettings(req.user.id);
+
+            res.json({ settings });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async updateCollectionSettings(req: RequestWithBodyAndUser<CollectionSettings>, res: Response, next: NextFunction) {
+        try {
+            const { isShuffleCards, isDefinitionCardFront } = req.body;
+
+            const settings = await userService.updateCollectionSettings(
+                req.user.id,
+                isShuffleCards,
+                isDefinitionCardFront
+            );
+
+            res.json({ settings });
         } catch (error) {
             next(error);
         }

@@ -1,11 +1,11 @@
 import { UserPreview } from "./user"
 
-export type QAPair = {
+export type qaPair = {
     question: string,
     answer: string
 }
 
-export type QADTO = QAPair & {
+export type Card = qaPair & {
     id: number
 }
 
@@ -13,7 +13,7 @@ export type CollectionBodyDTO = {
     collection: string,
     description: string,
     isPrivate: boolean,
-    QAPairs: QAPair[]
+    QAPairs: qaPair[]
 }
 
 export type CollectionShortInfo = {
@@ -28,5 +28,10 @@ export type CollectionShortInfo = {
 }
 
 export type CollectionFullInfo = CollectionShortInfo & {
-    QAPairs: QAPair[]
+    QAPairs: qaPair[]
+}
+
+export type CollectionSettings = {
+    isShuffleCards: boolean,
+    isDefinitionCardFront: boolean
 }

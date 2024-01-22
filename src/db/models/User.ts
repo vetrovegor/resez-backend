@@ -12,6 +12,7 @@ import UserChat from "./messenger/UserChat";
 import { PermissionDTO } from "types/permission";
 import Notify from "./notifies/Notify";
 import UserNotify from "./notifies/UserNotify";
+import { CollectionSettings } from "types/collection";
 
 @Table({
     timestamps: false,
@@ -134,7 +135,7 @@ class User extends Model {
         defaultValue: false,
     })
     isInstantAnswerDisplay: boolean;
-    
+
     // верно не верно
     @Column({
         type: DataType.BOOLEAN,
@@ -278,6 +279,15 @@ class User extends Model {
             lastName,
             birthDate,
             gender
+        };
+    }
+
+    getCollectionSettings(): CollectionSettings {
+        const { isShuffleCards, isDefinitionCardFront } = this.get();
+
+        return {
+            isShuffleCards,
+            isDefinitionCardFront
         };
     }
 }

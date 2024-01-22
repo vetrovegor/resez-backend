@@ -1,13 +1,14 @@
 import { Op } from "sequelize";
 
 import Collection from "../../db/models/memory/Collection";
-import { CollectionFullInfo, CollectionShortInfo, QAPair } from "types/collection";
+import { Card, CollectionFullInfo, CollectionShortInfo, qaPair } from "types/collection";
 import { PaginationDTO } from "../../dto/PaginationDTO";
 import { ApiError } from "../../ApiError";
 import qaService from "./qaService";
+import userService from "../../services/userService";
 
 class CollectionService {
-    async createCollection(userId: number, collection: string, description: string, isPrivate: boolean, QAPairs: QAPair[]): Promise<CollectionShortInfo> {
+    async createCollection(userId: number, collection: string, description: string, isPrivate: boolean, QAPairs: qaPair[]): Promise<CollectionShortInfo> {
         const createdCollection = await Collection.create({
             userId,
             collection,
@@ -41,8 +42,8 @@ class CollectionService {
         return new PaginationDTO<CollectionShortInfo>("collections", collectionDTOs, totalCount, limit, offset);
     }
 
-    async getCollectionById(collectionId: number, userId: number): Promise<CollectionFullInfo> {
-        const existedCollection = await Collection.findOne({
+    async findAccessibleCollectionById(collectionId: number, userId: number): Promise<Collection> {
+        const collection = await Collection.findOne({
             where: {
                 id: collectionId,
                 [Op.or]: [
@@ -52,11 +53,17 @@ class CollectionService {
             }
         });
 
-        if (!existedCollection) {
+        if (!collection) {
             this.throwCollectionNotFound();
         }
 
-        return await existedCollection.toFullInfo();
+        return collection;
+    }
+
+    async getCollectionById(collectionId: number, userId: number): Promise<CollectionFullInfo> {
+        const collection = await this.findAccessibleCollectionById(collectionId, userId);
+
+        return await collection.toFullInfo();
     }
 
     async findUserCollection(id: number, userId: number): Promise<Collection> {
@@ -82,7 +89,7 @@ class CollectionService {
         return collectionShortInfo;
     }
 
-    async updateCollection(collectionId: number, userId: number, collection: string, description: string, isPrivate: boolean, QAPairs: QAPair[]): Promise<CollectionShortInfo> {
+    async updateCollection(collectionId: number, userId: number, collection: string, description: string, isPrivate: boolean, QAPairs: qaPair[]): Promise<CollectionShortInfo> {
         const collectionData = await this.findUserCollection(collectionId, userId);
 
         if (!collectionData) {
@@ -98,6 +105,15 @@ class CollectionService {
         await qaService.createQAFromPairs(QAPairs, collectionId);
 
         return await collectionData.toShortInfo();
+    }
+
+    // типизировать
+    async getCardsByCollectionId(collectionId: number, userId: number): Promise<Card[]> {
+        const collection = await this.findAccessibleCollectionById(collectionId, userId);
+
+        const { isShuffleCards, isDefinitionCardFront } = await userService.getUserCollectionSettings(userId);
+
+        return collection.getCards(isShuffleCards, isDefinitionCardFront);
     }
 
     throwCollectionNotFound() {

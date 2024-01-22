@@ -72,8 +72,9 @@ userRouter.delete(
 
 userRouter.patch(
     '/settings',
-    body('isPrivateAccount').isBoolean(),
-    body('isHideAvatars').isBoolean(),
+    body('isPrivateAccount').isBoolean().optional(),
+    body('isHideAvatars').isBoolean().optional(),
+    validationMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,
     userController.updateSettings

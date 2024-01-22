@@ -1,8 +1,8 @@
-import { Table, Column, Model, DataType, HasMany, ForeignKey, BelongsTo } from "sequelize-typescript";
+import { Table, Column, Model, DataType, HasMany, ForeignKey, BelongsTo, Sequelize } from "sequelize-typescript";
 
 import User from "../User";
 import QA from "./QA";
-import { CollectionFullInfo, CollectionShortInfo } from "types/collection";
+import { Card, CollectionFullInfo, CollectionShortInfo } from "types/collection";
 
 @Table({
     timestamps: true,
@@ -75,7 +75,7 @@ class Collection extends Model {
             }
         });
 
-        const QAPairs = QAItems.map(QAItem => QAItem.toDTO());
+        const QAPairs = QAItems.map(QAItem => QAItem.toCard());
 
         return {
             id,
@@ -88,6 +88,21 @@ class Collection extends Model {
             user: user.toPreview(),
             QAPairs
         };
+    }
+
+    async getCards(isShuffleCards: boolean, isDefinitionCardFront: boolean): Promise<Card[]> {
+        const orderOption = isShuffleCards ? [Sequelize.literal('RANDOM()')] : [];
+
+        const QAItems = await QA.findAll({
+            where: {
+                collectionId: this.get('id')
+            },
+            order: orderOption
+        });
+
+        const cards = QAItems.map(QAItem => QAItem.toCard(isDefinitionCardFront));
+
+        return cards;
     }
 }
 
