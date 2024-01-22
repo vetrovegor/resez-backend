@@ -104,6 +104,51 @@ class User extends Model {
     })
     isHideAvatars: boolean;
 
+    // карточки
+    // перемешивать
+    @Column({
+        type: DataType.BOOLEAN,
+        defaultValue: false,
+    })
+    isShuffleCards: boolean;
+
+    // лицевая сторона - определение
+    @Column({
+        type: DataType.BOOLEAN,
+        defaultValue: false,
+    })
+    isDefinitionCardFront: boolean;
+
+    // заучивание
+    // перемешивать
+    @Column({
+        type: DataType.BOOLEAN,
+        defaultValue: false,
+    })
+    isShuffleMemorization: boolean;
+
+    // тест
+    // мгновенный показ ответа
+    @Column({
+        type: DataType.BOOLEAN,
+        defaultValue: false,
+    })
+    isInstantAnswerDisplay: boolean;
+    
+    // верно не верно
+    @Column({
+        type: DataType.BOOLEAN,
+        defaultValue: false,
+    })
+    isTrueFalseMode: boolean;
+
+    // письменно
+    @Column({
+        type: DataType.BOOLEAN,
+        defaultValue: false,
+    })
+    isWriteMode: boolean;
+
     @HasMany(() => Session, {
         onDelete: 'CASCADE'
     })

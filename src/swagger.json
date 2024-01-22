@@ -2050,7 +2050,7 @@
                             "sessionId": 14,
                             "user": {
                                 "id": 7,
-                                "nickname": "l4ndar1",
+                                "nickname": "l4ndar",
                                 "isVerified": false,
                                 "isBlocked": false,
                                 "avatar": null,
@@ -2075,8 +2075,6 @@
                 "content": {
                     "application/json": {
                         "example": {
-                            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwibmlja25hbWUiOiJsNG5kYXIiLCJpYXQiOjE3MDU4MjgzMTcsImV4cCI6ODgxMDU4MjgzMTd9.Tgou1J1NPt8-scxdvvXFyggoYa7Yejmp4NN1ZHrVyQw",
-                            "sessionId": 8,
                             "user": {
                                 "id": 2,
                                 "nickname": "l4ndar",
@@ -2095,7 +2093,8 @@
                                     }
                                 ],
                                 "unreadNotifiesCount": 2
-                            }
+                            },
+                            "sessionId": 8
                         }
                     }
                 }

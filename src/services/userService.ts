@@ -143,15 +143,15 @@ class UserService {
 
     async setAvatar(userId: number, avatar: UploadedFile): Promise<UserShortInfo> {
         const user = await User.findByPk(userId);
-        const { avatar: oldAvatarName } = user;
+        const oldAvatar = user.get('avatar');
 
-        if (oldAvatarName) {
-            const oldAvatarPath = path.resolve(STATIC_PATH, oldAvatarName);
+        if (oldAvatar) {
+            const oldAvatarPath = path.resolve(STATIC_PATH, oldAvatar);
             fs.existsSync(oldAvatarPath) && fs.unlinkSync(oldAvatarPath);
         }
 
-        const avatarExtension = FILE_EXTENSIONS[avatar.mimetype] || '.jpg';
-        const avatarName = Date.now() + avatarExtension;
+        const extension = FILE_EXTENSIONS[avatar.mimetype] || '.jpg';
+        const avatarName = Date.now() + extension;
 
         avatar.mv(path.resolve(STATIC_PATH, avatarName));
 
