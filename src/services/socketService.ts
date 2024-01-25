@@ -107,13 +107,26 @@ class SocketService {
         this.io.to(room).emit(emitType, data);
     }
 
+    // затестить и перейти на него
+    // в emitEndSession сделать по аналогии
+    emitByUserId(userId: number, emitType: EmitTypes, data?: any) {
+        console.log({userId, emitType, data});
+        const user = this.connectedAuthUsers.find(
+            u => u.userId === userId.toString()
+        );
+
+        if (user) {
+            this.io.to(user.socketId).emit(emitType, data);
+        }
+    }
+
     emitEndSession(sessionId: number): void {
-        const existedAuthUser = this.connectedAuthUsers.find(
+        const user = this.connectedAuthUsers.find(
             u => u.sessionId === sessionId.toString()
         );
 
-        if (existedAuthUser) {
-            this.emitToRoom(existedAuthUser.userId, EmitTypes.EndSession);
+        if (user) {
+            this.emitToRoom(user.userId, EmitTypes.EndSession);
         }
     }
 

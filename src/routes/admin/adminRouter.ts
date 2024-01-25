@@ -6,8 +6,11 @@ import { archiveRouter } from "./archiveRouter";
 import { permissionRouter } from "./roles/permissionRouter";
 import { notifyRouter } from "./notify/notifyRouter";
 import { notifyTypeRouter } from "./notify/notifyTypeRouter";
+import { userRouter } from "./userRouter";
 
 export const adminRouter = Router();
+
+adminRouter.use('/user', userRouter)
 
 adminRouter.use('/role', roleRouter);
 

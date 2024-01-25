@@ -1,6 +1,7 @@
 import User from "db/models/User"
 import { PermissionDTO } from "./permission"
 import { VerificationCodeData } from "./code"
+import { RolePreview } from "./role"
 
 export type UserAuthDTO = {
     nickname: string,
@@ -17,6 +18,7 @@ export type UserShortInfo = {
     nickname: string,
     isVerified: boolean,
     isBlocked: boolean,
+    blockReason: string,
     avatar: string,
     level: number,
     settings: {
@@ -56,6 +58,25 @@ export type UserProfileInfo = {
     lastName: string;
     birthDate: Date;
     gender: string;
+}
+
+export type UserAdminInfo = {
+    id: number,
+    nickname: number,
+    firstName: string,
+    lastName: string,
+    registrationDate: Date,
+    isVerified: string,
+    isBlocked: string,
+    avatar: string,
+    isOnline: boolean,
+    lastActivity: Date,
+    status: string,
+    level: number,
+    xp: number,
+    xpLimit: number,
+    // theme: string,
+    roles: RolePreview[]
 }
 
 export type UserSettingsInfo = {

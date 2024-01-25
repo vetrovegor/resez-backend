@@ -518,6 +518,202 @@
                 }
             }
         },
+        "/api/admin/user": {
+            "get": {
+                "summary": "Get users",
+                "tags": [
+                    "Users"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Limit the number of users to retrieve",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "description": "Number of users to skip before starting to collect users",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Users retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "totalCount": 5,
+                                    "isLast": true,
+                                    "elementsCount": 5,
+                                    "users": [
+                                        {
+                                            "id": 2,
+                                            "nickname": "l4ndar",
+                                            "firstName": "Илья",
+                                            "lastName": "Шилов",
+                                            "registrationDate": "2024-01-04T13:40:26.876Z",
+                                            "isVerified": true,
+                                            "isBlocked": false,
+                                            "avatar": "http://localhost:8080/static/1705909322803.jpg",
+                                            "isOnline": true,
+                                            "lastActivity": "2024-01-25T14:41:51.085Z",
+                                            "status": "Новичек",
+                                            "level": 4,
+                                            "xp": 100,
+                                            "xpLimit": 750,
+                                            "roles": [
+                                                {
+                                                    "id": 2,
+                                                    "role": "Модератор",
+                                                    "textColor": "#007CEE",
+                                                    "backgroundColor": "#007CEE1A"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
+        "/api/admin/user/{userId}/block": {
+            "patch": {
+                "summary": "Block a user",
+                "tags": [
+                    "Users"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "description": "ID of the user to block or unblock",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "reason": "Причина бана"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User blocked or unblocked successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "user": {
+                                        "id": 7,
+                                        "nickname": "l4ndar",
+                                        "firstName": null,
+                                        "lastName": null,
+                                        "registrationDate": "2024-01-21T09:10:11.666Z",
+                                        "isVerified": false,
+                                        "isBlocked": true,
+                                        "avatar": null,
+                                        "isOnline": false,
+                                        "lastActivity": "2024-01-25T14:59:40.790Z",
+                                        "status": "Новичек",
+                                        "level": 4,
+                                        "xp": 100,
+                                        "xpLimit": 750,
+                                        "roles": []
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
+        "/api/admin/user/{userId}/unblock": {
+            "patch": {
+                "summary": "Unblock a user",
+                "tags": [
+                    "Users"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "description": "ID of the user to unblock",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User unblocked successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "user": {
+                                        "id": 7,
+                                        "nickname": "l4ndar1",
+                                        "firstName": null,
+                                        "lastName": null,
+                                        "registrationDate": "2024-01-21T09:10:11.666Z",
+                                        "isVerified": false,
+                                        "isBlocked": false,
+                                        "avatar": null,
+                                        "isOnline": false,
+                                        "lastActivity": "2024-01-25T14:59:40.790Z",
+                                        "status": "Новичек",
+                                        "level": 4,
+                                        "xp": 100,
+                                        "xpLimit": 750,
+                                        "roles": []
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
         "/session": {
             "get": {
                 "summary": "Get user sessions",

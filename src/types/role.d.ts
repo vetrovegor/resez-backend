@@ -7,6 +7,13 @@ export type RoleBodyDTO = {
     backgroundColor: string
 }
 
+export type RolePreview = {
+    id: number,
+    role: string,
+    textColor: string,
+    backgroundColor: string
+}
+
 export type RoleShortInfo = {
     id: number,
     role: string,

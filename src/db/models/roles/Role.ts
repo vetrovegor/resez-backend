@@ -4,7 +4,7 @@ import RolePermission from "./RolePermission";
 import Permission from "./Permission";
 import User from "../User";
 import UserRole from "../UserRole";
-import { RoleFullInfo, RoleShortInfo } from "types/role";
+import { RoleFullInfo, RolePreview, RoleShortInfo } from "types/role";
 
 @Table({
     timestamps: true,
@@ -50,6 +50,17 @@ class Role extends Model {
             permission.get('permission'));
     }
 
+    toPreview(): RolePreview {
+        const { id, role, textColor, backgroundColor } = this.get();
+
+        return {
+            id,
+            role,
+            textColor,
+            backgroundColor
+        };
+    }
+
     async toShortInfo(): Promise<RoleShortInfo> {
         const { id, role, textColor, backgroundColor } = this.get();
 
@@ -80,7 +91,7 @@ class Role extends Model {
         const permissionIDs = permissions.map(permission => permission.id);
 
         const extendedPermissions = await Promise.all(
-            permissions.map(async permissionItem => {            
+            permissions.map(async permissionItem => {
                 const childPermissionIDs = await permissionItem.getChildPermissionIDs();
 
                 const notFoundChildIDs = childPermissionIDs.filter(

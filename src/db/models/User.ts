@@ -1,6 +1,6 @@
 import { Table, Column, Model, DataType, HasMany, BelongsToMany } from "sequelize-typescript";
 
-import { UserPreview, UserProfileInfo, UserShortInfo, UserTokenInfo } from "types/user";
+import { UserAdminInfo, UserPreview, UserProfileInfo, UserShortInfo, UserTokenInfo } from "types/user";
 import Session from "./Session";
 import Code from "./Code";
 import Collection from "./memory/Collection";
@@ -45,6 +45,11 @@ class User extends Model {
         defaultValue: false,
     })
     isBlocked: boolean;
+
+    @Column({
+        type: DataType.STRING
+    })
+    blockReason: string;
 
     @Column({
         type: DataType.INTEGER,
@@ -233,7 +238,7 @@ class User extends Model {
     }
 
     async toShortInfo(): Promise<UserShortInfo> {
-        const { id, nickname, isVerified, isBlocked, avatar, level, isPrivateAccount, isHideAvatars } = this.get();
+        const { id, nickname, isVerified, isBlocked, blockReason, avatar, level, isPrivateAccount, isHideAvatars } = this.get();
 
         const permissions = await this.getPermissions();
 
@@ -249,6 +254,7 @@ class User extends Model {
             nickname,
             isVerified,
             isBlocked,
+            blockReason,
             avatar: avatar ? process.env.STATIC_URL + avatar : null,
             level,
             settings: {
@@ -279,6 +285,31 @@ class User extends Model {
             lastName,
             birthDate,
             gender
+        };
+    }
+
+    async toAdminInfo(): Promise<UserAdminInfo> {
+        const { id, nickname, firstName, lastName, registrationDate, isVerified, isBlocked, avatar } = this.get();
+
+        const roles = await this.getRoles();
+        const rolePreviews = roles.map(role => role.toPreview());
+
+        return {
+            id,
+            nickname,
+            firstName,
+            lastName,
+            registrationDate,
+            isVerified,
+            isBlocked,
+            avatar: avatar ? process.env.STATIC_URL + avatar : null,
+            isOnline: id % 2 == 0 ? true : false,
+            lastActivity: new Date(),
+            status: 'Новичек',
+            level: 4,
+            xp: 100,
+            xpLimit: 750,
+            roles: rolePreviews
         };
     }
 

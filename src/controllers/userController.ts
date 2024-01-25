@@ -4,7 +4,7 @@ import { UploadedFile } from 'express-fileupload';
 import codeService from '../services/codeService';
 import userService from '../services/userService';
 import sessionService from '../services/sessionService';
-import { PaginationQuery, RequestWithBodyAndUser, RequestWithQueryAndUser, RequestWithUser } from 'types/request';
+import { IdParam, PaginationQuery, RequestWithBodyAndUser, RequestWithParamsAndBodyAndUser, RequestWithParamsAndUser, RequestWithQueryAndUser, RequestWithUser } from 'types/request';
 import { UserChangePasswordDTO, UserProfileInfo, UserSearchQuery, UserSettingsInfo } from 'types/user';
 
 class UserhController {
@@ -109,6 +109,47 @@ class UserhController {
             const data = await userService.searchUsers(search, limit, offset);
 
             res.json(data);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getUsers(req: RequestWithQueryAndUser<PaginationQuery>, res: Response, next: NextFunction) {
+        try {
+            const { limit, offset } = req.query;
+
+            const data = await userService.getUsers(limit, offset);
+
+            res.json(data);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async blockUser(req: RequestWithParamsAndBodyAndUser<IdParam, { reason?: string }>, res: Response, next: NextFunction) {
+        try {
+            const user = await userService.setUserBlockStatus(
+                req.user.id,
+                req.params.id,
+                true,
+                req.body.reason
+            );
+
+            res.json({ user });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async unblockUser(req: RequestWithParamsAndUser<IdParam>, res: Response, next: NextFunction) {
+        try {
+            const user = await userService.setUserBlockStatus(
+                req.user.id,
+                req.params.id,
+                false
+            );
+
+            res.json({ user });
         } catch (error) {
             next(error);
         }

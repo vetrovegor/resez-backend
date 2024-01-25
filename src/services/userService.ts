@@ -6,7 +6,7 @@ import { Op } from "sequelize";
 
 import User from "../db/models/User";
 import { ApiError } from '../ApiError';
-import { UserPreview, UserProfileInfo, UserSettingsInfo, UserShortInfo } from 'types/user';
+import { UserAdminInfo, UserPreview, UserProfileInfo, UserSettingsInfo, UserShortInfo } from 'types/user';
 import { STATIC_PATH } from '../consts/STATIC_PATH';
 import { FILE_EXTENSIONS } from '../consts/FILE-EXTENSIONS';
 import { PaginationDTO } from '../dto/PaginationDTO';
@@ -231,6 +231,44 @@ class UserService {
         await user.save();
 
         return { isShuffleCards, isDefinitionCardFront }
+    }
+
+    async getUsers(limit: number, offset: number): Promise<PaginationDTO<UserAdminInfo>> {
+        const users = await User.findAll({
+            order: [['registrationDate', 'DESC']],
+            limit,
+            offset
+        });
+
+        const usersDtos = await Promise.all(
+            users.map(async user => await user.toAdminInfo())
+        );
+
+        const totalCount = await User.count();
+
+        return new PaginationDTO<UserAdminInfo>("users", usersDtos, totalCount, limit, offset);
+    }
+
+    async setUserBlockStatus(adminId: number, userId: number, blockStatus: boolean, reason: string = null): Promise<UserAdminInfo> {
+        if (adminId == userId) {
+            throw ApiError.badRequest('Нельзя выполнять данное действие на самом себе');
+        }
+
+        const user = await this.getUserById(userId);
+
+        user.set('isBlocked', blockStatus);
+        user.set('blockReason', reason);
+        await user.save();
+
+        socketService.emitByUserId(
+            userId,
+            blockStatus ? EmitTypes.Blocked : EmitTypes.Unblocked,
+            blockStatus ? { reason } : null
+        );
+
+        // залогировать бан
+
+        return await user.toAdminInfo();
     }
 }
 
