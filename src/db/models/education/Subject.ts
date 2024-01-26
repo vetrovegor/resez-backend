@@ -34,7 +34,7 @@ class Subject extends Model {
         type: DataType.BOOLEAN,
         defaultValue: false
     })
-    isArchive: boolean;
+    isArchived: boolean;
 
     @HasMany(() => SubjectTask, {
         onDelete: 'CASCADE'

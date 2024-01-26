@@ -4,7 +4,7 @@ import { UploadedFile } from 'express-fileupload';
 import codeService from '../services/codeService';
 import userService from '../services/userService';
 import sessionService from '../services/sessionService';
-import { IdParam, PaginationQuery, RequestWithBodyAndUser, RequestWithParamsAndBodyAndUser, RequestWithParamsAndUser, RequestWithQueryAndUser, RequestWithUser } from 'types/request';
+import { IdParam, PaginationQuery, RequestWithBody, RequestWithBodyAndUser, RequestWithParamsAndBodyAndUser, RequestWithParamsAndUser, RequestWithQueryAndUser, RequestWithUser } from 'types/request';
 import { UserChangePasswordDTO, UserProfileInfo, UserSearchQuery, UserSettingsInfo } from 'types/user';
 
 class UserhController {
@@ -153,6 +153,14 @@ class UserhController {
         } catch (error) {
             next(error);
         }
+    }
+
+    async increaseXP(req: RequestWithBody<{ nickname: string, xp: number }>, res: Response, next: NextFunction) {
+        const { nickname, xp } = req.body;
+
+        const user = await userService.increaseXP(nickname, xp);
+
+        res.json({ user });
     }
 }
 

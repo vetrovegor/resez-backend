@@ -567,13 +567,16 @@
                                             "registrationDate": "2024-01-04T13:40:26.876Z",
                                             "isVerified": true,
                                             "isBlocked": false,
+                                            "blockReason": null,
                                             "avatar": "http://localhost:8080/static/1705909322803.jpg",
                                             "isOnline": true,
                                             "lastActivity": "2024-01-25T14:41:51.085Z",
                                             "status": "Новичек",
-                                            "level": 4,
-                                            "xp": 100,
-                                            "xpLimit": 750,
+                                            "levelInfo": {
+                                                "level": 25,
+                                                "xp": 3250,
+                                                "limit": 6740
+                                            },
                                             "roles": [
                                                 {
                                                     "id": 2,
@@ -640,13 +643,16 @@
                                         "registrationDate": "2024-01-21T09:10:11.666Z",
                                         "isVerified": false,
                                         "isBlocked": true,
+                                        "blockReason": null,
                                         "avatar": null,
                                         "isOnline": false,
                                         "lastActivity": "2024-01-25T14:59:40.790Z",
                                         "status": "Новичек",
-                                        "level": 4,
-                                        "xp": 100,
-                                        "xpLimit": 750,
+                                        "levelInfo": {
+                                            "level": 25,
+                                            "xp": 3250,
+                                            "limit": 6740
+                                        },
                                         "roles": []
                                     }
                                 }
@@ -695,13 +701,16 @@
                                         "registrationDate": "2024-01-21T09:10:11.666Z",
                                         "isVerified": false,
                                         "isBlocked": false,
+                                        "blockReason": null,
                                         "avatar": null,
                                         "isOnline": false,
                                         "lastActivity": "2024-01-25T14:59:40.790Z",
                                         "status": "Новичек",
-                                        "level": 4,
-                                        "xp": 100,
-                                        "xpLimit": 750,
+                                        "levelInfo": {
+                                            "level": 25,
+                                            "xp": 3250,
+                                            "limit": 6740
+                                        },
                                         "roles": []
                                     }
                                 }
@@ -1895,6 +1904,44 @@
                 }
             }
         },
+        "/api/admin/archive/role": {
+            "get": {
+                "summary": "Get all archived roles",
+                "tags": ["Archive"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Archived roles retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "totalCount": 5,
+                                    "isLast": false,
+                                    "elementsCount": 1,
+                                    "roles": [
+                                        {
+                                            "id": 6,
+                                            "role": "Хелпер",
+                                            "textColor": "#AAAB",
+                                            "backgroundColor": "#DDDB",
+                                            "permissionsCount": 7,
+                                            "usersCount": 0
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
         "/admin/role": {
             "post": {
                 "summary": "Create a new role",
@@ -1929,21 +1976,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Role created successfully",
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "role": {
-                                        "id": 6,
-                                        "role": "Админ",
-                                        "textColor": "#AAAB",
-                                        "backgroundColor": "#DDDB",
-                                        "permissionsCount": 7,
-                                        "usersCount": 0
-                                    }
-                                }
-                            }
-                        }
+                        "$ref": "#/components/responses/Role"
                     },
                     "400": {
                         "$ref": "#/components/responses/Error"
@@ -2129,23 +2162,120 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Role updated successfully",
+                        "$ref": "#/components/responses/Role"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
+        "/api/admin/role/{roleId}/archive": {
+            "delete": {
+                "summary": "Archive a specific role",
+                "tags": ["Roles"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "roleId",
+                        "in": "path",
+                        "description": "ID of the role to archive",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Role archived successfully",
                         "content": {
                             "application/json": {
                                 "example": {
-                                    "role": {
-                                        "id": 5,
-                                        "role": "Хелпер",
-                                        "textColor": "#CCC",
-                                        "backgroundColor": "#CCC",
-                                        "permissionsCount": 5,
-                                        "usersCount": 1
-                                    }
+                                    "$ref": "#/components/responses/Role"
                                 }
                             }
                         }
                     },
-                    "404": {
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
+        "/api/admin/role/{roleId}/restore": {
+            "patch": {
+                "summary": "Restore a specific role",
+                "tags": ["Roles"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "roleId",
+                        "in": "path",
+                        "description": "ID of the role to restore",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Role restored successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "$ref": "#/components/responses/Role"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Error"
+                    }
+                }
+            }
+        },
+        "/api/admin/role/{roleId}": {
+            "delete": {
+                "summary": "Delete a specific role",
+                "tags": ["Roles"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "roleId",
+                        "in": "path",
+                        "description": "ID of the role to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Role deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "$ref": "#/components/responses/Role"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
                         "$ref": "#/components/responses/Error"
                     }
                 }
@@ -2249,8 +2379,13 @@
                                 "nickname": "l4ndar",
                                 "isVerified": false,
                                 "isBlocked": false,
+                                "blockReason": null,
                                 "avatar": null,
-                                "level": 1,
+                                "levelInfo": {
+                                    "level": 25,
+                                    "xp": 3250,
+                                    "limit": 6740
+                                },
                                 "settings": {
                                     "isPrivateAccount": false,
                                     "isHideAvatars": false
@@ -2276,8 +2411,13 @@
                                 "nickname": "l4ndar",
                                 "isVerified": true,
                                 "isBlocked": false,
+                                "blockReason": null,
                                 "avatar": "http://localhost:8080/static/1705826316354.jpg",
-                                "level": 1,
+                                "levelInfo": {
+                                    "level": 25,
+                                    "xp": 3250,
+                                    "limit": 6740
+                                },
                                 "settings": {
                                     "isPrivateAccount": false,
                                     "isHideAvatars": true
@@ -2303,6 +2443,23 @@
                             "error": true,
                             "message": "Error message",
                             "errors": []
+                        }
+                    }
+                }
+            },
+            "Role": {
+                "description": "Role created successfully",
+                "content": {
+                    "application/json": {
+                        "example": {
+                            "role": {
+                                "id": 6,
+                                "role": "Админ",
+                                "textColor": "#AAAB",
+                                "backgroundColor": "#DDDB",
+                                "permissionsCount": 7,
+                                "usersCount": 0
+                            }
                         }
                     }
                 }

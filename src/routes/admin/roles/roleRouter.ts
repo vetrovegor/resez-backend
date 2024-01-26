@@ -73,3 +73,33 @@ roleRouter.post(
     blockedMiddleware,
     roleController.assignRoleToUser
 );
+
+roleRouter.delete(
+    '/:id/archive',
+    param('id').isNumeric(),
+    validationMiddleware,
+    accessTokenMiddleware,
+    blockedMiddleware,
+    permissionMiddleware(Permissions.DeleteRoles),
+    roleController.archiveRole
+);
+
+roleRouter.patch(
+    '/:id/restore',
+    param('id').isNumeric(),
+    validationMiddleware,
+    accessTokenMiddleware,
+    blockedMiddleware,
+    permissionMiddleware(Permissions.Archive),
+    roleController.restoreRole
+);
+
+roleRouter.delete(
+    '/:id',
+    param('id').isNumeric(),
+    validationMiddleware,
+    accessTokenMiddleware,
+    blockedMiddleware,
+    permissionMiddleware(Permissions.DeleteRoles),
+    roleController.deleteRole
+);

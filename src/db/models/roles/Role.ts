@@ -26,6 +26,12 @@ class Role extends Model {
     })
     backgroundColor: string;
 
+    @Column({
+        type: DataType.BOOLEAN,
+        defaultValue: false
+    })
+    isArchived: boolean;
+
     @BelongsToMany(() => Permission, () => RolePermission)
     permissions: Permission[];
 

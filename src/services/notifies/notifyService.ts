@@ -18,8 +18,8 @@ class NotifyService {
         });
 
         if (isSent) {
-            socketService.emitToRoom(
-                userId.toString(),
+            socketService.emitByUserId(
+                userId,
                 EmitTypes.Notify,
                 { notify: await userNotify.toDTO() }
             );
@@ -58,8 +58,8 @@ class NotifyService {
 
             await userNotify.save();
 
-            socketService.emitToRoom(
-                userNotify.get('userId').toString(),
+            socketService.emitByUserId(
+                userNotify.get('userId'),
                 EmitTypes.Notify,
                 { notify: await userNotify.toDTO() }
             );

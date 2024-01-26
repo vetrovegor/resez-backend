@@ -35,3 +35,11 @@ userRouter.patch(
     permissionMiddleware(Permissions.BlockUsers),
     userController.unblockUser   
 );
+
+// убрать
+userRouter.patch(
+    '/increase-xp',
+    body('nickname').isString(),
+    body('xp').isNumeric(),
+    userController.increaseXP   
+);

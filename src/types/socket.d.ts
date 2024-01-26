@@ -25,5 +25,6 @@ export const enum EmitTypes {
     Unblocked = 'unblocked',
     Message = 'message',
     NewPermissions = 'new-permissions',
-    Auth = 'auth'
+    Auth = 'auth',
+    NewLevel = 'new-level'
 }

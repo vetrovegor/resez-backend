@@ -86,10 +86,11 @@ class SubjectService {
         return subject.toFullInfo();
     }
 
+    // добавить сюда id пользователя который архивирует роль
     async setSubjectArchiveStatus(subjectId: number, status: boolean): Promise<SubjectShortInfo> {
         const subject = await this.getSubjectById(subjectId);
 
-        subject.set('isArchive', status);
+        subject.set('isArchived', status);
         await subject.save();
 
         return await subject.toShortInfo();
@@ -98,7 +99,7 @@ class SubjectService {
     async getArchivedSubjects(limit: number, offset: number): Promise<PaginationDTO<SubjectShortInfo>> {
         const subjects = await Subject.findAll({
             where: {
-                isArchive: true
+                isArchived: true
             },
             limit,
             offset
@@ -112,7 +113,7 @@ class SubjectService {
 
         const totalCount = await Subject.count({
             where: {
-                isArchive: true
+                isArchived: true
             },
         });
 

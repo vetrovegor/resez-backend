@@ -13,6 +13,7 @@ import { PaginationDTO } from '../dto/PaginationDTO';
 import socketService from './socketService';
 import { EmitTypes } from 'types/socket';
 import { CollectionSettings } from 'types/collection';
+import { calculateLevelInfo } from '../utils';
 
 class UserService {
     async getUserById(id: number): Promise<User> {
@@ -70,8 +71,8 @@ class UserService {
 
         await user.save();
 
-        socketService.emitToRoom(
-            userId.toString(),
+        socketService.emitByUserId(
+            userId,
             EmitTypes.Verify,
             { user: await user.toShortInfo() }
         );
@@ -269,6 +270,26 @@ class UserService {
         // залогировать бан
 
         return await user.toAdminInfo();
+    }
+
+    async increaseXP(nickname: string, xp: number) {
+        const user = await this.getUserByNickname(nickname);
+
+        const { level: oldLevel } = calculateLevelInfo(user.get('xp'));
+
+        if (!user) {
+            throw ApiError.notFound('Пользователь не найден');
+        }
+
+        await user.increment('xp', { by: xp });
+
+        const levelInfo = calculateLevelInfo(user.get('xp'));
+
+        if (levelInfo.level > oldLevel) {
+            socketService.emitByUserId(user.get('id'), EmitTypes.NewLevel, levelInfo);
+        }
+
+        return await user.toShortInfo();
     }
 }
 

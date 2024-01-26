@@ -20,7 +20,7 @@ export type UserShortInfo = {
     isBlocked: boolean,
     blockReason: string,
     avatar: string,
-    level: number,
+    levelInfo: LevelInfo,
     settings: {
         isPrivateAccount: boolean,
         isHideAvatars: boolean
@@ -60,6 +60,12 @@ export type UserProfileInfo = {
     gender: string;
 }
 
+export type LevelInfo = {
+    level: number,
+    xp: number,
+    limit: number
+};
+
 export type UserAdminInfo = {
     id: number,
     nickname: number,
@@ -67,14 +73,13 @@ export type UserAdminInfo = {
     lastName: string,
     registrationDate: Date,
     isVerified: string,
-    isBlocked: string,
+    isBlocked: boolean,
+    blockReason: string,
     avatar: string,
     isOnline: boolean,
     lastActivity: Date,
     status: string,
-    level: number,
-    xp: number,
-    xpLimit: number,
+    levelInfo: LevelInfo,
     // theme: string,
     roles: RolePreview[]
 }

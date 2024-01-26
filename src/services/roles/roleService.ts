@@ -78,8 +78,13 @@ class RoleService {
         return await createdRole.toShortInfo();
     }
 
-    async getRoles(limit: number, offset: number): Promise<PaginationDTO<RoleShortInfo>> {
+    async getRoles(limit: number, offset: number, isArchived: boolean = false): Promise<PaginationDTO<RoleShortInfo>> {
+        const whereOptions = {
+            isArchived
+        };
+
         const roles = await Role.findAll({
+            where: whereOptions,
             order: [['id', 'DESC']],
             limit,
             offset
@@ -91,7 +96,9 @@ class RoleService {
             )
         );
 
-        const totalCount = await Role.count();
+        const totalCount = await Role.count({
+            where: whereOptions
+        });
 
         return new PaginationDTO("roles", roleDTOs, totalCount, limit, offset);
     }
@@ -159,6 +166,29 @@ class RoleService {
             userId,
             roleId
         });
+    }
+
+    async setRoleArchiveStatus(roleId: number, status: boolean, userId: number): Promise<RoleShortInfo> {
+        const role = await this.getRoleById(roleId);
+
+        role.set('isArchived', status);
+        await role.save();
+
+        // залогировать
+        // отправить emit полльзователям с этой ролью что их роль удалена или новый permissions = []
+
+        return await role.toShortInfo();
+    }
+
+    async deleteRole(roleId: number, userId: number): Promise<RoleShortInfo> {
+        const role = await this.getRoleById(roleId);
+
+        await role.destroy();
+
+        // залогировать
+        // отправить emit полльзователям с этой ролью что их роль удалена или новый permissions = []
+
+        return await role.toShortInfo();
     }
 
     throwRoleAlreadyExistsError() {

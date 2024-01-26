@@ -42,8 +42,6 @@ class SocketService {
                 );
 
                 if (!existedAuthUser) {
-                    await socket.join(userId);
-
                     this.connectedAuthUsers.push({
                         socketId,
                         userId,
@@ -52,9 +50,7 @@ class SocketService {
                 }
             });
 
-            socket.on(EventTypes.Leave, (userId) => {
-                socket.leave(userId);
-
+            socket.on(EventTypes.Leave, () => {
                 this.disconnectAuthUser(socketId);
             });
 
@@ -73,6 +69,7 @@ class SocketService {
             // });
 
             socket.on(EventTypes.Disconnect, async () => {
+                // попробовать тут сделать удаление через filter
                 const index = this.connectedUsers.findIndex(
                     user => user.socketId == socketId
                 );
@@ -99,24 +96,17 @@ class SocketService {
         }
     }
 
-    // в будущем может сделать чтобы передавался userId вместо room
-    // и искался авторизованнный пользователь по userId
-    // брался его socketId и в комнату socketId отправлялся emit
-    // сделать два метода emitByUserId и emitBySessionId (или emitToUser, emitToSession)
-    emitToRoom(room: string, emitType: EmitTypes, data?: any): void {
+    private emitToRoom(room: string, emitType: EmitTypes, data?: any): void {
         this.io.to(room).emit(emitType, data);
     }
 
-    // затестить и перейти на него
-    // в emitEndSession сделать по аналогии
     emitByUserId(userId: number, emitType: EmitTypes, data?: any) {
-        console.log({userId, emitType, data});
         const user = this.connectedAuthUsers.find(
             u => u.userId === userId.toString()
         );
 
         if (user) {
-            this.io.to(user.socketId).emit(emitType, data);
+            this.emitToRoom(user.socketId, emitType, data);
         }
     }
 
@@ -126,25 +116,25 @@ class SocketService {
         );
 
         if (user) {
-            this.emitToRoom(user.userId, EmitTypes.EndSession);
+            this.emitToRoom(user.socketId, EmitTypes.EndSession);
         }
     }
 
     emitAuthCode(uniqueId: string, code: string) {
-        const existedConnectedUser = this.connectedUsers.find(
+        const user = this.connectedUsers.find(
             u => u.uniqueId === uniqueId
         );
 
-        if (existedConnectedUser) {
+        if (user) {
             this.emitToRoom(
-                existedConnectedUser.socketId,
+                user.socketId,
                 EmitTypes.Auth,
                 { code }
             );
         }
     }
 
-    emitNewPermissionsToUsers(userIDs: number[], permissions: PermissionDTO[]) {
+    emitNewPermissions(userIDs: number[], permissions: PermissionDTO[]) {
         // сделать чтобы сначала отбирались те пользователи которые в сети в данный момент и уже им отправлялось
         userIDs.forEach(userId => {
             this.emitToRoom(

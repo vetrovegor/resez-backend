@@ -13,6 +13,7 @@ import { PermissionDTO } from "types/permission";
 import Notify from "./notifies/Notify";
 import UserNotify from "./notifies/UserNotify";
 import { CollectionSettings } from "types/collection";
+import { calculateLevelInfo } from "../../utils";
 
 @Table({
     timestamps: false,
@@ -50,12 +51,6 @@ class User extends Model {
         type: DataType.STRING
     })
     blockReason: string;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: 1,
-    })
-    level: number;
 
     @Column({
         type: DataType.INTEGER,
@@ -201,7 +196,12 @@ class User extends Model {
         const userRoles = await UserRole.findAll({
             where: { userId: this.get('id') },
             attributes: [],
-            include: [{ model: Role }]
+            include: [{
+                model: Role,
+                where: {
+                    isArchived: false
+                }
+            }]
         });
 
         return userRoles.map(userRole => userRole.get('role'));
@@ -238,9 +238,11 @@ class User extends Model {
     }
 
     async toShortInfo(): Promise<UserShortInfo> {
-        const { id, nickname, isVerified, isBlocked, blockReason, avatar, level, isPrivateAccount, isHideAvatars } = this.get();
+        const { id, nickname, isVerified, isBlocked, blockReason, avatar, xp, isPrivateAccount, isHideAvatars } = this.get();
 
         const permissions = await this.getPermissions();
+
+        const levelInfo = calculateLevelInfo(xp);
 
         const unreadNotifiesCount = await UserNotify.count({
             where: {
@@ -256,7 +258,7 @@ class User extends Model {
             isBlocked,
             blockReason,
             avatar: avatar ? process.env.STATIC_URL + avatar : null,
-            level,
+            levelInfo,
             settings: {
                 isPrivateAccount,
                 isHideAvatars
@@ -289,7 +291,7 @@ class User extends Model {
     }
 
     async toAdminInfo(): Promise<UserAdminInfo> {
-        const { id, nickname, firstName, lastName, registrationDate, isVerified, isBlocked, avatar } = this.get();
+        const { id, nickname, firstName, lastName, registrationDate, isVerified, isBlocked, blockReason, avatar } = this.get();
 
         const roles = await this.getRoles();
         const rolePreviews = roles.map(role => role.toPreview());
@@ -302,13 +304,16 @@ class User extends Model {
             registrationDate,
             isVerified,
             isBlocked,
+            blockReason,
             avatar: avatar ? process.env.STATIC_URL + avatar : null,
             isOnline: id % 2 == 0 ? true : false,
             lastActivity: new Date(),
             status: 'Новичек',
-            level: 4,
-            xp: 100,
-            xpLimit: 750,
+            levelInfo: {
+                level: 1,
+                xp: 400,
+                limit: 500
+            },
             roles: rolePreviews
         };
     }

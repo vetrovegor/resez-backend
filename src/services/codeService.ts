@@ -43,8 +43,8 @@ class CodeService {
                 retryDate
             });
 
-            socketService.emitToRoom(
-                userId.toString(),
+            socketService.emitByUserId(
+                userId,
                 EmitTypes.VerifyCodeUpdated,
                 { verificationCodeData }
             );
