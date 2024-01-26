@@ -144,6 +144,12 @@ class SocketService {
             );
         });
     }
+
+    getOnlineUserIDs(): number[] {
+        return this.connectedAuthUsers.map(
+            user => Number(user.userId)
+        );
+    }
 }
 
 export default new SocketService();

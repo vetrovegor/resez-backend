@@ -46,4 +46,4 @@ export type PermissionHierarchyItem = {
 
 export type PermissionHierarchy = {
     [id: number]: PermissionHierarchyItem;
-  };
+};

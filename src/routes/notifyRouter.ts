@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { param } from "express-validator";
+import { param, query } from "express-validator";
 
 import notifyController from "../controllers/notify/notifyController";
 import { accessTokenMiddleware } from "../middlewares/accessTokenMiddleware";
@@ -11,6 +11,8 @@ export const notifyRouter = Router();
 
 notifyRouter.get(
     '/',
+    query('unread').isBoolean().optional(),
+    validationMiddleware,
     paginationMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,

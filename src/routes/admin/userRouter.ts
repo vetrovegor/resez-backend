@@ -6,12 +6,17 @@ import { blockedMiddleware } from "../../middlewares/blockedMiddleware";
 import { permissionMiddleware } from "../../middlewares/permissionMiddleware";
 import { Permissions } from "types/permission";
 import userController from "../../controllers/userController";
-import { body } from "express-validator";
+import { body, query } from "express-validator";
+import { validationMiddleware } from "../../middlewares/validationMiddleware";
 
 export const userRouter = Router();
 
 userRouter.get(
     '/',
+    query('blocked').isBoolean().optional(),
+    query('verified').isBoolean().optional(),
+    query('online').isBoolean().optional(),
+    validationMiddleware,
     paginationMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,

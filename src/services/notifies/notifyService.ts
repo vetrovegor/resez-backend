@@ -80,8 +80,8 @@ class NotifyService {
             }
         };
 
-        if (unread && unread.toLowerCase() === 'true') {
-            whereOptions.isRead = false;
+        if (unread) {
+            whereOptions.isRead = unread.toLowerCase() !== 'true';
         }
 
         const userNotifies = await UserNotify.findAll({

@@ -234,8 +234,29 @@ class UserService {
         return { isShuffleCards, isDefinitionCardFront }
     }
 
-    async getUsers(limit: number, offset: number): Promise<PaginationDTO<UserAdminInfo>> {
+    async getUsers(limit: number, offset: number, blocked?: string, verified?: string, online?: string): Promise<PaginationDTO<UserAdminInfo>> {
+        const whereOptions: {
+            isBlocked?: boolean,
+            isVerified?: boolean,
+            id?: { [Op.in]: number[] }
+        } = {};
+
+        if (blocked) {
+            whereOptions.isBlocked = blocked.toLowerCase() === 'true';
+        }
+
+        if (verified) {
+            whereOptions.isVerified = verified.toLowerCase() === 'true';
+        }
+
+        if (online && online.toLowerCase() === 'true') {
+            whereOptions.id = {
+                [Op.in]: socketService.getOnlineUserIDs()
+            }
+        }
+
         const users = await User.findAll({
+            where: whereOptions,
             order: [['registrationDate', 'DESC']],
             limit,
             offset
@@ -245,7 +266,9 @@ class UserService {
             users.map(async user => await user.toAdminInfo())
         );
 
-        const totalCount = await User.count();
+        const totalCount = await User.count({
+            where: whereOptions
+        });
 
         return new PaginationDTO<UserAdminInfo>("users", usersDtos, totalCount, limit, offset);
     }

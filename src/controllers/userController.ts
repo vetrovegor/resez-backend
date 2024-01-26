@@ -5,7 +5,7 @@ import codeService from '../services/codeService';
 import userService from '../services/userService';
 import sessionService from '../services/sessionService';
 import { IdParam, PaginationQuery, RequestWithBody, RequestWithBodyAndUser, RequestWithParamsAndBodyAndUser, RequestWithParamsAndUser, RequestWithQueryAndUser, RequestWithUser } from 'types/request';
-import { UserChangePasswordDTO, UserProfileInfo, UserSearchQuery, UserSettingsInfo } from 'types/user';
+import { UserChangePasswordDTO, UserFiltersQuery, UserProfileInfo, UserSearchQuery, UserSettingsInfo } from 'types/user';
 
 class UserhController {
     async getUserShortInfo(req: RequestWithUser, res: Response, next: NextFunction) {
@@ -114,11 +114,11 @@ class UserhController {
         }
     }
 
-    async getUsers(req: RequestWithQueryAndUser<PaginationQuery>, res: Response, next: NextFunction) {
+    async getUsers(req: RequestWithQueryAndUser<PaginationQuery & UserFiltersQuery>, res: Response, next: NextFunction) {
         try {
-            const { limit, offset } = req.query;
+            const { limit, offset, blocked, verified, online } = req.query;
 
-            const data = await userService.getUsers(limit, offset);
+            const data = await userService.getUsers(limit, offset, blocked, verified, online);
 
             res.json(data);
         } catch (error) {
