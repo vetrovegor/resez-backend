@@ -1,4 +1,4 @@
-import { Response, NextFunction } from 'express';
+import { Response, NextFunction, Request } from 'express';
 
 import authService from '../services/authService';
 import { RequestWithBody, RequestWithParams, RequestWithUser } from 'types/request';
@@ -77,6 +77,14 @@ class AuthController {
             await sessionService.endCurrentSession(req, id);
 
             res.clearCookie('refreshToken').send();
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async checkAuth(req: Request, res: Response, next: NextFunction) {
+        try {
+            res.sendStatus(200);
         } catch (error) {
             next(error);
         }

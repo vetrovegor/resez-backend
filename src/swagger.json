@@ -119,6 +119,25 @@
                 }
             }
         },
+        "/api/auth/check": {
+            "get": {
+                "summary": "Check user authorization",
+                "tags": ["Authorization"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User is authorized"
+                    },
+                    "401": {
+                        "description": "User is not authorized"
+                    }
+                }
+            }
+        },
         "/auth/logout": {
             "get": {
                 "summary": "User logout",

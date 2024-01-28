@@ -39,6 +39,12 @@ authRouter.get(
 );
 
 authRouter.get(
+    '/check',
+    accessTokenMiddleware,
+    authController.checkAuth
+);
+
+authRouter.get(
     '/refresh',
     refreshTokenMiddleware,
     authController.refresh
