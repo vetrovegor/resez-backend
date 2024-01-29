@@ -13,7 +13,8 @@ import { PaginationDTO } from '../dto/PaginationDTO';
 import socketService from './socketService';
 import { EmitTypes } from 'types/socket';
 import { CollectionSettings } from 'types/collection';
-import { calculateLevelInfo } from '../utils';
+import { calculateLevelInfo, getArraysIntersection } from '../utils';
+import UserRole from '../db/models/UserRole';
 
 class UserService {
     async getUserById(id: number): Promise<User> {
@@ -234,12 +235,17 @@ class UserService {
         return { isShuffleCards, isDefinitionCardFront }
     }
 
-    async getUsers(limit: number, offset: number, blocked?: string, verified?: string, online?: string): Promise<PaginationDTO<UserAdminInfo>> {
+    async getUsers(limit: number, offset: number, search?: string, blocked?: string, verified?: string, online?: string, hasRole?: string, roleId?: number): Promise<PaginationDTO<UserAdminInfo>> {
         const whereOptions: {
+            nickname?: { [Op.iLike]: string },
             isBlocked?: boolean,
             isVerified?: boolean,
             id?: { [Op.in]: number[] }
         } = {};
+
+        if (search) {
+            whereOptions.nickname = { [Op.iLike]: `%${search}%` };
+        }
 
         if (blocked) {
             whereOptions.isBlocked = blocked.toLowerCase() === 'true';
@@ -249,10 +255,38 @@ class UserService {
             whereOptions.isVerified = verified.toLowerCase() === 'true';
         }
 
+        const userIDsArrays: number[][] = [];
+
         if (online && online.toLowerCase() === 'true') {
+            userIDsArrays.push(socketService.getOnlineUserIDs());
+        }
+
+        if (hasRole && hasRole.toLowerCase() === 'true') {
+            // вынести в roleService в getAdminIDs?
+            const userRoles = await UserRole.findAll();
+
+            userIDsArrays.push(userRoles.map(
+                userRole => userRole.get('userId')
+            ));
+        }
+
+        if (roleId) {
+            // вынести в roleService в getAdminIDsbyRoleId?
+            const userRoles = await UserRole.findAll({
+                where: {
+                    roleId
+                }
+            });
+
+            userIDsArrays.push(userRoles.map(
+                userRole => userRole.get('userId')
+            ));
+        }
+
+        if (userIDsArrays.length) {
             whereOptions.id = {
-                [Op.in]: socketService.getOnlineUserIDs()
-            }
+                [Op.in]: getArraysIntersection(userIDsArrays)
+            };
         }
 
         const users = await User.findAll({

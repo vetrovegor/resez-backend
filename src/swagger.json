@@ -119,7 +119,7 @@
                 }
             }
         },
-        "/api/auth/check": {
+        "/auth/check": {
             "get": {
                 "summary": "Check user authorization",
                 "tags": ["Authorization"],

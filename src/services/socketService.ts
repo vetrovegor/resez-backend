@@ -4,6 +4,8 @@ import { Server, Socket } from "socket.io";
 import { CORS_OPTIONS } from "../consts/CORS_OPTIONS";
 import { EventTypes, ConnectedUser, AuthConnectedUser, EmitTypes } from 'types/socket';
 import { PermissionDTO } from 'types/permission';
+import activityService from './activityService';
+import { ActivityTypes } from 'types/activity';
 
 class SocketService {
     private io: Server;
@@ -42,6 +44,8 @@ class SocketService {
                 );
 
                 if (!existedAuthUser) {
+                    await activityService.createActivity(Number(userId), ActivityTypes.Login);
+
                     this.connectedAuthUsers.push({
                         socketId,
                         userId,
@@ -89,8 +93,8 @@ class SocketService {
         );
 
         if (index != -1) {
-            // const { userId } = this.connectedAuthUsers[index];
-            // await activityService.createUserLogoutActivity(userId);
+            const { userId } = this.connectedAuthUsers[index];
+            await activityService.createActivity(Number(userId), ActivityTypes.Logout);
 
             this.connectedAuthUsers.splice(index, 1);
         }

@@ -13,9 +13,12 @@ export const userRouter = Router();
 
 userRouter.get(
     '/',
+    query('search').notEmpty().optional(),
     query('blocked').isBoolean().optional(),
     query('verified').isBoolean().optional(),
     query('online').isBoolean().optional(),
+    query('has_role').isBoolean().optional(),
+    query('role').isNumeric().optional(),
     validationMiddleware,
     paginationMiddleware,
     accessTokenMiddleware,

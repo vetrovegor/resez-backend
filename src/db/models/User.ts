@@ -14,6 +14,7 @@ import Notify from "./notifies/Notify";
 import UserNotify from "./notifies/UserNotify";
 import { CollectionSettings } from "types/collection";
 import { calculateLevelInfo } from "../../utils";
+import Activity from "./Activity";
 
 @Table({
     timestamps: false,
@@ -191,6 +192,9 @@ class User extends Model {
         onDelete: 'CASCADE'
     })
     messages: Message[];
+
+    @HasMany(() => Activity)
+    activity: Activity[];
 
     async getRoles(): Promise<Role[]> {
         const userRoles = await UserRole.findAll({

@@ -116,9 +116,9 @@ class UserhController {
 
     async getUsers(req: RequestWithQueryAndUser<PaginationQuery & UserFiltersQuery>, res: Response, next: NextFunction) {
         try {
-            const { limit, offset, blocked, verified, online } = req.query;
+            const { limit, offset, search, blocked, verified, online, has_role: hasRole, role: roleId } = req.query;
 
-            const data = await userService.getUsers(limit, offset, blocked, verified, online);
+            const data = await userService.getUsers(limit, offset, search, blocked, verified, online, hasRole, roleId);
 
             res.json(data);
         } catch (error) {

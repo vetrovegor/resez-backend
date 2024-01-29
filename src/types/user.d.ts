@@ -94,8 +94,10 @@ export type UserSearchQuery = {
 };
 
 export type UserFiltersQuery = {
+    search: string,
     blocked: string,
     verified: string,
     online: string,
-    // hasRole: boolean
+    has_role: string,
+    role: number
 };
