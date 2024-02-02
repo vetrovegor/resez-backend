@@ -61,7 +61,9 @@ const start = async () => {
     // отправка отложенных уведомлений
     cron.schedule('* * * * *', notifyService.sendDelayedNotifies);
 
-    server.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+    server.listen(PORT, () =>
+        console.log(`Server started on port ${PORT}`)
+    );
 }
 
 start();

@@ -27,3 +27,22 @@ messageRouter.post(
     blockedMiddleware,
     messageController.sendMessageToChat
 );
+
+messageRouter.patch(
+    '/:id',
+    param('id').isNumeric(),
+    body('message').isLength({ min: 1 }),
+    validationMiddleware,
+    accessTokenMiddleware,
+    blockedMiddleware,
+    messageController.editMessage
+);
+
+messageRouter.delete(
+    '/:id',
+    param('id').isNumeric(),
+    validationMiddleware,
+    accessTokenMiddleware,
+    blockedMiddleware,
+    messageController.deleteMessage
+);
