@@ -1,14 +1,14 @@
-import { Op } from "sequelize";
+import { Op } from 'sequelize';
 import { UploadedFile } from 'express-fileupload';
 
-import { ApiError } from "../../ApiError";
-import Chat from "../../db/models/messenger/Chat";
-import UserChat from "../../db/models/messenger/UserChat";
-import { PaginationDTO } from "../../dto/PaginationDTO";
-import messageService from "./messageService";
-import userService from "../../services/userService";
-import { ChatDTO, MessageTypes } from "types/messenger";
-import { UserPreview } from "types/user";
+import { ApiError } from '../../ApiError';
+import Chat from '../../db/models/messenger/Chat';
+import UserChat from '../../db/models/messenger/UserChat';
+import { PaginationDTO } from '../../dto/PaginationDTO';
+import messageService from './messageService';
+import userService from '../../services/userService';
+import { ChatDTO, MessageTypes } from 'types/messenger';
+import { UserPreview } from 'types/user';
 
 class ChatService {
     async createUserChat(chatId: number, userId: number): Promise<UserChat> {
@@ -18,8 +18,13 @@ class ChatService {
         });
     }
 
-    async createChat(userIDs: number[], chat: string = null, isGroup: boolean = false,
-        picture: string = null, adminId: number = null): Promise<Chat> {
+    async createChat(
+        userIDs: number[],
+        chat: string = null,
+        isGroup: boolean = false,
+        picture: string = null,
+        adminId: number = null
+    ): Promise<Chat> {
         const validatedUserIDs = await userService.validateUserIDs(userIDs);
 
         const createdChat = await Chat.create({
@@ -59,10 +64,13 @@ class ChatService {
         return !!userChat;
     }
 
-    async createOrGetChatBetweenUsers(senderId: number, recipientId: number): Promise<Chat> {
+    async createOrGetChatBetweenUsers(
+        senderId: number,
+        recipientId: number
+    ): Promise<Chat> {
         // обработать senderId == recipientId
         // // у чата 1 участник, adminId == userId, isFavorites == true
-        if(senderId == recipientId) {
+        if (senderId == recipientId) {
             throw ApiError.badRequest('Избранного пока что нет :(');
         }
 
@@ -71,16 +79,16 @@ class ChatService {
             UserChat.findAll({ where: { userId: recipientId } })
         ]);
 
-        const senderChatIDs = senderChats.map(
-            userChat => userChat.get('chatId')
+        const senderChatIDs = senderChats.map(userChat =>
+            userChat.get('chatId')
         );
 
-        const recipientChatIDs = recipientChats.map(
-            userChat => userChat.get('chatId')
+        const recipientChatIDs = recipientChats.map(userChat =>
+            userChat.get('chatId')
         );
 
-        const mutualChatIDs = senderChatIDs.filter(
-            userChat => recipientChatIDs.includes(userChat)
+        const mutualChatIDs = senderChatIDs.filter(userChat =>
+            recipientChatIDs.includes(userChat)
         );
 
         for (const chatId of mutualChatIDs) {
@@ -96,16 +104,18 @@ class ChatService {
         return await this.createChat([senderId, recipientId]);
     }
 
-    async getUserChats(userId: number, limit: number, offset: number): Promise<PaginationDTO<ChatDTO>> {
+    async getUserChats(
+        userId: number,
+        limit: number,
+        offset: number
+    ): Promise<PaginationDTO<ChatDTO>> {
         const userChats = await UserChat.findAll({
             where: {
                 userId
             }
         });
 
-        const userChatIDs = userChats.map(
-            userChat => userChat.get('chatId')
-        );
+        const userChatIDs = userChats.map(userChat => userChat.get('chatId'));
 
         const chats = await Chat.findAll({
             where: {
@@ -121,7 +131,9 @@ class ChatService {
                 const { id, isGroup, chat, picture } = chatItem.toJSON();
 
                 const membersCount = await chatItem.getMembersCount();
-                const lastMessage = await messageService.getLastMessageByChatId(id);
+                const lastMessage = await messageService.getLastMessageByChatId(
+                    id
+                );
 
                 if (isGroup) {
                     return {
@@ -131,7 +143,7 @@ class ChatService {
                         picture,
                         membersCount,
                         lastMessage
-                    }
+                    };
                 } else {
                     const chatMembers = await UserChat.findAll({
                         where: {
@@ -139,13 +151,13 @@ class ChatService {
                         }
                     });
 
-                    const chatMemberIDs = chatMembers.map(
-                        chatMember => chatMember.get('userId')
+                    const chatMemberIDs = chatMembers.map(chatMember =>
+                        chatMember.get('userId')
                     );
 
                     const friendId = chatMemberIDs.find(
                         element => element !== userId
-                    )
+                    );
 
                     const friend = await userService.getUserById(friendId);
                     const friendPreview = friend.toPreview();
@@ -157,7 +169,7 @@ class ChatService {
                         picture: friendPreview.avatar,
                         membersCount,
                         lastMessage
-                    }
+                    };
                 }
             })
         );
@@ -165,13 +177,24 @@ class ChatService {
         const totalCount = await Chat.count({
             where: {
                 id: { [Op.in]: userChatIDs }
-            },
+            }
         });
 
-        return new PaginationDTO<ChatDTO>("chats", chatDTOs, totalCount, limit, offset);
+        return new PaginationDTO<ChatDTO>(
+            'chats',
+            chatDTOs,
+            totalCount,
+            limit,
+            offset
+        );
     }
 
-    async createGroup(chat: string, userIDs: number[], picture: UploadedFile, adminId: number): Promise<Chat> {
+    async createGroup(
+        chat: string,
+        userIDs: number[],
+        picture: UploadedFile,
+        adminId: number
+    ): Promise<Chat> {
         // добавить сохранение файла
         // вынести сохранение файла в отдельный сервис?
         userIDs.push(adminId);
@@ -191,7 +214,11 @@ class ChatService {
 
     // вынести в мидлвейр проверку что чат есть и является группой
     // тот кто добавляет является админом
-    async addUserToChat(chatId: number, userId: number, adminId: number): Promise<UserPreview> {
+    async addUserToChat(
+        chatId: number,
+        userId: number,
+        adminId: number
+    ): Promise<UserPreview> {
         const chat = await this.getChatById(chatId);
 
         if (!chat.get('isGroup')) {
@@ -225,7 +252,11 @@ class ChatService {
 
     // вынести в мидлвейр проверку что чат есть и является группой
     // тот кто добавляет является админом
-    async removeUserFromChat(chatId: number, userId: number, adminId: number): Promise<UserPreview> {
+    async removeUserFromChat(
+        chatId: number,
+        userId: number,
+        adminId: number
+    ): Promise<UserPreview> {
         if (userId == adminId) {
             throw ApiError.badRequest('Нельзя исключить из чата самого себя');
         }
@@ -264,6 +295,12 @@ class ChatService {
         );
 
         return user.toPreview();
+    }
+
+    async getChatInfo(chatId: number) {
+        const messages = await messageService.getChatMessages(chatId);
+
+        return { messages };
     }
 
     throwChatNotFoundError() {

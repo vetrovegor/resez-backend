@@ -53,3 +53,10 @@ chatRouter.delete(
     blockedMiddleware,
     chatController.removeUserFromChat
 );
+
+chatRouter.get(
+    '/:chatId',
+    accessTokenMiddleware,
+    blockedMiddleware,
+    chatController.getChatInfo
+);

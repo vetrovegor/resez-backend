@@ -11,7 +11,6 @@ import { CORS_OPTIONS } from "./consts/CORS_OPTIONS";
 import { router } from "./routes/router";
 import { errorMiddleWare } from "./middlewares/errorMiddleware";
 import { sequelize } from "./db/connection";
-import telegramService from "./services/telegramService";
 import { STATIC_PATH } from "./consts/STATIC_PATH";
 import permissionService from "./services/roles/permissionService";
 import swaggerDocument from "./swagger.json";
@@ -19,6 +18,7 @@ import messageTypeService from "./services/messenger/messageTypeService";
 import socketService from "./services/socketService";
 import notifyTypeService from "./services/notifies/notifyTypeService";
 import notifyService from "./services/notifies/notifyService";
+import rmqService from "./services/rmqService";
 
 const app = express();
 
@@ -52,7 +52,8 @@ const start = async () => {
         await sequelize.sync();
     }
 
-    telegramService.init();
+    await rmqService.init();
+    // telegramService.init();
     socketService.init(server);
 
     // сделать очистку просроченных кодов кодов

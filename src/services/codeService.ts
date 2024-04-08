@@ -8,6 +8,7 @@ import { ApiError } from "../ApiError";
 import socketService from "./socketService";
 import User from "../db/models/User";
 import { EmitTypes } from "types/socket";
+import rmqService from "./rmqService";
 
 // подумать как сделать лучше, как вынести в файл с типами
 export const enum CodeTypes {
@@ -193,7 +194,9 @@ class CodeService {
 
         if (!codeData) {
             if (shouldSendMessage) {
-                await telegramService.sendCode(telegramChatId, message, code);
+                // await telegramService.sendCode(telegramChatId, message, code);
+
+                await rmqService.publishMessage('code', { telegramChatId, message, code });
             }
 
             return await Code.create({
@@ -210,7 +213,9 @@ class CodeService {
         }
 
         if (shouldSendMessage) {
-            await telegramService.sendCode(telegramChatId, message, code);
+            // await telegramService.sendCode(telegramChatId, message, code);
+
+            await rmqService.publishMessage('code', { telegramChatId, message, code });
         }
 
         return await codeData.update({
