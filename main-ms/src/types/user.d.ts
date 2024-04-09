@@ -52,6 +52,14 @@ export type UserPreview = {
     avatar: string
 }
 
+export type UserProfilePreview = {
+    id: number,
+    nickname: string,
+    firstName: string,
+    lastName: string,
+    avatar: string
+}
+
 export type UserProfileInfo = {
     id: number,
     firstName: string;

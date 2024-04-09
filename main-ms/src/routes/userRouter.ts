@@ -70,6 +70,11 @@ userRouter.delete(
     userController.deleteAvatar
 );
 
+userRouter.get(
+    '/:id',
+    userController.getUser
+);
+
 userRouter.patch(
     '/settings',
     body('isPrivateAccount').isBoolean().optional(),

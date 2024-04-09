@@ -36,6 +36,7 @@ const consumeQueues = async () => {
     );
 
     channel.consume('send-code', async msg => {
+        console.log('Пришло сообщение для отправки кода');
         const { telegramChatId, message, code } = JSON.parse(msg.content.toString());
         await sendCode(telegramChatId, message, code);
     }, { noAck: true });

@@ -4,16 +4,39 @@ import { UploadedFile } from 'express-fileupload';
 import codeService from '../services/codeService';
 import userService from '../services/userService';
 import sessionService from '../services/sessionService';
-import { IdParam, PaginationQuery, RequestWithBody, RequestWithBodyAndUser, RequestWithParamsAndBodyAndUser, RequestWithParamsAndUser, RequestWithQueryAndUser, RequestWithUser } from 'types/request';
-import { UserChangePasswordDTO, UserFiltersQuery, UserProfileInfo, UserSearchQuery, UserSettingsInfo } from 'types/user';
+import {
+    IdParam,
+    PaginationQuery,
+    RequestWithBody,
+    RequestWithBodyAndUser,
+    RequestWithParams,
+    RequestWithParamsAndBodyAndUser,
+    RequestWithParamsAndUser,
+    RequestWithQueryAndUser,
+    RequestWithUser
+} from 'types/request';
+import {
+    UserChangePasswordDTO,
+    UserFiltersQuery,
+    UserProfileInfo,
+    UserSearchQuery,
+    UserSettingsInfo
+} from 'types/user';
 
 class UserhController {
-    async getUserShortInfo(req: RequestWithUser, res: Response, next: NextFunction) {
+    async getUserShortInfo(
+        req: RequestWithUser,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const userId = req.user.id;
 
             const user = await userService.getUserShortInfo(userId);
-            const { id: sessionId } = await sessionService.findCurrentSession(req, userId);
+            const { id: sessionId } = await sessionService.findCurrentSession(
+                req,
+                userId
+            );
 
             res.json({ user, sessionId });
         } catch (error) {
@@ -21,7 +44,11 @@ class UserhController {
         }
     }
 
-    async sendChangePasswordCode(req: RequestWithBodyAndUser<UserChangePasswordDTO>, res: Response, next: NextFunction) {
+    async sendChangePasswordCode(
+        req: RequestWithBodyAndUser<UserChangePasswordDTO>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const { oldPassword } = req.body;
 
@@ -33,7 +60,11 @@ class UserhController {
         }
     }
 
-    async verifyChangePasswordCode(req: RequestWithBodyAndUser<UserChangePasswordDTO>, res: Response, next: NextFunction) {
+    async verifyChangePasswordCode(
+        req: RequestWithBodyAndUser<UserChangePasswordDTO>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const { id } = req.user;
             const { oldPassword, newPassword, code } = req.body;
@@ -47,7 +78,11 @@ class UserhController {
         }
     }
 
-    async getProfileInfo(req: RequestWithUser, res: Response, next: NextFunction) {
+    async getProfileInfo(
+        req: RequestWithUser,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const user = await userService.getProfileInfo(req.user.id);
 
@@ -57,11 +92,21 @@ class UserhController {
         }
     }
 
-    async updateProfile(req: RequestWithBodyAndUser<UserProfileInfo>, res: Response, next: NextFunction) {
+    async updateProfile(
+        req: RequestWithBodyAndUser<UserProfileInfo>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const { firstName, lastName, birthDate, gender } = req.body;
 
-            const user = await userService.updateProfile(req.user.id, firstName, lastName, birthDate, gender);
+            const user = await userService.updateProfile(
+                req.user.id,
+                firstName,
+                lastName,
+                birthDate,
+                gender
+            );
 
             res.json({ user });
         } catch (error) {
@@ -69,11 +114,19 @@ class UserhController {
         }
     }
 
-    async updateSettings(req: RequestWithBodyAndUser<UserSettingsInfo>, res: Response, next: NextFunction) {
+    async updateSettings(
+        req: RequestWithBodyAndUser<UserSettingsInfo>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const { isPrivateAccount, isHideAvatars } = req.body;
 
-            const settings = await userService.updateSettings(req.user.id, isPrivateAccount, isHideAvatars);
+            const settings = await userService.updateSettings(
+                req.user.id,
+                isPrivateAccount,
+                isHideAvatars
+            );
 
             res.json({ settings });
         } catch (error) {
@@ -84,7 +137,10 @@ class UserhController {
     // типизировать запрос, который будет принимать картинку
     async setAvatar(req: RequestWithUser, res: Response, next: NextFunction) {
         try {
-            const user = await userService.setAvatar(req.user.id, req.files.avatar as UploadedFile);
+            const user = await userService.setAvatar(
+                req.user.id,
+                req.files.avatar as UploadedFile
+            );
 
             res.json({ user });
         } catch (error) {
@@ -92,7 +148,11 @@ class UserhController {
         }
     }
 
-    async deleteAvatar(req: RequestWithUser, res: Response, next: NextFunction) {
+    async deleteAvatar(
+        req: RequestWithUser,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const user = await userService.deleteAvatar(req.user.id);
 
@@ -102,7 +162,24 @@ class UserhController {
         }
     }
 
-    async searchUsers(req: RequestWithQueryAndUser<PaginationQuery & UserSearchQuery>, res: Response, next: NextFunction) {
+    async getUser(
+        req: RequestWithParams<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const user = await userService.getUser(req.params.id);
+            res.json({ user });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async searchUsers(
+        req: RequestWithQueryAndUser<PaginationQuery & UserSearchQuery>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const { search, limit, offset } = req.query;
 
@@ -114,11 +191,33 @@ class UserhController {
         }
     }
 
-    async getUsers(req: RequestWithQueryAndUser<PaginationQuery & UserFiltersQuery>, res: Response, next: NextFunction) {
+    async getUsers(
+        req: RequestWithQueryAndUser<PaginationQuery & UserFiltersQuery>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
-            const { limit, offset, search, blocked, verified, online, has_role: hasRole, role: roleId } = req.query;
+            const {
+                limit,
+                offset,
+                search,
+                blocked,
+                verified,
+                online,
+                has_role: hasRole,
+                role: roleId
+            } = req.query;
 
-            const data = await userService.getUsers(limit, offset, search, blocked, verified, online, hasRole, roleId);
+            const data = await userService.getUsers(
+                limit,
+                offset,
+                search,
+                blocked,
+                verified,
+                online,
+                hasRole,
+                roleId
+            );
 
             res.json(data);
         } catch (error) {
@@ -126,7 +225,11 @@ class UserhController {
         }
     }
 
-    async blockUser(req: RequestWithParamsAndBodyAndUser<IdParam, { reason?: string }>, res: Response, next: NextFunction) {
+    async blockUser(
+        req: RequestWithParamsAndBodyAndUser<IdParam, { reason?: string }>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const user = await userService.setUserBlockStatus(
                 req.user.id,
@@ -141,7 +244,11 @@ class UserhController {
         }
     }
 
-    async unblockUser(req: RequestWithParamsAndUser<IdParam>, res: Response, next: NextFunction) {
+    async unblockUser(
+        req: RequestWithParamsAndUser<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const user = await userService.setUserBlockStatus(
                 req.user.id,
@@ -155,7 +262,11 @@ class UserhController {
         }
     }
 
-    async increaseXP(req: RequestWithBody<{ nickname: string, xp: number }>, res: Response, next: NextFunction) {
+    async increaseXP(
+        req: RequestWithBody<{ nickname: string; xp: number }>,
+        res: Response,
+        next: NextFunction
+    ) {
         const { nickname, xp } = req.body;
 
         const user = await userService.increaseXP(nickname, xp);

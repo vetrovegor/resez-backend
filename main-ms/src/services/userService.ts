@@ -179,6 +179,12 @@ class UserService {
         return await user.toShortInfo();
     }
 
+    async getUser(userId: number) {
+        const user = await this.getUserById(userId);
+
+        return user.toProfilePreview();
+    }
+
     async searchUsers(search: string, limit: number, offset: number): Promise<PaginationDTO<UserPreview>> {
         const whereOptions = { nickname: { [Op.iLike]: `%${search}%` } };
 

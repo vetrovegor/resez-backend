@@ -44,7 +44,7 @@ class Message extends Model {
 
     // добавить тип сообщения?
     async toDTO(): Promise<MessageDTO> {
-        const { id, messageTypeId, message, createdAt, senderId } = this.get();
+        const { id, messageTypeId, message, createdAt, senderId, chatId } = this.get();
 
         const messageType = await MessageType.findByPk(messageTypeId);
 
@@ -55,7 +55,8 @@ class Message extends Model {
             message,
             type: messageType.get('type'),
             date: createdAt,
-            sender: sender ? sender.toPreview() : null
+            sender: sender ? sender.toPreview() : null,
+            chatId
         }
     }
 }

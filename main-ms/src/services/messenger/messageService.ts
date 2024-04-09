@@ -65,10 +65,7 @@ class MessageService {
         chatId: number,
         message: string
     ): Promise<MessageDTO> {
-        const chat = await chatService.checkUserInChat(
-            chatId,
-            senderId
-        );
+        const chat = await chatService.checkUserInChat(chatId, senderId);
 
         if (!chat) {
             chatService.throwChatNotFoundError();
@@ -86,7 +83,13 @@ class MessageService {
         const messageDto = await createdMessage.toDTO();
 
         memberIDs.forEach(userId => {
-            socketService.emitByUserId(userId, EmitTypes.Message, messageDto);
+            if (userId != senderId) {
+                socketService.emitByUserId(
+                    userId,
+                    EmitTypes.Message,
+                    messageDto
+                );
+            }
         });
 
         return messageDto;

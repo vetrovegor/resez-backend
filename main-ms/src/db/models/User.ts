@@ -1,6 +1,6 @@
 import { Table, Column, Model, DataType, HasMany, BelongsToMany } from "sequelize-typescript";
 
-import { UserAdminInfo, UserPreview, UserProfileInfo, UserShortInfo, UserTokenInfo } from "types/user";
+import { UserAdminInfo, UserPreview, UserProfileInfo, UserProfilePreview, UserShortInfo, UserTokenInfo } from "types/user";
 import Session from "./Session";
 import Code from "./Code";
 import Collection from "./memory/Collection";
@@ -278,6 +278,18 @@ class User extends Model {
         return {
             id,
             nickname,
+            avatar: avatar ? process.env.STATIC_URL + avatar : null,
+        };
+    }
+
+    toProfilePreview(): UserProfilePreview {
+        const { id, nickname, firstName, lastName, avatar } = this.get();
+
+        return {
+            id,
+            nickname,
+            firstName,
+            lastName,
             avatar: avatar ? process.env.STATIC_URL + avatar : null,
         };
     }
