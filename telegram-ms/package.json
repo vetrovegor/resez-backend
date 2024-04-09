@@ -1,0 +1,27 @@
+{
+  "name": "resez-telegram-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node build/index.js",
+    "build": "rimraf build && npx tsc",
+    "dev": "nodemon build/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "amqplib": "^0.10.3",
+    "dotenv": "^16.4.1",
+    "rimraf": "^5.0.5",
+    "telegraf": "^4.15.3",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.10.4",
+    "@types/uuid": "^9.0.8",
+    "nodemon": "^3.0.3",
+    "typescript": "^5.3.3"
+  }
+}
