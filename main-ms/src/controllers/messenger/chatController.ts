@@ -44,14 +44,14 @@ class ChatController {
 
             const picture = req?.files?.picture ? req.files.picture : null;
 
-            await chatService.createGroup(
+            const createdChat = await chatService.createGroup(
                 chat,
                 users,
                 picture as UploadedFile,
                 req.user.id
             );
 
-            res.sendStatus(200);
+            res.json({ chat: createdChat });
         } catch (error) {
             next(error);
         }

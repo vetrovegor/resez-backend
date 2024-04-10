@@ -109,8 +109,6 @@ class SocketService {
             u => u.userId === userId.toString()
         );
 
-        console.log('Отправка пользователю', userId, 'сообщение', data);
-
         if (user) {
             this.emitToRoom(user.socketId, emitType, data);
         }

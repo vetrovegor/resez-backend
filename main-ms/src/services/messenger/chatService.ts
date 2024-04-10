@@ -24,7 +24,7 @@ class ChatService {
         isGroup: boolean = false,
         picture: string = null,
         adminId: number = null
-    ): Promise<Chat> {
+    ) {
         const validatedUserIDs = await userService.validateUserIDs(userIDs);
 
         const createdChat = await Chat.create({
@@ -67,7 +67,7 @@ class ChatService {
     async createOrGetChatBetweenUsers(
         senderId: number,
         recipientId: number
-    ): Promise<Chat> {
+    ) {
         // обработать senderId == recipientId
         // // у чата 1 участник, adminId == userId, isFavorites == true
         if (senderId == recipientId) {
@@ -104,6 +104,42 @@ class ChatService {
         return await this.createChat([senderId, recipientId]);
     }
 
+    // типизировать 
+    async createChatDto(chatData: Chat, forUserId: number) {
+        const { id, isGroup, chat, picture } = chatData.toJSON();
+
+        const membersCount = await chatData.getMembersCount();
+        const lastMessage = await messageService.getLastMessageByChatId(id);
+
+        if (isGroup) {
+            return {
+                id,
+                isGroup,
+                chat,
+                picture,
+                membersCount,
+                lastMessage
+            };
+        }
+        const chatMemberIDs = await chatData.getChatMembers();
+
+        const friendId = chatMemberIDs.find(element => element !== forUserId);
+
+        const friend = await userService.getUserById(friendId);
+        const friendPreview = friend.toPreview();
+
+        return {
+            id,
+            isGroup,
+            chat: friendPreview.nickname,
+            picture: friendPreview.avatar,
+            membersCount,
+            lastMessage
+        };
+    }
+
+    // довести до ума чтобы изначально получать чаты по новым сообщениями
+    // искать последние сообщения по уникальным чатам
     async getUserChats(
         userId: number,
         limit: number,
@@ -121,50 +157,19 @@ class ChatService {
             where: {
                 id: { [Op.in]: userChatIDs }
             },
-            order: [['createdAt', 'DESC']],
             limit,
             offset
         });
 
         const chatDTOs = await Promise.all(
-            chats.map(async chatItem => {
-                const { id, isGroup, chat, picture } = chatItem.toJSON();
-
-                const membersCount = await chatItem.getMembersCount();
-                const lastMessage = await messageService.getLastMessageByChatId(
-                    id
-                );
-
-                if (isGroup) {
-                    return {
-                        id,
-                        isGroup,
-                        chat,
-                        picture,
-                        membersCount,
-                        lastMessage
-                    };
-                } else {
-                    const chatMemberIDs = await chatItem.getChatMembers();
-
-                    const friendId = chatMemberIDs.find(
-                        element => element !== userId
-                    );
-
-                    const friend = await userService.getUserById(friendId);
-                    const friendPreview = friend.toPreview();
-
-                    return {
-                        id,
-                        isGroup,
-                        chat: friendPreview.nickname,
-                        picture: friendPreview.avatar,
-                        membersCount,
-                        lastMessage
-                    };
-                }
-            })
+            chats.map(
+                async chatItem => await this.createChatDto(chatItem, userId)
+            )
         );
+
+        chatDTOs.sort((a, b) => {
+            return b.lastMessage.date.getTime() - a.lastMessage.date.getTime();
+        });
 
         const totalCount = await Chat.count({
             where: {
@@ -186,22 +191,22 @@ class ChatService {
         userIDs: number[],
         picture: UploadedFile,
         adminId: number
-    ): Promise<Chat> {
+    ) {
         // добавить сохранение файла
         // вынести сохранение файла в отдельный сервис?
         userIDs.push(adminId);
 
-        const group = await this.createChat(userIDs, chat, true, null, adminId);
+        const createdChat = await this.createChat(userIDs, chat, true, null, adminId);
 
         const admin = await userService.getUserById(adminId);
 
         await messageService.createMessage(
             MessageTypes.System,
             `${admin.get('nickname')} создал группу ${chat}`,
-            group.get('id')
+            createdChat.get('id')
         );
 
-        return group;
+        return this.createChatDto(createdChat, adminId);
     }
 
     // вынести в мидлвейр проверку что чат есть и является группой
@@ -296,38 +301,12 @@ class ChatService {
             this.throwChatNotFoundError();
         }
 
-        const { id, isGroup, chat, picture } = chatData.toJSON();
-        const membersCount = await chatData.getMembersCount();
-        let chatDto = null;
-
-        if (isGroup) {
-            chatDto = {
-                id,
-                isGroup,
-                chat,
-                picture,
-                membersCount
-            };
-        } else {
-            const chatMemberIDs = await chatData.getChatMembers();
-
-            const friendId = chatMemberIDs.find(element => element !== userId);
-
-            const friend = await userService.getUserById(friendId);
-            const friendPreview = friend.toPreview();
-
-            chatDto = {
-                id,
-                isGroup,
-                chat: friendPreview.nickname,
-                picture: friendPreview.avatar,
-                membersCount
-            };
-        }
-
         const messages = await messageService.getChatMessages(chatId);
 
-        return { chat: chatDto, messages };
+        return {
+            chat: await this.createChatDto(chatData, userId),
+            messages
+        };
     }
 
     throwChatNotFoundError() {
