@@ -52,6 +52,10 @@ export type UserPreview = {
     avatar: string
 }
 
+export type UserChatPreview = UserPreview & {
+    isAdmin: boolean;
+}
+
 export type UserProfilePreview = {
     id: number,
     nickname: string,

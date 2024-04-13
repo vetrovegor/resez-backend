@@ -29,3 +29,5 @@ export type RequestWithParamsAndUser<T> = RequestWithParams<T>
 
 export type RequestWithParamsAndBodyAndUser<P, B> = RequestWithParamsAndBody<P, B>
     & { user: UserTokenInfo };
+
+export type RequestWithParamsAndQuery<P, Q> = RequestWithParams<P> & RequestWithQuery<Q>

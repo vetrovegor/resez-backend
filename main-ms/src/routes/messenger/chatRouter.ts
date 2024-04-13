@@ -23,7 +23,7 @@ chatRouter.get(
 chatRouter.post(
     '/',
     body('chat').isLength({ min: 1 }),
-    body('users').isArray(),
+    body('users').isArray().optional(),
     validationMiddleware,
     fileMiddleware(2, false),
     imageMiddleware,
@@ -55,8 +55,16 @@ chatRouter.delete(
 );
 
 chatRouter.get(
-    '/:chatId',
+    '/:id',
     accessTokenMiddleware,
     blockedMiddleware,
     chatController.getChatInfo
+);
+
+chatRouter.get(
+    '/:id/user',
+    paginationMiddleware,
+    accessTokenMiddleware,
+    blockedMiddleware,
+    chatController.getChatUsers
 );

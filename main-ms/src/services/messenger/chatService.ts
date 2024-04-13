@@ -8,7 +8,7 @@ import { PaginationDTO } from '../../dto/PaginationDTO';
 import messageService from './messageService';
 import userService from '../../services/userService';
 import { ChatDTO, MessageTypes } from 'types/messenger';
-import { UserPreview } from 'types/user';
+import { UserChatPreview, UserPreview } from 'types/user';
 
 class ChatService {
     async createUserChat(chatId: number, userId: number): Promise<UserChat> {
@@ -64,10 +64,7 @@ class ChatService {
         return userChat ? chat : null;
     }
 
-    async createOrGetChatBetweenUsers(
-        senderId: number,
-        recipientId: number
-    ) {
+    async createOrGetChatBetweenUsers(senderId: number, recipientId: number) {
         // обработать senderId == recipientId
         // // у чата 1 участник, adminId == userId, isFavorites == true
         if (senderId == recipientId) {
@@ -104,7 +101,7 @@ class ChatService {
         return await this.createChat([senderId, recipientId]);
     }
 
-    // типизировать 
+    // типизировать
     async createChatDto(chatData: Chat, forUserId: number) {
         const { id, isGroup, chat, picture } = chatData.toJSON();
 
@@ -121,7 +118,7 @@ class ChatService {
                 lastMessage
             };
         }
-        const chatMemberIDs = await chatData.getChatMembers();
+        const chatMemberIDs = await chatData.getChatMemberIDs();
 
         const friendId = chatMemberIDs.find(element => element !== forUserId);
 
@@ -168,7 +165,10 @@ class ChatService {
         );
 
         chatDTOs.sort((a, b) => {
-            return b.lastMessage.date.getTime() - a.lastMessage.date.getTime();
+            return (
+                b.lastMessage.createdAt.getTime() -
+                a.lastMessage.createdAt.getTime()
+            );
         });
 
         const totalCount = await Chat.count({
@@ -192,17 +192,27 @@ class ChatService {
         picture: UploadedFile,
         adminId: number
     ) {
+        if (!userIDs) {
+            userIDs = [];
+        }
+
         // добавить сохранение файла
         // вынести сохранение файла в отдельный сервис?
         userIDs.push(adminId);
 
-        const createdChat = await this.createChat(userIDs, chat, true, null, adminId);
+        const createdChat = await this.createChat(
+            userIDs,
+            chat,
+            true,
+            null,
+            adminId
+        );
 
         const admin = await userService.getUserById(adminId);
 
         await messageService.createMessage(
             MessageTypes.System,
-            `${admin.get('nickname')} создал группу ${chat}`,
+            `${admin.get('nickname')} создал группу «${chat}»`,
             createdChat.get('id')
         );
 
@@ -307,6 +317,46 @@ class ChatService {
             chat: await this.createChatDto(chatData, userId),
             messages
         };
+    }
+
+    async getChatUsers(
+        chatId: number,
+        limit: number,
+        offset: number
+    ): Promise<PaginationDTO<UserChatPreview>> {
+        const chat = await this.getChatById(chatId);
+
+        const userIDs = await chat.getChatMemberIDs();
+
+        const adminId = chat.get('adminId');
+
+        const filteredUserIDs = userIDs.filter(id => id != adminId);
+
+        const usersData = await userService.getUsersByUserIDs(
+            filteredUserIDs,
+            limit - 1,
+            offset
+        );
+
+        const users: UserChatPreview[] = usersData.map(user => {
+            const userPreview = user.toPreview();
+
+            return {
+                ...userPreview,
+                isAdmin: false
+            };
+        });
+
+        const adminPreview = (
+            await userService.getUserById(adminId)
+        ).toPreview();
+
+        users.unshift({
+            ...adminPreview,
+            isAdmin: true
+        });
+
+        return new PaginationDTO('users', users, userIDs.length, limit, offset);
     }
 
     throwChatNotFoundError() {

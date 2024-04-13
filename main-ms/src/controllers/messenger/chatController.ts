@@ -6,6 +6,7 @@ import {
     PaginationQuery,
     RequestWithBodyAndUser,
     RequestWithParams,
+    RequestWithParamsAndQuery,
     RequestWithParamsAndUser,
     RequestWithQueryAndUser
 } from 'types/request';
@@ -90,14 +91,32 @@ class ChatController {
     }
 
     async getChatInfo(
-        req: RequestWithParamsAndUser<{ chatId: number }>,
+        req: RequestWithParamsAndUser<IdParam>,
         res: Response,
         next: NextFunction
     ) {
         try {
             const response = await chatService.getChatInfo(
-                req.params.chatId,
+                req.params.id,
                 req.user.id
+            );
+
+            res.json(response);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getChatUsers(
+        req: RequestWithParamsAndQuery<IdParam, PaginationQuery>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const response = await chatService.getChatUsers(
+                req.params.id,
+                req.query.limit,
+                req.query.offset
             );
 
             res.json(response);

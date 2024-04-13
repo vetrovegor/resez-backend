@@ -15,7 +15,9 @@ export type MessageRequestBodyDTO = {
 export type MessageDTO = MessageRequestBodyDTO & {
     id: number,
     type: string,
-    date: Date,
+    createdAt: Date,
+    updatedAt: Date,
+    isEdited: boolean,
     sender: UserPreview,
     chatId: number
 }

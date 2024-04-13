@@ -2,11 +2,17 @@ import bcrypt from 'bcrypt';
 import { UploadedFile } from 'express-fileupload';
 import path from 'path';
 import fs from 'fs';
-import { Op } from "sequelize";
+import { Op } from 'sequelize';
 
-import User from "../db/models/User";
+import User from '../db/models/User';
 import { ApiError } from '../ApiError';
-import { UserAdminInfo, UserPreview, UserProfileInfo, UserSettingsInfo, UserShortInfo } from 'types/user';
+import {
+    UserAdminInfo,
+    UserPreview,
+    UserProfileInfo,
+    UserSettingsInfo,
+    UserShortInfo
+} from 'types/user';
 import { STATIC_PATH } from '../consts/STATIC_PATH';
 import { FILE_EXTENSIONS } from '../consts/FILE-EXTENSIONS';
 import { PaginationDTO } from '../dto/PaginationDTO';
@@ -35,7 +41,9 @@ class UserService {
         });
     }
 
-    async getVerifiedUserByTelegramChatId(telegramChatId: string): Promise<User> {
+    async getVerifiedUserByTelegramChatId(
+        telegramChatId: string
+    ): Promise<User> {
         return await User.findOne({
             where: {
                 isVerified: true,
@@ -72,14 +80,15 @@ class UserService {
 
         await user.save();
 
-        socketService.emitByUserId(
-            userId,
-            EmitTypes.Verify,
-            { user: await user.toShortInfo() }
-        );
+        socketService.emitByUserId(userId, EmitTypes.Verify, {
+            user: await user.toShortInfo()
+        });
     }
 
-    async validateUserPassword(userId: number, oldPassword: string): Promise<void> {
+    async validateUserPassword(
+        userId: number,
+        oldPassword: string
+    ): Promise<void> {
         const user = await this.getUserById(userId);
         const isValid = await bcrypt.compare(oldPassword, user.get('password'));
 
@@ -94,7 +103,11 @@ class UserService {
         return await this.updatePassword(user.id, password);
     }
 
-    async changePassword(userId: number, oldPassword: string, newPassword: string): Promise<User> {
+    async changePassword(
+        userId: number,
+        oldPassword: string,
+        newPassword: string
+    ): Promise<User> {
         await this.validateUserPassword(userId, oldPassword);
 
         return this.updatePassword(userId, newPassword);
@@ -120,7 +133,13 @@ class UserService {
         return user.toProfileInfo();
     }
 
-    async updateProfile(userId: number, firstName: string, lastName: string, birthDate: Date, gender: string): Promise<UserProfileInfo> {
+    async updateProfile(
+        userId: number,
+        firstName: string,
+        lastName: string,
+        birthDate: Date,
+        gender: string
+    ): Promise<UserProfileInfo> {
         const user = await this.getUserById(userId);
 
         user.set('firstName', firstName);
@@ -133,7 +152,11 @@ class UserService {
         return user.toProfileInfo();
     }
 
-    async updateSettings(userId: number, isPrivateAccount: boolean, isHideAvatars: boolean): Promise<UserSettingsInfo> {
+    async updateSettings(
+        userId: number,
+        isPrivateAccount: boolean,
+        isHideAvatars: boolean
+    ): Promise<UserSettingsInfo> {
         const user = await this.getUserById(userId);
 
         user.set('isPrivateAccount', isPrivateAccount);
@@ -141,10 +164,13 @@ class UserService {
 
         await user.save();
 
-        return { isPrivateAccount, isHideAvatars }
+        return { isPrivateAccount, isHideAvatars };
     }
 
-    async setAvatar(userId: number, avatar: UploadedFile): Promise<UserShortInfo> {
+    async setAvatar(
+        userId: number,
+        avatar: UploadedFile
+    ): Promise<UserShortInfo> {
         const user = await User.findByPk(userId);
         const oldAvatar = user.get('avatar');
 
@@ -185,8 +211,18 @@ class UserService {
         return user.toProfilePreview();
     }
 
-    async searchUsers(search: string, limit: number, offset: number): Promise<PaginationDTO<UserPreview>> {
-        const whereOptions = { nickname: { [Op.iLike]: `%${search}%` } };
+    async searchUsers(
+        userId: number,
+        search: string,
+        limit: number,
+        offset: number
+    ): Promise<PaginationDTO<UserPreview>> {
+        const whereOptions = {
+            id: {
+                [Op.not]: userId
+            },
+            nickname: { [Op.iLike]: `%${search}%` }
+        };
 
         const users = await User.findAll({
             where: whereOptions,
@@ -201,7 +237,28 @@ class UserService {
             where: whereOptions
         });
 
-        return new PaginationDTO<UserPreview>("users", userDTOs, totalCount, limit, offset);
+        return new PaginationDTO<UserPreview>(
+            'users',
+            userDTOs,
+            totalCount,
+            limit,
+            offset
+        );
+    }
+
+    async getUsersByUserIDs(
+        userIDs: number[],
+        limit: number,
+        offset: number
+    ): Promise<User[]> {
+        return await User.findAll({
+            where: {
+                id: { [Op.in]: userIDs }
+            },
+            order: [['registrationDate', 'DESC']],
+            limit,
+            offset
+        });
     }
 
     async validateUserIDs(userIDs: number[]): Promise<number[]> {
@@ -224,13 +281,19 @@ class UserService {
         return users.map(user => user.get('id'));
     }
 
-    async getUserCollectionSettings(userId: number): Promise<CollectionSettings> {
+    async getUserCollectionSettings(
+        userId: number
+    ): Promise<CollectionSettings> {
         const user = await this.getUserById(userId);
 
         return user.getCollectionSettings();
     }
 
-    async updateCollectionSettings(userId: number, isShuffleCards: boolean, isDefinitionCardFront: boolean): Promise<CollectionSettings> {
+    async updateCollectionSettings(
+        userId: number,
+        isShuffleCards: boolean,
+        isDefinitionCardFront: boolean
+    ): Promise<CollectionSettings> {
         const user = await this.getUserById(userId);
 
         user.set('isShuffleCards', isShuffleCards);
@@ -238,15 +301,24 @@ class UserService {
 
         await user.save();
 
-        return { isShuffleCards, isDefinitionCardFront }
+        return { isShuffleCards, isDefinitionCardFront };
     }
 
-    async getUsers(limit: number, offset: number, search?: string, blocked?: string, verified?: string, online?: string, hasRole?: string, roleId?: number): Promise<PaginationDTO<UserAdminInfo>> {
+    async getUsers(
+        limit: number,
+        offset: number,
+        search?: string,
+        blocked?: string,
+        verified?: string,
+        online?: string,
+        hasRole?: string,
+        roleId?: number
+    ): Promise<PaginationDTO<UserAdminInfo>> {
         const whereOptions: {
-            nickname?: { [Op.iLike]: string },
-            isBlocked?: boolean,
-            isVerified?: boolean,
-            id?: { [Op.in]: number[] }
+            nickname?: { [Op.iLike]: string };
+            isBlocked?: boolean;
+            isVerified?: boolean;
+            id?: { [Op.in]: number[] };
         } = {};
 
         if (search) {
@@ -271,9 +343,9 @@ class UserService {
             // вынести в roleService в getAdminIDs?
             const userRoles = await UserRole.findAll();
 
-            userIDsArrays.push(userRoles.map(
-                userRole => userRole.get('userId')
-            ));
+            userIDsArrays.push(
+                userRoles.map(userRole => userRole.get('userId'))
+            );
         }
 
         if (roleId) {
@@ -284,9 +356,9 @@ class UserService {
                 }
             });
 
-            userIDsArrays.push(userRoles.map(
-                userRole => userRole.get('userId')
-            ));
+            userIDsArrays.push(
+                userRoles.map(userRole => userRole.get('userId'))
+            );
         }
 
         if (userIDsArrays.length) {
@@ -310,12 +382,25 @@ class UserService {
             where: whereOptions
         });
 
-        return new PaginationDTO<UserAdminInfo>("users", usersDtos, totalCount, limit, offset);
+        return new PaginationDTO<UserAdminInfo>(
+            'users',
+            usersDtos,
+            totalCount,
+            limit,
+            offset
+        );
     }
 
-    async setUserBlockStatus(adminId: number, userId: number, blockStatus: boolean, reason: string = null): Promise<UserAdminInfo> {
+    async setUserBlockStatus(
+        adminId: number,
+        userId: number,
+        blockStatus: boolean,
+        reason: string = null
+    ): Promise<UserAdminInfo> {
         if (adminId == userId) {
-            throw ApiError.badRequest('Нельзя выполнять данное действие на самом себе');
+            throw ApiError.badRequest(
+                'Нельзя выполнять данное действие на самом себе'
+            );
         }
 
         const user = await this.getUserById(userId);
@@ -349,7 +434,11 @@ class UserService {
         const levelInfo = calculateLevelInfo(user.get('xp'));
 
         if (levelInfo.level > oldLevel) {
-            socketService.emitByUserId(user.get('id'), EmitTypes.NewLevel, levelInfo);
+            socketService.emitByUserId(
+                user.get('id'),
+                EmitTypes.NewLevel,
+                levelInfo
+            );
         }
 
         return await user.toShortInfo();

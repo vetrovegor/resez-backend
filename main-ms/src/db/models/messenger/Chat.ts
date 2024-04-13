@@ -55,7 +55,7 @@ class Chat extends Model {
     })
     userChats: UserChat[];
 
-    async getChatMembers(): Promise<number[]> {
+    async getChatMemberIDs(): Promise<number[]> {
         const userChats = await UserChat.findAll({
             where: {
                 chatId: this.get('id')

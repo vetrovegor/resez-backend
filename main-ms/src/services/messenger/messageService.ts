@@ -71,7 +71,7 @@ class MessageService {
             chatService.throwChatNotFoundError();
         }
 
-        const memberIDs = await chat.getChatMembers();
+        const memberIDs = await chat.getChatMemberIDs();
 
         const createdMessage = await this.createMessage(
             MessageTypes.Default,
@@ -162,7 +162,8 @@ class MessageService {
 
     async getChatMessages(chatId: number) {
         const messages = await Message.findAll({
-            where: { chatId }
+            where: { chatId },
+            order: [['createdAt', 'ASC']]
         });
 
         return await Promise.all(

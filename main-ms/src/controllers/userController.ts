@@ -183,7 +183,7 @@ class UserhController {
         try {
             const { search, limit, offset } = req.query;
 
-            const data = await userService.searchUsers(search, limit, offset);
+            const data = await userService.searchUsers(req.user.id, search, limit, offset);
 
             res.json(data);
         } catch (error) {
