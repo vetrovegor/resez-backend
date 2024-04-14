@@ -9,6 +9,7 @@ import messageService from './messageService';
 import userService from '../../services/userService';
 import { ChatDTO, MessageTypes } from 'types/messenger';
 import { UserChatPreview, UserPreview } from 'types/user';
+import fileService from '../../services/fileService';
 
 class ChatService {
     async createUserChat(chatId: number, userId: number): Promise<UserChat> {
@@ -113,7 +114,7 @@ class ChatService {
                 id,
                 isGroup,
                 chat,
-                picture,
+                picture: picture ? process.env.STATIC_URL + picture : null,
                 membersCount,
                 lastMessage
             };
@@ -196,15 +197,17 @@ class ChatService {
             userIDs = [];
         }
 
-        // добавить сохранение файла
-        // вынести сохранение файла в отдельный сервис?
         userIDs.push(adminId);
+
+        const picturePath = picture
+            ? await fileService.saveFile('chats', picture)
+            : null;
 
         const createdChat = await this.createChat(
             userIDs,
             chat,
             true,
-            null,
+            picturePath,
             adminId
         );
 
@@ -217,6 +220,38 @@ class ChatService {
         );
 
         return this.createChatDto(createdChat, adminId);
+    }
+
+    async setPicture(chatId: number, picture: UploadedFile, userId: number) {
+        const chat = await this.getChatById(chatId);
+
+        if (!chat.get('isGroup')) {
+            throw ApiError.badRequest('Чат не является группой');
+        }
+
+        await fileService.deleteFile(chat.get('picture'));
+
+        const picturePath = await fileService.saveFile('chats', picture);
+
+        chat.set('picture', picturePath);
+        await chat.save();
+
+        return await this.createChatDto(chat, userId);
+    }
+
+    async deletePicture(chatId: number, userId: number) {
+        const chat = await this.getChatById(chatId);
+
+        if (!chat.get('isGroup')) {
+            throw ApiError.badRequest('Чат не является группой');
+        }
+
+        await fileService.deleteFile(chat.get('picture'));
+
+        chat.set('picture', null);
+        await chat.save();
+
+        return await this.createChatDto(chat, userId);
     }
 
     // вынести в мидлвейр проверку что чат есть и является группой

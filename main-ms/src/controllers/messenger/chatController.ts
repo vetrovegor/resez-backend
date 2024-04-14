@@ -1,4 +1,4 @@
-import { Response, NextFunction } from 'express';
+import { Response, NextFunction, Request } from 'express';
 import { UploadedFile } from 'express-fileupload';
 
 import {
@@ -53,6 +53,41 @@ class ChatController {
             );
 
             res.json({ chat: createdChat });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async setPicture(
+        req: RequestWithParamsAndUser<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const chat = await chatService.setPicture(
+                req.params.id,
+                req.files.picture as UploadedFile,
+                req.user.id
+            );
+
+            res.json({ chat });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async deletePicture(
+        req: RequestWithParamsAndUser<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const chat = await chatService.deletePicture(
+                req.params.id,
+                req.user.id
+            );
+
+            res.json({ chat });
         } catch (error) {
             next(error);
         }

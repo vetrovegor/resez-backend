@@ -32,6 +32,22 @@ chatRouter.post(
     chatController.createGroup
 );
 
+chatRouter.post(
+    '/:id/picture',
+    fileMiddleware(2),
+    imageMiddleware,
+    accessTokenMiddleware,
+    blockedMiddleware,
+    chatController.setPicture
+);
+
+chatRouter.delete(
+    '/:id/picture',
+    accessTokenMiddleware,
+    blockedMiddleware,
+    chatController.deletePicture
+);
+
 // добавить мидлвейр что есть такой пользователь, чат и чат явдяется группой
 chatRouter.post(
     '/:chatId/add-user/:userId',

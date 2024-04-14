@@ -1,20 +1,33 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { UploadedFile } from 'express-fileupload';
+import { STATIC_PATH } from '../consts/STATIC_PATH';
 
 class FileService {
-    async saveFile(file: UploadedFile): Promise<string> {
-        const fileName = Date.now() + path.extname(file.name);
+    async saveFile(subPath: string, file: UploadedFile): Promise<string> {
+        const directory = path.join(STATIC_PATH, subPath);
 
-        const staticPath = path.resolve(__dirname, '..', 'static');
-
-        if (!fs.existsSync(staticPath)) {
-            fs.mkdirSync(staticPath, { recursive: true });
+        if (!fs.existsSync(directory)) {
+            fs.mkdirSync(directory, { recursive: true });
         }
 
-        fs.writeFileSync(path.join(staticPath, fileName), file.buffer);
+        const fileName = Date.now() + path.extname(file.name);
 
-        return fileName;
+        fs.writeFileSync(path.join(directory, fileName), file.data);
+
+        return `${subPath}/${fileName}`;
+    }
+
+    async deleteFile(fileName: string) {
+        if (!fileName) {
+            return;
+        }
+
+        const filePath = path.resolve(STATIC_PATH, fileName);
+
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        }
     }
 }
 
