@@ -1,3 +1,4 @@
+import { UploadedFile } from "express-fileupload"
 import { UserPreview } from "./user"
 
 export const enum MessageTypes {
@@ -33,7 +34,8 @@ export type ChatDTO = {
 
 export type GroupCreateRequestDTO = {
     chat: string,
-    users: number[]
+    users: number[],
+    picture: UploadedFile
 }
 
 export type UserChatParams = {

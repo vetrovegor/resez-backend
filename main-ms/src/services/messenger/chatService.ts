@@ -120,16 +120,16 @@ class ChatService {
         }
         const chatMemberIDs = await chatData.getChatMemberIDs();
 
-        const friendId = chatMemberIDs.find(element => element !== forUserId);
+        const userId = chatMemberIDs.find(element => element !== forUserId);
 
-        const friend = await userService.getUserById(friendId);
-        const friendPreview = friend.toPreview();
+        const user = (await userService.getUserById(userId)).toPreview();
 
         return {
             id,
             isGroup,
-            chat: friendPreview.nickname,
-            picture: friendPreview.avatar,
+            userId,
+            chat: user.nickname,
+            picture: user.avatar,
             membersCount,
             lastMessage
         };

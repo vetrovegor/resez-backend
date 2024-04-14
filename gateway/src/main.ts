@@ -6,12 +6,12 @@ import { AppModule } from './app.module';
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
 
+    const configService = app.get(ConfigService);
+
     app.enableCors({
         credentials: true,
-        origin: ['http://localhost:3000']
+        origin: configService.get('ALLOWED_ORIGINS').split(',')
     });
-
-    const configService = app.get(ConfigService);
 
     app.use('/api/user-ms', proxy(configService.get('USER_MS_URL')));
     app.use('/api/messenger-ms', proxy(configService.get('MESSENGER_MS_URL')));

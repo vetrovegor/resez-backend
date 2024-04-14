@@ -11,7 +11,7 @@ import { MessageDTO } from 'types/messenger';
 })
 class Message extends Model {
     @Column({
-        type: DataType.STRING,
+        type: DataType.TEXT,
     })
     message: string;
 
