@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { body, query } from "express-validator";
+import { body, param, query } from "express-validator";
 
 import { accessTokenMiddleware } from "../middlewares/accessTokenMiddleware";
 import userController from "../controllers/userController";
@@ -71,7 +71,9 @@ userRouter.delete(
 );
 
 userRouter.get(
-    '/:id',
+    '/:nickname',
+    param('nickname').isString(),
+    validationMiddleware,
     userController.getUser
 );
 

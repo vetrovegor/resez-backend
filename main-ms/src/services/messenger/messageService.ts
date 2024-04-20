@@ -1,3 +1,5 @@
+import { Op } from 'sequelize';
+
 import { MessageDTO, MessageTypes } from 'types/messenger';
 import Message from '../../db/models/messenger/Message';
 import chatService from './chatService';
@@ -6,6 +8,7 @@ import { ApiError } from '../../ApiError';
 import { message } from 'telegraf/filters';
 import socketService from '../../services/socketService';
 import { EmitTypes } from 'types/socket';
+import { Sequelize } from 'sequelize-typescript';
 
 class MessageService {
     async getMessageById(messageId: number): Promise<Message> {

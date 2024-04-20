@@ -163,12 +163,12 @@ class UserhController {
     }
 
     async getUser(
-        req: RequestWithParams<IdParam>,
+        req: RequestWithParams<{ nickname: string }>,
         res: Response,
         next: NextFunction
     ) {
         try {
-            const user = await userService.getUser(req.params.id);
+            const user = await userService.getUser(req.params.nickname);
             res.json({ user });
         } catch (error) {
             next(error);
@@ -183,7 +183,12 @@ class UserhController {
         try {
             const { search, limit, offset } = req.query;
 
-            const data = await userService.searchUsers(req.user.id, search, limit, offset);
+            const data = await userService.searchUsers(
+                req.user.id,
+                search,
+                limit,
+                offset
+            );
 
             res.json(data);
         } catch (error) {

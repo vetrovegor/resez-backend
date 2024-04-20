@@ -35,6 +35,11 @@ class Chat extends Model {
     })
     picture: string;
 
+    @Column({
+        type: DataType.STRING
+    })
+    inviteLink: string;
+
     @HasMany(() => Message, {
         onDelete: 'CASCADE'
     })

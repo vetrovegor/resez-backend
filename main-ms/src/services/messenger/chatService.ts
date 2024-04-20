@@ -10,6 +10,7 @@ import userService from '../../services/userService';
 import { ChatDTO, MessageTypes } from 'types/messenger';
 import { UserChatPreview, UserPreview } from 'types/user';
 import fileService from '../../services/fileService';
+import { generateInviteLink } from '../../utils';
 
 class ChatService {
     async createUserChat(chatId: number, userId: number): Promise<UserChat> {
@@ -32,6 +33,7 @@ class ChatService {
             chat,
             isGroup,
             picture,
+            inviteLink: isGroup ? generateInviteLink() : null,
             adminId
         });
 
@@ -104,7 +106,7 @@ class ChatService {
 
     // типизировать
     async createChatDto(chatData: Chat, forUserId: number) {
-        const { id, isGroup, chat, picture } = chatData.toJSON();
+        const { id, isGroup, chat, picture, inviteLink } = chatData.toJSON();
 
         const membersCount = await chatData.getMembersCount();
         const lastMessage = await messageService.getLastMessageByChatId(id);
@@ -115,6 +117,7 @@ class ChatService {
                 isGroup,
                 chat,
                 picture: picture ? process.env.STATIC_URL + picture : null,
+                inviteLink,
                 membersCount,
                 lastMessage
             };
@@ -131,6 +134,7 @@ class ChatService {
             userId,
             chat: user.nickname,
             picture: user.avatar,
+            inviteLink,
             membersCount,
             lastMessage
         };
@@ -392,6 +396,36 @@ class ChatService {
         });
 
         return new PaginationDTO('users', users, userIDs.length, limit, offset);
+    }
+
+    async joinChatViaLink(userId: number, inviteLink: string) {
+        const existedChat = await Chat.findOne({
+            where: { inviteLink }
+        });
+
+        if (!existedChat) {
+            this.throwChatNotFoundError();
+        }
+
+        const chatId = existedChat.get('id');
+
+        const isUserInChat = await this.checkUserInChat(chatId, userId);
+
+        if (isUserInChat) {
+            return await this.getChatInfo(chatId, userId);
+        }
+
+        await this.createUserChat(chatId, userId);
+
+        const user = (await userService.getUserById(userId)).toPreview();
+
+        await messageService.createMessage(
+            MessageTypes.System,
+            `${user.nickname} вступил(а) в группу по ссылке-приглашению`,
+            chatId
+        );
+
+        return await this.getChatInfo(chatId, userId);
     }
 
     throwChatNotFoundError() {

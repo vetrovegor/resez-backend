@@ -84,3 +84,18 @@ chatRouter.get(
     blockedMiddleware,
     chatController.getChatUsers
 );
+
+chatRouter.get(
+    '/:id/user',
+    paginationMiddleware,
+    accessTokenMiddleware,
+    blockedMiddleware,
+    chatController.getChatUsers
+);
+
+chatRouter.get(
+    '/join/:inviteLink',
+    accessTokenMiddleware,
+    blockedMiddleware,
+    chatController.joinChatViaLink
+);

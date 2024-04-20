@@ -159,6 +159,23 @@ class ChatController {
             next(error);
         }
     }
+
+    async joinChatViaLink(
+        req: RequestWithParamsAndUser<{ inviteLink: string }>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const response = await chatService.joinChatViaLink(
+                req.user.id,
+                req.params.inviteLink
+            );
+
+            res.json(response);
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export default new ChatController();
