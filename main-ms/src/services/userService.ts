@@ -34,17 +34,11 @@ class UserService {
     }
 
     async getUserByNickname(nickname: string): Promise<User> {
-        const user = await User.findOne({
+        return await User.findOne({
             where: {
                 nickname
             }
         });
-
-        if (!user) {
-            throw ApiError.notFound('Пользователь не найден');
-        }
-
-        return user;
     }
 
     async getVerifiedUserByTelegramChatId(
@@ -213,6 +207,10 @@ class UserService {
 
     async getUser(nickname: string) {
         const user = await this.getUserByNickname(nickname);
+
+        if(!user) {
+            throw ApiError.notFound('Пользователь не найден');
+        }
 
         return user.toProfilePreview();
     }
