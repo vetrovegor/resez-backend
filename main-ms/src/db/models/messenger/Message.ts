@@ -4,6 +4,7 @@ import User from '../User';
 import Chat from './Chat';
 import MessageType from './MessageType';
 import { MessageDTO } from 'types/messenger';
+import UserMessage from './UserMessage';
 
 @Table({
     timestamps: true,
@@ -41,6 +42,11 @@ class Message extends Model {
 
     @BelongsTo(() => MessageType)
     messageType: MessageType;
+
+    @HasMany(() => UserMessage, {
+        onDelete: 'CASCADE'
+    })
+    userMessages: UserMessage[];
 
     // добавить тип сообщения?
     async toDTO(): Promise<MessageDTO> {

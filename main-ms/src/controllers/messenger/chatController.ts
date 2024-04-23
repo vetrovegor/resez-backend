@@ -6,6 +6,7 @@ import {
     PaginationQuery,
     RequestWithBodyAndUser,
     RequestWithParams,
+    RequestWithParamsAndBodyAndUser,
     RequestWithParamsAndQuery,
     RequestWithParamsAndUser,
     RequestWithQueryAndUser
@@ -42,6 +43,8 @@ class ChatController {
     ) {
         try {
             const { chat, users } = req.body;
+
+            console.log({users});
 
             const picture = req?.files?.picture ? req.files.picture : null;
 
@@ -94,14 +97,22 @@ class ChatController {
     }
 
     async addUserToChat(
-        req: RequestWithParamsAndUser<UserChatParams>,
+        req: RequestWithParamsAndBodyAndUser<
+            UserChatParams,
+            { showHistory: boolean }
+        >,
         res: Response,
         next: NextFunction
     ) {
         try {
             const { chatId, userId } = req.params;
 
-            await chatService.addUserToChat(chatId, userId, req.user.id);
+            await chatService.addUserToChat(
+                chatId,
+                userId,
+                req.user.id,
+                req.body.showHistory
+            );
 
             res.sendStatus(200);
         } catch (error) {

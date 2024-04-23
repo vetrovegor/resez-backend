@@ -53,7 +53,6 @@ const start = async () => {
     }
 
     await rmqService.init();
-    // telegramService.init();
     socketService.init(server);
 
     // сделать очистку просроченных кодов кодов

@@ -197,10 +197,6 @@ class ChatService {
         picture: UploadedFile,
         adminId: number
     ) {
-        if (!userIDs) {
-            userIDs = [];
-        }
-
         userIDs.push(adminId);
 
         const picturePath = picture
@@ -263,7 +259,8 @@ class ChatService {
     async addUserToChat(
         chatId: number,
         userId: number,
-        adminId: number
+        adminId: number,
+        showHistory: boolean
     ): Promise<UserPreview> {
         const chat = await this.getChatById(chatId);
 
@@ -286,6 +283,11 @@ class ChatService {
         await this.createUserChat(chatId, userId);
 
         const admin = await userService.getUserById(adminId);
+
+        // добавить сообщения для пользователя
+        if (showHistory) {
+            messageService.createMessagesHistory(chatId, userId);
+        }
 
         await messageService.createMessage(
             MessageTypes.System,
@@ -350,7 +352,7 @@ class ChatService {
             this.throwChatNotFoundError();
         }
 
-        const messages = await messageService.getChatMessages(chatId);
+        const messages = await messageService.getChatMessages(chatId, userId);
 
         return {
             chat: await this.createChatDto(chatData, userId),

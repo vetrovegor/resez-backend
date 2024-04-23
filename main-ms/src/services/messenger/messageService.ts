@@ -5,10 +5,9 @@ import Message from '../../db/models/messenger/Message';
 import chatService from './chatService';
 import messageTypeService from './messageTypeService';
 import { ApiError } from '../../ApiError';
-import { message } from 'telegraf/filters';
 import socketService from '../../services/socketService';
 import { EmitTypes } from 'types/socket';
-import { Sequelize } from 'sequelize-typescript';
+import UserMessage from '../../db/models/messenger/UserMessage';
 
 class MessageService {
     async getMessageById(messageId: number): Promise<Message> {
@@ -21,6 +20,14 @@ class MessageService {
         return message;
     }
 
+    async createUserMessage(userId: number, messageId: number, chatId: number) {
+        return await UserMessage.create({
+            userId,
+            messageId,
+            chatId
+        });
+    }
+
     async createMessage(
         messageType: string,
         message: string,
@@ -31,12 +38,26 @@ class MessageService {
             messageType
         );
 
-        return await Message.create({
+        const createdMessage = await Message.create({
             messageTypeId,
             message,
             chatId,
             senderId
         });
+
+        const memberIDs = await (
+            await chatService.getChatById(chatId)
+        ).getChatMemberIDs();
+
+        memberIDs.forEach(async userId => {
+            await this.createUserMessage(
+                userId,
+                createdMessage.get('id'),
+                chatId
+            );
+        });
+
+        return createdMessage;
     }
 
     async sendMessageToUser(
@@ -85,7 +106,7 @@ class MessageService {
 
         const messageDto = await createdMessage.toDTO();
 
-        memberIDs.forEach(userId => {
+        memberIDs.forEach(async userId => {
             if (userId != senderId) {
                 socketService.emitByUserId(
                     userId,
@@ -139,7 +160,8 @@ class MessageService {
 
     async deleteMessage(
         messageId: number,
-        userId: number
+        userId: number,
+        forAll: string
     ): Promise<MessageDTO> {
         // вынести в функцию принадлежит ли сообщение пользователю или в мидлвейр
         const messageData = await this.getMessageById(messageId);
@@ -158,20 +180,46 @@ class MessageService {
         }
         // вынести в функцию принадлежит ли сообщение пользователю или в мидлвейр
 
-        await messageData.destroy();
+        if (forAll && forAll.toLowerCase() === 'true') {
+            await messageData.destroy();
+        } else {
+            UserMessage.destroy({
+                where: { messageId, userId }
+            });
+        }
 
         return messageData.toDTO();
     }
 
-    async getChatMessages(chatId: number) {
+    async getChatMessages(chatId: number, userId: number) {
+        const userMessages = await UserMessage.findAll({
+            where: { chatId, userId }
+        });
+
+        const messageIDs = userMessages.map(userMessage =>
+            userMessage.get('messageId')
+        );
+
         const messages = await Message.findAll({
-            where: { chatId },
+            where: {
+                id: { [Op.in]: messageIDs }
+            },
             order: [['createdAt', 'ASC']]
         });
 
         return await Promise.all(
             messages.map(async message => message.toDTO())
         );
+    }
+
+    async createMessagesHistory(chatId: number, userId: number): Promise<void> {
+        const lastMessages = await Message.findAll({
+            where: { chatId }
+        });
+
+        for (const message of lastMessages) {
+            await this.createUserMessage(userId, message.get('id'), chatId);
+        }
     }
 
     throwMessageNotFoundError() {

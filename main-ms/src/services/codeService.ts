@@ -3,7 +3,6 @@ import { Op } from "sequelize";
 import Code from "../db/models/Code";
 import { VerificationCodeData } from "types/code";
 import userService from "./userService";
-import telegramService from "./telegramService";
 import { ApiError } from "../ApiError";
 import socketService from "./socketService";
 import User from "../db/models/User";
@@ -194,8 +193,6 @@ class CodeService {
 
         if (!codeData) {
             if (shouldSendMessage) {
-                // await telegramService.sendCode(telegramChatId, message, code);
-
                 await rmqService.publishMessage('code', { telegramChatId, message, code });
             }
 
@@ -213,8 +210,6 @@ class CodeService {
         }
 
         if (shouldSendMessage) {
-            // await telegramService.sendCode(telegramChatId, message, code);
-
             await rmqService.publishMessage('code', { telegramChatId, message, code });
         }
 

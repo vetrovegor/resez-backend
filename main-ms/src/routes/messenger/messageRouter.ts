@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { body, param } from "express-validator";
+import { body, param, query } from "express-validator";
 
 import messageController from "../../controllers/messenger/messageController";
 import { accessTokenMiddleware } from "../../middlewares/accessTokenMiddleware";
@@ -40,6 +40,8 @@ messageRouter.patch(
 
 messageRouter.delete(
     '/:id',
+    query('for_all').isBoolean().optional(),
+    validationMiddleware,
     param('id').isNumeric(),
     validationMiddleware,
     accessTokenMiddleware,

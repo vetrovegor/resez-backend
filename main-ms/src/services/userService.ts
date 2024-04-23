@@ -21,6 +21,7 @@ import { EmitTypes } from 'types/socket';
 import { CollectionSettings } from 'types/collection';
 import { calculateLevelInfo, getArraysIntersection } from '../utils';
 import UserRole from '../db/models/UserRole';
+import fileService from './fileService';
 
 class UserService {
     async getUserById(id: number): Promise<User> {
@@ -172,19 +173,18 @@ class UserService {
         avatar: UploadedFile
     ): Promise<UserShortInfo> {
         const user = await User.findByPk(userId);
-        const oldAvatar = user.get('avatar');
+        // const oldAvatar = user.get('avatar');
 
-        if (oldAvatar) {
-            const oldAvatarPath = path.resolve(STATIC_PATH, oldAvatar);
-            fs.existsSync(oldAvatarPath) && fs.unlinkSync(oldAvatarPath);
-        }
+        // if (oldAvatar) {
+        //     const oldAvatarPath = path.resolve(STATIC_PATH, oldAvatar);
+        //     fs.existsSync(oldAvatarPath) && fs.unlinkSync(oldAvatarPath);
+        // }
 
-        const extension = FILE_EXTENSIONS[avatar.mimetype] || '.jpg';
-        const avatarName = Date.now() + extension;
+        await fileService.deleteFile(user.get('avatar'));
 
-        avatar.mv(path.resolve(STATIC_PATH, avatarName));
+        const avatarPath = await fileService.saveFile('avatars', avatar);
 
-        user.set('avatar', avatarName);
+        user.set('avatar', avatarPath);
         await user.save();
 
         return await user.toShortInfo();
@@ -192,12 +192,8 @@ class UserService {
 
     async deleteAvatar(userId: number): Promise<UserShortInfo> {
         const user = await User.findByPk(userId);
-        const avatar = user.get('avatar');
-
-        if (avatar) {
-            const avatarPath = path.resolve(STATIC_PATH, avatar);
-            fs.existsSync(avatarPath) && fs.unlinkSync(avatarPath);
-        }
+        
+        await fileService.deleteFile(user.get('avatar'));
 
         user.set('avatar', null);
         await user.save();

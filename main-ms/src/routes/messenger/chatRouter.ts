@@ -8,6 +8,7 @@ import chatController from "../../controllers/messenger/chatController";
 import { fileMiddleware } from "../../middlewares/fileMiddleware";
 import { imageMiddleware } from "../../middlewares/imageMiddleware";
 import { validationMiddleware } from "../../middlewares/validationMiddleware";
+import { groupUsersMiddleware } from "../../middlewares/groupUsersMiddleware";
 
 
 export const chatRouter = Router();
@@ -23,7 +24,8 @@ chatRouter.get(
 chatRouter.post(
     '/',
     body('chat').isLength({ min: 1 }),
-    body('users').isArray().optional(),
+    // body('users').isArray().optional(),
+    groupUsersMiddleware,
     validationMiddleware,
     fileMiddleware(2, false),
     imageMiddleware,
@@ -53,6 +55,7 @@ chatRouter.post(
     '/:chatId/add-user/:userId',
     param('chatId').isNumeric(),
     param('userId').isNumeric(),
+    body('showHistory').isBoolean(),
     validationMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,

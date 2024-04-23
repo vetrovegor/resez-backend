@@ -15,6 +15,7 @@ import UserNotify from "./notifies/UserNotify";
 import { CollectionSettings } from "types/collection";
 import { calculateLevelInfo } from "../../utils";
 import Activity from "./Activity";
+import UserMessage from "./messenger/UserMessage";
 
 @Table({
     timestamps: false,
