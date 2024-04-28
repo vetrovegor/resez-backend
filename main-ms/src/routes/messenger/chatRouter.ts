@@ -102,3 +102,17 @@ chatRouter.get(
     blockedMiddleware,
     chatController.joinChatViaLink
 );
+
+chatRouter.delete(
+    '/:id/leave',
+    accessTokenMiddleware,
+    blockedMiddleware,
+    chatController.leaveChat
+);
+
+chatRouter.get(
+    '/:id/return',
+    accessTokenMiddleware,
+    blockedMiddleware,
+    chatController.returnToChat
+);

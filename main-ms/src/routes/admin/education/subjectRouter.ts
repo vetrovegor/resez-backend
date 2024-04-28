@@ -47,9 +47,9 @@ subjectsRouter.patch(
 );
 
 subjectsRouter.get(
-    '/:id',
-    param('id').isNumeric(),
-    validationMiddleware,
+    '/:slug',
+    // param('id').isNumeric(),
+    // validationMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,
     permissionMiddleware(Permissions.Subjects),

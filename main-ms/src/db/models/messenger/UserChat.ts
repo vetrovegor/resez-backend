@@ -26,7 +26,11 @@ class UserChat extends Model {
     @BelongsTo(() => Chat)
     chat: Chat;
 
-    // isDeleted
+    @Column({
+        type: DataType.BOOLEAN,
+        defaultValue: false
+    })
+    isLeft: boolean;
 }
 
 export default UserChat;

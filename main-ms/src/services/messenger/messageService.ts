@@ -45,6 +45,8 @@ class MessageService {
             senderId
         });
 
+        const messageDto = await createdMessage.toDTO();
+
         const memberIDs = await (
             await chatService.getChatById(chatId)
         ).getChatMemberIDs();
@@ -55,6 +57,14 @@ class MessageService {
                 createdMessage.get('id'),
                 chatId
             );
+
+            if (userId != senderId && messageType != MessageTypes.System) {
+                socketService.emitByUserId(
+                    userId,
+                    EmitTypes.Message,
+                    messageDto
+                );
+            }
         });
 
         return createdMessage;
@@ -77,11 +87,11 @@ class MessageService {
             senderId
         );
 
-        const messageDto = await createdMessage.toDTO();
+        // const messageDto = await createdMessage.toDTO();
 
-        socketService.emitByUserId(recipientId, EmitTypes.Message, messageDto);
+        // socketService.emitByUserId(recipientId, EmitTypes.Message, messageDto);
 
-        return messageDto;
+        return await createdMessage.toDTO();
     }
 
     async sendMessageToChat(
@@ -95,8 +105,6 @@ class MessageService {
             chatService.throwChatNotFoundError();
         }
 
-        const memberIDs = await chat.getChatMemberIDs();
-
         const createdMessage = await this.createMessage(
             MessageTypes.Default,
             message,
@@ -104,19 +112,21 @@ class MessageService {
             senderId
         );
 
-        const messageDto = await createdMessage.toDTO();
+        // const messageDto = await createdMessage.toDTO();
 
-        memberIDs.forEach(async userId => {
-            if (userId != senderId) {
-                socketService.emitByUserId(
-                    userId,
-                    EmitTypes.Message,
-                    messageDto
-                );
-            }
-        });
+        // const memberIDs = await chat.getChatMemberIDs();
 
-        return messageDto;
+        // memberIDs.forEach(async userId => {
+        //     if (userId != senderId) {
+        //         socketService.emitByUserId(
+        //             userId,
+        //             EmitTypes.Message,
+        //             messageDto
+        //         );
+        //     }
+        // });
+
+        return await createdMessage.toDTO();
     }
 
     async getLastMessageByChatId(chatId: number): Promise<MessageDTO> {

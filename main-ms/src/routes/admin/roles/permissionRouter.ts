@@ -12,6 +12,6 @@ permissionRouter.get(
     '/',
     accessTokenMiddleware,
     blockedMiddleware,
-    permissionMiddleware(Permissions.CreateRoles),
+    permissionMiddleware(Permissions.Roles),
     permissionController.getPermissionsHierarchy
 );

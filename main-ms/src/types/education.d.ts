@@ -1,5 +1,6 @@
 export type SubjectBodyDTO = {
     subject: string,
+    slug: string,
     subjectTasks: SubjectTaskBodyDTO[],
     durationMinutes: number,
     isMark: boolean,
@@ -22,6 +23,7 @@ export type SubThemeBodyDTO = {
 export type SubjectShortInfo = {
     id: number,
     subject: string,
+    slug: string,
     isPublished: boolean,
     subjectTasksCount: number,
     tasksCount: number
@@ -46,6 +48,7 @@ export type SubjectTaskDTO = {
 export type SubjectFullInfo = {
     id: number,
     subject: string,
+    slug: string,
     durationMinutes: number,
     isMark: boolean,
     isPublished: boolean,

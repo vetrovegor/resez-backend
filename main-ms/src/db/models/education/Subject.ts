@@ -15,6 +15,12 @@ class Subject extends Model {
     })
     subject: string;
 
+    
+    @Column({
+        type: DataType.STRING
+    })
+    slug: string;
+
     @Column({
         type: DataType.INTEGER
     })
@@ -52,7 +58,7 @@ class Subject extends Model {
     scoreConversions: ScoreConversion[];
 
     async toShortInfo(): Promise<SubjectShortInfo> {
-        const { id, subject, isPublished } = this.get();
+        const { id, subject, slug, isPublished } = this.get();
 
         const subjectTasksCount = await SubjectTask.count({
             where: {
@@ -69,6 +75,7 @@ class Subject extends Model {
         return {
             id,
             subject,
+            slug,
             isPublished,
             subjectTasksCount,
             tasksCount
@@ -76,7 +83,7 @@ class Subject extends Model {
     }
 
     async toFullInfo(): Promise<SubjectFullInfo> {
-        const { id, subject, durationMinutes, isMark, isPublished } = this.get();
+        const { id, subject, slug, durationMinutes, isMark, isPublished } = this.get();
 
         const subjectTasksData = await SubjectTask.findAll({
             where: {
@@ -93,6 +100,7 @@ class Subject extends Model {
         return {
             id,
             subject,
+            slug,
             durationMinutes,
             isMark,
             isPublished,

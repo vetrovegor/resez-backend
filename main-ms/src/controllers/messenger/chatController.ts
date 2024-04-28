@@ -44,7 +44,7 @@ class ChatController {
         try {
             const { chat, users } = req.body;
 
-            console.log({users});
+            console.log({ users });
 
             const picture = req?.files?.picture ? req.files.picture : null;
 
@@ -183,6 +183,40 @@ class ChatController {
             );
 
             res.json(response);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async leaveChat(
+        req: RequestWithParamsAndUser<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const chat = await chatService.leaveChat(
+                req.params.id,
+                req.user.id
+            );
+
+            res.json({ chat });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async returnToChat(
+        req: RequestWithParamsAndUser<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const chat = await chatService.returnToChat(
+                req.params.id,
+                req.user.id
+            );
+
+            res.json({ chat });
         } catch (error) {
             next(error);
         }

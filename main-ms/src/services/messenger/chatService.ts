@@ -106,9 +106,19 @@ class ChatService {
 
     // типизировать
     async createChatDto(chatData: Chat, forUserId: number) {
-        const { id, isGroup, chat, picture, inviteLink } = chatData.toJSON();
+        const { id, isGroup, chat, picture, inviteLink, adminId } =
+            chatData.toJSON();
+
+        const isAdmin = forUserId == adminId;
 
         const membersCount = await chatData.getMembersCount();
+
+        const isLeft = (
+            await UserChat.findOne({
+                where: { chatId: id, userId: forUserId }
+            })
+        ).get('isLeft');
+
         const lastMessage = await messageService.getLastMessageByChatId(id);
 
         if (isGroup) {
@@ -116,8 +126,14 @@ class ChatService {
                 id,
                 isGroup,
                 chat,
-                picture: picture ? process.env.STATIC_URL + picture : null,
+                isLeft,
+                picture: isLeft
+                    ? null
+                    : picture
+                    ? process.env.STATIC_URL + picture
+                    : null,
                 inviteLink,
+                isAdmin,
                 membersCount,
                 lastMessage
             };
@@ -135,6 +151,7 @@ class ChatService {
             chat: user.nickname,
             picture: user.avatar,
             inviteLink,
+            isAdmin,
             membersCount,
             lastMessage
         };
@@ -428,6 +445,68 @@ class ChatService {
         );
 
         return await this.getChatInfo(chatId, userId);
+    }
+
+    async leaveChat(chatId: number, userId: number) {
+        const chat = await this.checkUserInChat(chatId, userId);
+
+        if (!chat) {
+            throw ApiError.badRequest('Пользователь не состоит в чате');
+        }
+
+        if (!chat.get('isGroup')) {
+            throw ApiError.badRequest('Можно покинуть только групповой чат');
+        }
+
+        const userChat = await UserChat.findOne({ where: { chatId, userId } });
+
+        if (userChat.get('isLeft')) {
+            throw ApiError.badRequest('Вы уже покинули чат');
+        }
+
+        userChat.set('isLeft', true);
+        await userChat.save();
+
+        const user = (await userService.getUserById(userId)).toPreview();
+
+        await messageService.createMessage(
+            MessageTypes.System,
+            `${user.nickname} покинул чат`,
+            chatId
+        );
+
+        return this.createChatDto(chat, userId);
+    }
+
+    async returnToChat(chatId: number, userId: number) {
+        const chat = await this.checkUserInChat(chatId, userId);
+
+        if (!chat) {
+            throw ApiError.badRequest('Пользователь не состоит в чате');
+        }
+
+        if (!chat.get('isGroup')) {
+            throw ApiError.badRequest('Можно вернуться только групповой чат');
+        }
+
+        const userChat = await UserChat.findOne({ where: { chatId, userId } });
+
+        if (!userChat.get('isLeft')) {
+            throw ApiError.badRequest('Вы состоите в чате');
+        }
+
+        userChat.set('isLeft', false);
+        await userChat.save();
+
+        const user = (await userService.getUserById(userId)).toPreview();
+
+        await messageService.createMessage(
+            MessageTypes.System,
+            `${user.nickname} вернулся чат`,
+            chatId
+        );
+
+        return this.createChatDto(chat, userId);
     }
 
     throwChatNotFoundError() {

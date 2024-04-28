@@ -63,7 +63,8 @@ class Chat extends Model {
     async getChatMemberIDs(): Promise<number[]> {
         const userChats = await UserChat.findAll({
             where: {
-                chatId: this.get('id')
+                chatId: this.get('id'),
+                isLeft: false
             }
         });
 
