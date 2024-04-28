@@ -17,17 +17,6 @@ class SubjectService {
 
         return subject;
     }
-    async getSubjectBySlug(slug: string): Promise<Subject> {
-        const subject = await Subject.findOne({
-            where: { slug }
-        });
-
-        if (!subject) {
-            this.throwSubjectNotFoundError();
-        }
-
-        return subject;
-    }
 
     async createSubject(
         subject: string,
@@ -37,7 +26,9 @@ class SubjectService {
         isMark: boolean,
         isPublished: boolean
     ): Promise<SubjectShortInfo> {
-        const existedSubject = await this.getSubjectBySlug(slug);
+        const existedSubject = await Subject.findOne({
+            where: { slug }
+        });
 
         if (existedSubject) {
             this.throwSubjectAlreadyExistsError();
@@ -108,7 +99,13 @@ class SubjectService {
     }
 
     async getSubjectFullInfo(slug: string) {
-        const subject = await this.getSubjectBySlug(slug);
+        const subject = await Subject.findOne({
+            where: { slug }
+        });
+
+        if(!subject) {
+            this.throwSubjectNotFoundError();
+        }
 
         return subject.toFullInfo();
     }
