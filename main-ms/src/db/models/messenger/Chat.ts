@@ -12,6 +12,7 @@ import {
 import Message from './Message';
 import User from '../User';
 import UserChat from './UserChat';
+import UserMessage from './UserMessage';
 
 @Table({
     timestamps: true,
@@ -59,6 +60,11 @@ class Chat extends Model {
         onDelete: 'CASCADE'
     })
     userChats: UserChat[];
+
+    @HasMany(() => UserMessage, {
+        onDelete: 'CASCADE'
+    })
+    userMessages: UserMessage[];
 
     async getChatMemberIDs(): Promise<number[]> {
         const userChats = await UserChat.findAll({

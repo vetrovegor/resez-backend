@@ -17,7 +17,7 @@ class Subject extends Model {
 
     
     @Column({
-        type: DataType.STRING
+        type: DataType.TEXT
     })
     slug: string;
 

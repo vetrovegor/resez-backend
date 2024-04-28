@@ -221,6 +221,23 @@ class ChatController {
             next(error);
         }
     }
+
+    async clearHistory(
+        req: RequestWithParamsAndUser<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const chat = await chatService.clearHistory(
+                req.params.id,
+                req.user.id
+            );
+
+            res.json({ chat });
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export default new ChatController();

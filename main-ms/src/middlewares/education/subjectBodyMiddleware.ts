@@ -8,6 +8,8 @@ export const subjectBodyMiddleware: ValidationChain[] = [
             'Предмет должен быть строкой с максимальной длиной 75 символов'
         ),
     body('slug')
+        .isString()
+        .isLength({ max: 300 })
         .matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
         .withMessage(
             'Slug должен состоять только из прописных английских букв, цифр и дефисов (дефисы не могут идти подряд)'

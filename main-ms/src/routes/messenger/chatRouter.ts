@@ -116,3 +116,10 @@ chatRouter.get(
     blockedMiddleware,
     chatController.returnToChat
 );
+
+chatRouter.delete(
+    '/:id/history',
+    accessTokenMiddleware,
+    blockedMiddleware,
+    chatController.clearHistory
+);

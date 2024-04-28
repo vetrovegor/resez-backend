@@ -11,6 +11,7 @@ import { ChatDTO, MessageTypes } from 'types/messenger';
 import { UserChatPreview, UserPreview } from 'types/user';
 import fileService from '../../services/fileService';
 import { generateInviteLink } from '../../utils';
+import UserMessage from '../../db/models/messenger/UserMessage';
 
 class ChatService {
     async createUserChat(chatId: number, userId: number): Promise<UserChat> {
@@ -52,6 +53,10 @@ class ChatService {
         }
 
         return chat;
+    }
+
+    async getUserChat(userId: number, chatId: number): Promise<UserChat> {
+        return await UserChat.findOne({ where: { userId, chatId } });
     }
 
     async checkUserInChat(chatId: number, userId: number): Promise<Chat> {
@@ -176,6 +181,14 @@ class ChatService {
             where: {
                 id: { [Op.in]: userChatIDs }
             },
+            include: [
+                {
+                    model: UserMessage,
+                    where: {
+                        userId: userId
+                    }
+                }
+            ],
             limit,
             offset
         });
@@ -458,14 +471,11 @@ class ChatService {
             throw ApiError.badRequest('Можно покинуть только групповой чат');
         }
 
-        const userChat = await UserChat.findOne({ where: { chatId, userId } });
+        const userChat = await this.getUserChat(userId, chatId);
 
         if (userChat.get('isLeft')) {
             throw ApiError.badRequest('Вы уже покинули чат');
         }
-
-        userChat.set('isLeft', true);
-        await userChat.save();
 
         const user = (await userService.getUserById(userId)).toPreview();
 
@@ -474,6 +484,9 @@ class ChatService {
             `${user.nickname} покинул чат`,
             chatId
         );
+
+        userChat.set('isLeft', true);
+        await userChat.save();
 
         return this.createChatDto(chat, userId);
     }
@@ -489,7 +502,7 @@ class ChatService {
             throw ApiError.badRequest('Можно вернуться только групповой чат');
         }
 
-        const userChat = await UserChat.findOne({ where: { chatId, userId } });
+        const userChat = await this.getUserChat(userId, chatId);
 
         if (!userChat.get('isLeft')) {
             throw ApiError.badRequest('Вы состоите в чате');
@@ -507,6 +520,18 @@ class ChatService {
         );
 
         return this.createChatDto(chat, userId);
+    }
+
+    async clearHistory(chatId: number, userId: number) {
+        const chat = await this.checkUserInChat(chatId, userId);
+
+        if (!chat) {
+            throw ApiError.badRequest('Пользователь не состоит в чате');
+        }
+
+        await messageService.clearMessageHistory(chatId, userId);
+
+        return await this.createChatDto(chat, userId);
     }
 
     throwChatNotFoundError() {

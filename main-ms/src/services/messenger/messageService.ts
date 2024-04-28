@@ -105,6 +105,12 @@ class MessageService {
             chatService.throwChatNotFoundError();
         }
 
+        const userChat = await chatService.getUserChat(senderId, chatId);
+
+        if (userChat.get('isLeft')) {
+            await chatService.returnToChat(chatId, senderId);
+        }
+
         const createdMessage = await this.createMessage(
             MessageTypes.Default,
             message,
@@ -230,6 +236,12 @@ class MessageService {
         for (const message of lastMessages) {
             await this.createUserMessage(userId, message.get('id'), chatId);
         }
+    }
+
+    async clearMessageHistory(chatId: number, userId: number) {
+        return await UserMessage.destroy({
+            where: { chatId, userId }
+        });
     }
 
     throwMessageNotFoundError() {
