@@ -4,7 +4,8 @@ import {
     RequestWithParamsAndBodyAndUser,
     IdParam,
     RequestWithParamsAndUser,
-    RequestWithParamsAndQueryAndUser
+    RequestWithParamsAndQueryAndUser,
+    RequestWithParams
 } from 'types/request';
 import messageService from '../../services/messenger/messageService';
 import { MessageRequestBodyDTO } from 'types/messenger';
@@ -77,6 +78,37 @@ class MessageController {
             );
 
             res.json({ message });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async readMessage(
+        req: RequestWithParamsAndUser<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            await messageService.readMessage(req.params.id, req.user.id);
+
+            res.sendStatus(200);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getMessageReaders(
+        req: RequestWithParamsAndUser<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const readers = await messageService.getMessageReaders(
+                req.params.id,
+                req.user.id
+            );
+
+            res.json({ readers });
         } catch (error) {
             next(error);
         }

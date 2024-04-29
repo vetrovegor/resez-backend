@@ -48,3 +48,21 @@ messageRouter.delete(
     blockedMiddleware,
     messageController.deleteMessage
 );
+
+messageRouter.patch(
+    '/:id/read',
+    param('id').isNumeric(),
+    validationMiddleware,
+    accessTokenMiddleware,
+    blockedMiddleware,
+    messageController.readMessage
+);
+
+messageRouter.get(
+    '/:id/readers',
+    param('id').isNumeric(),
+    validationMiddleware,
+    accessTokenMiddleware,
+    blockedMiddleware,
+    messageController.getMessageReaders
+);

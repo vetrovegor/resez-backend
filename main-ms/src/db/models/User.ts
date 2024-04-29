@@ -16,6 +16,7 @@ import { CollectionSettings } from "types/collection";
 import { calculateLevelInfo } from "../../utils";
 import Activity from "./Activity";
 import UserMessage from "./messenger/UserMessage";
+import MessageRead from "./messenger/MessageRead";
 
 @Table({
     timestamps: false,
@@ -196,6 +197,11 @@ class User extends Model {
 
     @HasMany(() => Activity)
     activity: Activity[];
+
+    @HasMany(() => MessageRead, {
+        onDelete: 'CASCADE'
+    })
+    messageReads: MessageRead[];
 
     async getRoles(): Promise<Role[]> {
         const userRoles = await UserRole.findAll({

@@ -1,18 +1,27 @@
-import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasMany } from 'sequelize-typescript';
+import {
+    Table,
+    Column,
+    Model,
+    DataType,
+    ForeignKey,
+    BelongsTo,
+    HasMany
+} from 'sequelize-typescript';
 
 import User from '../User';
 import Chat from './Chat';
 import MessageType from './MessageType';
-import { MessageDTO } from 'types/messenger';
+import { MessageDTO, MessageReader } from 'types/messenger';
 import UserMessage from './UserMessage';
+import MessageRead from './MessageRead';
 
 @Table({
     timestamps: true,
-    tableName: "messages"
+    tableName: 'messages'
 })
 class Message extends Model {
     @Column({
-        type: DataType.TEXT,
+        type: DataType.TEXT
     })
     message: string;
 
@@ -48,13 +57,27 @@ class Message extends Model {
     })
     userMessages: UserMessage[];
 
-    // добавить тип сообщения?
+    @HasMany(() => MessageRead, {
+        onDelete: 'CASCADE'
+    })
+    messageReads: MessageRead[];
+
     async toDTO(): Promise<MessageDTO> {
-        const { id, messageTypeId, message, createdAt, updatedAt, senderId, chatId } = this.get();
+        const {
+            id,
+            messageTypeId,
+            message,
+            createdAt,
+            updatedAt,
+            senderId,
+            chatId
+        } = this.get();
 
         const messageType = await MessageType.findByPk(messageTypeId);
 
         const sender = await User.findByPk(senderId);
+
+        const readCount = await MessageRead.count({ where: { messageId: id } });
 
         return {
             id,
@@ -64,8 +87,28 @@ class Message extends Model {
             updatedAt,
             isEdited: createdAt.toString() != updatedAt.toString(),
             sender: sender ? sender.toPreview() : null,
+            readCount,
             chatId
-        }
+        };
+    }
+
+    async getReaders(): Promise<MessageReader[]> {
+        const messageReads = await MessageRead.findAll({
+            where: { messageId: this.get('id') }
+        });
+
+        return await Promise.all(
+            messageReads.map(async messageRead => {
+                const { userId, createdAt: date } = messageRead.toJSON();
+
+                const user = (await User.findByPk(userId)).toPreview();
+
+                return {
+                    user,
+                    date
+                };
+            })
+        );
     }
 }
 

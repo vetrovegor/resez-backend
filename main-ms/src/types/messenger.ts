@@ -20,7 +20,13 @@ export type MessageDTO = MessageRequestBodyDTO & {
     updatedAt: Date,
     isEdited: boolean,
     sender: UserPreview,
+    readCount: number,
     chatId: number
+}
+
+export type MessageReader = {
+    user: UserPreview,
+    date: Date
 }
 
 export type ChatDTO = {

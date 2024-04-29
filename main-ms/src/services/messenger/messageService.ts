@@ -8,6 +8,7 @@ import { ApiError } from '../../ApiError';
 import socketService from '../../services/socketService';
 import { EmitTypes } from 'types/socket';
 import UserMessage from '../../db/models/messenger/UserMessage';
+import MessageRead from '../../db/models/messenger/MessageRead';
 
 class MessageService {
     async getMessageById(messageId: number): Promise<Message> {
@@ -58,13 +59,7 @@ class MessageService {
                 chatId
             );
 
-            if (userId != senderId) {
-                socketService.emitByUserId(
-                    userId,
-                    EmitTypes.Message,
-                    messageDto
-                );
-            }
+            socketService.emitByUserId(userId, EmitTypes.Message, messageDto);
         });
 
         return createdMessage;
@@ -171,7 +166,17 @@ class MessageService {
         messageData.set('message', message);
         await messageData.save();
 
-        return messageData.toDTO();
+        const messageDto = await messageData.toDTO();
+
+        const memberIDs = await (
+            await chatService.getChatById(messageData.get('chatId'))
+        ).getChatMemberIDs();
+
+        memberIDs.forEach(async userId => {
+            socketService.emitByUserId(userId, EmitTypes.Message, messageDto);
+        });
+
+        return messageDto;
     }
 
     async deleteMessage(
@@ -204,7 +209,17 @@ class MessageService {
             });
         }
 
-        return messageData.toDTO();
+        const messageDto = await messageData.toDTO();
+
+        const memberIDs = await (
+            await chatService.getChatById(messageData.get('chatId'))
+        ).getChatMemberIDs();
+
+        memberIDs.forEach(async userId => {
+            socketService.emitByUserId(userId, EmitTypes.Message, messageDto);
+        });
+
+        return messageDto;
     }
 
     async getChatMessages(chatId: number, userId: number) {
@@ -242,6 +257,64 @@ class MessageService {
         return await UserMessage.destroy({
             where: { chatId, userId }
         });
+    }
+
+    async readMessage(messageId: number, userId: number) {
+        const message = await this.getMessageById(messageId);
+
+        if (message.get('senderId') == userId) {
+            throw ApiError.badRequest('Нельзя прочитать свое сообщение');
+        }
+
+        const messageRead = await MessageRead.findOne({
+            where: { messageId, userId }
+        });
+
+        if (messageRead) {
+            throw ApiError.badRequest('Сообщение уже прочитано');
+        }
+
+        const userMessageReadIDs = (
+            await MessageRead.findAll({
+                where: { userId }
+            })
+        ).map(messageRead => messageRead.get('messageId'));
+
+        const unreadMessageIDs = (
+            await Message.findAll({
+                where: {
+                    id: {
+                        [Op.notIn]: userMessageReadIDs
+                    },
+                    createdAt: {
+                        [Op.lte]: message.get('createdAt')
+                    },
+                    senderId: {
+                        [Op.ne]: userId
+                    },
+                    chatId: message.get('chatId')
+                }
+            })
+        ).map(message => message.get('id'));
+
+        for (const messageId of unreadMessageIDs) {
+            await MessageRead.create({ messageId, userId });
+        }
+    }
+
+    async getMessageReaders(messageId: number, userId: number) {
+        const message = await this.getMessageById(messageId);
+
+        const isUserInChat = await chatService.checkUserInChat(
+            message.get('chatId'),
+            userId
+        );
+
+        if (!isUserInChat) {
+            this.throwMessageNotFoundError();
+        }
+
+        return await message.getReaders();
     }
 
     throwMessageNotFoundError() {
