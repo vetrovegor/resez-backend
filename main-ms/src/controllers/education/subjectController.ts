@@ -42,9 +42,16 @@ class SubjectController {
         }
     }
 
-    async getSubjects(req: Request, res: Response, next: NextFunction) {
+    async getSubjects(
+        req: RequestWithQuery<PaginationQuery>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
-            const subjects = await subjectService.getSubjects();
+            const subjects = await subjectService.getSubjects(
+                req.query.limit,
+                req.query.offset
+            );
 
             res.json(subjects);
         } catch (error) {

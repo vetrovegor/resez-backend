@@ -1,7 +1,5 @@
 import bcrypt from 'bcrypt';
 import { UploadedFile } from 'express-fileupload';
-import path from 'path';
-import fs from 'fs';
 import { Op } from 'sequelize';
 
 import User from '../db/models/User';
@@ -13,8 +11,6 @@ import {
     UserSettingsInfo,
     UserShortInfo
 } from 'types/user';
-import { STATIC_PATH } from '../consts/STATIC_PATH';
-import { FILE_EXTENSIONS } from '../consts/FILE-EXTENSIONS';
 import { PaginationDTO } from '../dto/PaginationDTO';
 import socketService from './socketService';
 import { EmitTypes } from 'types/socket';
@@ -37,7 +33,9 @@ class UserService {
     async getUserByNickname(nickname: string): Promise<User> {
         return await User.findOne({
             where: {
-                nickname
+                nickname: {
+                    [Op.iLike]: nickname
+                }
             }
         });
     }

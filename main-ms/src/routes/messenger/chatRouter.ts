@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { body, param } from "express-validator";
+import { body, param, query } from "express-validator";
 
 import { accessTokenMiddleware } from "../../middlewares/accessTokenMiddleware";
 import { blockedMiddleware } from "../../middlewares/blockedMiddleware";
@@ -105,6 +105,8 @@ chatRouter.get(
 
 chatRouter.delete(
     '/:id/leave',
+    query('clear_history').isBoolean().optional(),
+    validationMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,
     chatController.leaveChat

@@ -58,7 +58,7 @@ class MessageService {
                 chatId
             );
 
-            if (userId != senderId && messageType != MessageTypes.System) {
+            if (userId != senderId) {
                 socketService.emitByUserId(
                     userId,
                     EmitTypes.Message,

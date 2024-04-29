@@ -8,6 +8,7 @@ import {
     RequestWithParams,
     RequestWithParamsAndBodyAndUser,
     RequestWithParamsAndQuery,
+    RequestWithParamsAndQueryAndUser,
     RequestWithParamsAndUser,
     RequestWithQueryAndUser
 } from 'types/request';
@@ -189,14 +190,18 @@ class ChatController {
     }
 
     async leaveChat(
-        req: RequestWithParamsAndUser<IdParam>,
+        req: RequestWithParamsAndQueryAndUser<
+            IdParam,
+            { clear_history: string }
+        >,
         res: Response,
         next: NextFunction
     ) {
         try {
             const chat = await chatService.leaveChat(
                 req.params.id,
-                req.user.id
+                req.user.id,
+                req.query.clear_history
             );
 
             res.json({ chat });

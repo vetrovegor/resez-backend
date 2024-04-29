@@ -1,14 +1,25 @@
-import { Op } from "sequelize";
+import { Op } from 'sequelize';
 
-import Collection from "../../db/models/memory/Collection";
-import { Card, CollectionFullInfo, CollectionShortInfo, qaPair } from "types/collection";
-import { PaginationDTO } from "../../dto/PaginationDTO";
-import { ApiError } from "../../ApiError";
-import qaService from "./qaService";
-import userService from "../../services/userService";
+import Collection from '../../db/models/memory/Collection';
+import {
+    Card,
+    CollectionFullInfo,
+    CollectionShortInfo,
+    qaPair
+} from 'types/collection';
+import { PaginationDTO } from '../../dto/PaginationDTO';
+import { ApiError } from '../../ApiError';
+import qaService from './qaService';
+import userService from '../../services/userService';
 
 class CollectionService {
-    async createCollection(userId: number, collection: string, description: string, isPrivate: boolean, QAPairs: qaPair[]): Promise<CollectionShortInfo> {
+    async createCollection(
+        userId: number,
+        collection: string,
+        description: string,
+        isPrivate: boolean,
+        QAPairs: qaPair[]
+    ): Promise<CollectionShortInfo> {
         const createdCollection = await Collection.create({
             userId,
             collection,
@@ -21,7 +32,11 @@ class CollectionService {
         return await createdCollection.toShortInfo();
     }
 
-    async getUserCollections(userId: number, limit: number, offset: number): Promise<PaginationDTO<CollectionShortInfo>> {
+    async getUserCollections(
+        userId: number,
+        limit: number,
+        offset: number
+    ): Promise<PaginationDTO<CollectionShortInfo>> {
         const collections = await Collection.findAll({
             where: { userId },
             order: [['createdAt', 'DESC']],
@@ -30,26 +45,30 @@ class CollectionService {
         });
 
         const collectionDTOs = await Promise.all(
-            collections.map(
-                async collection => await collection.toShortInfo()
-            )
+            collections.map(async collection => await collection.toShortInfo())
         );
 
         const totalCount = await Collection.count({
             where: { userId }
         });
 
-        return new PaginationDTO<CollectionShortInfo>("collections", collectionDTOs, totalCount, limit, offset);
+        return new PaginationDTO<CollectionShortInfo>(
+            'collections',
+            collectionDTOs,
+            totalCount,
+            limit,
+            offset
+        );
     }
 
-    async findAccessibleCollectionById(collectionId: number, userId: number): Promise<Collection> {
+    async findAccessibleCollectionById(
+        collectionId: number,
+        userId: number
+    ): Promise<Collection> {
         const collection = await Collection.findOne({
             where: {
                 id: collectionId,
-                [Op.or]: [
-                    { isPrivate: false },
-                    { userId }
-                ]
+                [Op.or]: [{ isPrivate: false }, { userId }]
             }
         });
 
@@ -60,8 +79,14 @@ class CollectionService {
         return collection;
     }
 
-    async getCollectionById(collectionId: number, userId: number): Promise<CollectionFullInfo> {
-        const collection = await this.findAccessibleCollectionById(collectionId, userId);
+    async getCollectionById(
+        collectionId: number,
+        userId: number
+    ): Promise<CollectionFullInfo> {
+        const collection = await this.findAccessibleCollectionById(
+            collectionId,
+            userId
+        );
 
         return await collection.toFullInfo();
     }
@@ -75,7 +100,10 @@ class CollectionService {
         });
     }
 
-    async deleteCollectionById(collectionId: number, userId: number): Promise<CollectionShortInfo> {
+    async deleteCollectionById(
+        collectionId: number,
+        userId: number
+    ): Promise<CollectionShortInfo> {
         const collection = await this.findUserCollection(collectionId, userId);
 
         if (!collection) {
@@ -89,8 +117,18 @@ class CollectionService {
         return collectionShortInfo;
     }
 
-    async updateCollection(collectionId: number, userId: number, collection: string, description: string, isPrivate: boolean, QAPairs: qaPair[]): Promise<CollectionShortInfo> {
-        const collectionData = await this.findUserCollection(collectionId, userId);
+    async updateCollection(
+        collectionId: number,
+        userId: number,
+        collection: string,
+        description: string,
+        isPrivate: boolean,
+        QAPairs: qaPair[]
+    ): Promise<CollectionShortInfo> {
+        const collectionData = await this.findUserCollection(
+            collectionId,
+            userId
+        );
 
         if (!collectionData) {
             this.throwCollectionNotFound();
@@ -108,10 +146,17 @@ class CollectionService {
     }
 
     // типизировать
-    async getCardsByCollectionId(collectionId: number, userId: number): Promise<Card[]> {
-        const collection = await this.findAccessibleCollectionById(collectionId, userId);
+    async getCardsByCollectionId(
+        collectionId: number,
+        userId: number
+    ): Promise<Card[]> {
+        const collection = await this.findAccessibleCollectionById(
+            collectionId,
+            userId
+        );
 
-        const { isShuffleCards, isDefinitionCardFront } = await userService.getUserCollectionSettings(userId);
+        const { isShuffleCards, isDefinitionCardFront } =
+            await userService.getUserCollectionSettings(userId);
 
         return collection.getCards(isShuffleCards, isDefinitionCardFront);
     }

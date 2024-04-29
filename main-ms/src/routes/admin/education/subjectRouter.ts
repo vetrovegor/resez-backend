@@ -10,6 +10,7 @@ import { permissionMiddleware } from "../../../middlewares/permissionMiddleware"
 import { Permissions } from "types/permission";
 import { subjectBodyMiddleware } from "../../../middlewares/education/subjectBodyMiddleware";
 import scoreConversionController from "../../../controllers/education/scoreConversionController";
+import { paginationMiddleware } from "../../../middlewares/paginationMiddleware";
 
 export const subjectsRouter = Router();
 
@@ -26,6 +27,7 @@ subjectsRouter.post(
 
 subjectsRouter.get(
     '/',
+    paginationMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,
     permissionMiddleware(Permissions.Subjects),

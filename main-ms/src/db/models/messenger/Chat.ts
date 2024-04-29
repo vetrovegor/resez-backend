@@ -80,7 +80,8 @@ class Chat extends Model {
     async getMembersCount(): Promise<number> {
         return await UserChat.count({
             where: {
-                chatId: this.get('id')
+                chatId: this.get('id'),
+                isLeft: false
             }
         });
     }

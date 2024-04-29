@@ -139,7 +139,7 @@ class ChatService {
                     : null,
                 inviteLink,
                 isAdmin,
-                membersCount,
+                membersCount: isLeft ? null : membersCount,
                 lastMessage
             };
         }
@@ -418,14 +418,16 @@ class ChatService {
             };
         });
 
-        const adminPreview = (
-            await userService.getUserById(adminId)
-        ).toPreview();
+        if (userIDs.includes(adminId)) {
+            const adminPreview = (
+                await userService.getUserById(adminId)
+            ).toPreview();
 
-        users.unshift({
-            ...adminPreview,
-            isAdmin: true
-        });
+            users.unshift({
+                ...adminPreview,
+                isAdmin: true
+            });
+        }
 
         return new PaginationDTO('users', users, userIDs.length, limit, offset);
     }
@@ -460,7 +462,7 @@ class ChatService {
         return await this.getChatInfo(chatId, userId);
     }
 
-    async leaveChat(chatId: number, userId: number) {
+    async leaveChat(chatId: number, userId: number, clearHistory: string) {
         const chat = await this.checkUserInChat(chatId, userId);
 
         if (!chat) {
@@ -487,6 +489,10 @@ class ChatService {
 
         userChat.set('isLeft', true);
         await userChat.save();
+
+        if (clearHistory && clearHistory.toLowerCase() === 'true') {
+            await messageService.clearMessageHistory(chatId, userId);
+        }
 
         return this.createChatDto(chat, userId);
     }

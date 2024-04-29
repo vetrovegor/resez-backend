@@ -50,11 +50,31 @@ class SubjectService {
         return await createdSubject.toShortInfo();
     }
 
-    async getSubjects(): Promise<SubjectShortInfo[]> {
-        const subjects = await Subject.findAll();
+    async getSubjects(
+        limit: number,
+        offset: number
+    ): Promise<PaginationDTO<SubjectShortInfo>> {
+        const subjects = await Subject.findAll({
+            order: [['id', 'ASC']],
+            where: { isArchived: false },
+            limit,
+            offset
+        });
 
-        return await Promise.all(
+        const subjectDTOs = await Promise.all(
             subjects.map(async subject => await subject.toShortInfo())
+        );
+
+        const totalCount = await Subject.count({
+            where: { isArchived: false }
+        });
+
+        return new PaginationDTO<SubjectShortInfo>(
+            'subjects',
+            subjectDTOs,
+            totalCount,
+            limit,
+            offset
         );
     }
 
@@ -103,7 +123,7 @@ class SubjectService {
             where: { slug }
         });
 
-        if(!subject) {
+        if (!subject) {
             this.throwSubjectNotFoundError();
         }
 
