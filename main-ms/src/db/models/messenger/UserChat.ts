@@ -31,6 +31,12 @@ class UserChat extends Model {
         defaultValue: false
     })
     isLeft: boolean;
+
+    @Column({
+        type: DataType.BOOLEAN,
+        defaultValue: false
+    })
+    isKicked: boolean;
 }
 
 export default UserChat;

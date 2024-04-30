@@ -102,6 +102,10 @@ class MessageService {
 
         const userChat = await chatService.getUserChat(senderId, chatId);
 
+        if (userChat.get('isKicked')) {
+            throw ApiError.badRequest('Вы были исключены из чата');
+        }
+
         if (userChat.get('isLeft')) {
             await chatService.returnToChat(chatId, senderId);
         }
@@ -112,20 +116,6 @@ class MessageService {
             chatId,
             senderId
         );
-
-        // const messageDto = await createdMessage.toDTO();
-
-        // const memberIDs = await chat.getChatMemberIDs();
-
-        // memberIDs.forEach(async userId => {
-        //     if (userId != senderId) {
-        //         socketService.emitByUserId(
-        //             userId,
-        //             EmitTypes.Message,
-        //             messageDto
-        //         );
-        //     }
-        // });
 
         return await createdMessage.toDTO();
     }
@@ -315,6 +305,20 @@ class MessageService {
         }
 
         return await message.getReaders();
+    }
+
+    // довести до ума чтобы сразу же запросом отбирались нужные записи
+    async getUniqueChatIds(userId: number, limit: number): Promise<number[]> {
+        const userMessages = await UserMessage.findAll({
+            where: { userId },
+            order: [['createdAt', 'DESC']]
+        });
+
+        const chatIDs = userMessages.map(message => message.get('chatId'));
+
+        const uniqueChatIDs = [...new Set(chatIDs)];
+
+        return uniqueChatIDs.slice(0, limit);
     }
 
     throwMessageNotFoundError() {

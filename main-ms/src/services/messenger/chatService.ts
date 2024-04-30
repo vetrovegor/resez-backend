@@ -11,7 +11,6 @@ import { ChatDTO, MessageTypes } from 'types/messenger';
 import { UserChatPreview, UserPreview } from 'types/user';
 import fileService from '../../services/fileService';
 import { generateInviteLink } from '../../utils';
-import UserMessage from '../../db/models/messenger/UserMessage';
 
 class ChatService {
     async createUserChat(chatId: number, userId: number): Promise<UserChat> {
@@ -56,7 +55,9 @@ class ChatService {
     }
 
     async getUserChat(userId: number, chatId: number): Promise<UserChat> {
-        return await UserChat.findOne({ where: { userId, chatId } });
+        return await UserChat.findOne({
+            where: { userId, chatId }
+        });
     }
 
     async checkUserInChat(chatId: number, userId: number): Promise<Chat> {
@@ -118,11 +119,11 @@ class ChatService {
 
         const membersCount = await chatData.getMembersCount();
 
-        const isLeft = (
+        const { isLeft, isKicked } = (
             await UserChat.findOne({
                 where: { chatId: id, userId: forUserId }
             })
-        ).get('isLeft');
+        ).toJSON();
 
         const lastMessage = await messageService.getLastMessageByChatId(id);
 
@@ -132,14 +133,16 @@ class ChatService {
                 isGroup,
                 chat,
                 isLeft,
-                picture: isLeft
-                    ? null
-                    : picture
-                    ? process.env.STATIC_URL + picture
-                    : null,
+                isKicked,
+                picture:
+                    isLeft || isKicked
+                        ? null
+                        : picture
+                        ? process.env.STATIC_URL + picture
+                        : null,
                 inviteLink,
                 isAdmin,
-                membersCount: isLeft ? null : membersCount,
+                membersCount: isLeft || isKicked ? null : membersCount,
                 lastMessage
             };
         }
@@ -162,33 +165,17 @@ class ChatService {
         };
     }
 
-    // довести до ума чтобы изначально получать чаты по новым сообщениями
-    // искать последние сообщения по уникальным чатам
     async getUserChats(
         userId: number,
         limit: number,
         offset: number
     ): Promise<PaginationDTO<ChatDTO>> {
-        const userChats = await UserChat.findAll({
-            where: {
-                userId
-            }
-        });
-
-        const userChatIDs = userChats.map(userChat => userChat.get('chatId'));
+        const userChatIDs = await messageService.getUniqueChatIds(userId, limit);
 
         const chats = await Chat.findAll({
             where: {
                 id: { [Op.in]: userChatIDs }
             },
-            include: [
-                {
-                    model: UserMessage,
-                    where: {
-                        userId: userId
-                    }
-                }
-            ],
             limit,
             offset
         });
@@ -227,8 +214,6 @@ class ChatService {
         picture: UploadedFile,
         adminId: number
     ) {
-        userIDs.push(adminId);
-
         const picturePath = picture
             ? await fileService.saveFile('chats', picture)
             : null;
@@ -302,22 +287,26 @@ class ChatService {
             throw ApiError.forbidden();
         }
 
-        const user = await userService.getUserById(userId);
+        const userChat = await this.getUserChat(userId, chatId);
 
-        const isUserInChat = await this.checkUserInChat(chatId, userId);
-
-        if (isUserInChat) {
+        if (userChat && !userChat.get('isKicked')) {
             throw ApiError.badRequest('Пользователь уже состоит в чате');
         }
 
-        await this.createUserChat(chatId, userId);
-
-        const admin = await userService.getUserById(adminId);
+        if (userChat.get('isKicked')) {
+            userChat.set('isKicked', false);
+            await userChat.save();
+        } else {
+            await this.createUserChat(chatId, userId);
+        }
 
         // добавить сообщения для пользователя
         if (showHistory) {
             messageService.createMessagesHistory(chatId, userId);
         }
+
+        const admin = await userService.getUserById(adminId);
+        const user = await userService.getUserById(userId);
 
         await messageService.createMessage(
             MessageTypes.System,
@@ -349,28 +338,25 @@ class ChatService {
             throw ApiError.forbidden();
         }
 
-        const user = await userService.getUserById(userId);
+        const userChat = await this.getUserChat(userId, chatId);
 
-        const isUserInChat = await this.checkUserInChat(chatId, userId);
-
-        if (!isUserInChat) {
-            throw ApiError.badRequest('Пользователь не состоит в чате');
+        if (userChat.get('isKicked')) {
+            throw ApiError.badRequest('Пользователь уже исключен из чата');
         }
 
-        await UserChat.destroy({
-            where: {
-                chatId,
-                userId
-            }
-        });
+        await messageService.clearMessageHistory(chatId, userId);
 
         const admin = await userService.getUserById(adminId);
+        const user = await userService.getUserById(userId);
 
         await messageService.createMessage(
             MessageTypes.System,
             `${admin.get('nickname')} исключил ${user.get('nickname')}`,
             chatId
         );
+
+        userChat.set('isKicked', true);
+        await userChat.save();
 
         return user.toPreview();
     }
@@ -430,6 +416,18 @@ class ChatService {
         }
 
         return new PaginationDTO('users', users, userIDs.length, limit, offset);
+    }
+
+    async getChatByInviteLink(userId: number, inviteLink: string) {
+        const chat = await Chat.findOne({
+            where: { inviteLink }
+        });
+
+        if (!chat) {
+            this.throwChatNotFoundError();
+        }
+
+        return await this.createChatDto(chat, userId);
     }
 
     async joinChatViaLink(userId: number, inviteLink: string) {

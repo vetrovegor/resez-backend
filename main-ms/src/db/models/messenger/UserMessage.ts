@@ -4,7 +4,7 @@ import Message from './Message';
 import Chat from './Chat';
 
 @Table({
-    timestamps: false,
+    timestamps: true,
     tableName: "users_messages"
 })
 class UserMessage extends Model {

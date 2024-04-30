@@ -45,8 +45,6 @@ class ChatController {
         try {
             const { chat, users } = req.body;
 
-            console.log({ users });
-
             const picture = req?.files?.picture ? req.files.picture : null;
 
             const createdChat = await chatService.createGroup(
@@ -167,6 +165,23 @@ class ChatController {
             );
 
             res.json(response);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getChatByInviteLink(
+        req: RequestWithParamsAndUser<{ inviteLink: string }>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const chat = await chatService.getChatByInviteLink(
+                req.user.id,
+                req.params.inviteLink
+            );
+
+            res.json({ chat });
         } catch (error) {
             next(error);
         }
