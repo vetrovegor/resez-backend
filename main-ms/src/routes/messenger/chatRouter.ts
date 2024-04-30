@@ -24,13 +24,12 @@ chatRouter.get(
 chatRouter.post(
     '/',
     body('chat').isLength({ min: 1 }),
-    // body('users').isArray().optional(),
-    groupUsersMiddleware,
     validationMiddleware,
     fileMiddleware(2, false),
     imageMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,
+    groupUsersMiddleware,
     chatController.createGroup
 );
 
@@ -94,6 +93,13 @@ chatRouter.get(
     accessTokenMiddleware,
     blockedMiddleware,
     chatController.getChatUsers
+);
+
+chatRouter.get(
+    '/link/:inviteLink',
+    accessTokenMiddleware,
+    blockedMiddleware,
+    chatController.getChatByInviteLink
 );
 
 chatRouter.get(

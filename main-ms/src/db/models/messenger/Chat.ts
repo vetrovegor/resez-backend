@@ -70,7 +70,8 @@ class Chat extends Model {
         const userChats = await UserChat.findAll({
             where: {
                 chatId: this.get('id'),
-                isLeft: false
+                isLeft: false,
+                isKicked: false
             }
         });
 
