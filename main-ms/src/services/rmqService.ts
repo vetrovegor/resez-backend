@@ -102,8 +102,8 @@ class RmqService {
                 const message = JSON.parse(msg.content.toString());
                 let response = null;
 
-                if (message.pattern == 'user-preview') {
-                    response = (await userService.getUserById(1)).toPreview();
+                if (message.pattern == 'preview') {
+                    response = (await userService.getUserById(message.data)).toPreview();
                 }
 
                 this.channel.sendToQueue(
@@ -125,6 +125,13 @@ class RmqService {
             process.env.RMQ_EXCHANGE,
             routingKey,
             Buffer.from(JSON.stringify(content))
+        );
+    }
+
+    sendToQueue(queue: string, pattern: string, data: any) {
+        this.channel.sendToQueue(
+            queue,
+            Buffer.from(JSON.stringify({ pattern, data }))
         );
     }
 }

@@ -18,6 +18,7 @@ import { CollectionSettings } from 'types/collection';
 import { calculateLevelInfo, getArraysIntersection } from '../utils';
 import UserRole from '../db/models/UserRole';
 import fileService from './fileService';
+import rmqService from './rmqService';
 
 class UserService {
     async getUserById(id: number): Promise<User> {
@@ -58,11 +59,15 @@ class UserService {
     }
 
     async registerUser(nickname: string, password: string): Promise<User> {
-        return await User.create({
+        const user = await User.create({
             nickname,
             password,
             registrationDate: Date.now()
         });
+
+        rmqService.sendToQueue('memory-queue', 'create', user.get('id'));
+
+        return user;
     }
 
     async getUserShortInfo(userId: number): Promise<UserShortInfo> {
@@ -190,7 +195,7 @@ class UserService {
 
     async deleteAvatar(userId: number): Promise<UserShortInfo> {
         const user = await User.findByPk(userId);
-        
+
         await fileService.deleteFile(user.get('avatar'));
 
         user.set('avatar', null);
@@ -202,7 +207,7 @@ class UserService {
     async getUser(nickname: string) {
         const user = await this.getUserByNickname(nickname);
 
-        if(!user) {
+        if (!user) {
             throw ApiError.notFound('Пользователь не найден');
         }
 

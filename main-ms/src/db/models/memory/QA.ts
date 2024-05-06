@@ -12,11 +12,21 @@ class QA extends Model {
         type: DataType.STRING
     })
     question: string;
+    
+    @Column({
+        type: DataType.STRING
+    })
+    questionPicture: string;
 
     @Column({
         type: DataType.STRING
     })
     answer: string;
+
+    @Column({
+        type: DataType.STRING
+    })
+    answerPicture: string;
 
     @ForeignKey(() => Collection)
     @Column

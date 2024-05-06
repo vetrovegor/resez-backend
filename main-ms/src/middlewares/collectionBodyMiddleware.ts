@@ -7,8 +7,6 @@ export const collectionBodyMiddleware: ValidationChain[] = [
         .withMessage('Описание должно быть строкой с максимальной длиной 500 символов'),
     body('isPrivate').isBoolean()
         .withMessage('isPrivate должно быть логическим значением'),
-    body('QAPairs').isArray({ min: 2 })
-        .withMessage('QAPairs должен быть массивом с минимальной длиной 2'),
     body('QAPairs.*.question').isString().isLength({ max: 250 })
         .withMessage('Каждый вопрос в QAPairs должен быть строкой с максимальной длиной 250 символов'),
     body('QAPairs.*.answer').isString().isLength({ max: 250 })

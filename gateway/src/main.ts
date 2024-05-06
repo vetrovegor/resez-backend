@@ -15,6 +15,7 @@ async function bootstrap() {
 
     app.use('/api/user-ms', proxy(configService.get('USER_MS_URL')));
     app.use('/api/messenger-ms', proxy(configService.get('MESSENGER_MS_URL')));
+    app.use('/api/memory-ms', proxy(configService.get('MEMORY_MS_URL')));
 
     app.use((req, res, next) => {
         proxy(configService.get('MAIN_MS_URL'))(req, res, next);

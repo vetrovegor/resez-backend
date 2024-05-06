@@ -1,16 +1,34 @@
 import { Response, NextFunction } from 'express';
 
-import { PaginationQuery, RequestWithBodyAndUser, RequestWithParamsAndBodyAndUser, RequestWithParamsAndUser, RequestWithQueryAndUser, IdParam, RequestWithUser } from 'types/request';
+import {
+    PaginationQuery,
+    RequestWithBodyAndUser,
+    RequestWithParamsAndBodyAndUser,
+    RequestWithParamsAndUser,
+    RequestWithQueryAndUser,
+    IdParam,
+    RequestWithUser
+} from 'types/request';
 import { CollectionBodyDTO, CollectionSettings } from 'types/collection';
 import collectionService from '../services/memory/collectionService';
 import userService from '../services/userService';
 
 class CollectionController {
-    async createCollection(req: RequestWithBodyAndUser<CollectionBodyDTO>, res: Response, next: NextFunction) {
+    async createCollection(
+        req: RequestWithBodyAndUser<CollectionBodyDTO>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const { collection, description, isPrivate, QAPairs } = req.body;
 
-            const createdCollection = await collectionService.createCollection(req.user.id, collection, description, isPrivate, QAPairs);
+            const createdCollection = await collectionService.createCollection(
+                req.user.id,
+                collection,
+                description,
+                isPrivate,
+                QAPairs
+            );
 
             res.json({ collection: createdCollection });
         } catch (error) {
@@ -18,11 +36,19 @@ class CollectionController {
         }
     }
 
-    async getUserCollections(req: RequestWithQueryAndUser<PaginationQuery>, res: Response, next: NextFunction) {
+    async getUserCollections(
+        req: RequestWithQueryAndUser<PaginationQuery>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const { limit, offset } = req.query;
 
-            const data = await collectionService.getUserCollections(req.user.id, limit, offset);
+            const data = await collectionService.getUserCollections(
+                req.user.id,
+                limit,
+                offset
+            );
 
             res.json(data);
         } catch (error) {
@@ -30,9 +56,16 @@ class CollectionController {
         }
     }
 
-    async getCollectionById(req: RequestWithParamsAndUser<IdParam>, res: Response, next: NextFunction) {
+    async getCollectionById(
+        req: RequestWithParamsAndUser<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
-            const collection = await collectionService.getCollectionById(req.params.id, req.user.id);
+            const collection = await collectionService.getCollectionById(
+                req.params.id,
+                req.user.id
+            );
 
             res.json({ collection });
         } catch (error) {
@@ -40,9 +73,16 @@ class CollectionController {
         }
     }
 
-    async deleteCollectionById(req: RequestWithParamsAndUser<IdParam>, res: Response, next: NextFunction) {
+    async deleteCollectionById(
+        req: RequestWithParamsAndUser<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
-            const collection = await collectionService.deleteCollectionById(req.params.id, req.user.id);
+            const collection = await collectionService.deleteCollectionById(
+                req.params.id,
+                req.user.id
+            );
 
             res.json({ collection });
         } catch (error) {
@@ -50,11 +90,22 @@ class CollectionController {
         }
     }
 
-    async updateCollection(req: RequestWithParamsAndBodyAndUser<IdParam, CollectionBodyDTO>, res: Response, next: NextFunction) {
+    async updateCollection(
+        req: RequestWithParamsAndBodyAndUser<IdParam, CollectionBodyDTO>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const { collection, description, isPrivate, QAPairs } = req.body;
 
-            const updatedCollection = await collectionService.updateCollection(req.params.id, req.user.id, collection, description, isPrivate, QAPairs);
+            const updatedCollection = await collectionService.updateCollection(
+                req.params.id,
+                req.user.id,
+                collection,
+                description,
+                isPrivate,
+                QAPairs
+            );
 
             res.json({ collection: updatedCollection });
         } catch (error) {
@@ -62,9 +113,16 @@ class CollectionController {
         }
     }
 
-    async getCardsByCollectionId(req: RequestWithParamsAndUser<IdParam>, res: Response, next: NextFunction) {
+    async getCardsByCollectionId(
+        req: RequestWithParamsAndUser<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
-            const cards = await collectionService.getCardsByCollectionId(req.params.id, req.user.id);
+            const cards = await collectionService.getCardsByCollectionId(
+                req.params.id,
+                req.user.id
+            );
 
             res.json({ cards });
         } catch (error) {
@@ -72,9 +130,15 @@ class CollectionController {
         }
     }
 
-    async getUserCollectionSettings(req: RequestWithUser, res: Response, next: NextFunction) {
+    async getUserCollectionSettings(
+        req: RequestWithUser,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
-            const settings = await userService.getUserCollectionSettings(req.user.id);
+            const settings = await userService.getUserCollectionSettings(
+                req.user.id
+            );
 
             res.json({ settings });
         } catch (error) {
@@ -82,7 +146,11 @@ class CollectionController {
         }
     }
 
-    async updateCollectionSettings(req: RequestWithBodyAndUser<CollectionSettings>, res: Response, next: NextFunction) {
+    async updateCollectionSettings(
+        req: RequestWithBodyAndUser<CollectionSettings>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const { isShuffleCards, isDefinitionCardFront } = req.body;
 
