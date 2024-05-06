@@ -16,7 +16,7 @@ import { RabbitMqModule } from '@rabbit-mq/rabbit-mq.module';
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
         ServeStaticModule.forRoot({
-            rootPath: join(process.cwd(), '..', 'uploads')
+            rootPath: join(process.cwd(), 'uploads')
         }),
         DatabaseModule,
         AuthModule,
