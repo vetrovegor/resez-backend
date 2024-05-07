@@ -7,15 +7,18 @@ export class Settings {
     @PrimaryColumn({ name: 'user_id' })
     userId: number;
 
+    // карточки
     @Column({ name: 'shuffle_cards', default: false })
     shuffleCards: boolean = false;
 
     @Column({ name: 'answer_on_front', default: false })
     answerOnFront: boolean = false;
 
+    // заучивание
     @Column({ name: 'shuffle_memorization', default: false })
     shuffleMemorization: boolean = false;
 
+    // тест
     @Column({ name: 'show_answer_immediately', default: false })
     showAnswerImmediately: boolean = false;
 

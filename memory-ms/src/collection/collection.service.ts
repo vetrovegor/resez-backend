@@ -6,6 +6,7 @@ import { CollectionDto } from './dto/collection.dto';
 import { QaService } from '@qa/qa.service';
 import { ClientProxy } from '@nestjs/microservices';
 import { RabbitMqService } from '@rabbit-mq/rabbit-mq.service';
+import { SettingsService } from '@settings/settings.service';
 
 @Injectable()
 export class CollectionService {
@@ -13,6 +14,7 @@ export class CollectionService {
         @InjectRepository(Collection)
         private readonly collectionRepository: Repository<Collection>,
         private readonly qaService: QaService,
+        private readonly settingsService: SettingsService,
         private readonly rabbitMqService: RabbitMqService,
         @Inject('USER_SERVICE') private readonly userClient: ClientProxy
     ) {}
@@ -107,6 +109,30 @@ export class CollectionService {
             ...collectionShortInfo,
             pairs
         };
+    }
+
+    async getCards(id: number, userId: number) {
+        await this.findAccessibleCollectionById(id, userId);
+
+        const { settings } = await this.settingsService.get(userId);
+
+        const { shuffleCards, answerOnFront } = settings;
+
+        const cards = await this.qaService.getCards(
+            id,
+            shuffleCards,
+            answerOnFront
+        );
+
+        return { cards };
+    }
+
+    async getMatches(id: number, userId: number) {
+        await this.findAccessibleCollectionById(id, userId);
+
+        const matches = await this.qaService.getMatches(id);
+
+        return { matches };
     }
 
     async getByIdAndUserId(id: number, userId: number) {

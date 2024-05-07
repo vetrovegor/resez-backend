@@ -41,6 +41,22 @@ export class CollectionController {
         return await this.collectionService.findOne(id, user.id);
     }
 
+    @Get(':id/cards')
+    async getCards(
+        @Param('id', ParseIntPipe) id: number,
+        @CurrentUser() user: JwtPayload
+    ) {
+        return await this.collectionService.getCards(id, user.id);
+    }
+
+    @Get(':id/match')
+    async getMatches(
+        @Param('id', ParseIntPipe) id: number,
+        @CurrentUser() user: JwtPayload
+    ) {
+        return await this.collectionService.getMatches(id, user.id);
+    }
+
     @Delete(':id')
     async delete(
         @Param('id', ParseIntPipe) id: number,

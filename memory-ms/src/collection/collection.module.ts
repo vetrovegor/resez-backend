@@ -6,11 +6,11 @@ import { CollectionController } from './collection.controller';
 import { Collection } from './collection.entity';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
+import { SettingsModule } from '@settings/settings.module';
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([Collection]),
-        QaModule,
         ClientsModule.registerAsync([
             {
                 name: 'USER_SERVICE',
@@ -23,7 +23,9 @@ import { ConfigService } from '@nestjs/config';
                 }),
                 inject: [ConfigService]
             }
-        ])
+        ]),
+        QaModule,
+        SettingsModule
     ],
     controllers: [CollectionController],
     providers: [CollectionService]

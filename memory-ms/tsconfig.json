@@ -27,7 +27,9 @@
             "@settings": ["src/settings/"],
             "@settings/*": ["src/settings//*"],
             "@rabbit-mq": ["src/rabbit-mq/"],
-            "@rabbit-mq/*": ["src/rabbit-mq//*"]
+            "@rabbit-mq/*": ["src/rabbit-mq//*"],
+            "@utils": ["src/utils/"],
+            "@utils/*": ["src/utils//*"]
         }
     }
 }
