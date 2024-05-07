@@ -17,7 +17,7 @@ export class SettingsService {
         });
 
         if (!settings) {
-            throw new NotFoundException();
+            throw new NotFoundException('Настройки пользователя не найдены');
         }
 
         delete settings.userId;
@@ -31,7 +31,7 @@ export class SettingsService {
         });
 
         if (!existedSettings) {
-            throw new NotFoundException();
+            throw new NotFoundException('Настройки пользователя не найдены');
         }
 
         await this.collectionRepository.update({ userId }, { ...dto });

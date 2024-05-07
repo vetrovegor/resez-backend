@@ -49,6 +49,14 @@ export class CollectionController {
         return await this.collectionService.getCards(id, user.id);
     }
 
+    @Get(':id/test')
+    async getTest(
+        @Param('id', ParseIntPipe) id: number,
+        @CurrentUser() user: JwtPayload
+    ) {
+        return await this.collectionService.getTest(id, user.id);
+    }
+
     @Get(':id/match')
     async getMatches(
         @Param('id', ParseIntPipe) id: number,

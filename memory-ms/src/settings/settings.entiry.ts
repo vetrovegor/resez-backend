@@ -9,22 +9,34 @@ export class Settings {
 
     // карточки
     @Column({ name: 'shuffle_cards', default: false })
-    shuffleCards: boolean = false;
+    shuffleCards: boolean;
 
-    @Column({ name: 'answer_on_front', default: false })
-    answerOnFront: boolean = false;
+    @Column({ name: 'cards_answer_on_front', default: false })
+    cardsAnswerOnFront: boolean;
 
     // заучивание
     @Column({ name: 'shuffle_memorization', default: false })
-    shuffleMemorization: boolean = false;
+    shuffleMemorization: boolean;
+
+    @Column({ name: 'show_answer_immediately', default: false })
+    showAnswerImmediately: boolean;
 
     // тест
-    @Column({ name: 'show_answer_immediately', default: false })
-    showAnswerImmediately: boolean = false;
+    @Column({ name: 'max_questions', default: 20 })
+    maxQuestions: number;
+
+    @Column({ name: 'shuffle_test', default: false })
+    shuffleTest: boolean;
+
+    @Column({ name: 'test_answer_on_front', default: true })
+    testAnswerOnFront: boolean;
+
+    @Column({ name: 'answer_choice_mode', default: false })
+    answerChoiceMode: boolean;
 
     @Column({ name: 'true_false_mode', default: false })
-    trueFalseMode: boolean = false;
+    trueFalseMode: boolean;
 
     @Column({ name: 'write_mode', default: false })
-    writeMode: boolean = false;
+    writeMode: boolean;
 }

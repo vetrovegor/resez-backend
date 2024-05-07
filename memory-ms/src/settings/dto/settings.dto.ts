@@ -1,4 +1,4 @@
-import { IsOptional, IsBoolean } from 'class-validator';
+import { IsOptional, IsBoolean, IsInt } from 'class-validator';
 
 export class SettingsDto {
     @IsOptional()
@@ -9,9 +9,9 @@ export class SettingsDto {
 
     @IsOptional()
     @IsBoolean({
-        message: "Поле 'answerOnFront' должно быть логическим значением."
+        message: "Поле 'cardsAnswerOnFront' должно быть логическим значением."
     })
-    answerOnFront?: boolean;
+    cardsAnswerOnFront?: boolean;
 
     @IsOptional()
     @IsBoolean({
@@ -37,4 +37,26 @@ export class SettingsDto {
         message: "Поле 'writeMode' должно быть логическим значением."
     })
     writeMode?: boolean;
+
+    @IsOptional()
+    @IsBoolean({
+        message: "Поле 'answerChoiceMode' должно быть логическим значением."
+    })
+    answerChoiceMode?: boolean;
+
+    @IsOptional()
+    @IsInt({ message: "Поле 'maxQuestions' должно быть целым числом." })
+    maxQuestions?: number;
+
+    @IsOptional()
+    @IsBoolean({
+        message: "Поле 'shuffleTest' должно быть логическим значением."
+    })
+    shuffleTest?: boolean;
+
+    @IsOptional()
+    @IsBoolean({
+        message: "Поле 'testAnswerOnFront' должно быть логическим значением."
+    })
+    testAnswerOnFront?: boolean;
 }

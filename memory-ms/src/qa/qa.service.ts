@@ -2,7 +2,7 @@ import { QaDto } from '@collection/dto/collection.dto';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Qa } from './qa.entity';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { shuffleArray } from '@utils/shuffle-array';
 import { v4 } from 'uuid';
 
@@ -39,11 +39,20 @@ export class QaService {
         });
     }
 
-    async getCollectionPairs(collectionId: number, take?: number) {
-        const pairs = await this.qaRepository.find({
-            where: { collection: { id: collectionId } },
-            take
-        });
+    async getCollectionPairs(
+        collectionId: number,
+        randomize: boolean = false,
+        take?: number
+    ) {
+        const pairs = await this.qaRepository
+            .createQueryBuilder('questions_answers')
+            .select()
+            .where('questions_answers.collection_id = :collectionId', {
+                collectionId
+            })
+            .orderBy(randomize && 'RANDOM()')
+            .take(take)
+            .getMany();
 
         return pairs.map(pair => {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -56,15 +65,11 @@ export class QaService {
     async getCards(
         collectionId: number,
         shuffleCards: boolean,
-        answerOnFront: boolean
+        cardsAnswerOnFront: boolean
     ) {
-        let cards = await this.getCollectionPairs(collectionId);
+        let cards = await this.getCollectionPairs(collectionId, shuffleCards);
 
-        if (shuffleCards) {
-            shuffleArray(cards);
-        }
-
-        if (answerOnFront) {
+        if (cardsAnswerOnFront) {
             cards = cards.map(card => {
                 const {
                     id,
@@ -87,8 +92,64 @@ export class QaService {
         return cards;
     }
 
+    async getTest(
+        collectionId: number,
+        shuffleTest: boolean,
+        maxQuestions: number
+    ) {
+        const cards = await this.getCollectionPairs(
+            collectionId,
+            shuffleTest,
+            maxQuestions
+        );
+
+        return await Promise.all(
+            cards.map(async card => {
+                const {
+                    id,
+                    questionText,
+                    questionPicture,
+                    answerText,
+                    answerPicture
+                } = card;
+
+                const otherCards = await this.qaRepository.find({
+                    where: { collection: { id: collectionId }, id: Not(id) },
+                    take: 3
+                });
+
+                const choices = otherCards.map(otherCard => {
+                    const { id, answerText, answerPicture } = otherCard;
+
+                    return {
+                        id,
+                        answerText,
+                        answerPicture,
+                        isCorrect: false
+                    };
+                });
+
+                choices.push({
+                    id,
+                    answerText,
+                    answerPicture,
+                    isCorrect: true
+                });
+
+                shuffleArray(choices);
+
+                return {
+                    id,
+                    questionText,
+                    questionPicture,
+                    choices
+                };
+            })
+        );
+    }
+
     async getMatches(collectionId: number) {
-        const cards = await this.getCollectionPairs(collectionId, 8);
+        const cards = await this.getCollectionPairs(collectionId, true, 8);
 
         const matches = cards.flatMap(card => {
             const firstId = v4();
@@ -101,18 +162,16 @@ export class QaService {
                     id: firstId,
                     text: questionText,
                     picture: questionPicture,
-                    correctId: secondId
+                    answerId: secondId
                 },
                 {
                     id: secondId,
                     text: answerText,
                     picture: answerPicture,
-                    correctId: firstId
+                    answerId: firstId
                 }
             ];
         });
-
-        shuffleArray(matches);
 
         return matches;
     }

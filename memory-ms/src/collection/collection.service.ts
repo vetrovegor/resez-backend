@@ -92,7 +92,7 @@ export class CollectionService {
         });
 
         if (!collection) {
-            throw new NotFoundException();
+            throw new NotFoundException('Коллекция не найдена');
         }
 
         return collection;
@@ -116,15 +116,27 @@ export class CollectionService {
 
         const { settings } = await this.settingsService.get(userId);
 
-        const { shuffleCards, answerOnFront } = settings;
+        const { shuffleCards, cardsAnswerOnFront } = settings;
 
         const cards = await this.qaService.getCards(
             id,
             shuffleCards,
-            answerOnFront
+            cardsAnswerOnFront
         );
 
         return { cards };
+    }
+
+    async getTest(id: number, userId: number) {
+        await this.findAccessibleCollectionById(id, userId);
+
+        const { settings } = await this.settingsService.get(userId);
+
+        const { shuffleTest, maxQuestions } = settings;
+
+        const test = await this.qaService.getTest(id, shuffleTest, maxQuestions);
+
+        return { test };
     }
 
     async getMatches(id: number, userId: number) {
@@ -141,7 +153,7 @@ export class CollectionService {
         });
 
         if (!collection) {
-            throw new NotFoundException();
+            throw new NotFoundException('Коллекция не найдена');
         }
 
         return collection;
