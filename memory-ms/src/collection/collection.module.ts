@@ -1,12 +1,13 @@
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { QaModule } from '@qa/qa.module';
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { CollectionService } from './collection.service';
 import { CollectionController } from './collection.controller';
 import { Collection } from './collection.entity';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { SettingsModule } from '@settings/settings.module';
+import { LikeModule } from '@like/like.module';
 
 @Module({
     imports: [
@@ -25,9 +26,11 @@ import { SettingsModule } from '@settings/settings.module';
             }
         ]),
         QaModule,
-        SettingsModule
+        SettingsModule,
+        forwardRef(() => LikeModule)
     ],
     controllers: [CollectionController],
-    providers: [CollectionService]
+    providers: [CollectionService],
+    exports: [CollectionService]
 })
 export class CollectionModule {}

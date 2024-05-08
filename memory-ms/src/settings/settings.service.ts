@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+    BadRequestException,
+    Injectable,
+    NotFoundException
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Settings } from './settings.entiry';
 import { Repository } from 'typeorm';
@@ -25,6 +29,19 @@ export class SettingsService {
         return { settings };
     }
 
+    validateUpdatingTestSettings(existedSettings: Settings, dto: SettingsDto) {
+        const { answerChoiceMode, trueFalseMode, writeMode } = {
+            ...existedSettings,
+            ...dto
+        };
+
+        if (!answerChoiceMode && !trueFalseMode && !writeMode) {
+            throw new BadRequestException(
+                'У настрокек теста должен быть выбран минимум один режим'
+            );
+        }
+    }
+
     async update(userId: number, dto: SettingsDto) {
         const existedSettings = await this.collectionRepository.findOne({
             where: { userId }
@@ -33,6 +50,8 @@ export class SettingsService {
         if (!existedSettings) {
             throw new NotFoundException('Настройки пользователя не найдены');
         }
+
+        this.validateUpdatingTestSettings(existedSettings, dto);
 
         await this.collectionRepository.update({ userId }, { ...dto });
 

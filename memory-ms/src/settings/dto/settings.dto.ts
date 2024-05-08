@@ -1,6 +1,7 @@
-import { IsOptional, IsBoolean, IsInt } from 'class-validator';
+import { IsOptional, IsBoolean, IsInt, ValidateIf } from 'class-validator';
 
 export class SettingsDto {
+    // карточки
     @IsOptional()
     @IsBoolean({
         message: "Поле 'shuffleCards' должно быть логическим значением."
@@ -13,6 +14,7 @@ export class SettingsDto {
     })
     cardsAnswerOnFront?: boolean;
 
+    // зачучивание
     @IsOptional()
     @IsBoolean({
         message: "Поле 'shuffleMemorization' должно быть логическим значением."
@@ -26,6 +28,7 @@ export class SettingsDto {
     })
     showAnswerImmediately?: boolean;
 
+    // тест
     @IsOptional()
     @IsBoolean({
         message: "Поле 'trueFalseMode' должно быть логическим значением."

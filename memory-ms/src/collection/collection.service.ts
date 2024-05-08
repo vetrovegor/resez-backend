@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+    Inject,
+    Injectable,
+    NotFoundException,
+    forwardRef
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Collection } from './collection.entity';
 import { Repository } from 'typeorm';
@@ -7,6 +12,7 @@ import { QaService } from '@qa/qa.service';
 import { ClientProxy } from '@nestjs/microservices';
 import { RabbitMqService } from '@rabbit-mq/rabbit-mq.service';
 import { SettingsService } from '@settings/settings.service';
+import { LikeService } from '@like/like.service';
 
 @Injectable()
 export class CollectionService {
@@ -16,7 +22,9 @@ export class CollectionService {
         private readonly qaService: QaService,
         private readonly settingsService: SettingsService,
         private readonly rabbitMqService: RabbitMqService,
-        @Inject('USER_SERVICE') private readonly userClient: ClientProxy
+        @Inject('USER_SERVICE') private readonly userClient: ClientProxy,
+        @Inject(forwardRef(() => LikeService))
+        private readonly likeService: LikeService
     ) {}
 
     async getShortInfo(collectionData: Collection) {
@@ -32,10 +40,15 @@ export class CollectionService {
             collectionData.id
         );
 
+        const likesCount = await this.likeService.getLikesCount(
+            collectionData.id
+        );
+
         return {
             ...collectionData,
             user,
-            pairsCount
+            pairsCount,
+            likesCount
         };
     }
 
@@ -61,6 +74,9 @@ export class CollectionService {
     async findAll(userId: number, take: number, skip: number) {
         const collectionsData = await this.collectionRepository.find({
             where: { userId },
+            order: {
+                createdAt: 'DESC'
+            },
             take,
             skip
         });
@@ -132,9 +148,22 @@ export class CollectionService {
 
         const { settings } = await this.settingsService.get(userId);
 
-        const { shuffleTest, maxQuestions } = settings;
+        const {
+            shuffleTest,
+            maxQuestions,
+            answerChoiceMode,
+            trueFalseMode,
+            writeMode
+        } = settings;
 
-        const test = await this.qaService.getTest(id, shuffleTest, maxQuestions);
+        const test = await this.qaService.getTest(
+            id,
+            shuffleTest,
+            maxQuestions,
+            answerChoiceMode,
+            trueFalseMode,
+            writeMode
+        );
 
         return { test };
     }

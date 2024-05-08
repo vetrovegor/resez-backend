@@ -82,7 +82,8 @@ class Chat extends Model {
         return await UserChat.count({
             where: {
                 chatId: this.get('id'),
-                isLeft: false
+                isLeft: false,
+                isKicked: false
             }
         });
     }

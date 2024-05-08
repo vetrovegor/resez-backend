@@ -54,12 +54,7 @@ export class QaService {
             .take(take)
             .getMany();
 
-        return pairs.map(pair => {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { collection, ...dto } = pair;
-
-            return { ...dto };
-        });
+        return pairs;
     }
 
     async getCards(
@@ -67,35 +62,130 @@ export class QaService {
         shuffleCards: boolean,
         cardsAnswerOnFront: boolean
     ) {
-        let cards = await this.getCollectionPairs(collectionId, shuffleCards);
+        const cards = await this.getCollectionPairs(collectionId, shuffleCards);
 
-        if (cardsAnswerOnFront) {
-            cards = cards.map(card => {
-                const {
-                    id,
-                    questionText,
-                    questionPicture,
-                    answerText,
-                    answerPicture
-                } = card;
+        return cards.map(card => {
+            const {
+                id,
+                questionText,
+                questionPicture,
+                answerText,
+                answerPicture
+            } = card;
 
-                return {
-                    id,
-                    questionText: answerText,
-                    questionPicture: answerPicture,
-                    answerText: questionText,
-                    answerPicture: questionPicture
-                };
+            return {
+                id,
+                questionText: cardsAnswerOnFront ? answerText : questionText,
+                questionPicture: cardsAnswerOnFront
+                    ? answerPicture
+                    : questionPicture,
+                answerText: cardsAnswerOnFront ? questionText : answerText,
+                answerPicture: cardsAnswerOnFront
+                    ? questionPicture
+                    : answerPicture
+            };
+        });
+    }
+
+    async getChoiceModeTask(
+        {
+            id,
+            questionText,
+            questionPicture,
+            answerText,
+            answerPicture
+        }: Partial<Qa>,
+        collectionId: number
+    ) {
+        const otherCards = await this.qaRepository.find({
+            where: { collection: { id: collectionId }, id: Not(id) },
+            take: 3
+        });
+
+        const choices = otherCards.map(otherCard => {
+            const { id, answerText, answerPicture } = otherCard;
+
+            return {
+                id,
+                answerText,
+                answerPicture,
+                isCorrect: false
+            };
+        });
+
+        choices.push({
+            id,
+            answerText,
+            answerPicture,
+            isCorrect: true
+        });
+
+        shuffleArray(choices);
+
+        return {
+            id,
+            mode: 'CHOICE',
+            questionText,
+            questionPicture,
+            choices
+        };
+    }
+
+    async getValidationModeTask(
+        {
+            id,
+            questionText,
+            questionPicture,
+            answerText,
+            answerPicture
+        }: Partial<Qa>,
+        collectionId: number
+    ) {
+        let isCorrect = true;
+
+        if (Math.random() > 0.5) {
+            const anotherCard = await this.qaRepository.findOne({
+                where: { collection: { id: collectionId }, id: Not(id) }
             });
+
+            answerText = anotherCard.answerText;
+            answerPicture = anotherCard.answerPicture;
+            isCorrect = false;
         }
 
-        return cards;
+        return {
+            id,
+            mode: 'VALIDATION',
+            questionText,
+            questionPicture,
+            answerText,
+            answerPicture,
+            isCorrect
+        };
+    }
+
+    async getWriteModeTask({
+        id,
+        questionText,
+        questionPicture,
+        answerText
+    }: Partial<Qa>) {
+        return {
+            id,
+            mode: 'WRITE',
+            questionText,
+            questionPicture,
+            answerText
+        };
     }
 
     async getTest(
         collectionId: number,
         shuffleTest: boolean,
-        maxQuestions: number
+        maxQuestions: number,
+        answerChoiceMode: boolean,
+        trueFalseMode: boolean,
+        writeMode: boolean
     ) {
         const cards = await this.getCollectionPairs(
             collectionId,
@@ -105,51 +195,47 @@ export class QaService {
 
         return await Promise.all(
             cards.map(async card => {
-                const {
-                    id,
-                    questionText,
-                    questionPicture,
-                    answerText,
-                    answerPicture
-                } = card;
+                const randomNumber = Math.random();
 
-                const otherCards = await this.qaRepository.find({
-                    where: { collection: { id: collectionId }, id: Not(id) },
-                    take: 3
-                });
-
-                const choices = otherCards.map(otherCard => {
-                    const { id, answerText, answerPicture } = otherCard;
-
-                    return {
-                        id,
-                        answerText,
-                        answerPicture,
-                        isCorrect: false
-                    };
-                });
-
-                choices.push({
-                    id,
-                    answerText,
-                    answerPicture,
-                    isCorrect: true
-                });
-
-                shuffleArray(choices);
-
-                return {
-                    id,
-                    questionText,
-                    questionPicture,
-                    choices
-                };
+                if (answerChoiceMode && trueFalseMode && writeMode) {
+                    if (randomNumber < 0.33) {
+                        return this.getChoiceModeTask(card, collectionId);
+                    } else if (randomNumber < 0.66) {
+                        return this.getValidationModeTask(card, collectionId);
+                    } else {
+                        return this.getWriteModeTask(card);
+                    }
+                } else if (answerChoiceMode && trueFalseMode) {
+                    if (randomNumber < 0.5) {
+                        return this.getChoiceModeTask(card, collectionId);
+                    } else {
+                        return this.getValidationModeTask(card, collectionId);
+                    }
+                } else if (answerChoiceMode && writeMode) {
+                    if (randomNumber < 0.5) {
+                        return this.getChoiceModeTask(card, collectionId);
+                    } else {
+                        return this.getWriteModeTask(card);
+                    }
+                } else if (trueFalseMode && writeMode) {
+                    if (randomNumber < 0.5) {
+                        return this.getValidationModeTask(card, collectionId);
+                    } else {
+                        return this.getWriteModeTask(card);
+                    }
+                } else if (writeMode) {
+                    return this.getWriteModeTask(card);
+                } else if (trueFalseMode) {
+                    return this.getValidationModeTask(card, collectionId);
+                } else if (answerChoiceMode) {
+                    return this.getChoiceModeTask(card, collectionId);
+                }
             })
         );
     }
 
     async getMatches(collectionId: number) {
-        const cards = await this.getCollectionPairs(collectionId, true, 8);
+        const cards = await this.getCollectionPairs(collectionId, false, 8);
 
         const matches = cards.flatMap(card => {
             const firstId = v4();
@@ -172,6 +258,8 @@ export class QaService {
                 }
             ];
         });
+
+        shuffleArray(matches);
 
         return matches;
     }

@@ -29,7 +29,9 @@
             "@rabbit-mq": ["src/rabbit-mq/"],
             "@rabbit-mq/*": ["src/rabbit-mq//*"],
             "@utils": ["src/utils/"],
-            "@utils/*": ["src/utils//*"]
+            "@utils/*": ["src/utils//*"],
+            "@like": ["src/like/"],
+            "@like/*": ["src/like//*"]
         }
     }
 }

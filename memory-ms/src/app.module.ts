@@ -11,6 +11,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { QaModule } from '@qa/qa.module';
 import { RabbitMqModule } from '@rabbit-mq/rabbit-mq.module';
+import { LikeModule } from './like/like.module';
 
 @Module({
     imports: [
@@ -24,7 +25,8 @@ import { RabbitMqModule } from '@rabbit-mq/rabbit-mq.module';
         QaModule,
         SettingsModule,
         UploadModule,
-        RabbitMqModule
+        RabbitMqModule,
+        LikeModule
     ],
     providers: [
         {
