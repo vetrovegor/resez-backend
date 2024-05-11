@@ -11,6 +11,7 @@ import { ChatDTO, MessageTypes } from 'types/messenger';
 import { UserChatPreview, UserPreview } from 'types/user';
 import fileService from '../../services/fileService';
 import { generateInviteLink } from '../../utils';
+import { redisClient } from '../../redisClient';
 
 class ChatService {
     async createUserChat(chatId: number, userId: number): Promise<UserChat> {
@@ -165,12 +166,24 @@ class ChatService {
         };
     }
 
+    // тестовое кеширование
     async getUserChats(
         userId: number,
         limit: number,
         offset: number
     ): Promise<PaginationDTO<ChatDTO>> {
-        const userChatIDs = await messageService.getUniqueChatIds(userId, limit);
+        const cache = await redisClient.get(
+            JSON.stringify({ req: 'user_chats', userId, limit, offset })
+        );
+
+        if (cache) {
+            return JSON.parse(cache);
+        }
+
+        const userChatIDs = await messageService.getUniqueChatIds(
+            userId,
+            limit
+        );
 
         const chats = await Chat.findAll({
             where: {
@@ -199,13 +212,21 @@ class ChatService {
             }
         });
 
-        return new PaginationDTO<ChatDTO>(
+        const result = new PaginationDTO<ChatDTO>(
             'chats',
             chatDTOs,
             totalCount,
             limit,
             offset
         );
+
+        await redisClient.set(
+            JSON.stringify({ req: 'user_chats', userId, limit, offset }),
+            JSON.stringify(result),
+            { EX: 5 }
+        );
+
+        return result;
     }
 
     async createGroup(
@@ -361,7 +382,16 @@ class ChatService {
         return user.toPreview();
     }
 
+    // тестовое кеширование
     async getChatInfo(chatId: number, userId: number) {
+        const cache = await redisClient.get(
+            JSON.stringify({ req: 'chat_info', chatId, userId })
+        );
+
+        if (cache) {
+            return JSON.parse(cache);
+        }
+
         const chatData = await this.checkUserInChat(chatId, userId);
 
         if (!chatData) {
@@ -370,10 +400,18 @@ class ChatService {
 
         const messages = await messageService.getChatMessages(chatId, userId);
 
-        return {
+        const result = {
             chat: await this.createChatDto(chatData, userId),
             messages
-        };
+        }
+
+        await redisClient.set(
+            JSON.stringify({ req: 'chat_info', chatId, userId }),
+            JSON.stringify(result),
+            { EX: 5 }
+        );
+
+        return result;
     }
 
     async getChatUsers(

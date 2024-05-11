@@ -134,11 +134,11 @@ class SocketService {
     }
 
     emitEndSession(sessionId: number): void {
-        const user = this.connectedAuthUsers.find(
+        const users = this.connectedAuthUsers.filter(
             u => u.sessionId === sessionId.toString()
         );
 
-        if (user) {
+        for (const user of users) {
             this.emitToRoom(user.socketId, EmitTypes.EndSession);
         }
     }

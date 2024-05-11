@@ -19,6 +19,7 @@ import socketService from './services/socketService';
 import notifyTypeService from './services/notifies/notifyTypeService';
 import notifyService from './services/notifies/notifyService';
 import rmqService from './services/rmqService';
+import { redisClient } from './redisClient';
 
 const app = express();
 
@@ -53,6 +54,7 @@ const start = async () => {
     }
 
     await rmqService.init();
+    await redisClient.connect();
     socketService.init(server);
 
     // сделать очистку просроченных кодов кодов

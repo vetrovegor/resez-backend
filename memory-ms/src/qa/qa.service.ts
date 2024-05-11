@@ -164,7 +164,7 @@ export class QaService {
         };
     }
 
-    async getWriteModeTask({
+    getWriteModeTask({
         id,
         questionText,
         questionPicture,
@@ -195,41 +195,20 @@ export class QaService {
 
         return await Promise.all(
             cards.map(async card => {
-                const randomNumber = Math.random();
+                const modes = [];
+                if (answerChoiceMode)
+                    modes.push(
+                        await this.getChoiceModeTask(card, collectionId)
+                    );
+                if (trueFalseMode)
+                    modes.push(
+                        await this.getValidationModeTask(card, collectionId)
+                    );
+                if (writeMode) modes.push(this.getWriteModeTask(card));
 
-                if (answerChoiceMode && trueFalseMode && writeMode) {
-                    if (randomNumber < 0.33) {
-                        return this.getChoiceModeTask(card, collectionId);
-                    } else if (randomNumber < 0.66) {
-                        return this.getValidationModeTask(card, collectionId);
-                    } else {
-                        return this.getWriteModeTask(card);
-                    }
-                } else if (answerChoiceMode && trueFalseMode) {
-                    if (randomNumber < 0.5) {
-                        return this.getChoiceModeTask(card, collectionId);
-                    } else {
-                        return this.getValidationModeTask(card, collectionId);
-                    }
-                } else if (answerChoiceMode && writeMode) {
-                    if (randomNumber < 0.5) {
-                        return this.getChoiceModeTask(card, collectionId);
-                    } else {
-                        return this.getWriteModeTask(card);
-                    }
-                } else if (trueFalseMode && writeMode) {
-                    if (randomNumber < 0.5) {
-                        return this.getValidationModeTask(card, collectionId);
-                    } else {
-                        return this.getWriteModeTask(card);
-                    }
-                } else if (writeMode) {
-                    return this.getWriteModeTask(card);
-                } else if (trueFalseMode) {
-                    return this.getValidationModeTask(card, collectionId);
-                } else if (answerChoiceMode) {
-                    return this.getChoiceModeTask(card, collectionId);
-                }
+                const randomIndex = Math.floor(Math.random() * modes.length);
+
+                return modes[randomIndex];
             })
         );
     }

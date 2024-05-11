@@ -19,6 +19,7 @@ import { calculateLevelInfo, getArraysIntersection } from '../utils';
 import UserRole from '../db/models/UserRole';
 import fileService from './fileService';
 import rmqService from './rmqService';
+import { redisClient } from '../redisClient';
 
 class UserService {
     async getUserById(id: number): Promise<User> {
@@ -70,10 +71,29 @@ class UserService {
         return user;
     }
 
+    // тестовое кеширование
     async getUserShortInfo(userId: number): Promise<UserShortInfo> {
-        const user = await this.getUserById(userId);
+        const cachedUser = await redisClient.get(
+            JSON.stringify({ req: 'short_info', userId })
+        );
 
-        return await user.toShortInfo();
+        if (cachedUser) {
+            console.log('Из кеша');
+            return JSON.parse(cachedUser);
+        }
+
+        const user = await this.getUserById(userId);
+        const shortInfo = await user.toShortInfo();
+
+        await redisClient.set(
+            JSON.stringify({ req: 'short_info', userId }),
+            JSON.stringify(shortInfo),
+            { EX: 5 }
+        );
+
+        console.log('Из бд');
+
+        return shortInfo;
     }
 
     async verifyUser(userId: number, telegramChatId: string): Promise<void> {
