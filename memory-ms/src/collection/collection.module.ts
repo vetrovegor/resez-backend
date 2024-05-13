@@ -18,7 +18,7 @@ import { LikeModule } from '@like/like.module';
                 useFactory: (configService: ConfigService) => ({
                     transport: Transport.RMQ,
                     options: {
-                        urls: [`${configService.get('RNQ_URL')}`],
+                        urls: [`${configService.get('RMQ_URL')}`],
                         queue: 'user-queue'
                     }
                 }),

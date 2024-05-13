@@ -31,7 +31,9 @@
             "@utils": ["src/utils/"],
             "@utils/*": ["src/utils//*"],
             "@like": ["src/like/"],
-            "@like/*": ["src/like//*"]
+            "@like/*": ["src/like//*"],
+            "@file": ["src/file/"],
+            "@file/*": ["src/file//*"]
         }
     }
 }

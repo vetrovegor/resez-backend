@@ -24,4 +24,16 @@ export class FileService {
             );
         }
     }
+
+    deleteFile(fileName: string) {
+        if (!fileName) {
+            return;
+        }
+
+        const filePath = path.resolve(process.cwd(), 'uploads', fileName);
+
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        }
+    }
 }

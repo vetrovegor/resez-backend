@@ -193,6 +193,8 @@ export class CollectionService {
 
         const collection = await this.getShortInfo(collectionData);
 
+        await this.qaService.delete(id);
+
         await this.collectionRepository.remove(collectionData);
 
         return { collection };

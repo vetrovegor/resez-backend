@@ -27,6 +27,8 @@ class SocketService {
             cors: { ...CORS_OPTIONS }
         });
 
+        console.log('Socket started');
+
         this.connectedUsers = [];
         this.connectedAuthUsers = [];
 

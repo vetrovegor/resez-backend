@@ -5,12 +5,16 @@ import { Qa } from './qa.entity';
 import { Not, Repository } from 'typeorm';
 import { shuffleArray } from '@utils/shuffle-array';
 import { v4 } from 'uuid';
+import { FileService } from '@file/file.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class QaService {
     constructor(
         @InjectRepository(Qa)
-        private readonly qaRepository: Repository<Qa>
+        private readonly qaRepository: Repository<Qa>,
+        private readonly fileService: FileService,
+        private readonly configService: ConfigService
     ) {}
 
     async create(collectionId: number, pairs: QaDto[]) {
@@ -29,6 +33,23 @@ export class QaService {
         const pairs = await this.qaRepository.find({
             where: { collection: { id: collectionId } }
         });
+
+        for (const { questionPicture, answerPicture } of pairs) {
+            const splitedQuestionPicture = questionPicture
+                ? questionPicture.split(
+                      `${this.configService.get('API_URL')}/`
+                  )[1]
+                : null;
+
+            const splitedAnswerPicture = answerPicture
+                ? answerPicture.split(
+                      `${this.configService.get('API_URL')}/`
+                  )[1]
+                : null;
+
+            this.fileService.deleteFile(splitedQuestionPicture);
+            this.fileService.deleteFile(splitedAnswerPicture);
+        }
 
         return await this.qaRepository.remove(pairs);
     }
