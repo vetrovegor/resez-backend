@@ -2,11 +2,12 @@ import { QaDto } from '@collection/dto/collection.dto';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Qa } from './qa.entity';
-import { Not, Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { shuffleArray } from '@utils/shuffle-array';
 import { v4 } from 'uuid';
 import { FileService } from '@file/file.service';
 import { ConfigService } from '@nestjs/config';
+import { extractFileName } from '@utils/extract-file-name';
 
 @Injectable()
 export class QaService {
@@ -18,37 +19,25 @@ export class QaService {
     ) {}
 
     async create(collectionId: number, pairs: QaDto[]) {
-        return await Promise.all(
-            pairs.map(async pair => {
-                const createdQa = this.qaRepository.create({
-                    collection: { id: collectionId },
-                    ...pair
-                });
-                await this.qaRepository.save(createdQa);
-            })
-        );
+        for (const pair of pairs) {
+            const createdQa = this.qaRepository.create({
+                collection: { id: collectionId },
+                ...pair
+            });
+            await this.qaRepository.save(createdQa);
+        }
     }
 
-    async delete(collectionId: number) {
+    async delete(collectionId: number, shouldDeletePictures: boolean) {
         const pairs = await this.qaRepository.find({
             where: { collection: { id: collectionId } }
         });
 
-        for (const { questionPicture, answerPicture } of pairs) {
-            const splitedQuestionPicture = questionPicture
-                ? questionPicture.split(
-                      `${this.configService.get('API_URL')}/`
-                  )[1]
-                : null;
-
-            const splitedAnswerPicture = answerPicture
-                ? answerPicture.split(
-                      `${this.configService.get('API_URL')}/`
-                  )[1]
-                : null;
-
-            this.fileService.deleteFile(splitedQuestionPicture);
-            this.fileService.deleteFile(splitedAnswerPicture);
+        if (shouldDeletePictures) {
+            for (const { questionPicture, answerPicture } of pairs) {
+                this.fileService.deleteFile(extractFileName(questionPicture));
+                this.fileService.deleteFile(extractFileName(answerPicture));
+            }
         }
 
         return await this.qaRepository.remove(pairs);
@@ -65,17 +54,15 @@ export class QaService {
         randomize: boolean = false,
         take?: number
     ) {
-        const pairs = await this.qaRepository
+        return await this.qaRepository
             .createQueryBuilder('questions_answers')
             .select()
             .where('questions_answers.collection_id = :collectionId', {
                 collectionId
             })
-            .orderBy(randomize && 'RANDOM()')
+            .orderBy(randomize ? 'RANDOM()' : 'questions_answers.id', 'ASC')
             .take(take)
             .getMany();
-
-        return pairs;
     }
 
     async getCards(
@@ -165,9 +152,17 @@ export class QaService {
         let isCorrect = true;
 
         if (Math.random() > 0.5) {
-            const anotherCard = await this.qaRepository.findOne({
-                where: { collection: { id: collectionId }, id: Not(id) }
-            });
+            const anotherCard = await this.qaRepository
+                .createQueryBuilder('questions_answers')
+                .select()
+                .where('questions_answers.collection_id = :collectionId', {
+                    collectionId
+                })
+                .andWhere('questions_answers.id != :id', {
+                    id
+                })
+                .orderBy('RANDOM()')
+                .getOne();
 
             answerText = anotherCard.answerText;
             answerPicture = anotherCard.answerPicture;
@@ -262,5 +257,23 @@ export class QaService {
         shuffleArray(matches);
 
         return matches;
+    }
+
+    async getPictureNames() {
+        const pairsData = await this.qaRepository.find({
+            where: [
+                { questionPicture: Not(IsNull()) },
+                { answerPicture: Not(IsNull()) }
+            ]
+        });
+
+        return pairsData.flatMap(pair => {
+            const questionPicture = extractFileName(pair.questionPicture);
+            const answerPicture = extractFileName(pair.answerPicture);
+
+            return [questionPicture, answerPicture].filter(
+                fileName => fileName !== null
+            );
+        });
     }
 }

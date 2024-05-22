@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
     ArrayMaxSize,
     ArrayMinSize,
@@ -12,6 +12,7 @@ import {
 } from 'class-validator';
 
 export class QaDto {
+    @Transform(({ value }) => value.toString())
     @ValidateIf(o => o.questionText || !o.questionPicture)
     @IsString({ message: 'Текст вопроса должен быть строкой' })
     questionText: string;
@@ -20,6 +21,7 @@ export class QaDto {
     @IsString({ message: 'Картинка вопроса должна быть строкой' })
     questionPicture: any;
 
+    @Transform(({ value }) => value.toString())
     @ValidateIf(o => o.answerText || !o.answerPicture)
     @IsString({ message: 'Текст ответа должен быть строкой' })
     answerText: string;
@@ -44,8 +46,8 @@ export class CollectionDto {
 
     @IsArray({ message: 'Значение пар должно быть массивом' })
     @ArrayMinSize(2, { message: 'Должно быть минимум 2 вопроса-ответа' })
-    @ArrayMaxSize(100, {
-        message: 'Максимальное количество вопросов-ответов - 100'
+    @ArrayMaxSize(500, {
+        message: 'Максимальное количество вопросов-ответов - 500'
     })
     @ValidateNested({ each: true, message: 'Каждая пара должна быть валидной' })
     @Type(() => QaDto)

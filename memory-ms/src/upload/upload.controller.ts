@@ -1,35 +1,27 @@
 import {
     Controller,
+    Delete,
     FileTypeValidator,
     MaxFileSizeValidator,
+    Param,
     ParseFilePipe,
     Post,
     UploadedFile,
     UseInterceptors
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { UploadService } from './upload.service';
+import { SharpPipe } from './sharp.pipe';
+import { CurrentUser } from '@auth/current-user.decorator';
+import { JwtPayload } from '@auth/interfaces';
 
 @Controller('upload')
 export class UploadController {
-    constructor(private readonly configService: ConfigService) {}
+    constructor(private readonly uploadService: UploadService) {}
 
     @Post()
-    @UseInterceptors(
-        FileInterceptor('file', {
-            storage: diskStorage({
-                destination: './uploads',
-                filename: (req, file, cb) => {
-                    const name = Date.now();
-                    const extension = extname(file.originalname);
-                    cb(null, `${name}${extension}`);
-                }
-            })
-        })
-    )
-    uploadFile(
+    @UseInterceptors(FileInterceptor('file'))
+    async upload(
         @UploadedFile(
             new ParseFilePipe({
                 validators: [
@@ -39,10 +31,25 @@ export class UploadController {
                     }),
                     new FileTypeValidator({ fileType: 'image/*' })
                 ]
-            })
+            }),
+            SharpPipe
         )
-        file: Express.Multer.File
+        fileName: string,
+        @CurrentUser() user: JwtPayload
     ) {
-        return { url: this.configService.get('API_URL') + '/' + file.filename };
+        return await this.uploadService.create(fileName, user.id);
+    }
+
+    @Delete('unused')
+    async deleteUnused() {
+        return await this.uploadService.deleteUnused();
+    }
+
+    @Delete(':id')
+    async delete(
+        @Param('id') uploadId: number,
+        @CurrentUser() user: JwtPayload
+    ) {
+        return await this.uploadService.delete(uploadId, user.id);
     }
 }

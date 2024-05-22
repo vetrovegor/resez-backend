@@ -193,7 +193,7 @@ export class CollectionService {
 
         const collection = await this.getShortInfo(collectionData);
 
-        await this.qaService.delete(id);
+        await this.qaService.delete(id, true);
 
         await this.collectionRepository.remove(collectionData);
 
@@ -216,7 +216,7 @@ export class CollectionService {
         const updatedCollection =
             await this.collectionRepository.save(updatedRecord);
 
-        await this.qaService.delete(id);
+        await this.qaService.delete(id, false);
         await this.qaService.create(id, pairs);
 
         const collectionShortInfo = await this.getShortInfo(updatedCollection);
