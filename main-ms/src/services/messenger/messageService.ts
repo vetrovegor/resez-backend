@@ -170,46 +170,72 @@ class MessageService {
     }
 
     async deleteMessage(
-        messageId: number,
         userId: number,
-        forAll: string
-    ): Promise<MessageDTO> {
-        // вынести в функцию принадлежит ли сообщение пользователю или в мидлвейр
-        const messageData = await this.getMessageById(messageId);
-
-        if (messageData.get('senderId') != userId) {
-            this.throwMessageNotFoundError();
+        messageIDs: number[],
+        forAll: any
+    ): Promise<void> {
+        if (!Array.isArray(messageIDs)) {
+            messageIDs = [messageIDs];
         }
 
-        const isUserInChat = await chatService.checkUserInChat(
-            messageData.get('chatId'),
-            userId
-        );
+        let chatId: number = null;
 
-        if (!isUserInChat) {
-            this.throwMessageNotFoundError();
+        forAll = forAll && forAll.toLowerCase() === 'true';
+
+        for (const messageId of messageIDs) {
+            const messageData = await this.getMessageById(messageId);
+
+            if (messageData.get('senderId') != userId) {
+                this.throwMessageNotFoundError();
+            }
+
+            const messageChatId = messageData.get('chatId');
+
+            if (chatId && chatId != messageChatId) {
+                throw ApiError.badRequest(
+                    'Нельзя одновременно удалять сообщения из разных чатов'
+                );
+            }
+
+            chatId = messageChatId;
+
+            const userChat = await chatService.getUserChat(userId, chatId);
+
+            if (!userChat) {
+                this.throwMessageNotFoundError();
+            }
+
+            if (
+                (userChat.get('isLeft') && forAll) ||
+                (userChat.get('isKicked') && forAll)
+            ) {
+                throw ApiError.badRequest(
+                    'Данное сообщение можно удалить только для себя'
+                );
+            }
         }
-        // вынести в функцию принадлежит ли сообщение пользователю или в мидлвейр
 
-        if (forAll && forAll.toLowerCase() === 'true') {
-            await messageData.destroy();
-        } else {
-            UserMessage.destroy({
-                where: { messageId, userId }
-            });
+        for (const messageId of messageIDs) {
+            if (forAll) {
+                await Message.destroy({ where: { id: messageId } });
+            } else {
+                UserMessage.destroy({
+                    where: { messageId, userId }
+                });
+            }
         }
-
-        const messageDto = await messageData.toDTO();
 
         const memberIDs = await (
-            await chatService.getChatById(messageData.get('chatId'))
+            await chatService.getChatById(chatId)
         ).getChatMemberIDs();
 
         memberIDs.forEach(async userId => {
-            socketService.emitByUserId(userId, EmitTypes.Message, messageDto);
+            socketService.emitByUserId(
+                userId,
+                EmitTypes.MessagesDeleting,
+                messageIDs
+            );
         });
-
-        return messageDto;
     }
 
     async getChatMessages(chatId: number, userId: number) {

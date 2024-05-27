@@ -54,6 +54,8 @@ export class QaService {
         randomize: boolean = false,
         take?: number
     ) {
+        // await this.qaRepository.query(`SELECT setseed(${0.5})`);
+
         return await this.qaRepository
             .createQueryBuilder('questions_answers')
             .select()

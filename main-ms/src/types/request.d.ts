@@ -26,6 +26,10 @@ export type IdParam = {
     id: number;
 };
 
+export type IDsQuery = {
+    ids: number[];
+};
+
 export type RequestWithParamsAndUser<T> = RequestWithParams<T> & {
     user: UserTokenInfo;
 };

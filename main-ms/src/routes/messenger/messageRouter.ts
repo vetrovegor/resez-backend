@@ -39,10 +39,10 @@ messageRouter.patch(
 );
 
 messageRouter.delete(
-    '/:id',
+    '/',
+    query('ids').isNumeric(),
     query('for_all').isBoolean().optional(),
     validationMiddleware,
-    param('id').isNumeric(),
     validationMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,

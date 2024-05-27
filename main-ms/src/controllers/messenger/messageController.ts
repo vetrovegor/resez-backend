@@ -5,7 +5,9 @@ import {
     IdParam,
     RequestWithParamsAndUser,
     RequestWithParamsAndQueryAndUser,
-    RequestWithParams
+    RequestWithParams,
+    RequestWithQueryAndUser,
+    IDsQuery
 } from 'types/request';
 import messageService from '../../services/messenger/messageService';
 import { MessageRequestBodyDTO } from 'types/messenger';
@@ -66,18 +68,18 @@ class MessageController {
     }
 
     async deleteMessage(
-        req: RequestWithParamsAndQueryAndUser<IdParam, { for_all: string }>,
+        req: RequestWithQueryAndUser<IDsQuery & { for_all: string }>,
         res: Response,
         next: NextFunction
     ) {
         try {
             const message = await messageService.deleteMessage(
-                req.params.id,
                 req.user.id,
+                req.query.ids,
                 req.query.for_all
             );
 
-            res.json({ message });
+            res.sendStatus(200);
         } catch (error) {
             next(error);
         }
