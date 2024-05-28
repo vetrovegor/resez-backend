@@ -16,10 +16,10 @@ export const groupUsersMiddleware = async (
 
     if (!Array.isArray(users)) {
         req.body.users = [users];
+    }
 
-        if (!req.body.users.includes(adminId.toString())) {
-            req.body.users.push(adminId);
-        }
+    if (!req.body.users.includes(adminId.toString())) {
+        req.body.users.push(adminId);
     }
 
     return next();

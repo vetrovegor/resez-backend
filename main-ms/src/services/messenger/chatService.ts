@@ -403,7 +403,7 @@ class ChatService {
         const result = {
             chat: await this.createChatDto(chatData, userId),
             messages
-        }
+        };
 
         await redisClient.set(
             JSON.stringify({ req: 'chat_info', chatId, userId }),

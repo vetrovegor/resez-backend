@@ -189,6 +189,8 @@ class MessageService {
                 this.throwMessageNotFoundError();
             }
 
+            // проверять еще что существует UserMessage
+
             const messageChatId = messageData.get('chatId');
 
             if (chatId && chatId != messageChatId) {

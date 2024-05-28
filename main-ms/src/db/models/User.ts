@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, HasMany, BelongsToMany } from "sequelize-typescript";
+import { Table, Column, Model, DataType, HasMany, BelongsToMany, ForeignKey, BelongsTo } from "sequelize-typescript";
 
 import { UserAdminInfo, UserPreview, UserProfileInfo, UserProfilePreview, UserShortInfo, UserTokenInfo } from "types/user";
 import Session from "./Session";
@@ -17,6 +17,7 @@ import { calculateLevelInfo } from "../../utils";
 import Activity from "./Activity";
 import UserMessage from "./messenger/UserMessage";
 import MessageRead from "./messenger/MessageRead";
+import Subscription from "./subscription/Subscription";
 
 @Table({
     timestamps: false,
@@ -171,6 +172,23 @@ class User extends Model {
 
     @BelongsToMany(() => Notify, () => UserNotify)
     notifies: Notify[];
+
+    @ForeignKey(() => Subscription)
+    @Column
+    subscriptionId: number;
+
+    @BelongsTo(() => Subscription)
+    subscription: Subscription;
+
+    @Column({
+        type: DataType.DATE,
+    })
+    subscriptionExpiredDate: Date;
+
+    @Column({
+        type: DataType.BOOLEAN,
+    })
+    isSubscriptionPermanent: boolean;
 
     @HasMany(() => Notify, {
         onDelete: 'CASCADE'

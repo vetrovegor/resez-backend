@@ -13,7 +13,8 @@ services:
         image: redis
         ports:
             - '6379:6379'
-
+        restart: unless-stopped
+        
     resez-memory-db:
         image: postgres:16
         container_name: resez-memory-db

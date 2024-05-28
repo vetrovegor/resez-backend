@@ -20,6 +20,7 @@ import notifyTypeService from './services/notifies/notifyTypeService';
 import notifyService from './services/notifies/notifyService';
 import rmqService from './services/rmqService';
 import { redisClient } from './redisClient';
+import subscribeService from './services/subscribeService';
 
 const app = express();
 
@@ -49,6 +50,8 @@ const start = async () => {
         await messageTypeService.initMessageTypes();
 
         await notifyTypeService.initNotifyTypes();
+
+        await subscribeService.initSubscriptions();
     } else {
         await sequelize.sync();
     }

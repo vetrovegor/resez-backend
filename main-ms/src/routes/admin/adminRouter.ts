@@ -7,6 +7,7 @@ import { permissionRouter } from "./roles/permissionRouter";
 import { notifyRouter } from "./notify/notifyRouter";
 import { notifyTypeRouter } from "./notify/notifyTypeRouter";
 import { userRouter } from "./userRouter";
+import { subscriptionRouter } from "./subscriptionRouter";
 
 export const adminRouter = Router();
 
@@ -23,3 +24,5 @@ adminRouter.use('/archive', archiveRouter);
 adminRouter.use('/notify', notifyRouter);
 
 adminRouter.use('/notify-type', notifyTypeRouter);
+
+adminRouter.use('/subscription', subscriptionRouter);
