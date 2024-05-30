@@ -1,20 +1,29 @@
 import { Request } from 'express';
 import geoip from 'geoip-lite';
 import { Details } from 'express-useragent';
-import { Op } from "sequelize";
+import { Op } from 'sequelize';
 
 import { UserTokenInfo } from 'types/user';
-import { ReqInfo, SessionDTO, SessionPagination, SessionSaveResult } from 'types/session';
+import {
+    ReqInfo,
+    SessionDTO,
+    SessionPagination,
+    SessionSaveResult
+} from 'types/session';
 import tokenService from './tokenService';
 import Session from '../db/models/Session';
 import { PaginationDTO } from '../dto/PaginationDTO';
 import { ApiError } from '../ApiError';
 import socketService from './socketService';
+import rmqService from './rmqService';
 
 class SessionService {
     // добавить параметр shouldCreateNotify
-    async saveSession(req: Request, userTokenInfo: UserTokenInfo): Promise<SessionSaveResult> {
-        const { id: userId } = userTokenInfo;
+    async saveSession(
+        req: Request,
+        userTokenInfo: UserTokenInfo
+    ): Promise<SessionSaveResult> {
+        const { id: userId, telegramChatId } = userTokenInfo;
         const sessionData = await this.findCurrentSession(req, userId);
 
         const date = Date.now();
@@ -22,9 +31,9 @@ class SessionService {
         let sessionId;
 
         if (sessionData) {
-            if (!sessionData.get("isActive")) {
-                // await notifyService.createSessionNotify('В ваш аккаунт был выполнен вход', sessionData);
-            }
+            // if (!sessionData.get("isActive")) {
+            // await notifyService.createSessionNotify('В ваш аккаунт был выполнен вход', sessionData);
+            // }
 
             await sessionData.update({
                 isActive: true,
@@ -34,7 +43,13 @@ class SessionService {
 
             sessionId = sessionData.id;
         } else {
-            const newSession = await this.createSession(req, userId, true, new Date(date), new Date(expiredDate));
+            const newSession = await this.createSession(
+                req,
+                userId,
+                true,
+                new Date(date),
+                new Date(expiredDate)
+            );
 
             sessionId = newSession.id;
 
@@ -42,21 +57,44 @@ class SessionService {
             //     await notifyService.createSessionNotify('В ваш аккаунт был выполнен вход с нового устройства', newSession);
             //     await logService.createNewDeviceLoginLogEntry(userId, sessionId);
             // }
+
+            if (telegramChatId) {
+                rmqService.sendToQueue('telegram', 'new-session', {
+                    telegramChatId,
+                    session: newSession
+                });
+            }
         }
 
-        const { accessToken, refreshToken } = tokenService.generateTokens(userTokenInfo);
+        const { accessToken, refreshToken } =
+            tokenService.generateTokens(userTokenInfo);
         tokenService.saveToken(refreshToken, sessionId);
 
         return {
             sessionId,
             accessToken,
             refreshToken
-        }
+        };
     }
 
-    async createSession(req: Request, userId: number, isActive: boolean, date: Date, expiredDate: Date): Promise<Session> {
+    async createSession(
+        req: Request,
+        userId: number,
+        isActive: boolean,
+        date: Date,
+        expiredDate: Date
+    ): Promise<Session> {
         const reqInfo = this.getReqInfo(req);
-        const { ip, country, city, deviceType, browser, browserVersion, os, platform } = reqInfo;
+        const {
+            ip,
+            country,
+            city,
+            deviceType,
+            browser,
+            browserVersion,
+            os,
+            platform
+        } = reqInfo;
 
         return await Session.create({
             userId,
@@ -91,7 +129,16 @@ class SessionService {
     }
 
     async findCurrentSession(req: Request, userId: number): Promise<Session> {
-        const { ip, country, city, browser, browserVersion, os, platform, deviceType } = this.getReqInfo(req);
+        const {
+            ip,
+            country,
+            city,
+            browser,
+            browserVersion,
+            os,
+            platform,
+            deviceType
+        } = this.getReqInfo(req);
 
         return await Session.findOne({
             where: {
@@ -110,7 +157,7 @@ class SessionService {
 
     getReqInfo(req: Request): ReqInfo {
         let { ip } = req;
-        ip = ip.replace("::ffff:", "");
+        ip = ip.replace('::ffff:', '');
         const geoData = geoip.lookup(ip);
         const { country = null, city = null } = geoData || {};
         const { useragent } = req;
@@ -119,42 +166,68 @@ class SessionService {
         browserVersion = browserVersion != 'unknown' ? browserVersion : null;
         os = os != 'unknown' ? os : null;
         platform = platform != 'unknown' ? platform : null;
-        const deviceType = this.detectDeviceType(useragent)
+        const deviceType = this.detectDeviceType(useragent);
 
-        return { ip, country, city, browser, browserVersion, os, platform, deviceType };
+        return {
+            ip,
+            country,
+            city,
+            browser,
+            browserVersion,
+            os,
+            platform,
+            deviceType
+        };
     }
 
     detectDeviceType(useragent: Details): string {
         if (useragent.isBot) {
-            return "bot";
+            return 'bot';
         } else if (useragent.isSmartTV) {
-            return "tv";
+            return 'tv';
         } else if (useragent.isMobile) {
-            return "mobile";
+            return 'mobile';
         } else if (useragent.isTablet) {
-            return "tablet";
+            return 'tablet';
         } else if (useragent.isDesktop) {
-            return "desktop";
+            return 'desktop';
         }
 
         return null;
     }
 
-    async findOrCreateCurrentSession(req: Request, userId: number): Promise<Session> {
+    async findOrCreateCurrentSession(
+        req: Request,
+        userId: number
+    ): Promise<Session> {
         const currentSession = await this.findCurrentSession(req, userId);
 
         if (!currentSession) {
             const date = Date.now();
             const expiredDate = date + 30 * 24 * 60 * 60 * 1000;
-            return await this.createSession(req, userId, true, new Date(date), new Date(expiredDate));
+            return await this.createSession(
+                req,
+                userId,
+                true,
+                new Date(date),
+                new Date(expiredDate)
+            );
         }
 
-        return currentSession
+        return currentSession;
     }
 
     // типизировать
-    async getUserSessions(req: Request, userId: number, limit: number, offset: number) {
-        const currentSession = await this.findOrCreateCurrentSession(req, userId);
+    async getUserSessions(
+        req: Request,
+        userId: number,
+        limit: number,
+        offset: number
+    ) {
+        const currentSession = await this.findOrCreateCurrentSession(
+            req,
+            userId
+        );
 
         const whereOptions = {
             id: {
@@ -176,7 +249,13 @@ class SessionService {
             where: whereOptions
         });
 
-        const paginationDTO = new PaginationDTO<SessionDTO>("other", otherSessionDTOs, otherTotalCount, limit, offset);
+        const paginationDTO = new PaginationDTO<SessionDTO>(
+            'other',
+            otherSessionDTOs,
+            otherTotalCount,
+            limit,
+            offset
+        );
 
         return {
             current: currentSession.toDTO(),
@@ -184,15 +263,12 @@ class SessionService {
         };
     }
 
-    async endSessionById(id: number, userId: number): Promise<void> {
-        const session = await Session.findOne({
-            where: {
-                id,
-                userId
-            }
-        });
+    async endSessionById(id: number, userId?: number): Promise<void> {
+        const session = await Session.findByPk(id);
 
-        if (!session) {
+        console.log({ userId, sessionUserId: session.get('userId') });
+
+        if (!session || (userId && session.get('userId') != userId)) {
             throw ApiError.notFound('Сессия не найдена');
         }
 
@@ -206,8 +282,16 @@ class SessionService {
     }
 
     // типизировать
-    async endAllSessions(req: Request, userId: number, limit: number, offset: number) {
-        const currentSession = await this.findOrCreateCurrentSession(req, userId);
+    async endAllSessions(
+        req: Request,
+        userId: number,
+        limit: number,
+        offset: number
+    ) {
+        const currentSession = await this.findOrCreateCurrentSession(
+            req,
+            userId
+        );
 
         const sessions = await Session.findAll({
             where: {
@@ -215,7 +299,7 @@ class SessionService {
                     [Op.ne]: currentSession.id
                 },
                 userId,
-                isActive: true,
+                isActive: true
             }
         });
 

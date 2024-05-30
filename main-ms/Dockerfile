@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY package*.json .
 
-RUN mkdir static && npm install
+RUN npm install
 
 COPY build build
 

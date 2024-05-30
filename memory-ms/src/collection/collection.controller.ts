@@ -14,6 +14,7 @@ import { CollectionService } from './collection.service';
 import { CollectionDto } from './dto/collection.dto';
 import { CurrentUser } from '@auth/current-user.decorator';
 import { JwtPayload } from '@auth/interfaces';
+import { SeedPipe } from './seed.pipe';
 
 @Controller('collection')
 export class CollectionController {
@@ -44,9 +45,18 @@ export class CollectionController {
     @Get(':id/cards')
     async getCards(
         @Param('id', ParseIntPipe) id: number,
-        @CurrentUser() user: JwtPayload
+        @CurrentUser() user: JwtPayload,
+        @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
+        @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
+        @Query('seed', new SeedPipe()) seed: number
     ) {
-        return await this.collectionService.getCards(id, user.id);
+        return await this.collectionService.getCards(
+            id,
+            user.id,
+            limit,
+            offset,
+            seed
+        );
     }
 
     @Get(':id/test')

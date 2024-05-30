@@ -52,11 +52,17 @@ export class QaService {
     async getCollectionPairs(
         collectionId: number,
         randomize: boolean = false,
-        take?: number
+        take?: number,
+        skip?: number,
+        seed?: number
     ) {
-        // await this.qaRepository.query(`SELECT setseed(${0.5})`);
+        if (randomize) {
+            seed = seed ?? Math.random() * 2 - 1;
 
-        return await this.qaRepository
+            await this.qaRepository.query(`SELECT setseed(${seed})`);
+        }
+
+        const [cards, totalCount] = await this.qaRepository
             .createQueryBuilder('questions_answers')
             .select()
             .where('questions_answers.collection_id = :collectionId', {
@@ -64,17 +70,36 @@ export class QaService {
             })
             .orderBy(randomize ? 'RANDOM()' : 'questions_answers.id', 'ASC')
             .take(take)
-            .getMany();
+            .skip(skip)
+            .getManyAndCount();
+
+        return {
+            cards,
+            totalCount,
+            isLast: totalCount <= take + skip,
+            elementsCount: cards.length,
+            seed: !!randomize && seed
+        };
     }
 
     async getCards(
         collectionId: number,
+        take: number,
+        skip: number,
+        seed: number,
         shuffleCards: boolean,
         cardsAnswerOnFront: boolean
     ) {
-        const cards = await this.getCollectionPairs(collectionId, shuffleCards);
+        const { cards: cardsData, ...paginationData } =
+            await this.getCollectionPairs(
+                collectionId,
+                shuffleCards,
+                take,
+                skip,
+                seed
+            );
 
-        return cards.map(card => {
+        const cards = cardsData.map(card => {
             const {
                 id,
                 questionText,
@@ -95,6 +120,11 @@ export class QaService {
                     : answerPicture
             };
         });
+
+        return {
+            cards,
+            ...paginationData
+        };
     }
 
     async getChoiceModeTask(
@@ -151,6 +181,7 @@ export class QaService {
         }: Partial<Qa>,
         collectionId: number
     ) {
+        const correctAnswer = answerText;
         let isCorrect = true;
 
         if (Math.random() > 0.5) {
@@ -178,7 +209,8 @@ export class QaService {
             questionPicture,
             answerText,
             answerPicture,
-            isCorrect
+            isCorrect,
+            correctAnswer
         };
     }
 
@@ -205,7 +237,7 @@ export class QaService {
         trueFalseMode: boolean,
         writeMode: boolean
     ) {
-        const cards = await this.getCollectionPairs(
+        const { cards } = await this.getCollectionPairs(
             collectionId,
             shuffleTest,
             maxQuestions
@@ -232,7 +264,7 @@ export class QaService {
     }
 
     async getMatches(collectionId: number) {
-        const cards = await this.getCollectionPairs(collectionId, false, 8);
+        const { cards } = await this.getCollectionPairs(collectionId, false, 8);
 
         const matches = cards.flatMap(card => {
             const firstId = v4();

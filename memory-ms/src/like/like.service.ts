@@ -38,4 +38,12 @@ export class LikeService {
     async getLikesCount(collectionId: number) {
         return await this.likeRepository.count({ where: { collectionId } });
     }
+
+    async isCollectionLiked(collectionId: number, userId: number) {
+        const data = await this.likeRepository.findOne({
+            where: { collectionId, userId }
+        });
+
+        return !!data;
+    }
 }

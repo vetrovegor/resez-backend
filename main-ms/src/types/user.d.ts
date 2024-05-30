@@ -10,7 +10,8 @@ export type UserAuthDTO = {
 
 export type UserTokenInfo = {
     id: number,
-    nickname: string
+    nickname: string,
+    telegramChatId: string
 }
 
 export type UserShortInfo = {

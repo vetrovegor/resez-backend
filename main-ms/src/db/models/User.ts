@@ -258,11 +258,12 @@ class User extends Model {
     }
 
     toTokenInfo(): UserTokenInfo {
-        const { id, nickname } = this.get();
+        const { id, nickname, telegramChatId } = this.get();
 
         return {
             id,
-            nickname
+            nickname,
+            telegramChatId
         };
     }
 

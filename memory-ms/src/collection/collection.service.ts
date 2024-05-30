@@ -27,7 +27,7 @@ export class CollectionService {
         private readonly likeService: LikeService
     ) {}
 
-    async getShortInfo(collectionData: Collection) {
+    async getShortInfo(collectionData: Collection, userId: number) {
         const user = await this.rabbitMqService.sendRequest({
             client: this.userClient,
             pattern: 'preview',
@@ -44,11 +44,17 @@ export class CollectionService {
             collectionData.id
         );
 
+        const isLiked = await this.likeService.isCollectionLiked(
+            collectionData.id,
+            userId
+        );
+
         return {
             ...collectionData,
             user,
             pairsCount,
-            likesCount
+            likesCount,
+            isLiked
         };
     }
 
@@ -68,7 +74,7 @@ export class CollectionService {
 
         await this.qaService.create(savedCollection.id, pairs);
 
-        return await this.getShortInfo(savedCollection);
+        return await this.getShortInfo(savedCollection, userId);
     }
 
     async findAll(userId: number, take: number, skip: number) {
@@ -83,7 +89,7 @@ export class CollectionService {
 
         const collections = await Promise.all(
             collectionsData.map(async collection =>
-                this.getShortInfo(collection)
+                this.getShortInfo(collection, userId)
             )
         );
 
@@ -117,9 +123,9 @@ export class CollectionService {
     async findOne(id: number, userId: number) {
         const collection = await this.findAccessibleCollectionById(id, userId);
 
-        const collectionShortInfo = await this.getShortInfo(collection);
+        const collectionShortInfo = await this.getShortInfo(collection, userId);
 
-        const pairs = await this.qaService.getCollectionPairs(id);
+        const { cards: pairs } = await this.qaService.getCollectionPairs(id);
 
         return {
             ...collectionShortInfo,
@@ -127,20 +133,29 @@ export class CollectionService {
         };
     }
 
-    async getCards(id: number, userId: number) {
+    async getCards(
+        id: number,
+        userId: number,
+        take: number,
+        skip: number,
+        seed: number
+    ) {
         await this.findAccessibleCollectionById(id, userId);
 
         const { settings } = await this.settingsService.get(userId);
 
         const { shuffleCards, cardsAnswerOnFront } = settings;
 
-        const cards = await this.qaService.getCards(
+        const data = await this.qaService.getCards(
             id,
+            take,
+            skip,
+            seed,
             shuffleCards,
             cardsAnswerOnFront
         );
 
-        return { cards };
+        return data;
     }
 
     async getTest(id: number, userId: number) {
@@ -191,7 +206,7 @@ export class CollectionService {
     async delete(id: number, userId: number) {
         const collectionData = await this.getByIdAndUserId(id, userId);
 
-        const collection = await this.getShortInfo(collectionData);
+        const collection = await this.getShortInfo(collectionData, userId);
 
         await this.qaService.delete(id, true);
 
@@ -219,7 +234,10 @@ export class CollectionService {
         await this.qaService.delete(id, false);
         await this.qaService.create(id, pairs);
 
-        const collectionShortInfo = await this.getShortInfo(updatedCollection);
+        const collectionShortInfo = await this.getShortInfo(
+            updatedCollection,
+            userId
+        );
 
         return { collection: collectionShortInfo };
     }

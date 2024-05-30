@@ -1,16 +1,30 @@
 import { Response, NextFunction } from 'express';
 
-import { PaginationQuery, RequestWithParamsAndUser, RequestWithQueryAndUser, IdParam } from 'types/request';
+import {
+    PaginationQuery,
+    RequestWithParamsAndUser,
+    RequestWithQueryAndUser,
+    IdParam
+} from 'types/request';
 import sessionService from '../services/sessionService';
 
 class SessionController {
-    async getUserSessions(req: RequestWithQueryAndUser<PaginationQuery>, res: Response, next: NextFunction) {
+    async getUserSessions(
+        req: RequestWithQueryAndUser<PaginationQuery>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const { id } = req.user;
             const { limit, offset } = req.query;
 
             // типизировать
-            const data = await sessionService.getUserSessions(req, id, limit, offset);
+            const data = await sessionService.getUserSessions(
+                req,
+                id,
+                limit,
+                offset
+            );
 
             res.json(data);
         } catch (error) {
@@ -18,7 +32,11 @@ class SessionController {
         }
     }
 
-    async endSessionById(req: RequestWithParamsAndUser<IdParam>, res: Response, next: NextFunction) {
+    async endSessionById(
+        req: RequestWithParamsAndUser<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const { id: sessionId } = req.params;
             const { id: userId } = req.user;
@@ -31,13 +49,22 @@ class SessionController {
         }
     }
 
-    async endAllSessions(req: RequestWithQueryAndUser<PaginationQuery>, res: Response, next: NextFunction) {
+    async endAllSessions(
+        req: RequestWithQueryAndUser<PaginationQuery>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const { id } = req.user;
             const { limit, offset } = req.query;
 
             // типизировать
-            const data = await sessionService.endAllSessions(req, id, limit, offset);
+            const data = await sessionService.endAllSessions(
+                req,
+                id,
+                limit,
+                offset
+            );
 
             res.json(data);
         } catch (error) {

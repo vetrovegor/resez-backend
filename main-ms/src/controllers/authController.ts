@@ -1,7 +1,11 @@
 import { Response, NextFunction, Request } from 'express';
 
 import authService from '../services/authService';
-import { RequestWithBody, RequestWithParams, RequestWithUser } from 'types/request';
+import {
+    RequestWithBody,
+    RequestWithParams,
+    RequestWithUser
+} from 'types/request';
 import { UserAuthDTO, UserRecoveryPasswordDTO } from 'types/user';
 import sessionService from '../services/sessionService';
 import codeService from '../services/codeService';
@@ -9,15 +13,26 @@ import userService from '../services/userService';
 import { CodeAuthParam } from 'types/code';
 
 class AuthController {
-    async register(req: RequestWithBody<UserAuthDTO>, res: Response, next: NextFunction) {
+    async register(
+        req: RequestWithBody<UserAuthDTO>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const { nickname, password } = req.body;
 
-            const { user, verificationCodeData } = await authService.register(nickname, password);
+            const { user, verificationCodeData } = await authService.register(
+                nickname,
+                password
+            );
 
-            const { accessToken, refreshToken, sessionId } = await sessionService.saveSession(req, user.toTokenInfo());
+            const { accessToken, refreshToken, sessionId } =
+                await sessionService.saveSession(req, user.toTokenInfo());
 
-            res.cookie('refreshToken', refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
+            res.cookie('refreshToken', refreshToken, {
+                maxAge: 30 * 24 * 60 * 60 * 1000,
+                httpOnly: true
+            });
 
             res.json({
                 accessToken,
@@ -30,15 +45,26 @@ class AuthController {
         }
     }
 
-    async login(req: RequestWithBody<UserAuthDTO>, res: Response, next: NextFunction) {
+    async login(
+        req: RequestWithBody<UserAuthDTO>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const { nickname, password } = req.body;
 
-            const { user, verificationCodeData } = await authService.login(nickname, password);
+            const { user, verificationCodeData } = await authService.login(
+                nickname,
+                password
+            );
 
-            const { accessToken, refreshToken, sessionId } = await sessionService.saveSession(req, user.toTokenInfo());
+            const { accessToken, refreshToken, sessionId } =
+                await sessionService.saveSession(req, user.toTokenInfo());
 
-            res.cookie('refreshToken', refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
+            res.cookie('refreshToken', refreshToken, {
+                maxAge: 30 * 24 * 60 * 60 * 1000,
+                httpOnly: true
+            });
 
             res.json({
                 accessToken,
@@ -52,13 +78,21 @@ class AuthController {
     }
 
     // отрефакторить
-    async loginByCode(req: RequestWithParams<CodeAuthParam>, res: Response, next: NextFunction) {
+    async loginByCode(
+        req: RequestWithParams<CodeAuthParam>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const user = await codeService.verifyAuthCode(req.params.code);
 
-            const { accessToken, refreshToken, sessionId } = await sessionService.saveSession(req, user.toTokenInfo());
+            const { accessToken, refreshToken, sessionId } =
+                await sessionService.saveSession(req, user.toTokenInfo());
 
-            res.cookie('refreshToken', refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
+            res.cookie('refreshToken', refreshToken, {
+                maxAge: 30 * 24 * 60 * 60 * 1000,
+                httpOnly: true
+            });
 
             res.json({
                 accessToken,
@@ -92,9 +126,13 @@ class AuthController {
 
     async refresh(req: RequestWithUser, res: Response, next: NextFunction) {
         try {
-            const { accessToken, refreshToken } = await sessionService.saveSession(req, req.user);
+            const { accessToken, refreshToken } =
+                await sessionService.saveSession(req, req.user);
 
-            res.cookie('refreshToken', refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
+            res.cookie('refreshToken', refreshToken, {
+                maxAge: 30 * 24 * 60 * 60 * 1000,
+                httpOnly: true
+            });
 
             res.json({
                 accessToken
@@ -104,9 +142,14 @@ class AuthController {
         }
     }
 
-    async sendVerificationCode(req: RequestWithUser, res: Response, next: NextFunction) {
+    async sendVerificationCode(
+        req: RequestWithUser,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
-            const verificationCodeData = await codeService.createVerificationCode(req.user.id);
+            const verificationCodeData =
+                await codeService.createVerificationCode(req.user.id);
 
             res.send({
                 verificationCodeData
@@ -116,7 +159,11 @@ class AuthController {
         }
     }
 
-    async sendRecoveryPasswordCode(req: RequestWithBody<UserRecoveryPasswordDTO>, res: Response, next: NextFunction) {
+    async sendRecoveryPasswordCode(
+        req: RequestWithBody<UserRecoveryPasswordDTO>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const { nickname } = req.body;
 
@@ -128,7 +175,11 @@ class AuthController {
         }
     }
 
-    async verifyRecoveryPasswordCode(req: RequestWithBody<UserRecoveryPasswordDTO>, res: Response, next: NextFunction) {
+    async verifyRecoveryPasswordCode(
+        req: RequestWithBody<UserRecoveryPasswordDTO>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const { nickname, code } = req.body;
 
@@ -140,7 +191,11 @@ class AuthController {
         }
     }
 
-    async recoveryPassword(req: RequestWithBody<UserRecoveryPasswordDTO>, res: Response, next: NextFunction) {
+    async recoveryPassword(
+        req: RequestWithBody<UserRecoveryPasswordDTO>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const { nickname, code, password } = req.body;
 

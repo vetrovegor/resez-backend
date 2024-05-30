@@ -2,6 +2,7 @@ import amqp from 'amqplib';
 
 import userService from './userService';
 import codeService from './codeService';
+import sessionService from './sessionService';
 
 class RmqService {
     private channel: amqp.Channel;
@@ -25,6 +26,7 @@ class RmqService {
             'create-and-emit-auth-code',
             'validate-verify-code',
             'verify-user',
+            'end-session',
             'user-queue'
         ];
 
@@ -103,7 +105,9 @@ class RmqService {
                 let response = null;
 
                 if (message.pattern == 'preview') {
-                    response = (await userService.getUserById(message.data)).toPreview();
+                    response = (
+                        await userService.getUserById(message.data)
+                    ).toPreview();
                 }
 
                 this.channel.sendToQueue(
@@ -111,6 +115,15 @@ class RmqService {
                     Buffer.from(JSON.stringify(response)),
                     { correlationId: msg.properties.correlationId }
                 );
+            },
+            { noAck: true }
+        );
+
+        this.channel.consume(
+            'end-session',
+            async msg => {
+                const { sessionId } = JSON.parse(msg.content.toString());
+                await sessionService.endSessionById(sessionId);
             },
             { noAck: true }
         );
