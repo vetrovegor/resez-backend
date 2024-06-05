@@ -58,6 +58,7 @@ export class UploadService {
         const pictureNames = await this.qaService.getPictureNames();
         const uploadFiles = fs.readdirSync('uploads');
         const deletedFiles = [];
+        let totalDeletedSize = 0;
 
         for (const fileName of uploadFiles) {
             if (!pictureNames.includes(fileName)) {
@@ -70,13 +71,24 @@ export class UploadService {
                 }
 
                 const filePath = path.join('uploads', fileName);
+                const stats = fs.statSync(filePath);
+                const size = Math.round((stats.size / 1000 / 1024) * 100) / 100;
 
                 fs.unlinkSync(filePath);
 
-                deletedFiles.push(fileName);
+                deletedFiles.push({
+                    fileName,
+                    size: size + ' mb'
+                });
+
+                totalDeletedSize += size;
             }
         }
 
-        return { deletedFiles, deletedCount: deletedFiles.length };
+        return {
+            deletedFiles,
+            deletedCount: deletedFiles.length,
+            totalDeletedSize: totalDeletedSize + ' mb'
+        };
     }
 }

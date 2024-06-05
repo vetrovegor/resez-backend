@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Collection } from './collection.entity';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { CollectionDto } from './dto/collection.dto';
 import { QaService } from '@qa/qa.service';
 import { ClientProxy } from '@nestjs/microservices';
@@ -77,9 +77,22 @@ export class CollectionService {
         return await this.getShortInfo(savedCollection, userId);
     }
 
-    async findAll(userId: number, take: number, skip: number) {
+    async findAll(
+        userId: number,
+        take: number,
+        skip: number,
+        targetUserId: number,
+        search: string
+    ) {
         const collectionsData = await this.collectionRepository.find({
-            where: { userId },
+            where: {
+                ...(!targetUserId || targetUserId === userId
+                    ? { userId }
+                    : { userId: targetUserId, isPrivate: false }),
+                ...(search && {
+                    collection: ILike(`%${search}%`)
+                })
+            },
             order: {
                 createdAt: 'DESC'
             },
@@ -125,7 +138,9 @@ export class CollectionService {
 
         const collectionShortInfo = await this.getShortInfo(collection, userId);
 
-        const { cards: pairs } = await this.qaService.getCollectionPairs(id);
+        const { cards: pairs } = await this.qaService.getCollectionPairs({
+            collectionId: id
+        });
 
         return {
             ...collectionShortInfo,
@@ -133,7 +148,26 @@ export class CollectionService {
         };
     }
 
-    async getCards(
+    async findPairs(
+        id: number,
+        userId: number,
+        take: number,
+        skip: number,
+        search: string
+    ) {
+        await this.findAccessibleCollectionById(id, userId);
+
+        const data = await this.qaService.getCollectionPairs({
+            collectionId: id,
+            take,
+            skip,
+            search
+        });
+
+        return data;
+    }
+
+    async findCards(
         id: number,
         userId: number,
         take: number,

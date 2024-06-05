@@ -2,12 +2,13 @@ import { QaDto } from '@collection/dto/collection.dto';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Qa } from './qa.entity';
-import { IsNull, Not, Repository } from 'typeorm';
+import { Brackets, IsNull, Not, Repository } from 'typeorm';
 import { shuffleArray } from '@utils/shuffle-array';
 import { v4 } from 'uuid';
 import { FileService } from '@file/file.service';
 import { ConfigService } from '@nestjs/config';
 import { extractFileName } from '@utils/extract-file-name';
+import { PairsQuerySettings } from './interfaces';
 
 @Injectable()
 export class QaService {
@@ -49,16 +50,12 @@ export class QaService {
         });
     }
 
-    async getCollectionPairs(
-        collectionId: number,
-        randomize: boolean = false,
-        take?: number,
-        skip?: number,
-        seed?: number
-    ) {
-        if (randomize) {
-            seed = seed ?? Math.random() * 2 - 1;
+    async getCollectionPairs(settings: Partial<PairsQuerySettings>) {
+        const { collectionId, randomize, take, skip, search } = settings;
+        let { seed } = settings;
 
+        if (randomize) {
+            seed = settings.seed ?? Math.random() * 2 - 1;
             await this.qaRepository.query(`SELECT setseed(${seed})`);
         }
 
@@ -68,7 +65,20 @@ export class QaService {
             .where('questions_answers.collection_id = :collectionId', {
                 collectionId
             })
-            .orderBy(randomize ? 'RANDOM()' : 'questions_answers.id', 'ASC')
+            .andWhere(
+                new Brackets(qb => {
+                    if (search) {
+                        qb.where(
+                            'questions_answers.questionText ILIKE :search',
+                            { search: `%${search}%` }
+                        ).orWhere(
+                            'questions_answers.answerText ILIKE :search',
+                            { search: `%${search}%` }
+                        );
+                    }
+                })
+            )
+            .orderBy(randomize && 'RANDOM()')
             .take(take)
             .skip(skip)
             .getManyAndCount();
@@ -86,18 +96,18 @@ export class QaService {
         collectionId: number,
         take: number,
         skip: number,
-        seed: number,
-        shuffleCards: boolean,
-        cardsAnswerOnFront: boolean
+        seed?: number,
+        shuffleCards?: boolean,
+        cardsAnswerOnFront?: boolean
     ) {
         const { cards: cardsData, ...paginationData } =
-            await this.getCollectionPairs(
+            await this.getCollectionPairs({
                 collectionId,
-                shuffleCards,
+                randomize: shuffleCards,
                 take,
                 skip,
                 seed
-            );
+            });
 
         const cards = cardsData.map(card => {
             const {
@@ -127,7 +137,17 @@ export class QaService {
         };
     }
 
-    async getChoiceModeTask(
+    getOtherRandomPairs(
+        elements: Partial<Qa>[],
+        excludedId: number,
+        count: number
+    ) {
+        const filteredElements = elements.filter(item => item.id != excludedId);
+        shuffleArray(filteredElements);
+        return filteredElements.slice(0, count);
+    }
+
+    getChoiceModeTask(
         {
             id,
             questionText,
@@ -135,14 +155,11 @@ export class QaService {
             answerText,
             answerPicture
         }: Partial<Qa>,
-        collectionId: number
+        allPairs: Partial<Qa>[]
     ) {
-        const otherCards = await this.qaRepository.find({
-            where: { collection: { id: collectionId }, id: Not(id) },
-            take: 3
-        });
+        const otherPairs = this.getOtherRandomPairs(allPairs, id, 3);
 
-        const choices = otherCards.map(otherCard => {
+        const choices = otherPairs.map(otherCard => {
             const { id, answerText, answerPicture } = otherCard;
 
             return {
@@ -171,7 +188,7 @@ export class QaService {
         };
     }
 
-    async getValidationModeTask(
+    getValidationModeTask(
         {
             id,
             questionText,
@@ -179,27 +196,15 @@ export class QaService {
             answerText,
             answerPicture
         }: Partial<Qa>,
-        collectionId: number
+        allPairs: Partial<Qa>[]
     ) {
         const correctAnswer = answerText;
-        let isCorrect = true;
 
         if (Math.random() > 0.5) {
-            const anotherCard = await this.qaRepository
-                .createQueryBuilder('questions_answers')
-                .select()
-                .where('questions_answers.collection_id = :collectionId', {
-                    collectionId
-                })
-                .andWhere('questions_answers.id != :id', {
-                    id
-                })
-                .orderBy('RANDOM()')
-                .getOne();
+            const anotherCard = this.getOtherRandomPairs(allPairs, id, 1)[0];
 
             answerText = anotherCard.answerText;
             answerPicture = anotherCard.answerPicture;
-            isCorrect = false;
         }
 
         return {
@@ -209,7 +214,7 @@ export class QaService {
             questionPicture,
             answerText,
             answerPicture,
-            isCorrect,
+            isCorrect: answerText == correctAnswer,
             correctAnswer
         };
     }
@@ -237,23 +242,18 @@ export class QaService {
         trueFalseMode: boolean,
         writeMode: boolean
     ) {
-        const { cards } = await this.getCollectionPairs(
+        const { cards: allPairs } = await this.getCollectionPairs({
             collectionId,
-            shuffleTest,
-            maxQuestions
-        );
+            randomize: shuffleTest
+        });
 
         return await Promise.all(
-            cards.map(async card => {
+            allPairs.slice(0, maxQuestions).map(async card => {
                 const modes = [];
                 if (answerChoiceMode)
-                    modes.push(
-                        await this.getChoiceModeTask(card, collectionId)
-                    );
+                    modes.push(this.getChoiceModeTask(card, allPairs));
                 if (trueFalseMode)
-                    modes.push(
-                        await this.getValidationModeTask(card, collectionId)
-                    );
+                    modes.push(this.getValidationModeTask(card, allPairs));
                 if (writeMode) modes.push(this.getWriteModeTask(card));
 
                 const randomIndex = Math.floor(Math.random() * modes.length);
@@ -264,7 +264,10 @@ export class QaService {
     }
 
     async getMatches(collectionId: number) {
-        const { cards } = await this.getCollectionPairs(collectionId, false, 8);
+        const { cards } = await this.getCollectionPairs({
+            collectionId,
+            take: 8
+        });
 
         const matches = cards.flatMap(card => {
             const firstId = v4();

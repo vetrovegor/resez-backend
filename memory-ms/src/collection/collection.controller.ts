@@ -29,9 +29,18 @@ export class CollectionController {
     async findAll(
         @CurrentUser() user: JwtPayload,
         @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
-        @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number
+        @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
+        @Query('targetUserId', new ParseIntPipe({ optional: true }))
+        targetUserId: number,
+        @Query('search') search: string
     ) {
-        return await this.collectionService.findAll(user.id, limit, offset);
+        return await this.collectionService.findAll(
+            user.id,
+            limit,
+            offset,
+            targetUserId,
+            search
+        );
     }
 
     @Get(':id')
@@ -42,15 +51,32 @@ export class CollectionController {
         return await this.collectionService.findOne(id, user.id);
     }
 
+    @Get(':id/pairs')
+    async findPairs(
+        @Param('id', ParseIntPipe) id: number,
+        @CurrentUser() user: JwtPayload,
+        @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
+        @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
+        @Query('search') search: string
+    ) {
+        return await this.collectionService.findPairs(
+            id,
+            user.id,
+            limit,
+            offset,
+            search
+        );
+    }
+
     @Get(':id/cards')
-    async getCards(
+    async findCards(
         @Param('id', ParseIntPipe) id: number,
         @CurrentUser() user: JwtPayload,
         @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
         @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
         @Query('seed', new SeedPipe()) seed: number
     ) {
-        return await this.collectionService.getCards(
+        return await this.collectionService.findCards(
             id,
             user.id,
             limit,

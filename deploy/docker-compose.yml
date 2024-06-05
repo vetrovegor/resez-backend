@@ -24,7 +24,7 @@ services:
             - POSTGRES_USER=postgres
             - POSTGRES_PASSWORD=postgres
         volumes:
-            - ./resez-memory-db:/var/lib/postgresql/data
+            - ./collection-ms-db:/var/lib/postgresql/data
         restart: unless-stopped
 
     # resez-memory:
