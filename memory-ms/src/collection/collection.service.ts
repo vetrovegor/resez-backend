@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Collection } from './collection.entity';
-import { ILike, Repository } from 'typeorm';
+import { ILike, In, Repository } from 'typeorm';
 import { CollectionDto } from './dto/collection.dto';
 import { QaService } from '@qa/qa.service';
 import { ClientProxy } from '@nestjs/microservices';
@@ -84,15 +84,17 @@ export class CollectionService {
         targetUserId: number,
         search: string
     ) {
+        const where = {
+            ...(!targetUserId || targetUserId === userId
+                ? { userId }
+                : { userId: targetUserId, isPrivate: false }),
+            ...(search && {
+                collection: ILike(`%${search}%`)
+            })
+        };
+
         const collectionsData = await this.collectionRepository.find({
-            where: {
-                ...(!targetUserId || targetUserId === userId
-                    ? { userId }
-                    : { userId: targetUserId, isPrivate: false }),
-                ...(search && {
-                    collection: ILike(`%${search}%`)
-                })
-            },
+            where,
             order: {
                 createdAt: 'DESC'
             },
@@ -107,7 +109,50 @@ export class CollectionService {
         );
 
         const totalCount = await this.collectionRepository.count({
-            where: { userId }
+            where
+        });
+
+        return {
+            collections,
+            totalCount,
+            isLast: totalCount <= take + skip,
+            elementsCount: collections.length
+        };
+    }
+
+    async findLiked(
+        userId: number,
+        take: number,
+        skip: number,
+        search: string
+    ) {
+        const likedCollectionIds =
+            await this.likeService.getLikedCollectionIds(userId);
+
+        const where = {
+            id: In(likedCollectionIds),
+            ...(search && {
+                collection: ILike(`%${search}%`)
+            })
+        };
+
+        const collectionsData = await this.collectionRepository.find({
+            where,
+            order: {
+                createdAt: 'DESC'
+            },
+            take,
+            skip
+        });
+
+        const collections = await Promise.all(
+            collectionsData.map(async collection =>
+                this.getShortInfo(collection, userId)
+            )
+        );
+
+        const totalCount = await this.collectionRepository.count({
+            where
         });
 
         return {

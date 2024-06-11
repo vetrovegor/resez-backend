@@ -11,7 +11,8 @@ export type UserAuthDTO = {
 export type UserTokenInfo = {
     id: number,
     nickname: string,
-    telegramChatId: string
+    telegramChatId: string,
+    canUploadImages: boolean
 }
 
 export type UserShortInfo = {
@@ -27,7 +28,8 @@ export type UserShortInfo = {
         isHideAvatars: boolean
     }
     permissions: PermissionDTO[],
-    unreadNotifiesCount: number
+    unreadNotifiesCount: number,
+    canUploadImages: boolean
 }
 
 export type AuthResponse = {

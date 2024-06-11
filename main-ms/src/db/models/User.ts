@@ -1,53 +1,69 @@
-import { Table, Column, Model, DataType, HasMany, BelongsToMany, ForeignKey, BelongsTo } from "sequelize-typescript";
+import {
+    Table,
+    Column,
+    Model,
+    DataType,
+    HasMany,
+    BelongsToMany,
+    ForeignKey,
+    BelongsTo
+} from 'sequelize-typescript';
 
-import { UserAdminInfo, UserPreview, UserProfileInfo, UserProfilePreview, UserShortInfo, UserTokenInfo } from "types/user";
-import Session from "./Session";
-import Code from "./Code";
-import Collection from "./memory/Collection";
-import UserRole from "./UserRole";
-import Role from "./roles/Role";
-import Message from "./messenger/Message";
-import Chat from "./messenger/Chat";
-import UserChat from "./messenger/UserChat";
-import { PermissionDTO } from "types/permission";
-import Notify from "./notifies/Notify";
-import UserNotify from "./notifies/UserNotify";
-import { CollectionSettings } from "types/collection";
-import { calculateLevelInfo } from "../../utils";
-import Activity from "./Activity";
-import UserMessage from "./messenger/UserMessage";
-import MessageRead from "./messenger/MessageRead";
-import Subscription from "./subscription/Subscription";
+import {
+    UserAdminInfo,
+    UserPreview,
+    UserProfileInfo,
+    UserProfilePreview,
+    UserShortInfo,
+    UserTokenInfo
+} from 'types/user';
+import Session from './Session';
+import Code from './Code';
+import Collection from './memory/Collection';
+import UserRole from './UserRole';
+import Role from './roles/Role';
+import Message from './messenger/Message';
+import Chat from './messenger/Chat';
+import UserChat from './messenger/UserChat';
+import { PermissionDTO } from 'types/permission';
+import Notify from './notifies/Notify';
+import UserNotify from './notifies/UserNotify';
+import { CollectionSettings } from 'types/collection';
+import { calculateLevelInfo } from '../../utils';
+import Activity from './Activity';
+import UserMessage from './messenger/UserMessage';
+import MessageRead from './messenger/MessageRead';
+import Subscription from './subscription/Subscription';
 
 @Table({
     timestamps: false,
-    tableName: "users"
+    tableName: 'users'
 })
 class User extends Model {
     @Column({
-        type: DataType.STRING,
+        type: DataType.STRING
     })
     nickname: string;
 
     @Column({
-        type: DataType.STRING,
+        type: DataType.STRING
     })
     password: string;
 
     @Column({
-        type: DataType.STRING,
+        type: DataType.STRING
     })
     telegramChatId: string;
 
     @Column({
         type: DataType.BOOLEAN,
-        defaultValue: false,
+        defaultValue: false
     })
     isVerified: boolean;
 
     @Column({
         type: DataType.BOOLEAN,
-        defaultValue: false,
+        defaultValue: false
     })
     isBlocked: boolean;
 
@@ -58,54 +74,54 @@ class User extends Model {
 
     @Column({
         type: DataType.INTEGER,
-        defaultValue: 0,
+        defaultValue: 0
     })
     xp: number;
 
     @Column({
-        type: DataType.INTEGER,
+        type: DataType.INTEGER
     })
     activeStatusId: number;
 
     @Column({
-        type: DataType.STRING,
+        type: DataType.STRING
     })
     avatar: string;
 
     @Column({
-        type: DataType.STRING,
+        type: DataType.STRING
     })
     firstName: string;
 
     @Column({
-        type: DataType.STRING,
+        type: DataType.STRING
     })
     lastName: string;
 
     @Column({
-        type: DataType.DATE,
+        type: DataType.DATE
     })
     birthDate: Date;
 
     @Column({
-        type: DataType.STRING,
+        type: DataType.STRING
     })
     gender: string;
 
     @Column({
-        type: DataType.DATE,
+        type: DataType.DATE
     })
     registrationDate: Date;
 
     @Column({
         type: DataType.BOOLEAN,
-        defaultValue: false,
+        defaultValue: false
     })
     isPrivateAccount: boolean;
 
     @Column({
         type: DataType.BOOLEAN,
-        defaultValue: false,
+        defaultValue: false
     })
     isHideAvatars: boolean;
 
@@ -113,14 +129,14 @@ class User extends Model {
     // перемешивать
     @Column({
         type: DataType.BOOLEAN,
-        defaultValue: false,
+        defaultValue: false
     })
     isShuffleCards: boolean;
 
     // лицевая сторона - определение
     @Column({
         type: DataType.BOOLEAN,
-        defaultValue: false,
+        defaultValue: false
     })
     isDefinitionCardFront: boolean;
 
@@ -128,7 +144,7 @@ class User extends Model {
     // перемешивать
     @Column({
         type: DataType.BOOLEAN,
-        defaultValue: false,
+        defaultValue: false
     })
     isShuffleMemorization: boolean;
 
@@ -136,21 +152,21 @@ class User extends Model {
     // мгновенный показ ответа
     @Column({
         type: DataType.BOOLEAN,
-        defaultValue: false,
+        defaultValue: false
     })
     isInstantAnswerDisplay: boolean;
 
     // верно не верно
     @Column({
         type: DataType.BOOLEAN,
-        defaultValue: false,
+        defaultValue: false
     })
     isTrueFalseMode: boolean;
 
     // письменно
     @Column({
         type: DataType.BOOLEAN,
-        defaultValue: false,
+        defaultValue: false
     })
     isWriteMode: boolean;
 
@@ -181,12 +197,12 @@ class User extends Model {
     subscription: Subscription;
 
     @Column({
-        type: DataType.DATE,
+        type: DataType.DATE
     })
     subscriptionExpiredDate: Date;
 
     @Column({
-        type: DataType.BOOLEAN,
+        type: DataType.BOOLEAN
     })
     isSubscriptionPermanent: boolean;
 
@@ -225,12 +241,14 @@ class User extends Model {
         const userRoles = await UserRole.findAll({
             where: { userId: this.get('id') },
             attributes: [],
-            include: [{
-                model: Role,
-                where: {
-                    isArchived: false
+            include: [
+                {
+                    model: Role,
+                    where: {
+                        isArchived: false
+                    }
                 }
-            }]
+            ]
         });
 
         return userRoles.map(userRole => userRole.get('role'));
@@ -243,12 +261,12 @@ class User extends Model {
         for (const role of roles) {
             const rolePermissions = await role.getPermissions();
 
-            const rolePermissionDTOs = rolePermissions.map(
-                permission => permission.toDTO()
+            const rolePermissionDTOs = rolePermissions.map(permission =>
+                permission.toDTO()
             );
 
             for (const permission of rolePermissionDTOs) {
-                if (!permissions.some((p) => p.id === permission.id)) {
+                if (!permissions.some(p => p.id === permission.id)) {
                     permissions.push(permission);
                 }
             }
@@ -257,18 +275,36 @@ class User extends Model {
         return permissions;
     }
 
-    toTokenInfo(): UserTokenInfo {
-        const { id, nickname, telegramChatId } = this.get();
+    async toTokenInfo(): Promise<UserTokenInfo> {
+        const { id, nickname, telegramChatId, subscriptionId } = this.get();
+
+        // вынести в отдельный метод
+        const subscriptionData = await Subscription.findByPk(subscriptionId);
+
+        const { canUploadImages = false } =
+            (subscriptionData && subscriptionData.toJSON()) || {};
 
         return {
             id,
             nickname,
-            telegramChatId
+            telegramChatId,
+            canUploadImages
         };
     }
 
     async toShortInfo(): Promise<UserShortInfo> {
-        const { id, nickname, isVerified, isBlocked, blockReason, avatar, xp, isPrivateAccount, isHideAvatars } = this.get();
+        const {
+            id,
+            nickname,
+            isVerified,
+            isBlocked,
+            blockReason,
+            avatar,
+            xp,
+            isPrivateAccount,
+            isHideAvatars,
+            subscriptionId
+        } = this.get();
 
         const permissions = await this.getPermissions();
 
@@ -280,6 +316,12 @@ class User extends Model {
                 isRead: false
             }
         });
+
+        // вынести в отдельный метод
+        const subscriptionData = await Subscription.findByPk(subscriptionId);
+
+        const { canUploadImages = false } =
+            (subscriptionData && subscriptionData.toJSON()) || {};
 
         return {
             id,
@@ -294,7 +336,8 @@ class User extends Model {
                 isHideAvatars
             },
             permissions,
-            unreadNotifiesCount
+            unreadNotifiesCount,
+            canUploadImages
         };
     }
 
@@ -304,7 +347,7 @@ class User extends Model {
         return {
             id,
             nickname,
-            avatar: avatar ? process.env.STATIC_URL + avatar : null,
+            avatar: avatar ? process.env.STATIC_URL + avatar : null
         };
     }
 
@@ -316,7 +359,7 @@ class User extends Model {
             nickname,
             firstName,
             lastName,
-            avatar: avatar ? process.env.STATIC_URL + avatar : null,
+            avatar: avatar ? process.env.STATIC_URL + avatar : null
         };
     }
 
@@ -333,7 +376,17 @@ class User extends Model {
     }
 
     async toAdminInfo(): Promise<UserAdminInfo> {
-        const { id, nickname, firstName, lastName, registrationDate, isVerified, isBlocked, blockReason, avatar } = this.get();
+        const {
+            id,
+            nickname,
+            firstName,
+            lastName,
+            registrationDate,
+            isVerified,
+            isBlocked,
+            blockReason,
+            avatar
+        } = this.get();
 
         const roles = await this.getRoles();
         const rolePreviews = roles.map(role => role.toPreview());

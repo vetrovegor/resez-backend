@@ -10,7 +10,7 @@ class Subscription extends Model {
         type: DataType.STRING
     })
     subscription: string;
-    
+
     @Column({
         type: DataType.BOOLEAN
     })
@@ -18,6 +18,15 @@ class Subscription extends Model {
 
     @HasMany(() => User)
     users: User[];
+
+    toDto() {
+        const { subscription, canUploadImages } = this.get();
+
+        return {
+            subscription,
+            canUploadImages
+        };
+    }
 }
 
 export default Subscription;

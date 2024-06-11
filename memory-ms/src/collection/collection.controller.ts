@@ -43,6 +43,21 @@ export class CollectionController {
         );
     }
 
+    @Get('liked')
+    async findLiked(
+        @CurrentUser() user: JwtPayload,
+        @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
+        @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
+        @Query('search') search: string
+    ) {
+        return await this.collectionService.findLiked(
+            user.id,
+            limit,
+            offset,
+            search
+        );
+    }
+
     @Get(':id')
     async findOne(
         @Param('id', ParseIntPipe) id: number,

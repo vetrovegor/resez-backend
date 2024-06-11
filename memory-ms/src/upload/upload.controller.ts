@@ -7,6 +7,7 @@ import {
     ParseFilePipe,
     Post,
     UploadedFile,
+    UseGuards,
     UseInterceptors
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -14,11 +15,13 @@ import { UploadService } from './upload.service';
 import { SharpPipe } from './sharp.pipe';
 import { CurrentUser } from '@auth/current-user.decorator';
 import { JwtPayload } from '@auth/interfaces';
+import { UploadGuard } from './upload.guard';
 
 @Controller('upload')
 export class UploadController {
     constructor(private readonly uploadService: UploadService) {}
 
+    @UseGuards(UploadGuard)
     @Post()
     @UseInterceptors(FileInterceptor('file'))
     async upload(

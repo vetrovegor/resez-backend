@@ -1,3 +1,4 @@
+import { Like } from '@like/like.entity';
 import { Qa } from '@qa/qa.entity';
 import {
     Column,
@@ -37,4 +38,9 @@ export class Collection {
         cascade: true
     })
     questionsAnswers: Qa[];
+
+    @OneToMany(() => Like, like => like.collection, {
+        cascade: true
+    })
+    likes: Like[];
 }

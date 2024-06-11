@@ -46,4 +46,15 @@ export class LikeService {
 
         return !!data;
     }
+
+    async getLikedCollectionIds(userId: number) {
+        const data = await this.likeRepository.find({
+            where: { userId },
+            order: {
+                createdAt: 'DESC'
+            }
+        });
+
+        return data.map(item => item.collectionId);
+    }
 }
