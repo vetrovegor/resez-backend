@@ -278,7 +278,8 @@ class SessionService {
 
         await tokenService.deleteTokenBySessionId(id);
 
-        socketService.emitEndSession(id);
+        // socketService.emitEndSession(id);
+        rmqService.sendToQueue('socket-queue', 'emit-end-session', id);
     }
 
     // типизировать
@@ -311,7 +312,8 @@ class SessionService {
 
             await tokenService.deleteTokenBySessionId(session.id);
 
-            socketService.emitEndSession(session.get('id'));
+            // socketService.emitEndSession(session.get('id'));
+            rmqService.sendToQueue('socket-queue', 'emit-end-session', session.get('id'));
         }
 
         return this.getUserSessions(req, userId, limit, offset);

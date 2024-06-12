@@ -7,6 +7,7 @@ import { EmitTypes } from 'types/socket';
 import { PaginationDTO } from '../../dto/PaginationDTO';
 import { ApiError } from '../../ApiError';
 import { NotifyDTO } from 'types/notify';
+import rmqService from '../../services/rmqService';
 
 class NotifyService {
     async createUserNotify(
@@ -23,14 +24,21 @@ class NotifyService {
         });
 
         if (isSent) {
-            socketService.emitByUserId(userId, EmitTypes.Notify, {
-                notify: await userNotify.toDTO()
+            // socketService.emitByUserId(userId, EmitTypes.Notify, {
+            //     notify: await userNotify.toDTO()
+            // });
+            rmqService.sendToQueue('socket-queue', 'emit-to-user', {
+                userId,
+                emitType: EmitTypes.Notify,
+                data: {
+                    notify: await userNotify.toDTO()
+                }
             });
         }
 
         return userNotify;
     }
-    
+
     async sendNotifies(
         notifyTypeId: number,
         title: string,
@@ -75,11 +83,18 @@ class NotifyService {
 
             await userNotify.save();
 
-            socketService.emitByUserId(
-                userNotify.get('userId'),
-                EmitTypes.Notify,
-                { notify: await userNotify.toDTO() }
-            );
+            // socketService.emitByUserId(
+            //     userNotify.get('userId'),
+            //     EmitTypes.Notify,
+            //     { notify: await userNotify.toDTO() }
+            // );
+            rmqService.sendToQueue('socket-queue', 'emit-to-user', {
+                userId: userNotify.get('userId'),
+                emitType: EmitTypes.Notify,
+                data: {
+                    notify: await userNotify.toDTO()
+                }
+            });
         }
     }
 

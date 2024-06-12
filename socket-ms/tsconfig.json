@@ -16,20 +16,6 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false,
-    "paths": {
-      "@auth": [
-        "src/auth/"
-      ],
-      "@auth/*": [
-        "src/auth//*"
-      ],
-      "@prisma": [
-        "src/prisma/"
-      ],
-      "@prisma/*": [
-        "src/prisma//*"
-      ],
-    }
+    "noFallthroughCasesInSwitch": false
   }
 }

@@ -58,13 +58,13 @@ const start = async () => {
 
     await rmqService.init();
     await redisClient.connect();
-    socketService.init(server);
+    // socketService.init(server);
 
     // сделать очистку просроченных кодов кодов
     // завершение сессий
 
     // отправка отложенных уведомлений
-    cron.schedule('* * * * *', notifyService.sendDelayedNotifies);
+    // cron.schedule('* * * * *', notifyService.sendDelayedNotifies);
 
     server.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 };

@@ -9,6 +9,7 @@ import socketService from '../../services/socketService';
 import { EmitTypes } from 'types/socket';
 import UserMessage from '../../db/models/messenger/UserMessage';
 import MessageRead from '../../db/models/messenger/MessageRead';
+import rmqService from '../../services/rmqService';
 
 class MessageService {
     async getMessageById(messageId: number): Promise<Message> {
@@ -59,7 +60,12 @@ class MessageService {
                 chatId
             );
 
-            socketService.emitByUserId(userId, EmitTypes.Message, messageDto);
+            // socketService.emitByUserId(userId, EmitTypes.Message, messageDto);
+            rmqService.sendToQueue('socket-queue', 'emit-to-user', {
+                userId,
+                emitType: EmitTypes.Message,
+                data: messageDto
+            });
         });
 
         return createdMessage;
@@ -83,8 +89,6 @@ class MessageService {
         );
 
         // const messageDto = await createdMessage.toDTO();
-
-        // socketService.emitByUserId(recipientId, EmitTypes.Message, messageDto);
 
         return await createdMessage.toDTO();
     }
@@ -163,7 +167,13 @@ class MessageService {
         ).getChatMemberIDs();
 
         memberIDs.forEach(async userId => {
-            socketService.emitByUserId(userId, EmitTypes.Message, messageDto);
+            // socketService.emitByUserId(userId, EmitTypes.Message, messageDto);
+
+            rmqService.sendToQueue('socket-queue', 'emit-to-user', {
+                userId,
+                emitType: EmitTypes.Message,
+                data: messageDto
+            });
         });
 
         return messageDto;
@@ -232,11 +242,16 @@ class MessageService {
         ).getChatMemberIDs();
 
         memberIDs.forEach(async userId => {
-            socketService.emitByUserId(
+            // socketService.emitByUserId(
+            //     userId,
+            //     EmitTypes.MessagesDeleting,
+            //     messageIDs
+            // );
+            rmqService.sendToQueue('socket-queue', 'emit-to-user', {
                 userId,
-                EmitTypes.MessagesDeleting,
-                messageIDs
-            );
+                emitType: EmitTypes.Message,
+                data: messageIDs
+            });
         });
     }
 

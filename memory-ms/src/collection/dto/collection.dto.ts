@@ -7,6 +7,7 @@ import {
     IsNotEmpty,
     IsOptional,
     IsString,
+    MaxLength,
     ValidateIf,
     ValidateNested
 } from 'class-validator';
@@ -15,6 +16,7 @@ export class QaDto {
     @Transform(({ value }) => value.toString())
     @ValidateIf(o => o.questionText || !o.questionPicture)
     @IsString({ message: 'Текст вопроса должен быть строкой' })
+    @MaxLength(2500)
     questionText: string;
 
     @ValidateIf(o => o.questionPicture || !o.questionText)
@@ -24,6 +26,7 @@ export class QaDto {
     @Transform(({ value }) => value.toString())
     @ValidateIf(o => o.answerText || !o.answerPicture)
     @IsString({ message: 'Текст ответа должен быть строкой' })
+    @MaxLength(2500)
     answerText: string;
 
     @ValidateIf(o => o.answerPicture || !o.answerText)

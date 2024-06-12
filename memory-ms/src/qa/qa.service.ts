@@ -313,4 +313,21 @@ export class QaService {
             );
         });
     }
+
+    async hasPictures(collectionId: number) {
+        const data = await this.qaRepository.findOne({
+            where: [
+                {
+                    collection: { id: collectionId },
+                    questionPicture: Not(IsNull())
+                },
+                {
+                    collection: { id: collectionId },
+                    answerPicture: Not(IsNull())
+                }
+            ]
+        });
+
+        return !!data;
+    }
 }

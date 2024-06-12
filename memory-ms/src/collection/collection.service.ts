@@ -49,12 +49,15 @@ export class CollectionService {
             userId
         );
 
+        const hasPictures = await this.qaService.hasPictures(collectionData.id);
+
         return {
             ...collectionData,
             user,
             pairsCount,
             likesCount,
-            isLiked
+            isLiked,
+            hasPictures
         };
     }
 

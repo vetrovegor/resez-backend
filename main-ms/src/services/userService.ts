@@ -104,8 +104,14 @@ class UserService {
 
         await user.save();
 
-        socketService.emitByUserId(userId, EmitTypes.Verify, {
-            user: await user.toShortInfo()
+        // socketService.emitByUserId(userId, EmitTypes.Verify, {
+        //     user: await user.toShortInfo()
+        // });
+
+        rmqService.sendToQueue('socket-queue', 'emit-to-user', {
+            userId,
+            emitType: EmitTypes.Verify,
+            data: { user: await user.toShortInfo() }
         });
     }
 
@@ -358,9 +364,9 @@ class UserService {
 
         const userIDsArrays: number[][] = [];
 
-        if (online && online.toLowerCase() === 'true') {
-            userIDsArrays.push(socketService.getOnlineUserIDs());
-        }
+        // if (online && online.toLowerCase() === 'true') {
+        //     userIDsArrays.push(socketService.getOnlineUserIDs());
+        // }
 
         if (hasRole && hasRole.toLowerCase() === 'true') {
             // вынести в roleService в getAdminIDs?
@@ -432,11 +438,17 @@ class UserService {
         user.set('blockReason', reason);
         await user.save();
 
-        socketService.emitByUserId(
+        // socketService.emitByUserId(
+        //     userId,
+        //     blockStatus ? EmitTypes.Blocked : EmitTypes.Unblocked,
+        //     blockStatus ? { reason } : null
+        // );
+
+        rmqService.sendToQueue('socket-queue', 'emit-to-user', {
             userId,
-            blockStatus ? EmitTypes.Blocked : EmitTypes.Unblocked,
-            blockStatus ? { reason } : null
-        );
+            emitType: blockStatus ? EmitTypes.Blocked : EmitTypes.Unblocked,
+            data: blockStatus ? { reason } : null
+        });
 
         // залогировать бан
 
@@ -462,6 +474,12 @@ class UserService {
                 EmitTypes.NewLevel,
                 levelInfo
             );
+
+            rmqService.sendToQueue('socket-queue', 'emit-to-user', {
+                userId: user.get('id'),
+                emitType: EmitTypes.NewLevel,
+                data: levelInfo
+            });
         }
 
         return await user.toShortInfo();

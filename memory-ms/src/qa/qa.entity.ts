@@ -26,7 +26,7 @@ export class Qa {
     @Column({ name: 'answer_picture', nullable: true })
     answerPicture: string;
 
-    @ManyToOne(() => Collection, (collection) => collection.questionsAnswers, {
+    @ManyToOne(() => Collection, collection => collection.questionsAnswers, {
         onDelete: 'CASCADE'
     })
     @JoinColumn({

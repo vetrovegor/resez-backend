@@ -1,13 +1,13 @@
-import { Op } from "sequelize";
+import { Op } from 'sequelize';
 
-import Code from "../db/models/Code";
-import { VerificationCodeData } from "types/code";
-import userService from "./userService";
-import { ApiError } from "../ApiError";
-import socketService from "./socketService";
-import User from "../db/models/User";
-import { EmitTypes } from "types/socket";
-import rmqService from "./rmqService";
+import Code from '../db/models/Code';
+import { VerificationCodeData } from 'types/code';
+import userService from './userService';
+import { ApiError } from '../ApiError';
+import socketService from './socketService';
+import User from '../db/models/User';
+import { EmitTypes } from 'types/socket';
+import rmqService from './rmqService';
 
 // подумать как сделать лучше, как вынести в файл с типами
 export const enum CodeTypes {
@@ -18,7 +18,9 @@ export const enum CodeTypes {
 }
 
 class CodeService {
-    async createVerificationCode(userId: number): Promise<VerificationCodeData> {
+    async createVerificationCode(
+        userId: number
+    ): Promise<VerificationCodeData> {
         const code = this.generateCode();
         const currentDate = Date.now();
         const retryDate = currentDate + 60000;
@@ -43,11 +45,17 @@ class CodeService {
                 retryDate
             });
 
-            socketService.emitByUserId(
+            // socketService.emitByUserId(
+            //     userId,
+            //     EmitTypes.VerifyCodeUpdated,
+            //     { verificationCodeData }
+            // );
+
+            rmqService.sendToQueue('socket-queue', 'emit-to-user', {
                 userId,
-                EmitTypes.VerifyCodeUpdated,
-                { verificationCodeData }
-            );
+                emitType: EmitTypes.VerifyCodeUpdated,
+                data: { verificationCodeData }
+            });
 
             return verificationCodeData;
         }
@@ -69,7 +77,11 @@ class CodeService {
         return code.toString();
     }
 
-    async validateCode(type: CodeTypes, code?: string, userId?: number): Promise<Code> {
+    async validateCode(
+        type: CodeTypes,
+        code?: string,
+        userId?: number
+    ): Promise<Code> {
         const whereOptions: any = {
             type,
             expiredDate: {
@@ -111,20 +123,27 @@ class CodeService {
             id,
             telegramChatId,
             CodeTypes.RECOVERY,
-            "Код для восстановления пароля:",
+            'Код для восстановления пароля:',
             60000,
             300000
         );
     }
 
-    async verifyRecoveryPasswordCode(nickname: string, code: string): Promise<void> {
+    async verifyRecoveryPasswordCode(
+        nickname: string,
+        code: string
+    ): Promise<void> {
         const user = await userService.getUserByNickname(nickname);
 
         if (!user) {
             this.throwInvalidCode();
         }
 
-        const codeData = await this.validateCode(CodeTypes.RECOVERY, code, user.id);
+        const codeData = await this.validateCode(
+            CodeTypes.RECOVERY,
+            code,
+            user.id
+        );
 
         if (!codeData) {
             this.throwInvalidCode();
@@ -133,7 +152,10 @@ class CodeService {
         return;
     }
 
-    async sendChangePasswordCode(userId: number, oldPassword: string): Promise<Code> {
+    async sendChangePasswordCode(
+        userId: number,
+        oldPassword: string
+    ): Promise<Code> {
         await userService.validateUserPassword(userId, oldPassword);
 
         const telegramChatId = await userService.getUserTelegramChatId(userId);
@@ -142,14 +164,21 @@ class CodeService {
             userId,
             telegramChatId,
             CodeTypes.CHANGE,
-            "Код для смены пароля:",
+            'Код для смены пароля:',
             60000,
             300000
         );
     }
 
-    async verifyChangePasswordCode(userId: number, code: string): Promise<void> {
-        const codeData = await this.validateCode(CodeTypes.CHANGE, code, userId);
+    async verifyChangePasswordCode(
+        userId: number,
+        code: string
+    ): Promise<void> {
+        const codeData = await this.validateCode(
+            CodeTypes.CHANGE,
+            code,
+            userId
+        );
 
         if (!codeData) {
             this.throwInvalidCode();
@@ -158,9 +187,25 @@ class CodeService {
         return;
     }
 
-    async createAndEmitAuthCode(userId: number, uniqueId: string): Promise<void> {
-        const createdCode = await this.saveCode(userId, null, CodeTypes.AUTH, null, 0, 5000, false);
-        socketService.emitAuthCode(uniqueId, createdCode.get('code'));
+    async createAndEmitAuthCode(
+        userId: number,
+        uniqueId: string
+    ): Promise<void> {
+        const createdCode = await this.saveCode(
+            userId,
+            null,
+            CodeTypes.AUTH,
+            null,
+            0,
+            5000,
+            false
+        );
+        // socketService.emitAuthCode(uniqueId, createdCode.get('code'));
+
+        rmqService.sendToQueue('socket-queue', 'emit-auth-code', {
+            uniqueId,
+            code: createdCode.get('code')
+        });
     }
 
     // сделать как-то чтобы не зависило от пользователя
@@ -182,8 +227,15 @@ class CodeService {
         return user;
     }
 
-    async saveCode(userId: number, telegramChatId: string, type: CodeTypes, message: string,
-        cooldown: number = 60000, lifetime: number = 60000, shouldSendMessage: boolean = true): Promise<Code> {
+    async saveCode(
+        userId: number,
+        telegramChatId: string,
+        type: CodeTypes,
+        message: string,
+        cooldown: number = 60000,
+        lifetime: number = 60000,
+        shouldSendMessage: boolean = true
+    ): Promise<Code> {
         const codeData = await this.validateCode(type, null, userId);
 
         const code = this.generateCode();
@@ -193,7 +245,11 @@ class CodeService {
 
         if (!codeData) {
             if (shouldSendMessage) {
-                await rmqService.publishMessage('code', { telegramChatId, message, code });
+                await rmqService.publishMessage('code', {
+                    telegramChatId,
+                    message,
+                    code
+                });
             }
 
             return await Code.create({
@@ -210,7 +266,11 @@ class CodeService {
         }
 
         if (shouldSendMessage) {
-            await rmqService.publishMessage('code', { telegramChatId, message, code });
+            await rmqService.publishMessage('code', {
+                telegramChatId,
+                message,
+                code
+            });
         }
 
         return await codeData.update({
