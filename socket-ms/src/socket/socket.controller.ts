@@ -1,5 +1,11 @@
 import { Controller } from '@nestjs/common';
-import { EventPattern } from '@nestjs/microservices';
+import {
+    Ctx,
+    EventPattern,
+    MessagePattern,
+    Payload,
+    RmqContext
+} from '@nestjs/microservices';
 import { SocketService } from './socket.service';
 import { EmitTypes } from './constants';
 
@@ -10,6 +16,7 @@ export class SocketController {
     @EventPattern('emit-to-user')
     emitToUser(content: { userId: number; emitType: EmitTypes; data: any }) {
         const { userId, emitType, data } = content;
+        console.log({ userId, emitType, data });
         this.socketService.emitToUser(userId, emitType, data);
     }
 
@@ -27,5 +34,27 @@ export class SocketController {
     @EventPattern('emit-new-permissions')
     emitNewPermissions(userIDs: number[], permissions: any) {
         this.socketService.emitNewPermissions(userIDs, permissions);
+    }
+
+    @MessagePattern('online-users')
+    getOnlineUserIds(@Ctx() context: RmqContext) {
+        const channel = context.getChannelRef();
+        const originalMsg = context.getMessage();
+        const onlineUserIds = this.socketService.getOnlineUserIds();
+        channel.sendToQueue(
+            originalMsg.properties.replyTo,
+            Buffer.from(JSON.stringify(onlineUserIds))
+        );
+    }
+
+    @MessagePattern('user-activity')
+    async getUserActivity(@Payload() userId, @Ctx() context: RmqContext) {
+        const channel = context.getChannelRef();
+        const originalMsg = context.getMessage();
+        const { replyTo } = originalMsg.properties;
+        const activity = await this.socketService.getUserActivity(
+            userId.toString()
+        );
+        channel.sendToQueue(replyTo, Buffer.from(JSON.stringify(activity)));
     }
 }

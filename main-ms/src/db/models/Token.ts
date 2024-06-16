@@ -8,7 +8,7 @@ import Session from './Session.js';
 })
 class Token extends Model {
     @Column({
-        type: DataType.STRING
+        type: DataType.TEXT
     })
     token: string;
 

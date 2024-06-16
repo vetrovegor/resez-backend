@@ -315,18 +315,15 @@ export class QaService {
     }
 
     async hasPictures(collectionId: number) {
-        const data = await this.qaRepository.findOne({
-            where: [
-                {
-                    collection: { id: collectionId },
-                    questionPicture: Not(IsNull())
-                },
-                {
-                    collection: { id: collectionId },
-                    answerPicture: Not(IsNull())
-                }
-            ]
-        });
+        const data = await this.qaRepository
+            .createQueryBuilder('qa')
+            .leftJoinAndSelect('qa.collection', 'collection')
+            .where('collection.id = :collectionId', { collectionId })
+            .andWhere(
+                "(qa.questionPicture IS NOT NULL AND qa.questionPicture <> '') OR " +
+                    "(qa.answerPicture IS NOT NULL AND qa.answerPicture <> '')"
+            )
+            .getOne();
 
         return !!data;
     }

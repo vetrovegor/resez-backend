@@ -1,5 +1,6 @@
 import { Table, Column, Model, DataType, HasMany } from 'sequelize-typescript';
 import User from '../User';
+import { SubscriptionDTO } from 'types/subscription';
 
 @Table({
     timestamps: false,
@@ -19,11 +20,11 @@ class Subscription extends Model {
     @HasMany(() => User)
     users: User[];
 
-    toDto() {
+    toDto(): SubscriptionDTO {
         const { subscription, canUploadImages } = this.get();
 
         return {
-            subscription,
+            name: subscription,
             canUploadImages
         };
     }

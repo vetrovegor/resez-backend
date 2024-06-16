@@ -275,20 +275,28 @@ class User extends Model {
         return permissions;
     }
 
+    async getSubscription() {
+        const { subscriptionId } = this.get();
+
+        if (!subscriptionId) {
+            return null;
+        }
+
+        const subscription = await Subscription.findByPk(subscriptionId);
+
+        return subscription.toDto();
+    }
+
     async toTokenInfo(): Promise<UserTokenInfo> {
-        const { id, nickname, telegramChatId, subscriptionId } = this.get();
+        const { id, nickname, telegramChatId } = this.get();
 
-        // вынести в отдельный метод
-        const subscriptionData = await Subscription.findByPk(subscriptionId);
-
-        const { canUploadImages = false } =
-            (subscriptionData && subscriptionData.toJSON()) || {};
+        const subscription = await this.getSubscription();
 
         return {
             id,
             nickname,
             telegramChatId,
-            canUploadImages
+            subscription
         };
     }
 
@@ -317,11 +325,7 @@ class User extends Model {
             }
         });
 
-        // вынести в отдельный метод
-        const subscriptionData = await Subscription.findByPk(subscriptionId);
-
-        const { canUploadImages = false } =
-            (subscriptionData && subscriptionData.toJSON()) || {};
+        const subscription = await this.getSubscription();
 
         return {
             id,
@@ -337,7 +341,7 @@ class User extends Model {
             },
             permissions,
             unreadNotifiesCount,
-            canUploadImages
+            subscription
         };
     }
 

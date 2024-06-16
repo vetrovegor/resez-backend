@@ -26,6 +26,18 @@ services:
         volumes:
             - ./collection-ms-db:/var/lib/postgresql/data
         restart: unless-stopped
+        
+    resez-socket-db:
+        image: postgres:16
+        container_name: resez-socket-db
+        ports:
+            - '5434:5432'
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+        volumes:
+            - ./socket-ms-db:/var/lib/postgresql/data
+        restart: unless-stopped
 
     # resez-memory:
     #     image: xw1nchester/resez-memory

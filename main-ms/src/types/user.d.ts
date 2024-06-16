@@ -2,6 +2,7 @@ import User from "db/models/User"
 import { PermissionDTO } from "./permission"
 import { VerificationCodeData } from "./code"
 import { RolePreview } from "./role"
+import { SubscriptionDTO } from "./subscription"
 
 export type UserAuthDTO = {
     nickname: string,
@@ -12,7 +13,7 @@ export type UserTokenInfo = {
     id: number,
     nickname: string,
     telegramChatId: string,
-    canUploadImages: boolean
+    subscription: SubscriptionDTO
 }
 
 export type UserShortInfo = {
@@ -29,7 +30,7 @@ export type UserShortInfo = {
     }
     permissions: PermissionDTO[],
     unreadNotifiesCount: number,
-    canUploadImages: boolean
+    subscription: SubscriptionDTO
 }
 
 export type AuthResponse = {

@@ -3,6 +3,7 @@ import amqp from 'amqplib';
 import userService from './userService';
 import codeService from './codeService';
 import sessionService from './sessionService';
+import { v4 } from 'uuid';
 
 class RmqService {
     private channel: amqp.Channel;
@@ -141,11 +142,38 @@ class RmqService {
         );
     }
 
-    sendToQueue(queue: string, pattern: string, data: any) {
+    async sendToQueue(queue: string, pattern: string, data?: any) {
+        const { queue: replyTo } = await this.channel.assertQueue('', {
+            exclusive: true
+        });
+
         this.channel.sendToQueue(
             queue,
-            Buffer.from(JSON.stringify({ pattern, data }))
+            Buffer.from(JSON.stringify({ pattern, data })),
+            {
+                replyTo
+            }
         );
+
+        return await new Promise(resolve => {
+            setTimeout(() => {
+                this.channel
+                    .cancel(replyTo)
+                    .catch(err =>
+                        console.error('Error cancelling queue:', err)
+                    );
+                resolve(null);
+            }, 1000);
+
+            this.channel.consume(
+                replyTo,
+                msg => {
+                    const data = JSON.parse(msg.content.toString());
+                    resolve(data);
+                },
+                { noAck: true }
+            );
+        });
     }
 }
 

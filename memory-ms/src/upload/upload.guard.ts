@@ -10,6 +10,6 @@ export class UploadGuard implements CanActivate {
         const request = context.switchToHttp().getRequest();
         const user = request.user as JwtPayload;
 
-        return user.canUploadImages;
+        return !!user.subscription && user.subscription.canUploadImages;
     }
 }

@@ -110,7 +110,7 @@ class AuthController {
 
             await sessionService.endCurrentSession(req, id);
 
-            res.clearCookie('refreshToken').send();
+            res.clearCookie('refreshToken').sendStatus(200);
         } catch (error) {
             next(error);
         }

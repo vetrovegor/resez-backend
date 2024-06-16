@@ -364,9 +364,13 @@ class UserService {
 
         const userIDsArrays: number[][] = [];
 
-        // if (online && online.toLowerCase() === 'true') {
-        //     userIDsArrays.push(socketService.getOnlineUserIDs());
-        // }
+        if (online && online.toLowerCase() === 'true') {
+            const onlineUserIds = await rmqService.sendToQueue(
+                'socket-queue',
+                'online-users'
+            ) as number[];
+            userIDsArrays.push(onlineUserIds);
+        }
 
         if (hasRole && hasRole.toLowerCase() === 'true') {
             // вынести в roleService в getAdminIDs?
@@ -404,7 +408,17 @@ class UserService {
         });
 
         const usersDtos = await Promise.all(
-            users.map(async user => await user.toAdminInfo())
+            users.map(async user => {
+                const activity = await rmqService.sendToQueue(
+                    'socket-queue',
+                    'user-activity',
+                    user.get('id')
+                );
+                return {
+                    ...(await user.toAdminInfo()),
+                    activity
+                };
+            })
         );
 
         const totalCount = await User.count({
