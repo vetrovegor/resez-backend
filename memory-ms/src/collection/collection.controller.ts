@@ -43,6 +43,11 @@ export class CollectionController {
         );
     }
 
+    @Get('popular')
+    async findPopular(@CurrentUser() user: JwtPayload) {
+        return await this.collectionService.findPopular(user.id);
+    }
+
     @Get('liked')
     async findLiked(
         @CurrentUser() user: JwtPayload,

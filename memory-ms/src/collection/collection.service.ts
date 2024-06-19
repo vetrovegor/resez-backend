@@ -123,6 +123,26 @@ export class CollectionService {
         };
     }
 
+    async findPopular(userId: number) {
+        const collectionsData = await this.collectionRepository
+            .createQueryBuilder('collection')
+            .select(['collection', 'COUNT(like.collectionId) AS likeCount'])
+            .leftJoin('collection.likes', 'like')
+            .where('collection.isPrivate = :isPrivate', { isPrivate: false })
+            .groupBy('collection.id')
+            .orderBy('likeCount', 'DESC')
+            .limit(3)
+            .getMany();
+
+        const collections = await Promise.all(
+            collectionsData.map(async collection =>
+                this.getShortInfo(collection, userId)
+            )
+        );
+
+        return { collections };
+    }
+
     async findLiked(
         userId: number,
         take: number,
@@ -141,9 +161,6 @@ export class CollectionService {
 
         const collectionsData = await this.collectionRepository.find({
             where,
-            order: {
-                createdAt: 'DESC'
-            },
             take,
             skip
         });
@@ -154,12 +171,16 @@ export class CollectionService {
             )
         );
 
+        const sortedCollections = likedCollectionIds.map(id =>
+            collections.find(collection => collection.id === id)
+        );
+
         const totalCount = await this.collectionRepository.count({
             where
         });
 
         return {
-            collections,
+            collections: sortedCollections,
             totalCount,
             isLast: totalCount <= take + skip,
             elementsCount: collections.length

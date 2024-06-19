@@ -55,7 +55,7 @@ export class SocketService implements OnGatewayConnection {
         sessionId: string,
         socketId: string
     ) {
-        console.log('Join client:', { userId, sessionId, socketId });
+        console.log('Joined client:', { userId, sessionId, socketId });
         userId = userId.toString();
         sessionId = sessionId.toString();
 

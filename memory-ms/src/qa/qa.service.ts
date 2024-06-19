@@ -140,9 +140,14 @@ export class QaService {
     getOtherRandomPairs(
         elements: Partial<Qa>[],
         excludedId: number,
-        count: number
+        count: number,
+        nonEmptyAnswerText: boolean = false
     ) {
-        const filteredElements = elements.filter(item => item.id != excludedId);
+        const filteredElements = elements.filter(
+            item =>
+                item.id != excludedId &&
+                (!nonEmptyAnswerText || item.answerText !== '')
+        );
         shuffleArray(filteredElements);
         return filteredElements.slice(0, count);
     }
@@ -157,7 +162,7 @@ export class QaService {
         }: Partial<Qa>,
         allPairs: Partial<Qa>[]
     ) {
-        const otherPairs = this.getOtherRandomPairs(allPairs, id, 3);
+        const otherPairs = this.getOtherRandomPairs(allPairs, id, 3, true);
 
         const choices = otherPairs.map(otherCard => {
             const { id, answerText, answerPicture } = otherCard;
@@ -247,20 +252,22 @@ export class QaService {
             randomize: shuffleTest
         });
 
-        return await Promise.all(
-            allPairs.slice(0, maxQuestions).map(async card => {
+        return allPairs
+            .slice(0, maxQuestions)
+            .map(card => {
                 const modes = [];
-                if (answerChoiceMode)
+                if (answerChoiceMode && card.answerText != '')
                     modes.push(this.getChoiceModeTask(card, allPairs));
+                if (writeMode && card.answerText != '')
+                    modes.push(this.getWriteModeTask(card));
                 if (trueFalseMode)
                     modes.push(this.getValidationModeTask(card, allPairs));
-                if (writeMode) modes.push(this.getWriteModeTask(card));
 
                 const randomIndex = Math.floor(Math.random() * modes.length);
 
                 return modes[randomIndex];
             })
-        );
+            .filter(task => task != null);
     }
 
     async getMatches(collectionId: number) {

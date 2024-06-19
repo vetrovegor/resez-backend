@@ -124,15 +124,24 @@ class MessageService {
         return await createdMessage.toDTO();
     }
 
-    async getLastMessageByChatId(chatId: number): Promise<MessageDTO> {
-        const message = await Message.findOne({
-            where: {
-                chatId
-            },
+    async getLastMessageByChatId(
+        chatId: number,
+        userId: number
+    ): Promise<MessageDTO> {
+        const lastUserMessage = await UserMessage.findOne({
+            where: { chatId, userId },
             order: [['createdAt', 'DESC']]
         });
 
-        return message ? await message.toDTO() : null;
+        if (!lastUserMessage) {
+            return null;
+        }
+
+        const lastMessage = await Message.findByPk(
+            lastUserMessage.get('messageId')
+        );
+
+        return lastMessage ? await lastMessage.toDTO() : null;
     }
 
     async editMessage(

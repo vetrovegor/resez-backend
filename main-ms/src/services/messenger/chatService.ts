@@ -126,7 +126,7 @@ class ChatService {
             })
         ).toJSON();
 
-        const lastMessage = await messageService.getLastMessageByChatId(id);
+        const lastMessage = await messageService.getLastMessageByChatId(id, forUserId);
 
         if (isGroup) {
             return {
