@@ -26,7 +26,12 @@ export const enum Permissions {
     DeleteTasks = 'Удаление заданий',
     VerifyTasks = 'Верификация заданий',
     Complaints = 'Жалобы',
-    Archive = 'Архив'
+    Archive = 'Архив',
+    Store = 'Магазин',
+    CreateProducts = 'Создание товаров',
+    UpdateProducts = 'Редактирование товаров',
+    DeleteProducts = 'Удаление товаров',
+    AssignProducts = 'Выдача товаров'
 }
 
 export type PermissionDTO = {

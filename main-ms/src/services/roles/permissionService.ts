@@ -115,6 +115,26 @@ const permissionsHierarchy = [
     {
         permission: Permissions.Archive,
         parent: Permissions.Admin
+    },
+    {
+        permission: Permissions.Store,
+        parent: Permissions.Admin
+    },
+    {
+        permission: Permissions.CreateProducts,
+        parent: Permissions.Store
+    },
+    {
+        permission: Permissions.UpdateProducts,
+        parent: Permissions.Store
+    },
+    {
+        permission: Permissions.DeleteProducts,
+        parent: Permissions.Store
+    },
+    {
+        permission: Permissions.AssignProducts,
+        parent: Permissions.Store
     }
 ];
 
