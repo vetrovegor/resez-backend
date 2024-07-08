@@ -8,6 +8,7 @@ import { collectionRouter } from "./collectionRouter";
 import { adminRouter } from "./admin/adminRouter";
 import { messengerRouter } from "./messenger/mesengerRouter";
 import { notifyRouter } from "./notifyRouter";
+import { achievementRouter } from "./achievementRouter";
 
 export const router = Router();
 
@@ -26,3 +27,5 @@ router.use('/collection', collectionRouter);
 router.use('/admin', adminRouter);
 
 router.use('/messenger', messengerRouter);
+
+router.use('/achievement', achievementRouter);

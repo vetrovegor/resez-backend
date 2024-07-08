@@ -21,6 +21,7 @@ import notifyService from './services/notifies/notifyService';
 import rmqService from './services/rmqService';
 import { redisClient } from './redisClient';
 import subscribeService from './services/subscribeService';
+import achievementService from './services/achievementService';
 
 const app = express();
 
@@ -52,6 +53,8 @@ const start = async () => {
         await notifyTypeService.initNotifyTypes();
 
         await subscribeService.initSubscriptions();
+
+        await achievementService.initAchievements();
     } else {
         await sequelize.sync();
     }
