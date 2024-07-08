@@ -9,6 +9,7 @@ import { fileMiddleware } from "../middlewares/fileMiddleware";
 import { imageMiddleware } from "../middlewares/imageMiddleware";
 import { validationMiddleware } from "../middlewares/validationMiddleware";
 import { paginationMiddleware } from "../middlewares/paginationMiddleware";
+import avatarDecorationController from "../controllers/store/avatarDecorationController";
 
 export const userRouter = Router();
 
@@ -68,6 +69,30 @@ userRouter.delete(
     accessTokenMiddleware,
     blockedMiddleware,
     userController.deleteAvatar
+);
+
+userRouter.get(
+    '/avatar-decoration',
+    accessTokenMiddleware,
+    blockedMiddleware,
+    paginationMiddleware,
+    avatarDecorationController.getUserAvatarDecorations
+);
+
+userRouter.patch(
+    '/avatar-decoration/:id',
+    accessTokenMiddleware,
+    blockedMiddleware,
+    param('id').isNumeric(),
+    validationMiddleware,
+    userController.setAvatarDecoration
+);
+
+userRouter.delete(
+    '/avatar-decoration',
+    accessTokenMiddleware,
+    blockedMiddleware,
+    userController.deleteAvatarDecoration
 );
 
 userRouter.get(

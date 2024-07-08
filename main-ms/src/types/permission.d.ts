@@ -31,7 +31,8 @@ export const enum Permissions {
     CreateProducts = 'Создание товаров',
     UpdateProducts = 'Редактирование товаров',
     DeleteProducts = 'Удаление товаров',
-    AssignProducts = 'Выдача товаров'
+    AssignProducts = 'Выдача товаров',
+    PublishProducts = 'Публикация товаров'
 }
 
 export type PermissionDTO = {

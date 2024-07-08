@@ -34,6 +34,8 @@ import Activity from './Activity';
 import UserMessage from './messenger/UserMessage';
 import MessageRead from './messenger/MessageRead';
 import Subscription from './subscription/Subscription';
+import AvatarDecoration from './store/AvatarDecorations';
+import UserAvatarDecoration from './store/UserAvatarDecorations';
 
 @Table({
     timestamps: false,
@@ -237,6 +239,21 @@ class User extends Model {
     })
     messageReads: MessageRead[];
 
+    @BelongsToMany(() => AvatarDecoration, () => UserAvatarDecoration)
+    avatarDecorations: AvatarDecoration[];
+
+    @HasMany(() => UserAvatarDecoration, {
+        onDelete: 'CASCADE'
+    })
+    userAvatarDecorations: UserAvatarDecoration[];
+
+    @ForeignKey(() => AvatarDecoration)
+    @Column
+    avatarDecorationId: number;
+
+    @BelongsTo(() => AvatarDecoration)
+    avatarDecoration: AvatarDecoration;
+
     async getRoles(): Promise<Role[]> {
         const userRoles = await UserRole.findAll({
             where: { userId: this.get('id') },
@@ -364,18 +381,6 @@ class User extends Model {
             firstName,
             lastName,
             avatar: avatar ? process.env.STATIC_URL + avatar : null
-        };
-    }
-
-    toProfileInfo(): UserProfileInfo {
-        const { id, firstName, lastName, birthDate, gender } = this.get();
-
-        return {
-            id,
-            firstName,
-            lastName,
-            birthDate,
-            gender
         };
     }
 

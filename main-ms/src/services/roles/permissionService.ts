@@ -135,6 +135,10 @@ const permissionsHierarchy = [
     {
         permission: Permissions.AssignProducts,
         parent: Permissions.Store
+    },
+    {
+        permission: Permissions.PublishProducts,
+        parent: Permissions.Store
     }
 ];
 

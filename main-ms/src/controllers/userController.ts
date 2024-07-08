@@ -162,6 +162,37 @@ class UserhController {
         }
     }
 
+    async setAvatarDecoration(
+        req: RequestWithParamsAndUser<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const user = await userService.setAvatarDecoration(
+                req.params.id,
+                req.user.id
+            );
+
+            res.json({ user });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async deleteAvatarDecoration(
+        req: RequestWithUser,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const user = await userService.deleteAvatarDecoration(req.user.id);
+
+            res.json({ user });
+        } catch (error) {
+            next(error);
+        }
+    }
+
     async getUser(
         req: RequestWithParams<{ nickname: string }>,
         res: Response,

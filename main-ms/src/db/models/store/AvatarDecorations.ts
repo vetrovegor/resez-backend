@@ -4,11 +4,15 @@ import {
     Model,
     DataType,
     ForeignKey,
-    BelongsTo
+    BelongsTo,
+    BelongsToMany,
+    HasMany
 } from 'sequelize-typescript';
 import Subscription from '../subscription/Subscription';
 import { StoreContentType } from '../../../enums/store';
 import Achievement from '../Achievement';
+import User from '../User';
+import UserAvatarDecoration from './UserAvatarDecorations';
 
 @Table({
     timestamps: true,
@@ -31,7 +35,8 @@ class AvatarDecoration extends Model {
     contentUrl: string;
 
     @Column({
-        type: DataType.INTEGER
+        type: DataType.INTEGER,
+        defaultValue: 0
     })
     price: number;
 
@@ -77,6 +82,14 @@ class AvatarDecoration extends Model {
         defaultValue: false
     })
     isArchived: boolean;
+
+    @BelongsToMany(() => User, () => UserAvatarDecoration)
+    users: User[];
+
+    @HasMany(() => UserAvatarDecoration, {
+        onDelete: 'CASCADE'
+    })
+    userAvatarDecorations: UserAvatarDecoration[];
 }
 
 export default AvatarDecoration;

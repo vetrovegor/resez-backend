@@ -8,7 +8,7 @@ import { notifyRouter } from "./notify/notifyRouter";
 import { notifyTypeRouter } from "./notify/notifyTypeRouter";
 import { userRouter } from "./userRouter";
 import { subscriptionRouter } from "./subscriptionRouter";
-import { storeRouter } from "./storeRouter";
+import { storeRouter } from "./store/storeRouter";
 
 export const adminRouter = Router();
 

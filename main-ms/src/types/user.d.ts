@@ -74,6 +74,7 @@ export type UserProfileInfo = {
     lastName: string;
     birthDate: Date;
     gender: string;
+    avatar: string;
 }
 
 export type LevelInfo = {

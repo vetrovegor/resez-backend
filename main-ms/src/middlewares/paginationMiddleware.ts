@@ -1,9 +1,13 @@
-import { Response, NextFunction } from "express";
+import { Response, NextFunction } from 'express';
 
-import { PaginationQuery, RequestWithQuery } from "types/request.js";
-import { ApiError } from "../ApiError";
+import { PaginationQuery, RequestWithQuery } from 'types/request.js';
+import { ApiError } from '../ApiError';
 
-export const paginationMiddleware = async (req: RequestWithQuery<PaginationQuery>, res: Response, next: NextFunction) => {
+export const paginationMiddleware = async (
+    req: RequestWithQuery<PaginationQuery>,
+    res: Response,
+    next: NextFunction
+) => {
     try {
         let { limit = 5, offset = 0 } = req.query;
 
@@ -29,4 +33,4 @@ export const paginationMiddleware = async (req: RequestWithQuery<PaginationQuery
     } catch (error) {
         return next(error);
     }
-}
+};

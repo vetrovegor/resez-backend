@@ -20,6 +20,7 @@ import UserRole from '../db/models/UserRole';
 import fileService from './fileService';
 import rmqService from './rmqService';
 import { redisClient } from '../redisClient';
+import avatarDecorationService from './store/avatarDecorationService';
 
 class UserService {
     async getUserById(id: number): Promise<User> {
@@ -157,10 +158,42 @@ class UserService {
         return user.get('isBlocked');
     }
 
+    // типизировать
+    async createProfileInfo(user: User) {
+        const {
+            id,
+            firstName,
+            lastName,
+            birthDate,
+            gender,
+            avatar,
+            avatarDecorationId
+        } = user.toJSON();
+
+        let avatarDecoration = null;
+
+        if (avatarDecorationId) {
+            avatarDecoration =
+                await avatarDecorationService.createAvatarDecorationDtoById(
+                    avatarDecorationId
+                );
+        }
+
+        return {
+            id,
+            firstName,
+            lastName,
+            birthDate,
+            gender,
+            avatar: avatar ? process.env.STATIC_URL + avatar : null,
+            avatarDecoration
+        };
+    }
+
     async getProfileInfo(userId: number): Promise<UserProfileInfo> {
         const user = await this.getUserById(userId);
 
-        return user.toProfileInfo();
+        return await this.createProfileInfo(user);
     }
 
     async updateProfile(
@@ -179,7 +212,7 @@ class UserService {
 
         await user.save();
 
-        return user.toProfileInfo();
+        return await this.createProfileInfo(user);
     }
 
     async updateSettings(
@@ -228,6 +261,29 @@ class UserService {
         await user.save();
 
         return await user.toShortInfo();
+    }
+
+    async setAvatarDecoration(avatarDecorationId: number, userId: number) {
+        await avatarDecorationService.getUserAvatarDecoration(
+            avatarDecorationId,
+            userId
+        );
+
+        const user = await User.findByPk(userId);
+
+        user.set('avatarDecorationId', avatarDecorationId);
+        await user.save();
+
+        return await this.createProfileInfo(user);
+    }
+
+    async deleteAvatarDecoration(userId: number) {
+        const user = await User.findByPk(userId);
+
+        user.set('avatarDecorationId', null);
+        await user.save();
+
+        return await this.createProfileInfo(user);
     }
 
     async getUser(nickname: string) {
@@ -365,10 +421,10 @@ class UserService {
         const userIDsArrays: number[][] = [];
 
         if (online && online.toLowerCase() === 'true') {
-            const onlineUserIds = await rmqService.sendToQueue(
+            const onlineUserIds = (await rmqService.sendToQueue(
                 'socket-queue',
                 'online-users'
-            ) as number[];
+            )) as number[];
             userIDsArrays.push(onlineUserIds);
         }
 
