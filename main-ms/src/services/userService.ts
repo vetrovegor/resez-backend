@@ -162,6 +162,7 @@ class UserService {
     async createProfileInfo(user: User) {
         const {
             id,
+            nickname,
             firstName,
             lastName,
             birthDate,
@@ -181,6 +182,7 @@ class UserService {
 
         return {
             id,
+            nickname,
             firstName,
             lastName,
             birthDate,
@@ -293,7 +295,7 @@ class UserService {
             throw ApiError.notFound('Пользователь не найден');
         }
 
-        return user.toProfilePreview();
+        return await this.createProfileInfo(user);
     }
 
     async searchUsers(

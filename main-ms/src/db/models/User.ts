@@ -372,18 +372,6 @@ class User extends Model {
         };
     }
 
-    toProfilePreview(): UserProfilePreview {
-        const { id, nickname, firstName, lastName, avatar } = this.get();
-
-        return {
-            id,
-            nickname,
-            firstName,
-            lastName,
-            avatar: avatar ? process.env.STATIC_URL + avatar : null
-        };
-    }
-
     async toAdminInfo(): Promise<UserAdminInfo> {
         const {
             id,

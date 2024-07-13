@@ -12,6 +12,8 @@ RUN npm ci
 
 COPY --chown=node:node . .
 
+RUN npx prisma generate
+
 USER node
 
 ###################
@@ -44,5 +46,6 @@ WORKDIR /app
 
 COPY --chown=node:node --from=build /app/node_modules /app/node_modules
 COPY --chown=node:node --from=build /app/dist /app/dist
+COPY --chown=node:node --from=build /app/prisma /app/prisma
 
-CMD [ "node", "/app/dist/main.js" ]
+CMD ["sh", "-c", "npx prisma migrate deploy && node /app/dist/main.js"]
