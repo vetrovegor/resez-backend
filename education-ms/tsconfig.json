@@ -1,0 +1,33 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "declaration": true,
+        "removeComments": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "allowSyntheticDefaultImports": true,
+        "target": "ES2021",
+        "sourceMap": true,
+        "outDir": "./dist",
+        "baseUrl": "./",
+        "incremental": true,
+        "skipLibCheck": true,
+        "strictNullChecks": false,
+        "noImplicitAny": false,
+        "strictBindCallApply": false,
+        "forceConsistentCasingInFileNames": false,
+        "noFallthroughCasesInSwitch": false,
+        "paths": {
+            "@auth": ["src/auth/"],
+            "@auth/*": ["src/auth//*"],
+            "@subject": ["src/subject/"],
+            "@subject/*": ["src/subject//*"],
+            "@subject-task": ["src/subject-task/"],
+            "@subject-task/*": ["src/subject-task//*"],
+            "@sub-theme": ["src/sub-theme/"],
+            "@sub-theme/*": ["src/sub-theme//*"],
+            "@score-conversion": ["src/score-conversion/"],
+            "@score-conversion/*": ["src/score-conversion//*"]
+        }
+    }
+}

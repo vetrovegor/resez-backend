@@ -309,11 +309,14 @@ class User extends Model {
 
         const subscription = await this.getSubscription();
 
+        const permissions = await this.getPermissions();
+
         return {
             id,
             nickname,
             telegramChatId,
-            subscription
+            subscription,
+            permissions
         };
     }
 

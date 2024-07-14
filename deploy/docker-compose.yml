@@ -38,6 +38,18 @@ services:
         volumes:
             - ./socket-ms-db:/var/lib/postgresql/data
         restart: unless-stopped
+        
+    resez-education-db:
+        image: postgres:16
+        container_name: resez-education-db
+        ports:
+            - '5435:5432'
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+        volumes:
+            - ./education-ms-db:/var/lib/postgresql/data
+        restart: unless-stopped
 
     # resez-memory:
     #     image: xw1nchester/resez-memory

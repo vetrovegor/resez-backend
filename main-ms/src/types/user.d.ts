@@ -1,120 +1,121 @@
-import User from "db/models/User"
-import { PermissionDTO } from "./permission"
-import { VerificationCodeData } from "./code"
-import { RolePreview } from "./role"
-import { SubscriptionDTO } from "./subscription"
+import User from 'db/models/User';
+import { PermissionDTO } from './permission';
+import { VerificationCodeData } from './code';
+import { RolePreview } from './role';
+import { SubscriptionDTO } from './subscription';
 
 export type UserAuthDTO = {
-    nickname: string,
-    password: string
-}
+    nickname: string;
+    password: string;
+};
 
 export type UserTokenInfo = {
-    id: number,
-    nickname: string,
-    telegramChatId: string,
-    subscription: SubscriptionDTO
-}
+    id: number;
+    nickname: string;
+    telegramChatId: string;
+    subscription: SubscriptionDTO;
+    permissions: PermissionDTO[];
+};
 
 export type UserShortInfo = {
-    id: number,
-    nickname: string,
-    isVerified: boolean,
-    isBlocked: boolean,
-    blockReason: string,
-    avatar: string,
-    levelInfo: LevelInfo,
+    id: number;
+    nickname: string;
+    isVerified: boolean;
+    isBlocked: boolean;
+    blockReason: string;
+    avatar: string;
+    levelInfo: LevelInfo;
     settings: {
-        isPrivateAccount: boolean,
-        isHideAvatars: boolean
-    }
-    permissions: PermissionDTO[],
-    unreadNotifiesCount: number,
-    subscription: SubscriptionDTO
-}
+        isPrivateAccount: boolean;
+        isHideAvatars: boolean;
+    };
+    permissions: PermissionDTO[];
+    unreadNotifiesCount: number;
+    subscription: SubscriptionDTO;
+};
 
 export type AuthResponse = {
-    user: User,
-    verificationCodeData: VerificationCodeData
-}
+    user: User;
+    verificationCodeData: VerificationCodeData;
+};
 
 export type UserRecoveryPasswordDTO = {
-    nickname: string
-    code: string
-    password: string
-}
+    nickname: string;
+    code: string;
+    password: string;
+};
 
 export type UserChangePasswordDTO = {
-    oldPassword: string
-    newPassword: string
-    code: string
-}
+    oldPassword: string;
+    newPassword: string;
+    code: string;
+};
 
 export type UserPreview = {
-    id: number,
-    nickname: string,
-    avatar: string
-}
+    id: number;
+    nickname: string;
+    avatar: string;
+};
 
 export type UserChatPreview = UserPreview & {
     isAdmin: boolean;
-}
+};
 
 export type UserProfilePreview = {
-    id: number,
-    nickname: string,
-    firstName: string,
-    lastName: string,
-    avatar: string
-}
+    id: number;
+    nickname: string;
+    firstName: string;
+    lastName: string;
+    avatar: string;
+};
 
 export type UserProfileInfo = {
-    id: number,
+    id: number;
     firstName: string;
     lastName: string;
     birthDate: Date;
     gender: string;
     avatar: string;
-}
+};
 
 export type LevelInfo = {
-    level: number,
-    xp: number,
-    limit: number
+    level: number;
+    xp: number;
+    limit: number;
 };
 
 export type UserAdminInfo = {
-    id: number,
-    nickname: number,
-    firstName: string,
-    lastName: string,
-    registrationDate: Date,
-    isVerified: string,
-    isBlocked: boolean,
-    blockReason: string,
-    avatar: string,
-    isOnline: boolean,
-    lastActivity: Date,
-    status: string,
-    levelInfo: LevelInfo,
+    id: number;
+    nickname: number;
+    firstName: string;
+    lastName: string;
+    registrationDate: Date;
+    isVerified: string;
+    isBlocked: boolean;
+    blockReason: string;
+    avatar: string;
+    isOnline: boolean;
+    lastActivity: Date;
+    status: string;
+    levelInfo: LevelInfo;
     // theme: string,
-    roles: RolePreview[]
-}
+    roles: RolePreview[];
+};
 
 export type UserSettingsInfo = {
-    isPrivateAccount: boolean,
-    isHideAvatars: boolean
-}
+    isPrivateAccount: boolean;
+    isHideAvatars: boolean;
+};
 
 export type UserSearchQuery = {
-    search: string
+    search: string;
 };
 
 export type UserFiltersQuery = {
-    search: string,
-    blocked: string,
-    verified: string,
-    online: string,
-    has_role: string,
-    role: number
+    search: string;
+    blocked: string;
+    verified: string;
+    online: string;
+    has_role: string;
+    role: number;
 };

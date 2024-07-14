@@ -46,14 +46,13 @@ class TokenService {
     }
 
     validateAccessToken(token: string) {
-        const { id, nickname } = jwt.verify(
+        const data = jwt.verify(
             token,
             process.env.JWT_ACCESS_SECRET
         ) as UserTokenInfo;
 
         return {
-            id,
-            nickname
+            ...data
         };
     }
 

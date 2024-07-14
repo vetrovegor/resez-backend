@@ -7,10 +7,11 @@ import userService from '../services/userService';
 export const permissionMiddleware = (requiredPermission: string) => {
     return async (req: RequestWithUser, res: Response, next: NextFunction) => {
         try {
-            const user = await userService.getUserById(req.user.id);
-            const permissions = await user.getPermissions();
-
-            if (!permissions.some(permission => permission.permission == requiredPermission)) {
+            if (
+                !req.user.permissions.some(
+                    permission => permission.permission == requiredPermission
+                )
+            ) {
                 throw ApiError.forbidden();
             }
 
@@ -18,5 +19,5 @@ export const permissionMiddleware = (requiredPermission: string) => {
         } catch (error) {
             next(error);
         }
-    }
-}
+    };
+};
