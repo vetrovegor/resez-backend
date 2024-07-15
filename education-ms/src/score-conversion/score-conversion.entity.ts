@@ -14,26 +14,26 @@ export class ScoreConversion {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ name: 'primary_score' })
+    @Column({ name: 'primary_score', nullable: true })
     primaryScore: number;
 
-    @Column({ name: 'secondary_score' })
+    @Column({ name: 'secondary_score', nullable: true })
     secondaryScore: number;
 
-    @Column({ name: 'min_score' })
+    @Column({ name: 'min_score', nullable: true })
     minScore: number;
 
-    @Column({ name: 'max_score' })
+    @Column({ name: 'max_score', nullable: true })
     maxScore: number;
 
-    @Column({ name: 'mark' })
-    mark: number;
+    @Column({ name: 'grade', nullable: true })
+    grade: number;
 
     @Column({ name: 'is_red' })
-    isRed: number;
+    isRed: boolean;
 
     @Column({ name: 'is_green' })
-    isGreen: number;
+    isGreen: boolean;
 
     @ManyToOne(() => Subject, subject => subject.subjectTasks, {
         onDelete: 'CASCADE'

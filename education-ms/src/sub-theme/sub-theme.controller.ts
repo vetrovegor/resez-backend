@@ -3,5 +3,5 @@ import { SubThemeService } from './sub-theme.service';
 
 @Controller('sub-theme')
 export class SubThemeController {
-  constructor(private readonly subThemeService: SubThemeService) {}
+    constructor(private readonly subThemeService: SubThemeService) {}
 }

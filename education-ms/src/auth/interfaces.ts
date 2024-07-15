@@ -21,5 +21,6 @@ export const enum Permissions {
     CreateTasks = 'Создание заданий',
     UpdateTasks = 'Редактирование заданий',
     DeleteTasks = 'Удаление заданий',
-    VerifyTasks = 'Верификация заданий'
+    VerifyTasks = 'Верификация заданий',
+    Archive = 'Архив'
 }

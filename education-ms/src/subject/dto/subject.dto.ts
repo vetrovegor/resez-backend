@@ -5,6 +5,7 @@ import {
     IsBoolean,
     IsNotEmpty,
     IsNumber,
+    IsOptional,
     IsString,
     ValidateNested
 } from 'class-validator';
@@ -39,6 +40,11 @@ export class SubjectDto {
 }
 
 export class SubjectTask {
+    @Transform(({ value }) => Number(value))
+    @IsNumber()
+    @IsOptional()
+    id: number;
+
     number: number;
 
     @IsString()
@@ -62,6 +68,11 @@ export class SubjectTask {
 }
 
 export class SubThemeDto {
+    @Transform(({ value }) => Number(value))
+    @IsNumber()
+    @IsOptional()
+    id: number;
+
     @IsString()
     @IsNotEmpty()
     subTheme: string;
