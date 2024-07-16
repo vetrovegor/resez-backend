@@ -50,7 +50,9 @@ export class SubjectService {
 
         const savedSubject = await this.subjectRepository.save(createdSubject);
 
-        return await this.createShortInfo(savedSubject);
+        const subject = await this.createShortInfo(savedSubject);
+
+        return { subject };
     }
 
     async find(take: number, skip: number) {
@@ -100,7 +102,7 @@ export class SubjectService {
             where: { id }
         });
 
-        const shortInfo = await this.createShortInfo(existingSubject);
+        const subject = await this.createShortInfo(existingSubject);
 
         if (!existingSubject) {
             throw new NotFoundException('Предмет не найден');
@@ -108,7 +110,7 @@ export class SubjectService {
 
         await this.subjectRepository.remove(existingSubject);
 
-        return shortInfo;
+        return { subject };
     }
 
     // довести до ума чтобы обновлялись корректно задания, подтемы
@@ -148,7 +150,9 @@ export class SubjectService {
 
         const updatedSubject = await this.subjectRepository.save(updatedRecord);
 
-        return await this.createShortInfo(updatedSubject);
+        const subject = await this.createShortInfo(updatedSubject);
+
+        return { subject };
     }
 
     async toggleIsPublished(id: number) {
@@ -164,7 +168,9 @@ export class SubjectService {
             isPublished: !existingSubject.isPublished
         });
 
-        return await this.createShortInfo(existingSubject);
+        const subject = await this.createShortInfo(existingSubject);
+
+        return { subject };
     }
 
     async getBySlug(slug: string) {
@@ -191,7 +197,9 @@ export class SubjectService {
 
         await this.subjectRepository.update(id, { isArchived });
 
-        return this.createShortInfo(existingSubject);
+        const subject = await this.createShortInfo(existingSubject);
+
+        return { subject };
     }
 
     async getPublished() {
@@ -199,9 +207,10 @@ export class SubjectService {
             where: { isPublished: true }
         });
 
-        const subjects = subjectsData.map(({ id, subject }) => ({
+        const subjects = subjectsData.map(({ id, subject, slug }) => ({
             id,
-            subject
+            subject,
+            slug
         }));
 
         return { subjects };

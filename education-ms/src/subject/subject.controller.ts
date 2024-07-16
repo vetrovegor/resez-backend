@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { SubjectService } from './subject.service';
 import { ScoreConversionService } from '@score-conversion/score-conversion.service';
 
@@ -14,10 +14,8 @@ export class SubjectController {
         return await this.subjectService.getPublished();
     }
 
-    @Get(':subjectId/score-conversion')
-    async getScoreConversionBySubjectId(
-        @Param('subjectId', ParseIntPipe) subjectId: number
-    ) {
-        return await this.scoreConversionService.getBySubjectId(subjectId);
+    @Get(':slug/score-conversion')
+    async getScoreConversionBySubjectSlug(@Param('slug') slug: string) {
+        return await this.scoreConversionService.getBySubjectSlug(slug);
     }
 }

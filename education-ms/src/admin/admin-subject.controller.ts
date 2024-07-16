@@ -46,16 +46,11 @@ export class AdminSubjectController {
         return HttpStatus.OK;
     }
 
-    @Get(':subjectId/score-conversion')
+    @Get(':slug/score-conversion')
     @Permission(Permissions.Subjects)
     @UseGuards(PermissionGuard)
-    async getScoreConversionBySubjectId(
-        @Param('subjectId', ParseIntPipe) subjectId: number
-    ) {
-        return await this.scoreConversionService.getBySubjectId(
-            subjectId,
-            false
-        );
+    async getScoreConversionBySubjectId(@Param('slug') slug: string) {
+        return await this.scoreConversionService.getBySubjectSlug(slug, false);
     }
 
     @Get()

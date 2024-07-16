@@ -198,15 +198,15 @@ export class ScoreConversionService {
         });
     }
 
-    async getBySubjectId(subjectId: number, checkPublished: boolean = true) {
-        const existingSubject = await this.subjectService.getById(subjectId);
+    async getBySubjectSlug(slug: string, checkPublished: boolean = true) {
+        const existingSubject = await this.subjectService.getBySlug(slug);
 
         if (checkPublished && !existingSubject.isPublished) {
             throw new NotFoundException('Предмет не найден');
         }
 
         const scoreConversion = await this.scoreConversionRepository.find({
-            where: { subject: { id: subjectId } }
+            where: { subject: { id: existingSubject.id } }
         });
 
         return { scoreConversion };
