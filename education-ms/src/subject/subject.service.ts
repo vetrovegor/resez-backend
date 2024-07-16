@@ -1,5 +1,7 @@
 import {
     BadRequestException,
+    forwardRef,
+    Inject,
     Injectable,
     NotFoundException
 } from '@nestjs/common';
@@ -7,12 +9,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Subject } from './subject.entity';
 import { Not, Repository } from 'typeorm';
 import { SubjectDto } from './dto/subject.dto';
+import { ScoreConversionService } from '@score-conversion/score-conversion.service';
+import { SubjectTaskService } from '@subject-task/subject-task.service';
 
 @Injectable()
 export class SubjectService {
     constructor(
         @InjectRepository(Subject)
-        private readonly subjectRepository: Repository<Subject>
+        private readonly subjectRepository: Repository<Subject>,
+        @Inject(forwardRef(() => ScoreConversionService))
+        private readonly scoreConversionService: ScoreConversionService,
+        private readonly subjectTaskService: SubjectTaskService
     ) {}
 
     // использовать где нужно
@@ -214,5 +221,41 @@ export class SubjectService {
         }));
 
         return { subjects };
+    }
+
+    async getScoreConversionById(id: number) {
+        const existingSubject = await this.getById(id);
+
+        const scoreConversion =
+            await this.scoreConversionService.getBySubjectId(id);
+
+        return { isMark: existingSubject.isMark, scoreConversion };
+    }
+
+    async getScoreInfo(slug: string) {
+        const existingSubject = await this.getBySlug(slug);
+
+        if (!existingSubject.isPublished) {
+            throw new NotFoundException('Предмет не найден');
+        }
+
+        const scoreConversion =
+            await this.scoreConversionService.getBySubjectId(
+                existingSubject.id
+            );
+
+        const subjectTasksData = await this.subjectTaskService.getBySubjectId(
+            existingSubject.id
+        );
+
+        const subjectTasks = subjectTasksData.map(
+            ({ id, number, primaryScore }) => ({ id, number, primaryScore })
+        );
+
+        return {
+            isMark: existingSubject.isMark,
+            scoreConversion,
+            subjectTasks
+        };
     }
 }

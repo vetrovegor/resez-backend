@@ -17,4 +17,10 @@ export class SubjectTaskService {
 
         return result || 0;
     }
+
+    async getBySubjectId(subjectId) {
+        return await this.subjectTaskRepository.find({
+            where: { subject: { id: subjectId } }
+        });
+    }
 }

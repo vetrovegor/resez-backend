@@ -1,7 +1,8 @@
 import {
     BadRequestException,
-    Injectable,
-    NotFoundException
+    forwardRef,
+    Inject,
+    Injectable
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ScoreConversion } from './score-conversion.entity';
@@ -15,6 +16,7 @@ export class ScoreConversionService {
     constructor(
         @InjectRepository(ScoreConversion)
         private readonly scoreConversionRepository: Repository<ScoreConversion>,
+        @Inject(forwardRef(() => SubjectService))
         private readonly subjectService: SubjectService,
         private readonly subjectTaskService: SubjectTaskService
     ) {}
@@ -198,17 +200,13 @@ export class ScoreConversionService {
         });
     }
 
-    async getBySubjectSlug(slug: string, checkPublished: boolean = true) {
-        const existingSubject = await this.subjectService.getBySlug(slug);
-
-        if (checkPublished && !existingSubject.isPublished) {
-            throw new NotFoundException('Предмет не найден');
-        }
-
-        const scoreConversion = await this.scoreConversionRepository.find({
-            where: { subject: { id: existingSubject.id } }
+    async getBySubjectId(subjectId: number) {
+        return await this.scoreConversionRepository.find({
+            where: { subject: { id: subjectId } },
+            order: {
+                primaryScore: 'ASC',
+                grade: 'ASC'
+            }
         });
-
-        return { scoreConversion };
     }
 }

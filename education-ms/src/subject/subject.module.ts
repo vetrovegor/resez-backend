@@ -4,11 +4,13 @@ import { SubjectController } from './subject.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Subject } from './subject.entity';
 import { ScoreConversionModule } from '@score-conversion/score-conversion.module';
+import { SubjectTaskModule } from '@subject-task/subject-task.module';
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([Subject]),
-        forwardRef(() => ScoreConversionModule)
+        forwardRef(() => ScoreConversionModule),
+        SubjectTaskModule
     ],
     controllers: [SubjectController],
     providers: [SubjectService],
