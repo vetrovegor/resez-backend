@@ -7,6 +7,7 @@ import { SubTheme } from './sub-theme.entity';
 @Module({
     imports: [TypeOrmModule.forFeature([SubTheme])],
     controllers: [SubThemeController],
-    providers: [SubThemeService]
+    providers: [SubThemeService],
+    exports: [SubThemeService]
 })
 export class SubThemeModule {}

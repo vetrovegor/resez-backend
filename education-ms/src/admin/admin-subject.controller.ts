@@ -117,4 +117,11 @@ export class AdminSubjectController {
     async restore(@Param('id', ParseIntPipe) id: number) {
         return await this.subjectService.toggleIsArchived(id, false);
     }
+
+    @Get(':id/subject-task')
+    @Permission(Permissions.Subjects)
+    @UseGuards(PermissionGuard)
+    async getSubjectTasksById(@Param('id', ParseIntPipe) id: number) {
+        return await this.subjectService.getSubjectTasksById(id);
+    }
 }

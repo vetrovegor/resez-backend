@@ -1,5 +1,6 @@
 import { ScoreConversion } from '@score-conversion/score-conversion.entity';
 import { SubjectTask } from '@subject-task/subject-task.entity';
+import { Task } from '@task/task.entity';
 import {
     Column,
     CreateDateColumn,
@@ -53,4 +54,9 @@ export class Subject {
         }
     )
     scoreConversions: ScoreConversion[];
+
+    @OneToMany(() => Task, task => task.subject, {
+        cascade: true
+    })
+    tasks: Task[];
 }

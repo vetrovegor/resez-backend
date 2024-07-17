@@ -6,8 +6,8 @@ import { SubjectTaskModule } from './subject-task/subject-task.module';
 import { SubThemeModule } from './sub-theme/sub-theme.module';
 import { ScoreConversionModule } from './score-conversion/score-conversion.module';
 import { TaskModule } from './task/task.module';
-import { AdminModule } from './admin/admin.module';
 import { AuthModule } from '@auth/auth.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
     imports: [

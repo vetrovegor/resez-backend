@@ -19,15 +19,17 @@
         "noFallthroughCasesInSwitch": false,
         "paths": {
             "@auth": ["src/auth/"],
-            "@auth/*": ["src/auth//*"],
+            "@auth/*": ["src/auth/*"],
             "@subject": ["src/subject/"],
-            "@subject/*": ["src/subject//*"],
-            "@subject-task": ["src/subject-task/"],
-            "@subject-task/*": ["src/subject-task//*"],
-            "@sub-theme": ["src/sub-theme/"],
-            "@sub-theme/*": ["src/sub-theme//*"],
+            "@subject/*": ["src/subject/*"],
             "@score-conversion": ["src/score-conversion/"],
-            "@score-conversion/*": ["src/score-conversion//*"]
+            "@score-conversion/*": ["src/score-conversion/*"],
+            "@subject-task": ["src/subject-task/"],
+            "@subject-task/*": ["src/subject-task/*"],
+            "@sub-theme": ["src/sub-theme/"],
+            "@sub-theme/*": ["src/sub-theme/*"],
+            "@task": ["src/task/"],
+            "@task/*": ["src/task/*"]
         }
     }
 }

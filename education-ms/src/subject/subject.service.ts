@@ -170,6 +170,15 @@ export class SubjectService {
     async getFullInfoById(id: number) {
         const subject = await this.getById(id);
 
+        // использовать реальные tasksCount
+        subject.subjectTasks.forEach(subjectTask => {
+            subjectTask['tasksCount'] = Math.floor(Math.random() * 6);
+
+            subjectTask.subThemes.forEach(subTheme => {
+                subTheme['tasksCount'] = Math.floor(Math.random() * 6);
+            });
+        });
+
         return { subject };
     }
 
@@ -244,5 +253,13 @@ export class SubjectService {
             scoreConversion,
             subjectTasks
         };
+    }
+
+    async getSubjectTasksById(id: number) {
+        await this.getById(id);
+
+        const subjectTasks = await this.subjectTaskService.getBySubjectId(id);
+
+        return { subjectTasks };
     }
 }

@@ -1,5 +1,6 @@
 import { SubTheme } from '@sub-theme/sub-theme.entity';
 import { Subject } from '@subject/subject.entity';
+import { Task } from '@task/task.entity';
 import {
     Column,
     Entity,
@@ -40,4 +41,9 @@ export class SubjectTask {
         cascade: true
     })
     subThemes: SubTheme[];
+
+    @OneToMany(() => Task, task => task.subjectTask, {
+        cascade: true
+    })
+    tasks: Task[];
 }

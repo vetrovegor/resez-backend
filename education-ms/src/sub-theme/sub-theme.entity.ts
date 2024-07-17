@@ -1,9 +1,11 @@
 import { SubjectTask } from '@subject-task/subject-task.entity';
+import { Task } from '@task/task.entity';
 import {
     Column,
     Entity,
     JoinColumn,
     ManyToOne,
+    OneToMany,
     PrimaryGeneratedColumn
 } from 'typeorm';
 
@@ -24,4 +26,9 @@ export class SubTheme {
         name: 'subject_task_id'
     })
     subjectTask: SubjectTask;
+
+    @OneToMany(() => Task, task => task.subTheme, {
+        cascade: true
+    })
+    tasks: Task[];
 }
