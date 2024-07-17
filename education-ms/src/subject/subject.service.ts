@@ -25,7 +25,8 @@ export class SubjectService {
     // использовать где нужно
     async getById(id: number) {
         const existingSubject = await this.subjectRepository.findOne({
-            where: { id }
+            where: { id },
+            relations: ['subjectTasks', 'subjectTasks.subThemes']
         });
 
         if (!existingSubject) {
@@ -62,14 +63,15 @@ export class SubjectService {
         return { subject };
     }
 
-    async find(take: number, skip: number) {
-        const where = { isArchived: false };
+    async find(take: number, skip: number, isArchived: boolean) {
+        const where = { isArchived };
 
         const subjectsData = await this.subjectRepository.find({
             where,
             order: { createdAt: 'DESC' },
             take,
-            skip
+            skip,
+            relations: ['subjectTasks']
         });
 
         const subjects = await Promise.all(
@@ -99,21 +101,19 @@ export class SubjectService {
             subject,
             slug,
             isPublished,
-            subjectTasksCount: 95,
+            subjectTasksCount: subjectData.subjectTasks.length,
             tasksCount: 123
         };
     }
 
     async delete(id: number) {
-        const existingSubject = await this.subjectRepository.findOne({
-            where: { id }
-        });
-
-        const subject = await this.createShortInfo(existingSubject);
+        const existingSubject = await this.getById(id);
 
         if (!existingSubject) {
             throw new NotFoundException('Предмет не найден');
         }
+
+        const subject = await this.createShortInfo(existingSubject);
 
         await this.subjectRepository.remove(existingSubject);
 
@@ -123,14 +123,7 @@ export class SubjectService {
     // довести до ума чтобы обновлялись корректно задания, подтемы
     // удалялись задания, у которых subjectId стал null
     async update(id: number, dto: SubjectDto) {
-        const existingSubject = await this.subjectRepository.findOne({
-            where: { id },
-            relations: ['subjectTasks', 'subjectTasks.subThemes']
-        });
-
-        if (!existingSubject) {
-            throw new NotFoundException('Предмет не найден');
-        }
+        const existingSubject = await this.getById(id);
 
         const occupiedSubject = await this.subjectRepository.findOne({
             where: { slug: dto.slug, id: Not(id) }
@@ -163,13 +156,7 @@ export class SubjectService {
     }
 
     async toggleIsPublished(id: number) {
-        const existingSubject = await this.subjectRepository.findOne({
-            where: { id }
-        });
-
-        if (!existingSubject) {
-            throw new NotFoundException('Предмет не найден');
-        }
+        const existingSubject = await this.getById(id);
 
         await this.subjectRepository.update(id, {
             isPublished: !existingSubject.isPublished
@@ -194,13 +181,7 @@ export class SubjectService {
     }
 
     async toggleIsArchived(id: number, isArchived: boolean) {
-        const existingSubject = await this.subjectRepository.findOne({
-            where: { id }
-        });
-
-        if (!existingSubject) {
-            throw new NotFoundException('Предмет не найден');
-        }
+        const existingSubject = await this.getById(id);
 
         await this.subjectRepository.update(id, { isArchived });
 

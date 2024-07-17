@@ -60,7 +60,17 @@ export class AdminSubjectController {
         @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
         @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number
     ) {
-        return await this.subjectService.find(limit, offset);
+        return await this.subjectService.find(limit, offset, false);
+    }
+
+    @Get('archived')
+    @Permission(Permissions.Subjects)
+    @UseGuards(PermissionGuard)
+    async findArchived(
+        @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
+        @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number
+    ) {
+        return await this.subjectService.find(limit, offset, true);
     }
 
     @Delete(':id')
@@ -87,11 +97,11 @@ export class AdminSubjectController {
         return await this.subjectService.toggleIsPublished(id);
     }
 
-    @Get(':slug')
+    @Get(':id')
     @Permission(Permissions.Subjects)
     @UseGuards(PermissionGuard)
-    async getBySlug(@Param('slug') slug: string) {
-        return await this.subjectService.getBySlug(slug);
+    async getFullInfoById(@Param('id', ParseIntPipe) id: number) {
+        return await this.subjectService.getById(id);
     }
 
     @Delete(':id/archive')
@@ -107,6 +117,4 @@ export class AdminSubjectController {
     async restore(@Param('id', ParseIntPipe) id: number) {
         return await this.subjectService.toggleIsArchived(id, false);
     }
-
-    // получение архивных предметов
 }
