@@ -101,7 +101,7 @@ export class AdminSubjectController {
     @Permission(Permissions.Subjects)
     @UseGuards(PermissionGuard)
     async getFullInfoById(@Param('id', ParseIntPipe) id: number) {
-        return await this.subjectService.getById(id);
+        return await this.subjectService.getFullInfoById(id);
     }
 
     @Delete(':id/archive')

@@ -167,6 +167,12 @@ export class SubjectService {
         return { subject };
     }
 
+    async getFullInfoById(id: number) {
+        const subject = await this.getById(id);
+
+        return { subject };
+    }
+
     async getBySlug(slug: string) {
         const existingSubject = await this.subjectRepository.findOne({
             where: { slug },
