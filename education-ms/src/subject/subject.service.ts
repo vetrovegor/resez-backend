@@ -43,13 +43,8 @@ export class SubjectService {
 
         if (existingSubject) {
             throw new BadRequestException(
-                'Предмет с таким ярлыком уже существует'
+                `Предмет с таким ярлыком уже существует${existingSubject.isArchived ? ' (в архиве)' : ''}`
             );
-        }
-
-        // в мидлвейр
-        for (let i = 0; i < dto.subjectTasks.length; i++) {
-            dto.subjectTasks[i].number = i + 1;
         }
 
         const createdSubject = this.subjectRepository.create({
@@ -131,26 +126,27 @@ export class SubjectService {
 
         if (occupiedSubject) {
             throw new BadRequestException(
-                'Предмет с таким ярлыком уже существует'
+                `Предмет с таким ярлыком уже существует${occupiedSubject.isArchived ? ' (в архиве)' : ''}`
             );
         }
 
         if (existingSubject.isMark != dto.isMark) {
-            // удалить таблицу баллов
+            await this.scoreConversionService.getBySubjectId(id);
         }
 
-        // в мидлвейр
-        for (let i = 0; i < dto.subjectTasks.length; i++) {
-            dto.subjectTasks[i].number = i + 1;
-        }
+        const { subjectTasks, ...subjectInfo } = dto;
 
-        const updatedRecord = Object.assign(existingSubject, {
-            ...dto
-        });
+        await this.subjectRepository.save({ id, ...subjectInfo });
 
-        const updatedSubject = await this.subjectRepository.save(updatedRecord);
+        await this.subjectTaskService.update(
+            existingSubject.subjectTasks,
+            subjectTasks,
+            id
+        );
 
-        const subject = await this.createShortInfo(updatedSubject);
+        const newSubject = await this.getById(id);
+
+        const subject = await this.createShortInfo(newSubject);
 
         return { subject };
     }
@@ -207,7 +203,8 @@ export class SubjectService {
 
     async getPublished() {
         const subjectsData = await this.subjectRepository.find({
-            where: { isPublished: true }
+            where: { isPublished: true, isArchived: false },
+            order: { createdAt: 'DESC' }
         });
 
         const subjects = subjectsData.map(({ id, subject, slug }) => ({

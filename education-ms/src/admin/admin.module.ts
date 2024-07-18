@@ -9,6 +9,8 @@ import { SubjectTaskModule } from '@subject-task/subject-task.module';
 import { SubThemeModule } from '@sub-theme/sub-theme.module';
 import { AdminSubjectTaskController } from './admin-subject-task.controller';
 import { AdminTaskController } from './admin-task.controller';
+import { AdminUploadController } from './admin-upload.controller';
+import { UploadModule } from '@upload/upload.module';
 
 @Module({
     imports: [
@@ -16,12 +18,14 @@ import { AdminTaskController } from './admin-task.controller';
         ScoreConversionModule,
         SubjectTaskModule,
         SubThemeModule,
-        TaskModule
+        TaskModule,
+        UploadModule
     ],
     controllers: [
         AdminSubjectController,
         AdminSubjectTaskController,
-        AdminTaskController
+        AdminTaskController,
+        AdminUploadController
     ],
     providers: [
         {

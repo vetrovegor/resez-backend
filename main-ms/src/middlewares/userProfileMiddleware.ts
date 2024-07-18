@@ -8,14 +8,11 @@ export const userProfileMiddleware = async (req: RequestWithBody<UserProfileInfo
     try {
         const { firstName, lastName, birthDate, gender } = req.body;
 
-        const firstNameLength = firstName.length;
-        const lastNameLength = lastName.length;
-
-        if (firstNameLength && (firstNameLength < 2 || firstNameLength > 20)) {
+        if (firstName && (firstName.length < 2 || firstName.length > 20)) {
             throw ApiError.badRequest('Имя должно быть от 2 до 20 символов')
         }
 
-        if (lastNameLength && (lastNameLength < 2 || lastNameLength > 30)) {
+        if (lastName && (lastName.length < 2 || lastName.length > 30)) {
             throw ApiError.badRequest('Фамилия должна быть от 2 до 30 символов')
         }
 

@@ -330,8 +330,7 @@ class User extends Model {
             avatar,
             xp,
             isPrivateAccount,
-            isHideAvatars,
-            subscriptionId
+            isHideAvatars
         } = this.get();
 
         const permissions = await this.getPermissions();
@@ -361,7 +360,8 @@ class User extends Model {
             },
             permissions,
             unreadNotifiesCount,
-            subscription
+            subscription,
+            coins: 0
         };
     }
 

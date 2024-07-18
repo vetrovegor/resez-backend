@@ -7,61 +7,77 @@ import {
     IsNumber,
     IsOptional,
     IsString,
+    Matches,
+    Min,
     ValidateNested
 } from 'class-validator';
 
 export class SubjectDto {
-    @IsString()
-    @IsNotEmpty()
+    @IsString({ message: 'Предмет должен быть строкой' })
+    @IsNotEmpty({ message: 'Поле предмет не должен быть пустым' })
     subject: string;
 
-    @IsString()
-    @IsNotEmpty()
+    @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
+        message:
+            'Ярлык должен содержать только латинские буквы в нижнем регистре, цифры и дефисы'
+    })
+    @IsNotEmpty({ message: 'Поле ярлык не должно быть пустым' })
     slug: string;
 
     @Transform(({ value }) => Number(value))
-    @IsNumber()
-    @IsNotEmpty()
+    @IsNumber({}, { message: 'Продолжительность в минутах должна быть числом' })
+    @IsNotEmpty({
+        message: 'Продолжительность в минутах не должна быть пустым'
+    })
     durationMinutes: number;
 
-    @IsBoolean()
-    @IsNotEmpty()
+    @IsBoolean({ message: 'Поле "Оценка" должно быть булевым значением' })
+    @IsNotEmpty({ message: 'Поле "Оценка" не должно быть пустым' })
     isMark: boolean;
 
-    @IsBoolean()
-    @IsNotEmpty()
+    @IsBoolean({ message: 'Поле "Опубликован" должно быть булевым значением' })
+    @IsNotEmpty({ message: 'Поле "Опубликован" не должно быть пустым' })
     isPublished: boolean;
 
-    @IsArray()
-    @ArrayMinSize(1)
+    @IsArray({ message: 'Задания предмета должны быть массивом' })
+    @ArrayMinSize(1, {
+        message: 'Должно быть хотя бы одно задание в предмете'
+    })
     @ValidateNested({ each: true })
-    @Type(() => SubjectTask)
-    subjectTasks: SubjectTask[];
+    @Type(() => SubjectTaskDto)
+    subjectTasks: SubjectTaskDto[];
 }
 
-export class SubjectTask {
+export class SubjectTaskDto {
     @Transform(({ value }) => Number(value))
-    @IsNumber()
+    @IsNumber({}, { message: 'Идентификатор задания должен быть числом' })
     @IsOptional()
     id: number;
 
+    @IsNumber({}, { message: 'Номер задания должен быть числом' })
+    @IsOptional()
     number: number;
 
-    @IsString()
-    @IsNotEmpty()
+    @IsString({ message: 'Тема задания должна быть строкой' })
+    @IsNotEmpty({ message: 'Тема не должна быть пустым' })
     theme: string;
 
     @Transform(({ value }) => Number(value))
-    @IsNumber()
-    @IsNotEmpty()
+    @IsNumber({}, { message: 'Первичный балл должен быть числом' })
+    @Min(1, { message: 'Основной балл должен быть больше 0' })
+    @IsNotEmpty({ message: 'Первичный балл не должен быть пустым' })
     primaryScore: number;
 
-    @IsBoolean()
-    @IsNotEmpty()
+    @IsBoolean({
+        message: 'Поле "Развернутый ответ" должно быть булевым значением'
+    })
+    @IsNotEmpty({ message: 'Поле "Развернутый ответ" не должно быть пустым' })
     isDetailedAnswer: boolean;
 
-    @IsArray()
-    @ArrayMinSize(1)
+    @IsArray({ message: 'Подтемы должны быть массивом' })
+    @ArrayMinSize(1, {
+        message: 'Должна быть хотя бы одна подтема'
+    })
     @ValidateNested({ each: true })
     @Type(() => SubThemeDto)
     subThemes: SubThemeDto[];
@@ -69,11 +85,11 @@ export class SubjectTask {
 
 export class SubThemeDto {
     @Transform(({ value }) => Number(value))
-    @IsNumber()
+    @IsNumber({}, { message: 'Идентификатор подтемы должен быть числом' })
     @IsOptional()
     id: number;
 
-    @IsString()
-    @IsNotEmpty()
+    @IsString({ message: 'Подтема должна быть строкой' })
+    @IsNotEmpty({ message: 'Подтема не должна быть пустой' })
     subTheme: string;
 }

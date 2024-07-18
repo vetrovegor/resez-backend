@@ -32,6 +32,7 @@ export type UserShortInfo = {
     permissions: PermissionDTO[];
     unreadNotifiesCount: number;
     subscription: SubscriptionDTO;
+    coins: number;
 };
 
 export type AuthResponse = {

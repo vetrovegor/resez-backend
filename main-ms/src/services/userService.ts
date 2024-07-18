@@ -207,6 +207,13 @@ class UserService {
     ): Promise<UserProfileInfo> {
         const user = await this.getUserById(userId);
 
+        if (
+            (user.get('firstName') && !firstName) ||
+            (user.get('lastName') && !lastName)
+        ) {
+            throw ApiError.badRequest('Нельзя удалить имя/фамилию');
+        }
+
         user.set('firstName', firstName);
         user.set('lastName', lastName);
         user.set('birthDate', birthDate);

@@ -8,10 +8,16 @@ import { ScoreConversionModule } from './score-conversion/score-conversion.modul
 import { TaskModule } from './task/task.module';
 import { AuthModule } from '@auth/auth.module';
 import { AdminModule } from './admin/admin.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
+        ServeStaticModule.forRoot({
+            rootPath: join(process.cwd(), 'uploads')
+        }),
         SubjectModule,
         DatabaseModule,
         SubjectTaskModule,
@@ -19,7 +25,8 @@ import { AdminModule } from './admin/admin.module';
         ScoreConversionModule,
         TaskModule,
         AuthModule,
-        AdminModule
+        AdminModule,
+        UploadModule
     ],
     controllers: [],
     providers: []

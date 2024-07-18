@@ -29,7 +29,9 @@
             "@sub-theme": ["src/sub-theme/"],
             "@sub-theme/*": ["src/sub-theme/*"],
             "@task": ["src/task/"],
-            "@task/*": ["src/task/*"]
+            "@task/*": ["src/task/*"],
+            "@upload": ["src/upload/"],
+            "@upload/*": ["src/upload/*"]
         }
     }
 }

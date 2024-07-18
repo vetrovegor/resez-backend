@@ -17,6 +17,7 @@ import {
 } from '@nestjs/common';
 import { ScoreConversionDto } from '@score-conversion/dto/score-conversion.dto';
 import { ScoreConversionService } from '@score-conversion/score-conversion.service';
+import { SubjectTaskPipe } from '@subject-task/pipe/subject-task.pipe';
 import { SubjectDto } from '@subject/dto/subject.dto';
 import { SubjectService } from '@subject/subject.service';
 
@@ -30,7 +31,7 @@ export class AdminSubjectController {
     @Post()
     @Permission(Permissions.CreateSubjects)
     @UseGuards(PermissionGuard)
-    async create(@Body() dto: SubjectDto) {
+    async create(@Body(SubjectTaskPipe) dto: SubjectDto) {
         return await this.subjectService.create(dto);
     }
 
@@ -85,7 +86,7 @@ export class AdminSubjectController {
     @UseGuards(PermissionGuard)
     async update(
         @Param('id', ParseIntPipe) id: number,
-        @Body() dto: SubjectDto
+        @Body(SubjectTaskPipe) dto: SubjectDto
     ) {
         return await this.subjectService.update(id, dto);
     }
