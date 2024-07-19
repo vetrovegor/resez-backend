@@ -85,7 +85,7 @@ class AvatarDecorationController {
     }
 
     async getPublishedAvatarDecorations(
-        req: RequestWithQuery<PaginationQuery>,
+        req: RequestWithQueryAndUser<PaginationQuery>,
         res: Response,
         next: NextFunction
     ) {
@@ -95,7 +95,8 @@ class AvatarDecorationController {
             const data =
                 await avatarDecorationService.getPublishedAvatarDecorations(
                     limit,
-                    offset
+                    offset,
+                    req.user.id
                 );
 
             res.json(data);

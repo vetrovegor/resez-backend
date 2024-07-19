@@ -5,11 +5,24 @@ import AvatarDecoration from '../../db/models/store/AvatarDecorations';
 import { PaginationDTO } from '../../dto/PaginationDTO';
 import { ApiError } from '../../ApiError';
 import UserAvatarDecoration from '../../db/models/store/UserAvatarDecorations';
+import userService from '../../services/userService';
 
 class AvatarDecorationService {
-    createAvatarDecorationDto(avatarDecoration: AvatarDecoration) {
+    createAvatarDecorationDto({
+        avatarDecoration,
+        activeId,
+        collectedIds = []
+    }: {
+        avatarDecoration: AvatarDecoration;
+        activeId?: number;
+        collectedIds?: number[];
+    }) {
+        const id = avatarDecoration.get('id');
+
         return {
             ...avatarDecoration.toJSON(),
+            isActive: id == activeId,
+            isCollected: collectedIds.includes(id),
             type: 'avatar_decoration',
             contentUrl:
                 process.env.STATIC_URL + avatarDecoration.get('contentUrl'),
@@ -40,7 +53,9 @@ class AvatarDecorationService {
             contentUrl
         });
 
-        return this.createAvatarDecorationDto(createdAvatarDecoration);
+        return this.createAvatarDecorationDto({
+            avatarDecoration: createdAvatarDecoration
+        });
     }
 
     async getAvatarDecorations(limit: number, offset: number) {
@@ -51,7 +66,7 @@ class AvatarDecorationService {
         });
 
         const avatarDecorationDTOs = avatarDecorations.map(avatarDecoration =>
-            this.createAvatarDecorationDto(avatarDecoration)
+            this.createAvatarDecorationDto({ avatarDecoration })
         );
 
         const totalCount = await AvatarDecoration.count();
@@ -81,10 +96,7 @@ class AvatarDecorationService {
         return avatarDecoration;
     }
 
-    async getUserAvatarDecoration(
-        avatarDecorationId: number,
-        userId: number
-    ) {
+    async getUserAvatarDecoration(avatarDecorationId: number, userId: number) {
         const userAvatarDecoration = await UserAvatarDecoration.findOne({
             where: {
                 avatarDecorationId,
@@ -109,10 +121,14 @@ class AvatarDecorationService {
 
         await avatarDecoration.save();
 
-        return this.createAvatarDecorationDto(avatarDecoration);
+        return this.createAvatarDecorationDto({ avatarDecoration });
     }
 
-    async getPublishedAvatarDecorations(limit: number, offset: number) {
+    async getPublishedAvatarDecorations(
+        limit: number,
+        offset: number,
+        userId: number
+    ) {
         const where = { isPublished: true };
 
         const avatarDecorations = await AvatarDecoration.findAll({
@@ -122,8 +138,17 @@ class AvatarDecorationService {
             offset
         });
 
+        const collectedIds = (
+            await UserAvatarDecoration.findAll({
+                where: { userId }
+            })
+        ).map(item => item.get('avatarDecorationId'));
+
         const avatarDecorationDTOs = avatarDecorations.map(avatarDecoration =>
-            this.createAvatarDecorationDto(avatarDecoration)
+            this.createAvatarDecorationDto({
+                avatarDecoration,
+                collectedIds
+            })
         );
 
         const totalCount = await AvatarDecoration.count({ where });
@@ -142,7 +167,8 @@ class AvatarDecorationService {
         userId: number
     ) {
         const avatarDecoration = await this.getAvatarDecorationById(
-            avatarDecorationId
+            avatarDecorationId,
+            true
         );
 
         const existingRecord = await UserAvatarDecoration.findOne({
@@ -159,7 +185,7 @@ class AvatarDecorationService {
             });
         }
 
-        return this.createAvatarDecorationDto(avatarDecoration);
+        return this.createAvatarDecorationDto({ avatarDecoration });
     }
 
     async getUserAvatarDecorations(
@@ -167,6 +193,10 @@ class AvatarDecorationService {
         limit: number,
         offset: number
     ) {
+        const { avatarDecorationId: activeId } = (
+            await userService.getUserById(userId)
+        ).toJSON();
+
         const where = { userId };
 
         const userAvatarDecorations = await UserAvatarDecoration.findAll({
@@ -181,7 +211,10 @@ class AvatarDecorationService {
                 const avatarDecoration = await this.getAvatarDecorationById(
                     item.get('avatarDecorationId')
                 );
-                return this.createAvatarDecorationDto(avatarDecoration);
+                return this.createAvatarDecorationDto({
+                    avatarDecoration,
+                    activeId
+                });
             })
         );
 
@@ -198,7 +231,7 @@ class AvatarDecorationService {
 
     async createAvatarDecorationDtoById(id: number) {
         const avatarDecoration = await this.getAvatarDecorationById(id);
-        return this.createAvatarDecorationDto(avatarDecoration);
+        return this.createAvatarDecorationDto({ avatarDecoration });
     }
 
     throwAvatarDecorationNotFoundError() {

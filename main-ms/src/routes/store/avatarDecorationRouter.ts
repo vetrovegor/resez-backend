@@ -18,14 +18,6 @@ avatarDecorationRouter.get(
 );
 
 avatarDecorationRouter.get(
-    '/',
-    accessTokenMiddleware,
-    blockedMiddleware,
-    paginationMiddleware,
-    avatarDecorationController.getPublishedAvatarDecorations
-);
-
-avatarDecorationRouter.get(
     '/:id/add',
     accessTokenMiddleware,
     blockedMiddleware,
