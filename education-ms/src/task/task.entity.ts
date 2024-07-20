@@ -30,6 +30,9 @@ export class Task {
     @Column({ name: 'is_verified' })
     isVerified: boolean;
 
+    @Column({ name: 'user_id' })
+    userId: number;
+
     @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
 
@@ -50,7 +53,7 @@ export class Task {
     @JoinColumn({
         name: 'subject_task_id'
     })
-    subjectTask: Subject;
+    subjectTask: SubjectTask;
 
     @ManyToOne(() => SubTheme, subTheme => subTheme.tasks, {
         onDelete: 'CASCADE'
