@@ -27,7 +27,8 @@ export class SubjectTaskService {
 
     async getBySubjectId(subjectId: number) {
         return await this.subjectTaskRepository.find({
-            where: { subject: { id: subjectId } }
+            where: { subject: { id: subjectId } },
+            order: { number: 'ASC' }
         });
     }
 

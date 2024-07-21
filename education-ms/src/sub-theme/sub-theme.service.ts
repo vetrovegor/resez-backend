@@ -13,7 +13,8 @@ export class SubThemeService {
 
     async getBySubjectTaskId(subjectTaskId: number) {
         return await this.subThemeRepository.find({
-            where: { subjectTask: { id: subjectTaskId } }
+            where: { subjectTask: { id: subjectTaskId } },
+            order: { id: 'ASC' }
         });
     }
 

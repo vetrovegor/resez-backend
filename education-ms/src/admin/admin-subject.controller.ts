@@ -65,7 +65,7 @@ export class AdminSubjectController {
     }
 
     @Get('archived')
-    @Permission(Permissions.Subjects)
+    @Permission(Permissions.Archive)
     @UseGuards(PermissionGuard)
     async findArchived(
         @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,

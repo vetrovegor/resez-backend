@@ -38,4 +38,8 @@ export class TaskDto {
     @IsBoolean()
     @IsNotEmpty()
     isVerified: boolean;
+
+    @IsString()
+    @IsOptional()
+    source: string;
 }

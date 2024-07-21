@@ -104,10 +104,6 @@ export class SubjectService {
     async delete(id: number) {
         const existingSubject = await this.getById(id);
 
-        if (!existingSubject) {
-            throw new NotFoundException('Предмет не найден');
-        }
-
         const subject = await this.createShortInfo(existingSubject);
 
         await this.subjectRepository.remove(existingSubject);
@@ -154,13 +150,15 @@ export class SubjectService {
     async toggleIsPublished(id: number) {
         const existingSubject = await this.getById(id);
 
+        const isPublished = !existingSubject.isPublished;
+
         await this.subjectRepository.update(id, {
-            isPublished: !existingSubject.isPublished
+            isPublished
         });
 
         const subject = await this.createShortInfo(existingSubject);
 
-        return { subject };
+        return { subject: { ...subject, isPublished } };
     }
 
     async getFullInfoById(id: number) {
@@ -198,7 +196,7 @@ export class SubjectService {
 
         const subject = await this.createShortInfo(existingSubject);
 
-        return { subject };
+        return { subject: { ...subject, isArchived } };
     }
 
     async getPublished() {

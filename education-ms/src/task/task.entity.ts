@@ -30,6 +30,12 @@ export class Task {
     @Column({ name: 'is_verified' })
     isVerified: boolean;
 
+    @Column({ name: 'is_archived', default: false })
+    isArchived: boolean;
+
+    @Column({ nullable: true })
+    source: string;
+
     @Column({ name: 'user_id' })
     userId: number;
 

@@ -21,11 +21,10 @@ export class TaskService {
     ) {}
 
     async create(dto: TaskDto, userId: number) {
-        const existingSubject = await this.subjectService.getById(
-            dto.subjectId
-        );
+        // вынести
+        const subject = await this.subjectService.getById(dto.subjectId);
 
-        const subjectTask = existingSubject.subjectTasks.find(
+        const subjectTask = subject.subjectTasks.find(
             subjectTask => subjectTask.id == dto.subjectTaskId
         );
 
@@ -63,7 +62,7 @@ export class TaskService {
 
         const savedTask = await this.taskRepository.save(createdTask);
 
-        return savedTask;
+        return { task: savedTask };
     }
 
     createShortInfo(task: Task) {
@@ -87,23 +86,29 @@ export class TaskService {
     async find(
         take: number,
         skip: number,
-        subjectId: number,
-        subjectTaskId: number,
-        subThemeId: number,
-        userId: number
+        isArchived: boolean,
+        subjectId?: number,
+        subjectTaskId?: number,
+        subThemeId?: number,
+        userId?: number,
+        isVerified?: boolean
     ) {
         const where = {
-            ...(subjectId && {
+            isArchived,
+            ...(subjectId != undefined && {
                 subject: { id: subjectId }
             }),
-            ...(subjectTaskId && {
+            ...(subjectTaskId != undefined && {
                 subjectTask: { id: subjectTaskId }
             }),
-            ...(subThemeId && {
+            ...(subThemeId != undefined && {
                 subTheme: { id: subThemeId }
             }),
-            ...(userId && {
+            ...(userId != undefined && {
                 userId
+            }),
+            ...(isVerified != undefined && {
+                isVerified
             })
         };
 
@@ -127,5 +132,97 @@ export class TaskService {
             isLast: totalCount <= take + skip,
             elementsCount: tasksData.length
         };
+    }
+
+    async getById(id: number) {
+        const task = await this.taskRepository.findOne({
+            where: { id },
+            relations: ['subject', 'subjectTask', 'subTheme']
+        });
+
+        if (!task) {
+            throw new NotFoundException('Задание не найдено');
+        }
+
+        return task;
+    }
+
+    async getAdminInfo(id: number) {
+        const task = await this.getById(id);
+
+        return { task };
+    }
+
+    async update(id: number, dto: TaskDto) {
+        await this.getById(id);
+
+        // вынести
+        const subject = await this.subjectService.getById(dto.subjectId);
+
+        const subjectTask = subject.subjectTasks.find(
+            subjectTask => subjectTask.id == dto.subjectTaskId
+        );
+
+        if (!subjectTask) {
+            throw new NotFoundException('Задание предмета не найдено');
+        }
+
+        const subTheme = subjectTask.subThemes.find(
+            subTheme => subTheme.id == dto.subThemeId
+        );
+
+        if (!subTheme) {
+            throw new NotFoundException('Подтема не найдена');
+        }
+
+        if (subjectTask.isDetailedAnswer && !dto.solution) {
+            throw new BadRequestException(
+                'Задание с развернутым ответом должно содержать решение'
+            );
+        }
+
+        if (!subjectTask.isDetailedAnswer && !dto.answer) {
+            throw new BadRequestException(
+                'Задание без развернутого ответа должно содержать ответ'
+            );
+        }
+
+        const savedTask = await this.taskRepository.save({
+            id,
+            ...dto,
+            subject: { id: dto.subjectId },
+            subjectTask: { id: dto.subjectTaskId },
+            subTheme: { id: dto.subThemeId }
+        });
+
+        return { task: savedTask };
+    }
+
+    async toggleIsVerified(id: number) {
+        const task = await this.getById(id);
+
+        const isVerified = !task.isVerified;
+
+        await this.taskRepository.update(id, {
+            isVerified
+        });
+
+        return { task: { ...task, isVerified } };
+    }
+
+    async toggleIsArchived(id: number, isArchived: boolean) {
+        const task = await this.getById(id);
+
+        await this.taskRepository.update(id, { isArchived });
+
+        return { task: { ...task, isArchived } };
+    }
+
+    async delete(id: number) {
+        const task = await this.getById(id);
+
+        await this.taskRepository.remove(task);
+
+        return { task };
     }
 }
