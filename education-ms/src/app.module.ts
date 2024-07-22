@@ -11,6 +11,7 @@ import { AdminModule } from './admin/admin.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { UploadModule } from './upload/upload.module';
+import { RabbitMqModule } from '@rabbit-mq/rabbit-mq.module';
 
 @Module({
     imports: [
@@ -26,7 +27,8 @@ import { UploadModule } from './upload/upload.module';
         TaskModule,
         AuthModule,
         AdminModule,
-        UploadModule
+        UploadModule,
+        RabbitMqModule
     ],
     controllers: [],
     providers: []

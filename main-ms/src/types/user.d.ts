@@ -95,8 +95,6 @@ export type UserAdminInfo = {
     isBlocked: boolean;
     blockReason: string;
     avatar: string;
-    isOnline: boolean;
-    lastActivity: Date;
     status: string;
     levelInfo: LevelInfo;
     // theme: string,

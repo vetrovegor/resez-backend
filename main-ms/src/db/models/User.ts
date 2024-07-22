@@ -401,8 +401,6 @@ class User extends Model {
             isBlocked,
             blockReason,
             avatar: avatar ? process.env.STATIC_URL + avatar : null,
-            isOnline: id % 2 == 0 ? true : false,
-            lastActivity: new Date(),
             status: 'Новичек',
             levelInfo: {
                 level: 1,

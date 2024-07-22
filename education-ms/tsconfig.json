@@ -31,7 +31,9 @@
             "@task": ["src/task/"],
             "@task/*": ["src/task/*"],
             "@upload": ["src/upload/"],
-            "@upload/*": ["src/upload/*"]
+            "@upload/*": ["src/upload/*"],
+            "@rabbit-mq": ["src/rabbit-mq/"],
+            "@rabbit-mq/*": ["src/rabbit-mq/*"]
         }
     }
 }

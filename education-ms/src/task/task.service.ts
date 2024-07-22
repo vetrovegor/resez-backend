@@ -10,6 +10,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Task } from './task.entity';
 import { Repository } from 'typeorm';
 import { SubjectService } from '@subject/subject.service';
+import { RabbitMqService } from '@rabbit-mq/rabbit-mq.service';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class TaskService {
@@ -17,7 +19,9 @@ export class TaskService {
         @InjectRepository(Task)
         private readonly taskRepository: Repository<Task>,
         @Inject(forwardRef(() => SubjectService))
-        private readonly subjectService: SubjectService
+        private readonly subjectService: SubjectService,
+        private readonly rabbitMqService: RabbitMqService,
+        @Inject('USER_SERVICE') private readonly userClient: ClientProxy
     ) {}
 
     async create(dto: TaskDto, userId: number) {
@@ -65,21 +69,28 @@ export class TaskService {
         return { task: savedTask };
     }
 
-    createShortInfo(task: Task) {
+    async createShortInfo(task: Task) {
         // получить инфу о пользователе?
         const { subject } = task.subject;
         const { number, theme } = task.subjectTask;
         const { subTheme } = task.subTheme;
+        const user = await this.rabbitMqService.sendRequest({
+            client: this.userClient,
+            pattern: 'preview',
+            data: task.userId
+        });
 
         delete task.solution;
         delete task.subjectTask;
+        delete task.userId;
 
         return {
             ...task,
             number,
             subject,
             theme,
-            subTheme
+            subTheme,
+            user
         };
     }
 
@@ -121,7 +132,7 @@ export class TaskService {
         });
 
         const tasks = await Promise.all(
-            tasksData.map(async task => this.createShortInfo(task))
+            tasksData.map(async task => await this.createShortInfo(task))
         );
 
         const totalCount = await this.taskRepository.count({ where });

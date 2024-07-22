@@ -9,37 +9,37 @@ import {
 
 export class TaskDto {
     @Transform(({ value }) => Number(value))
-    @IsNumber()
-    @IsNotEmpty()
+    @IsNumber({}, { message: 'Id предмета должно быть числом' })
+    @IsNotEmpty({ message: 'Id предмета не должно быть пустым' })
     subjectId: number;
 
     @Transform(({ value }) => Number(value))
-    @IsNumber()
-    @IsNotEmpty()
+    @IsNumber({}, { message: 'Id задания предмета должно быть числом' })
+    @IsNotEmpty({ message: 'Id задания предмета не должно быть пустым' })
     subjectTaskId: number;
 
     @Transform(({ value }) => Number(value))
-    @IsNumber()
-    @IsNotEmpty()
+    @IsNumber({}, { message: 'Id подтемы должно быть числом' })
+    @IsNotEmpty({ message: 'Id подтемы не должно быть пустым' })
     subThemeId: number;
 
-    @IsString()
-    @IsNotEmpty()
+    @IsString({ message: 'Текст задания должен быть строкой' })
+    @IsNotEmpty({ message: 'Текст задания не должен быть пустым' })
     task: string;
 
-    @IsString()
+    @IsString({ message: 'Решение должно быть строкой' })
     @IsOptional()
     solution: string;
 
-    @IsString()
+    @IsString({ message: 'Ответ должен быть строкой' })
     @IsOptional()
     answer: string;
 
-    @IsBoolean()
-    @IsNotEmpty()
+    @IsBoolean({ message: 'Верификация должна быть булевым значением' })
+    @IsNotEmpty({ message: 'Верификация не должна быть пустым' })
     isVerified: boolean;
 
-    @IsString()
+    @IsString({ message: 'Источник должен быть строкой' })
     @IsOptional()
     source: string;
 }
