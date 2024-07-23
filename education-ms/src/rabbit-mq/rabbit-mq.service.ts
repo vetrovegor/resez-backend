@@ -13,7 +13,7 @@ export class RabbitMqService {
     }: Options) {
         return await firstValueFrom(
             client.send(pattern, data).pipe(timeout(timeoutDuration))
-        ).catch((error) => {
+        ).catch(error => {
             console.log('Ошибка при отправке запроса rabbitMQ:', error.message);
             return defaultValueOnError;
         });

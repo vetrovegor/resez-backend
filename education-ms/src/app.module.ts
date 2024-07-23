@@ -12,6 +12,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { UploadModule } from './upload/upload.module';
 import { RabbitMqModule } from '@rabbit-mq/rabbit-mq.module';
+import { TestModule } from './test/test.module';
 
 @Module({
     imports: [
@@ -28,7 +29,8 @@ import { RabbitMqModule } from '@rabbit-mq/rabbit-mq.module';
         AuthModule,
         AdminModule,
         UploadModule,
-        RabbitMqModule
+        RabbitMqModule,
+        TestModule
     ],
     controllers: [],
     providers: []

@@ -70,7 +70,6 @@ export class TaskService {
     }
 
     async createShortInfo(task: Task) {
-        // получить инфу о пользователе?
         const { subject } = task.subject;
         const { number, theme } = task.subjectTask;
         const { subTheme } = task.subTheme;
@@ -81,6 +80,7 @@ export class TaskService {
         });
 
         delete task.solution;
+        delete task.answer;
         delete task.subjectTask;
         delete task.userId;
 
@@ -235,5 +235,24 @@ export class TaskService {
         await this.taskRepository.remove(task);
 
         return { task };
+    }
+
+    async getVerifiedTasksCountBySubThemeId(subThemeId: number) {
+        return await this.taskRepository.count({
+            where: {
+                subTheme: { id: subThemeId },
+                isVerified: true
+            }
+        });
+    }
+
+    async getRandomVerifiedBySubjectTaskId(subjectTaskId: number) {
+        return await this.taskRepository
+            .createQueryBuilder('task')
+            .where('task.subjectTask.id = :subjectTaskId', { subjectTaskId })
+            .andWhere('task.isVerified = true') // Assuming you want only verified tasks
+            .orderBy('RANDOM()')
+            .limit(1)
+            .getOne();
     }
 }

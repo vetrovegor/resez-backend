@@ -1,11 +1,13 @@
 import { SubTheme } from '@sub-theme/sub-theme.entity';
 import { SubjectTask } from '@subject-task/subject-task.entity';
 import { Subject } from '@subject/subject.entity';
+import { Test } from '@test/test.entity';
 import {
     Column,
     CreateDateColumn,
     Entity,
     JoinColumn,
+    ManyToMany,
     ManyToOne,
     PrimaryGeneratedColumn,
     UpdateDateColumn
@@ -68,4 +70,7 @@ export class Task {
         name: 'subject_theme_id'
     })
     subTheme: SubTheme;
+
+    @ManyToMany(() => Test, test => test.tasks)
+    tests: Test[];
 }

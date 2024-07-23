@@ -33,7 +33,9 @@
             "@upload": ["src/upload/"],
             "@upload/*": ["src/upload/*"],
             "@rabbit-mq": ["src/rabbit-mq/"],
-            "@rabbit-mq/*": ["src/rabbit-mq/*"]
+            "@rabbit-mq/*": ["src/rabbit-mq/*"],
+            "@test": ["src/test/"],
+            "@test/*": ["src/test/*"]
         }
     }
 }

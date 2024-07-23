@@ -11,6 +11,8 @@ import { Not, Repository } from 'typeorm';
 import { SubjectDto } from './dto/subject.dto';
 import { ScoreConversionService } from '@score-conversion/score-conversion.service';
 import { SubjectTaskService } from '@subject-task/subject-task.service';
+import { SubjectFullInfo } from './dto/subject-full-info.dto';
+import { TaskService } from '@task/task.service';
 
 @Injectable()
 export class SubjectService {
@@ -19,21 +21,50 @@ export class SubjectService {
         private readonly subjectRepository: Repository<Subject>,
         @Inject(forwardRef(() => ScoreConversionService))
         private readonly scoreConversionService: ScoreConversionService,
-        private readonly subjectTaskService: SubjectTaskService
+        private readonly subjectTaskService: SubjectTaskService,
+        @Inject(forwardRef(() => TaskService))
+        private readonly taskService: TaskService
     ) {}
 
-    // использовать где нужно
+    // попробовать сделать с помощью одного запроса через queryBuilder
     async getById(id: number) {
-        const existingSubject = await this.subjectRepository.findOne({
+        const subjectData = (await this.subjectRepository.findOne({
             where: { id },
             relations: ['subjectTasks', 'subjectTasks.subThemes']
-        });
+        })) as SubjectFullInfo;
 
-        if (!existingSubject) {
+        if (!subjectData) {
             throw new NotFoundException('Предмет не найден');
         }
 
-        return existingSubject;
+        subjectData.subjectTasks = await Promise.all(
+            subjectData.subjectTasks.map(async subjectTask => {
+                let totalTasksCount = 0;
+
+                subjectTask.subThemes = await Promise.all(
+                    subjectTask.subThemes.map(async subTheme => {
+                        const tasksCount =
+                            await this.taskService.getVerifiedTasksCountBySubThemeId(
+                                subTheme.id
+                            );
+
+                        totalTasksCount += tasksCount;
+
+                        return {
+                            ...subTheme,
+                            tasksCount
+                        };
+                    })
+                );
+
+                return {
+                    ...subjectTask,
+                    tasksCount: totalTasksCount
+                };
+            })
+        );
+
+        return subjectData as SubjectFullInfo;
     }
 
     async create(dto: SubjectDto) {
@@ -164,15 +195,6 @@ export class SubjectService {
     async getFullInfoById(id: number) {
         const subject = await this.getById(id);
 
-        // использовать реальные tasksCount
-        subject.subjectTasks.forEach(subjectTask => {
-            subjectTask['tasksCount'] = Math.floor(Math.random() * 6);
-
-            subjectTask.subThemes.forEach(subTheme => {
-                subTheme['tasksCount'] = Math.floor(Math.random() * 6);
-            });
-        });
-
         return { subject };
     }
 
@@ -255,6 +277,11 @@ export class SubjectService {
 
         const subjectTasks = await this.subjectTaskService.getBySubjectId(id);
 
+        return { subjectTasks };
+    }
+
+    async getTaskInfoById(id: number) {
+        const { subjectTasks } = await this.getById(id);
         return { subjectTasks };
     }
 }

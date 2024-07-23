@@ -125,4 +125,11 @@ export class AdminSubjectController {
     async getSubjectTasksById(@Param('id', ParseIntPipe) id: number) {
         return await this.subjectService.getSubjectTasksById(id);
     }
+
+    @Get(':id/task-info')
+    @Permission(Permissions.Subjects)
+    @UseGuards(PermissionGuard)
+    async getTaskInfoById(@Param('id', ParseIntPipe) id: number) {
+        return await this.subjectService.getTaskInfoById(id);
+    }
 }

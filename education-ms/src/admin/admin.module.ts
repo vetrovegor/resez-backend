@@ -11,6 +11,8 @@ import { AdminSubjectTaskController } from './admin-subject-task.controller';
 import { AdminTaskController } from './admin-task.controller';
 import { AdminUploadController } from './admin-upload.controller';
 import { UploadModule } from '@upload/upload.module';
+import { TestModule } from '@test/test.module';
+import { AdminTestController } from './admin-test.controller';
 
 @Module({
     imports: [
@@ -19,13 +21,15 @@ import { UploadModule } from '@upload/upload.module';
         SubjectTaskModule,
         SubThemeModule,
         TaskModule,
-        UploadModule
+        UploadModule,
+        TestModule
     ],
     controllers: [
         AdminSubjectController,
         AdminSubjectTaskController,
         AdminTaskController,
-        AdminUploadController
+        AdminUploadController,
+        AdminTestController
     ],
     providers: [
         {
