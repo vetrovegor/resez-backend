@@ -1,6 +1,5 @@
 import { Op } from 'sequelize';
 
-import socketService from '../../services/socketService';
 import Notify from '../../db/models/notifies/Notify';
 import UserNotify from '../../db/models/notifies/UserNotify';
 import { EmitTypes } from 'types/socket';
@@ -24,9 +23,6 @@ class NotifyService {
         });
 
         if (isSent) {
-            // socketService.emitByUserId(userId, EmitTypes.Notify, {
-            //     notify: await userNotify.toDTO()
-            // });
             rmqService.sendToQueue('socket-queue', 'emit-to-user', {
                 userId,
                 emitType: EmitTypes.Notify,
@@ -82,12 +78,7 @@ class NotifyService {
             userNotify.set('date', new Date());
 
             await userNotify.save();
-
-            // socketService.emitByUserId(
-            //     userNotify.get('userId'),
-            //     EmitTypes.Notify,
-            //     { notify: await userNotify.toDTO() }
-            // );
+            
             rmqService.sendToQueue('socket-queue', 'emit-to-user', {
                 userId: userNotify.get('userId'),
                 emitType: EmitTypes.Notify,

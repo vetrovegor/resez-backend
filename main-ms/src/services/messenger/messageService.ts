@@ -5,7 +5,6 @@ import Message from '../../db/models/messenger/Message';
 import chatService from './chatService';
 import messageTypeService from './messageTypeService';
 import { ApiError } from '../../ApiError';
-import socketService from '../../services/socketService';
 import { EmitTypes } from 'types/socket';
 import UserMessage from '../../db/models/messenger/UserMessage';
 import MessageRead from '../../db/models/messenger/MessageRead';
@@ -60,7 +59,6 @@ class MessageService {
                 chatId
             );
 
-            // socketService.emitByUserId(userId, EmitTypes.Message, messageDto);
             rmqService.sendToQueue('socket-queue', 'emit-to-user', {
                 userId,
                 emitType: EmitTypes.Message,
@@ -176,8 +174,6 @@ class MessageService {
         ).getChatMemberIDs();
 
         memberIDs.forEach(async userId => {
-            // socketService.emitByUserId(userId, EmitTypes.Message, messageDto);
-
             rmqService.sendToQueue('socket-queue', 'emit-to-user', {
                 userId,
                 emitType: EmitTypes.Message,
@@ -251,11 +247,6 @@ class MessageService {
         ).getChatMemberIDs();
 
         memberIDs.forEach(async userId => {
-            // socketService.emitByUserId(
-            //     userId,
-            //     EmitTypes.MessagesDeleting,
-            //     messageIDs
-            // );
             rmqService.sendToQueue('socket-queue', 'emit-to-user', {
                 userId,
                 emitType: EmitTypes.Message,

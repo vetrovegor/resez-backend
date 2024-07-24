@@ -4,7 +4,6 @@ import Code from '../db/models/Code';
 import { VerificationCodeData } from 'types/code';
 import userService from './userService';
 import { ApiError } from '../ApiError';
-import socketService from './socketService';
 import User from '../db/models/User';
 import { EmitTypes } from 'types/socket';
 import rmqService from './rmqService';
@@ -44,12 +43,6 @@ class CodeService {
                 expiredDate,
                 retryDate
             });
-
-            // socketService.emitByUserId(
-            //     userId,
-            //     EmitTypes.VerifyCodeUpdated,
-            //     { verificationCodeData }
-            // );
 
             rmqService.sendToQueue('socket-queue', 'emit-to-user', {
                 userId,
@@ -200,7 +193,6 @@ class CodeService {
             5000,
             false
         );
-        // socketService.emitAuthCode(uniqueId, createdCode.get('code'));
 
         rmqService.sendToQueue('socket-queue', 'emit-auth-code', {
             uniqueId,

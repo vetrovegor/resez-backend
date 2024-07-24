@@ -1,13 +1,10 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
-import cors from 'cors';
 import useragent from 'express-useragent';
 import fileUpload from 'express-fileupload';
 import swaggerUi from 'swagger-ui-express';
 import http from 'http';
-import cron from 'node-cron';
 
-import { CORS_OPTIONS } from './consts/CORS_OPTIONS';
 import { router } from './routes/router';
 import { errorMiddleWare } from './middlewares/errorMiddleware';
 import { sequelize } from './db/connection';
@@ -15,7 +12,6 @@ import { STATIC_PATH } from './consts/STATIC_PATH';
 import permissionService from './services/roles/permissionService';
 import swaggerDocument from './swagger.json';
 import messageTypeService from './services/messenger/messageTypeService';
-import socketService from './services/socketService';
 import notifyTypeService from './services/notifies/notifyTypeService';
 import notifyService from './services/notifies/notifyService';
 import rmqService from './services/rmqService';
@@ -27,7 +23,6 @@ const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({ ...CORS_OPTIONS }));
 app.use(useragent.express());
 app.set('trust proxy', true);
 app.use(fileUpload());
@@ -61,7 +56,6 @@ const start = async () => {
 
     await rmqService.init();
     await redisClient.connect();
-    // socketService.init(server);
 
     // сделать очистку просроченных кодов кодов
     // завершение сессий

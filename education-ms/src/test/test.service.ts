@@ -7,11 +7,12 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Test } from './test.entity';
 import { Repository } from 'typeorm';
-import { TestDto } from './dto/test.dto';
+import { ExamTestDto } from './dto/exam-test.dto';
 import { SubjectService } from '@subject/subject.service';
 import { TaskService } from '@task/task.service';
 import { RabbitMqService } from '@rabbit-mq/rabbit-mq.service';
 import { ClientProxy } from '@nestjs/microservices';
+import { CustomTestDto } from './dto/custom-test.dto';
 
 @Injectable()
 export class TestService {
@@ -24,7 +25,7 @@ export class TestService {
         @Inject('USER_SERVICE') private readonly userClient: ClientProxy
     ) {}
 
-    async create(dto: TestDto, userId: number, isExam: boolean) {
+    async create(dto: ExamTestDto, userId: number, isExam: boolean) {
         const createdTest = this.testRepository.create({
             ...dto,
             subject: { id: dto.subjectId },
@@ -35,7 +36,7 @@ export class TestService {
         return await this.testRepository.save(createdTest);
     }
 
-    async generateExamTest(dto: TestDto, userId: number) {
+    async generateExamTest(dto: ExamTestDto, userId: number) {
         const { subjectTasks } = await this.subjectService.getById(
             dto.subjectId
         );
@@ -52,11 +53,65 @@ export class TestService {
 
         const tasks = await Promise.all(
             subjectTasks.map(async ({ id }) => {
-                return await this.taskService.getRandomVerifiedBySubjectTaskId(
+                return await this.taskService.generateRandomVerifiedBySubjectTaskId(
                     id
                 );
             })
         );
+
+        createdTest.tasks = tasks;
+        await this.testRepository.save(createdTest);
+
+        return { test: createdTest };
+    }
+
+    async generateCustomTest(dto: CustomTestDto, userId: number) {
+        const { subjectTasks } = await this.subjectService.getById(
+            dto.subjectId
+        );
+
+        let availableTasksCount = 0;
+
+        for (const { id, subThemeIds } of dto.subjectTasks) {
+            const existingSubjectTask = subjectTasks.find(
+                subjectTask => subjectTask.id === id
+            );
+
+            if (!existingSubjectTask) {
+                throw new NotFoundException('Задание предмета не найдено');
+            }
+
+            for (const subThemeId of subThemeIds) {
+                const existingSubTheme = existingSubjectTask.subThemes.find(
+                    subTheme => subTheme.id == subThemeId
+                );
+
+                if (!existingSubTheme) {
+                    throw new NotFoundException('Подтема не найдена');
+                }
+
+                availableTasksCount += existingSubTheme.tasksCount;
+            }
+        }
+
+        if (availableTasksCount === 0) {
+            throw new BadRequestException(
+                'В базе недостаточно заданий для генерации теста'
+            );
+        }
+
+        const createdTest = await this.create(dto, userId, false);
+
+        const taskArrs = await Promise.all(
+            dto.subjectTasks.map(async ({ subThemeIds, count }) => {
+                return await this.taskService.generateRandomVerifiedBySubthemeIds(
+                    subThemeIds,
+                    count
+                );
+            })
+        );
+
+        const tasks = taskArrs.reduce((acc, curr) => acc.concat(curr), []);
 
         createdTest.tasks = tasks;
         await this.testRepository.save(createdTest);
@@ -150,6 +205,7 @@ export class TestService {
             ...test,
             subject: test.subject.subject,
             user,
+            tasksCount: tasks.length,
             tasks
         };
     }

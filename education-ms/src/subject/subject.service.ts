@@ -13,6 +13,8 @@ import { ScoreConversionService } from '@score-conversion/score-conversion.servi
 import { SubjectTaskService } from '@subject-task/subject-task.service';
 import { SubjectFullInfo } from './dto/subject-full-info.dto';
 import { TaskService } from '@task/task.service';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class SubjectService {
@@ -23,14 +25,26 @@ export class SubjectService {
         private readonly scoreConversionService: ScoreConversionService,
         private readonly subjectTaskService: SubjectTaskService,
         @Inject(forwardRef(() => TaskService))
-        private readonly taskService: TaskService
+        private readonly taskService: TaskService,
+        @Inject(CACHE_MANAGER) private readonly cacheService: Cache
     ) {}
 
     // попробовать сделать с помощью одного запроса через queryBuilder
     async getById(id: number) {
+        const cachedData = await this.cacheService.get(
+            JSON.stringify({ subjectId: id })
+        );
+
+        if (cachedData) {
+            return cachedData as SubjectFullInfo;
+        }
+
         const subjectData = (await this.subjectRepository.findOne({
             where: { id },
-            relations: ['subjectTasks', 'subjectTasks.subThemes']
+            relations: ['subjectTasks', 'subjectTasks.subThemes'],
+            order: {
+                subjectTasks: { number: 'ASC', subThemes: { id: 'ASC' } }
+            }
         })) as SubjectFullInfo;
 
         if (!subjectData) {
@@ -64,6 +78,11 @@ export class SubjectService {
             })
         );
 
+        await this.cacheService.set(
+            JSON.stringify({ subjectId: id }),
+            subjectData
+        );
+
         return subjectData as SubjectFullInfo;
     }
 
@@ -84,9 +103,7 @@ export class SubjectService {
 
         const savedSubject = await this.subjectRepository.save(createdSubject);
 
-        const subject = await this.createShortInfo(savedSubject);
-
-        return { subject };
+        return { subject: savedSubject };
     }
 
     async find(take: number, skip: number, isArchived: boolean) {
@@ -119,8 +136,8 @@ export class SubjectService {
     async createShortInfo(subjectData: Subject) {
         const { id, subject, slug, isPublished } = subjectData;
 
-        // subjectTasksCount
-        // tasksCount
+        const tasksCount =
+            await this.taskService.getVerifiedTasksCountBySubjectId(id);
 
         return {
             id,
@@ -128,7 +145,7 @@ export class SubjectService {
             slug,
             isPublished,
             subjectTasksCount: subjectData.subjectTasks.length,
-            tasksCount: 123
+            tasksCount
         };
     }
 
@@ -171,11 +188,7 @@ export class SubjectService {
             id
         );
 
-        const newSubject = await this.getById(id);
-
-        const subject = await this.createShortInfo(newSubject);
-
-        return { subject };
+        return { subject: existingSubject };
     }
 
     async toggleIsPublished(id: number) {

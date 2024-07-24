@@ -19,7 +19,6 @@ import {
 } from 'types/user';
 import Session from './Session';
 import Code from './Code';
-import Collection from './memory/Collection';
 import UserRole from './UserRole';
 import Role from './roles/Role';
 import Message from './messenger/Message';
@@ -28,10 +27,8 @@ import UserChat from './messenger/UserChat';
 import { PermissionDTO } from 'types/permission';
 import Notify from './notifies/Notify';
 import UserNotify from './notifies/UserNotify';
-import { CollectionSettings } from 'types/collection';
 import { calculateLevelInfo } from '../../utils';
 import Activity from './Activity';
-import UserMessage from './messenger/UserMessage';
 import MessageRead from './messenger/MessageRead';
 import Subscription from './subscription/Subscription';
 import AvatarDecoration from './store/AvatarDecorations';
@@ -181,9 +178,6 @@ class User extends Model {
         onDelete: 'CASCADE'
     })
     codes: Code[];
-
-    @HasMany(() => Collection)
-    collections: Collection[];
 
     @BelongsToMany(() => Role, () => UserRole)
     roles: Role[];
@@ -408,15 +402,6 @@ class User extends Model {
                 limit: 500
             },
             roles: rolePreviews
-        };
-    }
-
-    getCollectionSettings(): CollectionSettings {
-        const { isShuffleCards, isDefinitionCardFront } = this.get();
-
-        return {
-            isShuffleCards,
-            isDefinitionCardFront
         };
     }
 }

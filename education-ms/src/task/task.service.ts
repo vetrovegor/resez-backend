@@ -237,6 +237,15 @@ export class TaskService {
         return { task };
     }
 
+    async getVerifiedTasksCountBySubjectId(subjectId: number) {
+        return await this.taskRepository.count({
+            where: {
+                subject: { id: subjectId },
+                isVerified: true
+            }
+        });
+    }
+
     async getVerifiedTasksCountBySubThemeId(subThemeId: number) {
         return await this.taskRepository.count({
             where: {
@@ -246,7 +255,7 @@ export class TaskService {
         });
     }
 
-    async getRandomVerifiedBySubjectTaskId(subjectTaskId: number) {
+    async generateRandomVerifiedBySubjectTaskId(subjectTaskId: number) {
         return await this.taskRepository
             .createQueryBuilder('task')
             .where('task.subjectTask.id = :subjectTaskId', { subjectTaskId })
@@ -254,5 +263,19 @@ export class TaskService {
             .orderBy('RANDOM()')
             .limit(1)
             .getOne();
+    }
+
+    async generateRandomVerifiedBySubthemeIds(
+        subThemeIds: number[],
+        limit: number
+    ) {
+        return await this.taskRepository
+            .createQueryBuilder('task')
+            .innerJoin('task.subTheme', 'subTheme')
+            .where('subTheme.id IN (:...subThemeIds)', { subThemeIds })
+            .andWhere('task.isVerified = true')
+            .orderBy('RANDOM()')
+            .limit(limit)
+            .getMany();
     }
 }

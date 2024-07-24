@@ -13,7 +13,8 @@ import {
     Query,
     UseGuards
 } from '@nestjs/common';
-import { TestDto } from '@test/dto/test.dto';
+import { CustomTestDto } from '@test/dto/custom-test.dto';
+import { ExamTestDto } from '@test/dto/exam-test.dto';
 import { TestService } from '@test/test.service';
 
 @Controller('admin/test')
@@ -24,10 +25,20 @@ export class AdminTestController {
     @Permission(Permissions.CreateOfficialTests)
     @UseGuards(PermissionGuard)
     async generateExamTest(
-        @Body() dto: TestDto,
+        @Body() dto: ExamTestDto,
         @CurrentUser() user: JwtPayload
     ) {
         return await this.testService.generateExamTest(dto, user.id);
+    }
+
+    @Post('custom')
+    @Permission(Permissions.CreateOfficialTests)
+    @UseGuards(PermissionGuard)
+    async generateCustomTest(
+        @Body() dto: CustomTestDto,
+        @CurrentUser() user: JwtPayload
+    ) {
+        return await this.testService.generateCustomTest(dto, user.id);
     }
 
     @Get()

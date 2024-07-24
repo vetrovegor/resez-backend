@@ -14,7 +14,6 @@ import tokenService from './tokenService';
 import Session from '../db/models/Session';
 import { PaginationDTO } from '../dto/PaginationDTO';
 import { ApiError } from '../ApiError';
-import socketService from './socketService';
 import rmqService from './rmqService';
 
 class SessionService {
@@ -278,7 +277,6 @@ class SessionService {
 
         await tokenService.deleteTokenBySessionId(id);
 
-        // socketService.emitEndSession(id);
         rmqService.sendToQueue('socket-queue', 'emit-end-session', id);
     }
 
@@ -312,7 +310,6 @@ class SessionService {
 
             await tokenService.deleteTokenBySessionId(session.id);
 
-            // socketService.emitEndSession(session.get('id'));
             rmqService.sendToQueue('socket-queue', 'emit-end-session', session.get('id'));
         }
 

@@ -12,9 +12,7 @@ import {
     UserShortInfo
 } from 'types/user';
 import { PaginationDTO } from '../dto/PaginationDTO';
-import socketService from './socketService';
 import { EmitTypes } from 'types/socket';
-import { CollectionSettings } from 'types/collection';
 import { calculateLevelInfo, getArraysIntersection } from '../utils';
 import UserRole from '../db/models/UserRole';
 import fileService from './fileService';
@@ -104,10 +102,6 @@ class UserService {
         user.set('telegramChatId', telegramChatId);
 
         await user.save();
-
-        // socketService.emitByUserId(userId, EmitTypes.Verify, {
-        //     user: await user.toShortInfo()
-        // });
 
         rmqService.sendToQueue('socket-queue', 'emit-to-user', {
             userId,
@@ -375,29 +369,6 @@ class UserService {
         return users.map(user => user.get('id'));
     }
 
-    async getUserCollectionSettings(
-        userId: number
-    ): Promise<CollectionSettings> {
-        const user = await this.getUserById(userId);
-
-        return user.getCollectionSettings();
-    }
-
-    async updateCollectionSettings(
-        userId: number,
-        isShuffleCards: boolean,
-        isDefinitionCardFront: boolean
-    ): Promise<CollectionSettings> {
-        const user = await this.getUserById(userId);
-
-        user.set('isShuffleCards', isShuffleCards);
-        user.set('isDefinitionCardFront', isDefinitionCardFront);
-
-        await user.save();
-
-        return { isShuffleCards, isDefinitionCardFront };
-    }
-
     async getUsers(
         limit: number,
         offset: number,
@@ -517,12 +488,6 @@ class UserService {
         user.set('blockReason', reason);
         await user.save();
 
-        // socketService.emitByUserId(
-        //     userId,
-        //     blockStatus ? EmitTypes.Blocked : EmitTypes.Unblocked,
-        //     blockStatus ? { reason } : null
-        // );
-
         rmqService.sendToQueue('socket-queue', 'emit-to-user', {
             userId,
             emitType: blockStatus ? EmitTypes.Blocked : EmitTypes.Unblocked,
@@ -548,12 +513,6 @@ class UserService {
         const levelInfo = calculateLevelInfo(user.get('xp'));
 
         if (levelInfo.level > oldLevel) {
-            socketService.emitByUserId(
-                user.get('id'),
-                EmitTypes.NewLevel,
-                levelInfo
-            );
-
             rmqService.sendToQueue('socket-queue', 'emit-to-user', {
                 userId: user.get('id'),
                 emitType: EmitTypes.NewLevel,

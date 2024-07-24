@@ -1,7 +1,7 @@
 import { Transform } from 'class-transformer';
 import { IsBoolean, IsNotEmpty, IsNumber } from 'class-validator';
 
-export class TestDto {
+export class ExamTestDto {
     @Transform(({ value }) => Number(value))
     @IsNotEmpty()
     @IsNumber()

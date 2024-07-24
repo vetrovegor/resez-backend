@@ -3,9 +3,7 @@ import bcrypt from 'bcrypt';
 import userService from "./userService";
 import { ApiError } from "../ApiError";
 import codeService from './codeService';
-import { AuthResponse, UserTokenInfo } from 'types/user';
-import tokenService from './tokenService';
-import socketService from './socketService';
+import { AuthResponse } from 'types/user';
 
 class AuthService {
     async register(nickname: string, password: string): Promise<AuthResponse> {
