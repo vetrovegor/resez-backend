@@ -217,7 +217,7 @@ export class SubjectService {
 
     async getBySlug(slug: string) {
         const existingSubject = await this.subjectRepository.findOne({
-            where: { slug },
+            where: { slug, isArchived: false, isPublished: true },
             relations: ['subjectTasks', 'subjectTasks.subThemes']
         });
 
@@ -301,5 +301,10 @@ export class SubjectService {
     async getTaskInfoById(id: number) {
         const { subjectTasks } = await this.getById(id);
         return { subjectTasks };
+    }
+
+    async getTaskInfoBySlug(slug: string) {
+        const { id } = await this.getBySlug(slug);
+        return this.getTaskInfoById(id);
     }
 }

@@ -16,4 +16,9 @@ export class SubjectController {
     async getScoreConversionBySubjectSlug(@Param('slug') slug: string) {
         return await this.subjectService.getScoreInfo(slug);
     }
+
+    @Get(':slug/task-info')
+    async getTaskInfoById(@Param('slug') slug: string) {
+        return await this.subjectService.getTaskInfoBySlug(slug);
+    }
 }
