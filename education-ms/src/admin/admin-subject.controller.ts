@@ -1,6 +1,7 @@
 import { Permissions } from '@auth/interfaces';
 import { Permission } from '@auth/permission.decorator';
 import { PermissionGuard } from '@auth/permission.guard';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 import {
     Body,
     Controller,
@@ -13,7 +14,8 @@ import {
     Patch,
     Post,
     Query,
-    UseGuards
+    UseGuards,
+    UseInterceptors
 } from '@nestjs/common';
 import { ScoreConversionDto } from '@score-conversion/dto/score-conversion.dto';
 import { ScoreConversionService } from '@score-conversion/score-conversion.service';
@@ -98,6 +100,7 @@ export class AdminSubjectController {
         return await this.subjectService.toggleIsPublished(id);
     }
 
+    @UseInterceptors(CacheInterceptor)
     @Get(':id')
     @Permission(Permissions.Subjects)
     @UseGuards(PermissionGuard)

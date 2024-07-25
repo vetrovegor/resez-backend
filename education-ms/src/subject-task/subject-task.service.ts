@@ -1,8 +1,4 @@
-import {
-    BadRequestException,
-    Injectable,
-    NotFoundException
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SubjectTask } from './subject-task.entity';
 import { In, Not, Repository } from 'typeorm';
@@ -46,11 +42,7 @@ export class SubjectTaskService {
         return { subThemes };
     }
 
-    async update(
-        oldSubjectTasks: SubjectTaskDto[],
-        newSubjectTasks: SubjectTaskDto[],
-        subjectId: number
-    ) {
+    async update(newSubjectTasks: SubjectTaskDto[], subjectId: number) {
         const subjectTaskIds: number[] = [];
 
         for (const subjectTask of newSubjectTasks) {
@@ -68,25 +60,11 @@ export class SubjectTaskService {
 
                 subjectTaskId = savedSubjectTask.id;
             } else {
-                const existingSubjectTask = oldSubjectTasks.find(
-                    subjectTask => subjectTask.id == id
-                );
-
-                if (id && !existingSubjectTask) {
-                    throw new BadRequestException(
-                        'Некорректное id задания предмета'
-                    );
-                }
-
                 await this.subjectTaskRepository.save(subjectTaskInfo);
 
                 subjectTaskId = id;
 
-                await this.subThemeService.update(
-                    existingSubjectTask.subThemes,
-                    subThemes,
-                    subjectTaskId
-                );
+                await this.subThemeService.update(subThemes, subjectTaskId);
             }
 
             subjectTaskIds.push(subjectTaskId);

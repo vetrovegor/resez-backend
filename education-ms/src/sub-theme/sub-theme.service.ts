@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SubTheme } from './sub-theme.entity';
 import { In, Not, Repository } from 'typeorm';
@@ -18,24 +18,11 @@ export class SubThemeService {
         });
     }
 
-    async update(
-        oldSubThemes: SubThemeDto[],
-        newSubThemes: SubThemeDto[],
-        subjectTaskId: number
-    ) {
+    async update(newSubThemes: SubThemeDto[], subjectTaskId: number) {
         const subThemeIds: number[] = [];
 
         for (const subTheme of newSubThemes) {
-            const { id } = subTheme;
             subTheme['subjectTask'] = { id: subjectTaskId };
-
-            const existingSubTheme = oldSubThemes.find(
-                subTheme => subTheme.id == id
-            );
-
-            if (id && !existingSubTheme) {
-                throw new BadRequestException('Некорректное id подтемы');
-            }
 
             await this.subThemeRepository.save(subTheme);
 

@@ -13,8 +13,6 @@ import { ScoreConversionService } from '@score-conversion/score-conversion.servi
 import { SubjectTaskService } from '@subject-task/subject-task.service';
 import { SubjectFullInfo } from './dto/subject-full-info.dto';
 import { TaskService } from '@task/task.service';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
 
 @Injectable()
 export class SubjectService {
@@ -25,20 +23,11 @@ export class SubjectService {
         private readonly scoreConversionService: ScoreConversionService,
         private readonly subjectTaskService: SubjectTaskService,
         @Inject(forwardRef(() => TaskService))
-        private readonly taskService: TaskService,
-        @Inject(CACHE_MANAGER) private readonly cacheService: Cache
+        private readonly taskService: TaskService
     ) {}
 
     // попробовать сделать с помощью одного запроса через queryBuilder
     async getById(id: number) {
-        const cachedData = await this.cacheService.get(
-            JSON.stringify({ subjectId: id })
-        );
-
-        if (cachedData) {
-            return cachedData as SubjectFullInfo;
-        }
-
         const subjectData = (await this.subjectRepository.findOne({
             where: { id },
             relations: ['subjectTasks', 'subjectTasks.subThemes'],
@@ -76,11 +65,6 @@ export class SubjectService {
                     tasksCount: totalTasksCount
                 };
             })
-        );
-
-        await this.cacheService.set(
-            JSON.stringify({ subjectId: id }),
-            subjectData
         );
 
         return subjectData as SubjectFullInfo;
@@ -159,8 +143,6 @@ export class SubjectService {
         return { subject };
     }
 
-    // довести до ума чтобы обновлялись корректно задания, подтемы
-    // удалялись задания, у которых subjectId стал null
     async update(id: number, dto: SubjectDto) {
         const existingSubject = await this.getById(id);
 
@@ -174,6 +156,32 @@ export class SubjectService {
             );
         }
 
+        for (const { id: subjectTaskId, subThemes } of dto.subjectTasks) {
+            if (!subjectTaskId) continue;
+
+            const existingSubjectTask = existingSubject.subjectTasks.find(
+                subjectTask => subjectTask.id == subjectTaskId
+            );
+
+            if (!existingSubjectTask) {
+                throw new BadRequestException(
+                    'Некорректное id задания предмета'
+                );
+            }
+
+            for (const { id: subThemeId } of subThemes) {
+                if (!subThemeId) continue;
+
+                const existingSubTheme = existingSubjectTask.subThemes.find(
+                    item => item.id == subThemeId
+                );
+
+                if (!existingSubTheme) {
+                    throw new BadRequestException('Некорректное id подтемы');
+                }
+            }
+        }
+
         if (existingSubject.isMark != dto.isMark) {
             await this.scoreConversionService.getBySubjectId(id);
         }
@@ -182,11 +190,7 @@ export class SubjectService {
 
         await this.subjectRepository.save({ id, ...subjectInfo });
 
-        await this.subjectTaskService.update(
-            existingSubject.subjectTasks,
-            subjectTasks,
-            id
-        );
+        await this.subjectTaskService.update(subjectTasks, id);
 
         return { subject: existingSubject };
     }
@@ -279,6 +283,7 @@ export class SubjectService {
         );
 
         return {
+            durationMinutes: existingSubject.durationMinutes,
             isMark: existingSubject.isMark,
             scoreConversion,
             subjectTasks

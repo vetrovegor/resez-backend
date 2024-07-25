@@ -4,16 +4,19 @@ import { ApiError } from '../ApiError';
 import tokenService from '../services/tokenService';
 import { RequestWithUser } from 'types/request';
 
-export const refreshTokenMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+export const refreshTokenMiddleware = async (
+    req: RequestWithUser,
+    res: Response,
+    next: NextFunction
+) => {
     try {
         const { refreshToken } = req.cookies;
-        
 
         if (!refreshToken) {
             return next(ApiError.unauthorizedError());
         }
 
-        const userData = tokenService.validateRefreshToken(refreshToken);
+        const userData = tokenService.validateToken(refreshToken);
         const foundToken = await tokenService.findTokenByToken(refreshToken);
 
         if (!userData || !foundToken) {
@@ -26,4 +29,4 @@ export const refreshTokenMiddleware = async (req: RequestWithUser, res: Response
     } catch (error) {
         return next(ApiError.unauthorizedError());
     }
-}
+};

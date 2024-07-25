@@ -13,12 +13,25 @@ import { join } from 'path';
 import { UploadModule } from './upload/upload.module';
 import { RabbitMqModule } from '@rabbit-mq/rabbit-mq.module';
 import { TestModule } from './test/test.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import * as redisStore from 'cache-manager-redis-store';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
         ServeStaticModule.forRoot({
             rootPath: join(process.cwd(), 'uploads')
+        }),
+        CacheModule.registerAsync({
+            isGlobal: true,
+            useFactory: (configService: ConfigService) => ({
+                store: redisStore,
+                host: configService.get('REDIS_HOST'),
+                port: configService.get('REDIS_PORT'),
+                ttl: 10
+            }),
+            inject: [ConfigService]
         }),
         SubjectModule,
         DatabaseModule,

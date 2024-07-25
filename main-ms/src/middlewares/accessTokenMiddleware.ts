@@ -18,7 +18,7 @@ export const accessTokenMiddleware = async (req: RequestWithUser, res: Response,
             return next(ApiError.unauthorizedError());
         }
 
-        const userData = tokenService.validateAccessToken(accessToken);
+        const userData = tokenService.validateToken(accessToken);
 
         if (!userData) {
             return next(ApiError.unauthorizedError());
