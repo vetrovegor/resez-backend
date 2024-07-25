@@ -26,8 +26,8 @@ export class Task {
     @Column({ type: 'text', nullable: true })
     solution: string;
 
-    @Column({ nullable: true })
-    answer: string;
+    @Column('simple-array', { nullable: true })
+    answers: string[];
 
     @Column({ name: 'is_verified' })
     isVerified: boolean;

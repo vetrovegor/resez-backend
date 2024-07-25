@@ -31,9 +31,9 @@ export class TaskDto {
     @IsOptional()
     solution: string;
 
-    @IsString({ message: 'Ответ должен быть строкой' })
-    @IsOptional()
-    answer: string;
+    @IsNotEmpty({ message: 'Ответ не должен быть пустым' })
+    @IsString({ each: true, message: 'Ответы должны быть массивом' })
+    answers: string[];
 
     @IsBoolean({ message: 'Верификация должна быть булевым значением' })
     @IsNotEmpty({ message: 'Верификация не должна быть пустым' })

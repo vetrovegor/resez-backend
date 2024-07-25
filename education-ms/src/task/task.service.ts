@@ -50,7 +50,7 @@ export class TaskService {
             );
         }
 
-        if (!subjectTask.isDetailedAnswer && !dto.answer) {
+        if (!subjectTask.isDetailedAnswer && !dto.answers.length) {
             throw new BadRequestException(
                 'Задание без развернутого ответа должно содержать ответ'
             );
@@ -80,7 +80,7 @@ export class TaskService {
         });
 
         delete task.solution;
-        delete task.answer;
+        delete task.answers;
         delete task.subjectTask;
         delete task.userId;
 
@@ -192,7 +192,7 @@ export class TaskService {
             );
         }
 
-        if (!subjectTask.isDetailedAnswer && !dto.answer) {
+        if (!subjectTask.isDetailedAnswer && !dto.answers.length) {
             throw new BadRequestException(
                 'Задание без развернутого ответа должно содержать ответ'
             );
