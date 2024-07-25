@@ -13,18 +13,17 @@ export class TestController {
     constructor(private readonly testService: TestService) {}
 
     @Get('official')
-    async findOfficial(
+    async findOfficialBySubjectSlug(
         @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
         @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
-        @Query('subject_id', new ParseIntPipe({ optional: true }))
-        subjectId: number
+        // подумать как сделать чтобы параметр был обязательным
+        @Query('subject_slug', new DefaultValuePipe(''))
+        subjectSlug: string
     ) {
-        return await this.testService.find(
+        return await this.testService.findOfficialBySubjectSlug(
             limit,
             offset,
-            subjectId,
-            null,
-            true
+            subjectSlug
         );
     }
 

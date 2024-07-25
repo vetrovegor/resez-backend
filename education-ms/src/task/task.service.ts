@@ -158,7 +158,7 @@ export class TaskService {
         return task;
     }
 
-    async getAdminInfo(id: number) {
+    async getFullInfo(id: number) {
         const task = await this.getById(id);
 
         return { task };

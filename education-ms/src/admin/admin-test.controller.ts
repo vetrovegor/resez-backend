@@ -6,7 +6,9 @@ import {
     Body,
     Controller,
     DefaultValuePipe,
+    Delete,
     Get,
+    Param,
     ParseBoolPipe,
     ParseIntPipe,
     Post,
@@ -61,5 +63,12 @@ export class AdminTestController {
             userId,
             isOfficial
         );
+    }
+
+    @Delete(':id')
+    @Permission(Permissions.DeleteTests)
+    @UseGuards(PermissionGuard)
+    async delete(@Param('id', ParseIntPipe) id: number) {
+        return await this.testService.delete(id);
     }
 }

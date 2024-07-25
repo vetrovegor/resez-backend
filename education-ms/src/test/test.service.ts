@@ -119,6 +119,19 @@ export class TestService {
         return { test: createdTest };
     }
 
+    createShortInfo(test: Test) {
+        const tasksCount = test.tasks.length;
+
+        delete test.tasks;
+        delete test.userId;
+
+        return {
+            ...test,
+            subject: test.subject.subject,
+            tasksCount
+        };
+    }
+
     async find(
         take: number,
         skip: number,
@@ -127,9 +140,9 @@ export class TestService {
         isOfficial: boolean
     ) {
         const where = {
-            ...(isOfficial != undefined && { isOfficial }),
             ...(subjectId && { subject: { id: subjectId } }),
-            ...(userId && { userId })
+            ...(userId && { userId }),
+            ...(isOfficial != undefined && { isOfficial })
         };
 
         const testsData = await this.testRepository.find({
@@ -140,17 +153,41 @@ export class TestService {
             skip
         });
 
-        const tests = testsData.map(test => {
-            const tasksCount = test.tasks.length;
-            delete test.tasks;
-            delete test.userId;
+        const tests = testsData.map(test => this.createShortInfo(test));
 
-            return {
-                ...test,
-                subject: test.subject.subject,
-                tasksCount
-            };
+        const totalCount = await this.testRepository.count({
+            where
         });
+
+        return {
+            tests,
+            totalCount,
+            isLast: totalCount <= take + skip,
+            elementsCount: tests.length
+        };
+    }
+
+    async findOfficialBySubjectSlug(
+        take: number,
+        skip: number,
+        subjectSlug: string
+    ) {
+        const { id } = await this.subjectService.getBySlug(subjectSlug);
+
+        const where = {
+            isOfficial: true,
+            subject: { id }
+        };
+
+        const testsData = await this.testRepository.find({
+            where,
+            order: { createdAt: 'DESC' },
+            relations: ['subject', 'tasks'],
+            take,
+            skip
+        });
+
+        const tests = testsData.map(test => this.createShortInfo(test));
 
         const totalCount = await this.testRepository.count({
             where
@@ -208,5 +245,19 @@ export class TestService {
             tasksCount: tasks.length,
             tasks
         };
+    }
+
+    async delete(id: number) {
+        const existingTest = await this.testRepository.findOne({
+            where: { id }
+        });
+
+        if (!existingTest) {
+            throw new NotFoundException('Тест не найден');
+        }
+
+        await this.testRepository.remove(existingTest);
+
+        return { test: existingTest };
     }
 }

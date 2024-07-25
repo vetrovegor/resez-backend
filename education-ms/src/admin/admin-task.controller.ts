@@ -72,8 +72,8 @@ export class AdminTaskController {
     @Get(':id')
     @Permission(Permissions.Tasks)
     @UseGuards(PermissionGuard)
-    async getAdminInfo(@Param('id', ParseIntPipe) id: number) {
-        return await this.taskService.getAdminInfo(id);
+    async getFullInfo(@Param('id', ParseIntPipe) id: number) {
+        return await this.taskService.getFullInfo(id);
     }
 
     @Patch(':id')
