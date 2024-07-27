@@ -12,6 +12,7 @@ import { UserChatPreview, UserPreview } from 'types/user';
 import fileService from '../../services/fileService';
 import { generateInviteLink } from '../../utils';
 import { redisClient } from '../../redisClient';
+import rmqService from '../../services/rmqService';
 
 class ChatService {
     async createUserChat(chatId: number, userId: number): Promise<UserChat> {
@@ -126,7 +127,10 @@ class ChatService {
             })
         ).toJSON();
 
-        const lastMessage = await messageService.getLastMessageByChatId(id, forUserId);
+        const lastMessage = await messageService.getLastMessageByChatId(
+            id,
+            forUserId
+        );
 
         if (isGroup) {
             return {
@@ -153,12 +157,19 @@ class ChatService {
 
         const user = (await userService.getUserById(userId)).toPreview();
 
+        const activity = await rmqService.sendToQueue(
+            'socket-queue',
+            'user-activity',
+            user.id
+        );
+
         return {
             id,
             isGroup,
             userId,
             chat: user.nickname,
             picture: user.avatar,
+            activity,
             inviteLink,
             isAdmin,
             membersCount,
@@ -414,11 +425,7 @@ class ChatService {
         return result;
     }
 
-    async getChatUsers(
-        chatId: number,
-        limit: number,
-        offset: number
-    ): Promise<PaginationDTO<UserChatPreview>> {
+    async getChatUsers(chatId: number, limit: number, offset: number) {
         const chat = await this.getChatById(chatId);
 
         const userIDs = await chat.getChatMemberIDs();
@@ -433,22 +440,38 @@ class ChatService {
             offset
         );
 
-        const users: UserChatPreview[] = usersData.map(user => {
-            const userPreview = user.toPreview();
+        const users = await Promise.all(
+            usersData.map(async user => {
+                const userPreview = user.toPreview();
 
-            return {
-                ...userPreview,
-                isAdmin: false
-            };
-        });
+                const activity = await rmqService.sendToQueue(
+                    'socket-queue',
+                    'user-activity',
+                    user.id
+                );
+
+                return {
+                    ...userPreview,
+                    activity,
+                    isAdmin: false
+                };
+            })
+        );
 
         if (userIDs.includes(adminId)) {
             const adminPreview = (
                 await userService.getUserById(adminId)
             ).toPreview();
 
+            const activity = await rmqService.sendToQueue(
+                'socket-queue',
+                'user-activity',
+                adminId
+            );
+
             users.unshift({
                 ...adminPreview,
+                activity,
                 isAdmin: true
             });
         }

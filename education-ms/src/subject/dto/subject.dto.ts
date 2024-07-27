@@ -39,6 +39,11 @@ export class SubjectDto {
     @IsNotEmpty({ message: 'Поле "Опубликован" не должно быть пустым' })
     isPublished: boolean;
 
+    @Transform(({ value }) => Number(value))
+    @IsNumber({}, { message: 'Позиция должна быть числом' })
+    @IsOptional()
+    order: number;
+
     @IsArray({ message: 'Задания предмета должны быть массивом' })
     @ArrayMinSize(1, {
         message: 'Должно быть хотя бы одно задание в предмете'

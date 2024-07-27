@@ -1,7 +1,9 @@
 import { Controller, Get, Param, UseInterceptors } from '@nestjs/common';
 import { SubjectService } from './subject.service';
 import { CacheInterceptor } from '@nestjs/cache-manager';
+import { Public } from '@auth/public.decorator';
 
+@Public()
 @Controller('subject')
 export class SubjectController {
     constructor(private readonly subjectService: SubjectService) {}

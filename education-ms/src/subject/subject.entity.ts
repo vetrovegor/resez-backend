@@ -36,6 +36,9 @@ export class Subject {
     @Column({ default: false })
     isArchived: boolean;
 
+    @Column({ default: 0 })
+    order: number;
+
     @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
 

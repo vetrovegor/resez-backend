@@ -95,7 +95,7 @@ export class SubjectService {
 
         const subjectsData = await this.subjectRepository.find({
             where,
-            order: { createdAt: 'DESC' },
+            order: { order: 'ASC', createdAt: 'DESC' },
             take,
             skip,
             relations: ['subjectTasks']

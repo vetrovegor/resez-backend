@@ -158,6 +158,7 @@ export class TaskService {
         return task;
     }
 
+    // добавить переменную: проверять доступность
     async getFullInfo(id: number) {
         const task = await this.getById(id);
 

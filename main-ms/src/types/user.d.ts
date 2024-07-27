@@ -60,6 +60,10 @@ export type UserPreview = {
 
 export type UserChatPreview = UserPreview & {
     isAdmin: boolean;
+    activity: {
+        isOnline: boolean;
+        lastSeen: Date;
+    }
 };
 
 export type UserProfilePreview = {

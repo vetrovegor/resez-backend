@@ -7,7 +7,9 @@ import {
     Query
 } from '@nestjs/common';
 import { TestService } from './test.service';
+import { Public } from '@auth/public.decorator';
 
+@Public()
 @Controller('test')
 export class TestController {
     constructor(private readonly testService: TestService) {}
