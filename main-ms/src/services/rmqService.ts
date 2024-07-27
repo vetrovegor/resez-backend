@@ -91,10 +91,10 @@ class RmqService {
         this.channel.consume(
             'verify-user',
             async msg => {
-                const { userId, telegramChatId } = JSON.parse(
+                const { userId, telegramChatId, telegramUsername } = JSON.parse(
                     msg.content.toString()
                 );
-                await userService.verifyUser(userId, telegramChatId);
+                await userService.verifyUser(userId, telegramChatId, telegramUsername);
             },
             { noAck: true }
         );

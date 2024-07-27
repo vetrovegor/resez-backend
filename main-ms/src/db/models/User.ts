@@ -55,6 +55,11 @@ class User extends Model {
     telegramChatId: string;
 
     @Column({
+        type: DataType.STRING
+    })
+    telegramUsername: string;
+
+    @Column({
         type: DataType.BOOLEAN,
         defaultValue: false
     })
@@ -376,6 +381,7 @@ class User extends Model {
             firstName,
             lastName,
             registrationDate,
+            telegramUsername,
             isVerified,
             isBlocked,
             blockReason,
@@ -391,6 +397,7 @@ class User extends Model {
             firstName,
             lastName,
             registrationDate,
+            telegramUsername,
             isVerified,
             isBlocked,
             blockReason,

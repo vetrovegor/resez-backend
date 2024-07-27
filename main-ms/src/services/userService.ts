@@ -95,11 +95,12 @@ class UserService {
         return shortInfo;
     }
 
-    async verifyUser(userId: number, telegramChatId: string): Promise<void> {
+    async verifyUser(userId: number, telegramChatId: string, telegramUsername: string): Promise<void> {
         const user = await this.getUserById(userId);
 
         user.set('isVerified', true);
         user.set('telegramChatId', telegramChatId);
+        user.set('telegramUsername', telegramUsername);
 
         await user.save();
 

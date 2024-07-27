@@ -80,6 +80,7 @@ const handleStart = async (
 ): Promise<Message.TextMessage> => {
     const startPayload = ctx.startPayload;
     const telegramChatId = ctx.message.chat.id.toString();
+    const telegramUsername = ctx.message.from.username;
 
     if (!startPayload) {
         return await sendInfoMessage(telegramChatId);
@@ -133,7 +134,8 @@ const handleStart = async (
         Buffer.from(
             JSON.stringify({
                 userId: codeData.userId,
-                telegramChatId
+                telegramChatId,
+                telegramUsername
             })
         )
     );

@@ -95,6 +95,7 @@ export type UserAdminInfo = {
     firstName: string;
     lastName: string;
     registrationDate: Date;
+    telegramUsername: string;
     isVerified: string;
     isBlocked: boolean;
     blockReason: string;

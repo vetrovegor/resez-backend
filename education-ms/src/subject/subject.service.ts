@@ -95,7 +95,7 @@ export class SubjectService {
 
         const subjectsData = await this.subjectRepository.find({
             where,
-            order: { order: 'ASC', createdAt: 'DESC' },
+            order: { createdAt: 'DESC' },
             take,
             skip,
             relations: ['subjectTasks']
@@ -241,7 +241,7 @@ export class SubjectService {
     async getPublished() {
         const subjectsData = await this.subjectRepository.find({
             where: { isPublished: true, isArchived: false },
-            order: { createdAt: 'DESC' }
+            order: { order: 'ASC', createdAt: 'DESC' }
         });
 
         const subjects = subjectsData.map(({ id, subject, slug }) => ({
