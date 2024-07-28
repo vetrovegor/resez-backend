@@ -238,9 +238,12 @@ export class TestService {
 
         delete test.userId;
 
+        const { subject, durationMinutes } = test.subject;
+
         return {
             ...test,
-            subject: test.subject.subject,
+            subject,
+            durationMinutes,
             user,
             tasksCount: tasks.length,
             tasks

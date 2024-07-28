@@ -183,9 +183,12 @@ export class TaskService {
         return task;
     }
 
-    // добавить переменную: проверять доступность
-    async getFullInfo(id: number) {
+    async getFullInfo(id: number, isAccessCheck: boolean = true) {
         const task = await this.getById(id);
+
+        if (isAccessCheck && (!task.isVerified || task.isArchived)) {
+            throw new NotFoundException('Задание не найдено');
+        }
 
         return { task };
     }
