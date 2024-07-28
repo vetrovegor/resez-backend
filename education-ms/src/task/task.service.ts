@@ -145,6 +145,31 @@ export class TaskService {
         };
     }
 
+    async findBySubThemeId(subThemeId: number, take: number, skip: number) {
+        const where = {
+            isVerified: true,
+            isArchived: false,
+            subTheme: { id: subThemeId }
+        };
+
+        const tasks = await this.taskRepository.find({
+            where,
+            order: { createdAt: 'DESC' },
+            take,
+            skip,
+            relations: ['subject', 'subjectTask', 'subTheme']
+        });
+
+        const totalCount = await this.taskRepository.count({ where });
+
+        return {
+            tasks,
+            totalCount,
+            isLast: totalCount <= take + skip,
+            elementsCount: tasks.length
+        };
+    }
+
     async getById(id: number) {
         const task = await this.taskRepository.findOne({
             where: { id },
@@ -251,7 +276,8 @@ export class TaskService {
         return await this.taskRepository.count({
             where: {
                 subTheme: { id: subThemeId },
-                isVerified: true
+                isVerified: true,
+                isArchived: false
             }
         });
     }

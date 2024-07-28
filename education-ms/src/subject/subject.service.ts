@@ -231,7 +231,10 @@ export class SubjectService {
     async toggleIsArchived(id: number, isArchived: boolean) {
         const existingSubject = await this.getById(id);
 
-        await this.subjectRepository.update(id, { isArchived });
+        await this.subjectRepository.update(id, {
+            isArchived,
+            isPublished: false
+        });
 
         const subject = await this.createShortInfo(existingSubject);
 
