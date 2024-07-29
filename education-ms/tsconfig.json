@@ -35,7 +35,9 @@
             "@rabbit-mq": ["src/rabbit-mq/"],
             "@rabbit-mq/*": ["src/rabbit-mq/*"],
             "@test": ["src/test/"],
-            "@test/*": ["src/test/*"]
+            "@test/*": ["src/test/*"],
+            "@utils": ["src/utils/"],
+            "@utils/*": ["src/utils/*"]
         }
     }
 }

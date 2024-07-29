@@ -13,6 +13,8 @@ import { TaskService } from '@task/task.service';
 import { RabbitMqService } from '@rabbit-mq/rabbit-mq.service';
 import { ClientProxy } from '@nestjs/microservices';
 import { CustomTestDto } from './dto/custom-test.dto';
+import { TestSubmitDto } from './dto/test-dubmit.dto';
+import { arraysEqualSet } from '@utils/array-equal-set';
 
 @Injectable()
 export class TestService {
@@ -262,5 +264,154 @@ export class TestService {
         await this.testRepository.remove(existingTest);
 
         return { test: existingTest };
+    }
+
+    async getDetailedTasksByTestId(id: number) {
+        const existingTest = await this.testRepository.findOne({
+            where: { id },
+            relations: [
+                'tasks',
+                'tasks.subject',
+                'tasks.subjectTask',
+                'tasks.subTheme'
+            ],
+            order: { tasks: { subjectTask: { number: 'ASC' } } }
+        });
+
+        if (!existingTest) {
+            throw new NotFoundException('Тест не найден');
+        }
+
+        const tasks = existingTest.tasks.filter(
+            task => task.subjectTask.isDetailedAnswer
+        );
+
+        return { tasks };
+    }
+
+    async evaluate(id: number, dto: TestSubmitDto) {
+        const existingTest = await this.testRepository.findOne({
+            where: { id },
+            relations: [
+                'subject',
+                'subject.scoreConversions',
+                'tasks',
+                'tasks.subjectTask',
+                'tasks.subject'
+            ]
+        });
+
+        if (!existingTest) {
+            throw new NotFoundException('Тест не найден');
+        }
+
+        const { simpleTasks, detailedTasks } = dto;
+
+        const testSimpleTaskIds = existingTest.tasks
+            .filter(task => !task.subjectTask.isDetailedAnswer)
+            .map(task => task.id);
+
+        const submittedSimpleTaskIds = simpleTasks.map(task => task.id);
+
+        const testDetailedTaskIds = existingTest.tasks
+            .filter(task => task.subjectTask.isDetailedAnswer)
+            .map(task => task.id);
+
+        const submittedDetailedTaskIds = detailedTasks.map(task => task.id);
+
+        if (
+            !arraysEqualSet(testSimpleTaskIds, submittedSimpleTaskIds) ||
+            !arraysEqualSet(testDetailedTaskIds, submittedDetailedTaskIds)
+        ) {
+            throw new BadRequestException(
+                'Переданные задания не совпадают с заданиями в тесте'
+            );
+        }
+
+        for (const { id, primaryScore } of detailedTasks) {
+            const taskData = existingTest.tasks.find(task => task.id == id);
+
+            if (primaryScore > taskData.subjectTask.primaryScore) {
+                throw new BadRequestException(
+                    'Первичный балл больше чем возможно'
+                );
+            }
+        }
+
+        let totalPrimaryScore = 0;
+        let maxPrimaryScore = 0;
+
+        const simpleTasksResult = simpleTasks.map(({ id, answer }) => {
+            const { answers: correctAnswers, subjectTask } =
+                existingTest.tasks.find(task => task.id == id) || {
+                    answers: [],
+                    subjectTask: {}
+                };
+
+            const existingAnswer = correctAnswers.find(
+                item => item.toLowerCase() === answer.toLowerCase()
+            );
+
+            const isCorrect = !!existingAnswer;
+            const primaryScore = isCorrect ? subjectTask.primaryScore : 0;
+
+            totalPrimaryScore += primaryScore;
+            maxPrimaryScore += subjectTask.primaryScore;
+
+            return {
+                id,
+                number: subjectTask.number,
+                answer,
+                isCorrect,
+                correctAnswers,
+                primaryScore
+            };
+        });
+
+        const detailedTasksResult = detailedTasks.map(
+            ({ id, primaryScore }) => {
+                const { subjectTask } = existingTest.tasks.find(
+                    task => task.id == id
+                );
+
+                totalPrimaryScore += primaryScore;
+                maxPrimaryScore += subjectTask.primaryScore;
+
+                return {
+                    id,
+                    number: subjectTask.number,
+                    primaryScore,
+                    maxPrimaryScore: subjectTask.primaryScore
+                };
+            }
+        );
+
+        const { subject, isExam } = existingTest;
+        const { scoreConversions, isMark } = subject;
+
+        const gradeEntry = scoreConversions.find(
+            item =>
+                totalPrimaryScore >= item.minScore &&
+                totalPrimaryScore <= item.maxScore
+        );
+        const grade = gradeEntry ? gradeEntry.grade : null;
+
+        const secondaryScoreEntry = scoreConversions.find(
+            item => item.primaryScore == totalPrimaryScore
+        );
+        const secondaryScore = secondaryScoreEntry
+            ? secondaryScoreEntry.secondaryScore
+            : null;
+
+        return {
+            isExam,
+            isMark,
+            simpleTasks: simpleTasksResult,
+            detailedTasks: detailedTasksResult,
+            primaryScore: totalPrimaryScore,
+            maxPrimaryScore,
+            grade,
+            secondaryScore
+        };
     }
 }

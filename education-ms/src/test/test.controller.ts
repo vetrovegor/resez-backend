@@ -1,13 +1,16 @@
 import {
+    Body,
     Controller,
     DefaultValuePipe,
     Get,
     Param,
     ParseIntPipe,
+    Post,
     Query
 } from '@nestjs/common';
 import { TestService } from './test.service';
 import { Public } from '@auth/public.decorator';
+import { TestSubmitDto } from './dto/test-dubmit.dto';
 
 @Public()
 @Controller('test')
@@ -32,5 +35,18 @@ export class TestController {
     @Get(':id')
     async getFullInfo(@Param('id', ParseIntPipe) id: number) {
         return await this.testService.getFullInfo(id);
+    }
+
+    @Get(':id/task/detailed')
+    async getDetailedTasksByTestId(@Param('id', ParseIntPipe) id: number) {
+        return await this.testService.getDetailedTasksByTestId(id);
+    }
+
+    @Post(':id/submit')
+    async evaluate(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() dto: TestSubmitDto
+    ) {
+        return await this.testService.evaluate(id, dto);
     }
 }
