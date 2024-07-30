@@ -12,6 +12,14 @@ import { validationMiddleware } from "../../middlewares/validationMiddleware";
 export const userRouter = Router();
 
 userRouter.get(
+    '/stats',
+    accessTokenMiddleware,
+    blockedMiddleware,
+    permissionMiddleware(Permissions.Admin),
+    userController.getStats   
+);
+
+userRouter.get(
     '/',
     query('search').notEmpty().optional(),
     query('blocked').isBoolean().optional(),

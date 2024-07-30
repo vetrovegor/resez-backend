@@ -1,4 +1,4 @@
-import { Response, NextFunction } from 'express';
+import { Response, NextFunction, Request } from 'express';
 import { UploadedFile } from 'express-fileupload';
 
 import codeService from '../services/codeService';
@@ -222,6 +222,15 @@ class UserhController {
             );
 
             res.json(data);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getStats(req: Request, res: Response, next: NextFunction) {
+        try {
+            const stats = await userService.getStats();
+            res.json({ stats });
         } catch (error) {
             next(error);
         }

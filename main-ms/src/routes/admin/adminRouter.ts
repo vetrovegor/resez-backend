@@ -11,7 +11,7 @@ import { storeRouter } from "./store/storeRouter";
 
 export const adminRouter = Router();
 
-adminRouter.use('/user', userRouter)
+adminRouter.use('/user', userRouter);
 
 adminRouter.use('/role', roleRouter);
 

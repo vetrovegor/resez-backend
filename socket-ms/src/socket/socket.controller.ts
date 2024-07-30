@@ -56,4 +56,13 @@ export class SocketController {
         );
         channel.sendToQueue(replyTo, Buffer.from(JSON.stringify(activity)));
     }
+
+    @MessagePattern('online')
+    getOnline(@Ctx() context: RmqContext) {
+        const channel = context.getChannelRef();
+        const originalMsg = context.getMessage();
+        const { replyTo } = originalMsg.properties;
+        const online = this.socketService.getOnline();
+        channel.sendToQueue(replyTo, Buffer.from(JSON.stringify(online)));
+    }
 }

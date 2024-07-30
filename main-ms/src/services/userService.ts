@@ -19,6 +19,7 @@ import fileService from './fileService';
 import rmqService from './rmqService';
 import { redisClient } from '../redisClient';
 import avatarDecorationService from './store/avatarDecorationService';
+import Role from '../db/models/roles/Role';
 
 class UserService {
     async getUserById(id: number): Promise<User> {
@@ -95,7 +96,11 @@ class UserService {
         return shortInfo;
     }
 
-    async verifyUser(userId: number, telegramChatId: string, telegramUsername: string): Promise<void> {
+    async verifyUser(
+        userId: number,
+        telegramChatId: string,
+        telegramUsername: string
+    ): Promise<void> {
         const user = await this.getUserById(userId);
 
         user.set('isVerified', true);
@@ -368,6 +373,25 @@ class UserService {
         const users = await User.findAll();
 
         return users.map(user => user.get('id'));
+    }
+
+    async getStats() {
+        const usersCount = await User.count();
+        const adminsCount = await UserRole.count({
+            col: 'userId',
+            distinct: true
+        });
+        const blockedUsersCount = await User.count({
+            where: { isBlocked: true }
+        });
+        const online = await rmqService.sendToQueue('socket-queue', 'online');
+
+        return {
+            usersCount,
+            adminsCount,
+            blockedUsersCount,
+            online
+        };
     }
 
     async getUsers(

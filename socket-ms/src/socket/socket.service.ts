@@ -155,6 +155,10 @@ export class SocketService implements OnGatewayConnection {
         return this.authUsers.map(user => Number(user.userId));
     }
 
+    getOnline() {
+        return this.users.length;
+    }
+
     logUsers() {
         console.log({ users: this.users, authUsers: this.authUsers });
     }

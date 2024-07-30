@@ -251,15 +251,41 @@ export class TaskService {
     }
 
     async toggleIsArchived(id: number, isArchived: boolean) {
-        const task = await this.getById(id);
+        const task = await this.taskRepository.findOne({
+            where: { id },
+            relations: ['tests']
+        });
 
-        await this.taskRepository.update(id, { isArchived });
+        if (!task) {
+            throw new NotFoundException('Задание не найдено');
+        }
+
+        if (isArchived && task.tests.length > 0) {
+            throw new BadRequestException(
+                'Нельзя архивировать задание, т.к. оно присутствует в тесте'
+            );
+        }
+
+        await this.taskRepository.update(id, { isArchived, isVerified: false });
 
         return { task: { ...task, isArchived } };
     }
 
     async delete(id: number) {
-        const task = await this.getById(id);
+        const task = await this.taskRepository.findOne({
+            where: { id },
+            relations: ['tests']
+        });
+
+        if (!task) {
+            throw new NotFoundException('Задание не найдено');
+        }
+
+        if (task.tests.length > 0) {
+            throw new BadRequestException(
+                'Нельзя архивировать задание, т.к. оно присутствует в тесте'
+            );
+        }
 
         await this.taskRepository.remove(task);
 
@@ -270,7 +296,8 @@ export class TaskService {
         return await this.taskRepository.count({
             where: {
                 subject: { id: subjectId },
-                isVerified: true
+                isVerified: true,
+                isArchived: false
             }
         });
     }
