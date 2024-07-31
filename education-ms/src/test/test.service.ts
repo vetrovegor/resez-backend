@@ -211,7 +211,8 @@ export class TestService {
                 'tasks',
                 'tasks.subjectTask',
                 'tasks.subTheme'
-            ]
+            ],
+            order: { tasks: { subjectTask: { number: 'ASC' } } }
         });
 
         if (!test) {
@@ -410,8 +411,8 @@ export class TestService {
             detailedTasks: detailedTasksResult,
             primaryScore: totalPrimaryScore,
             maxPrimaryScore,
-            grade,
-            secondaryScore
+            grade: isMark && !grade ? grade : 2,
+            secondaryScore: !isMark && secondaryScore ? secondaryScore : 0
         };
     }
 }

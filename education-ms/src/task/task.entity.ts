@@ -10,8 +10,21 @@ import {
     ManyToMany,
     ManyToOne,
     PrimaryGeneratedColumn,
-    UpdateDateColumn
+    UpdateDateColumn,
+    ValueTransformer
 } from 'typeorm';
+
+class SemiColonArrayTransformer implements ValueTransformer {
+    // Сериализация: из массива в строку
+    to(value: string[]): string {
+        return value.join(';');
+    }
+
+    // Десериализация: из строки в массив
+    from(value: string[]): string[] {
+        return value ? value[0].split(';') : [];
+    }
+}
 
 @Entity({
     name: 'tasks'
@@ -26,7 +39,10 @@ export class Task {
     @Column({ type: 'text', nullable: true })
     solution: string;
 
-    @Column('simple-array', { nullable: true })
+    @Column('simple-array', {
+        nullable: true,
+        transformer: new SemiColonArrayTransformer()
+    })
     answers: string[];
 
     @Column({ name: 'is_verified' })

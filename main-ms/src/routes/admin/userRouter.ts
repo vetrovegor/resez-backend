@@ -59,3 +59,13 @@ userRouter.patch(
     body('xp').isNumeric(),
     userController.increaseXP   
 );
+
+userRouter.patch(
+    '/:id/add-coins',
+    body('amount').isNumeric(),
+    validationMiddleware,
+    accessTokenMiddleware,
+    blockedMiddleware,
+    permissionMiddleware(Permissions.Users),
+    userController.addCoins   
+);

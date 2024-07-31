@@ -32,7 +32,7 @@ export type UserShortInfo = {
     permissions: PermissionDTO[];
     unreadNotifiesCount: number;
     subscription: SubscriptionDTO;
-    coins: number;
+    balance: number;
 };
 
 export type AuthResponse = {
@@ -104,6 +104,7 @@ export type UserAdminInfo = {
     levelInfo: LevelInfo;
     // theme: string,
     roles: RolePreview[];
+    balance: number;
 };
 
 export type UserSettingsInfo = {

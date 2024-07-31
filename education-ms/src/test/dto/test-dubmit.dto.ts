@@ -33,7 +33,6 @@ class SimpleTaskDto {
     @IsNumber({}, { message: 'Id задания должно быть числом' })
     id: number;
 
-    @IsNotEmpty({ message: 'Ответ не должеы быть пустыми' })
     @IsString({ message: 'Ответ должен быть строкой' })
     answer: string;
 }

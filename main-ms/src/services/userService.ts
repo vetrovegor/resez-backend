@@ -547,6 +547,22 @@ class UserService {
 
         return await user.toShortInfo();
     }
+
+    async addCoins(userId: number, amount: number) {
+        const user = await this.getUserById(userId);
+        const balance = user.get('balance');
+
+        if (balance + amount < 0) {
+            throw ApiError.badRequest(
+                'Баланс пользователя не может быть отрицательным'
+            );
+        }
+
+        user.set('balance', balance + amount);
+        await user.save();
+
+        return user.toAdminInfo();
+    }
 }
 
 export default new UserService();

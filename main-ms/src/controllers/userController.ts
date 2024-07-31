@@ -318,6 +318,23 @@ class UserhController {
 
         res.json({ user });
     }
+
+    async addCoins(
+        req: RequestWithBodyAndUser<{ amount: number }>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const user = await userService.addCoins(
+                req.user.id,
+                Number(req.body.amount)
+            );
+
+            res.json({ user });
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export default new UserhController();

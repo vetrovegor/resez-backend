@@ -207,6 +207,12 @@ class User extends Model {
     })
     isSubscriptionPermanent: boolean;
 
+    @Column({
+        type: DataType.INTEGER,
+        defaultValue: 0
+    })
+    balance: number;
+
     @HasMany(() => Notify, {
         onDelete: 'CASCADE'
     })
@@ -329,7 +335,8 @@ class User extends Model {
             avatar,
             xp,
             isPrivateAccount,
-            isHideAvatars
+            isHideAvatars,
+            balance
         } = this.get();
 
         const permissions = await this.getPermissions();
@@ -360,7 +367,7 @@ class User extends Model {
             permissions,
             unreadNotifiesCount,
             subscription,
-            coins: 0
+            balance
         };
     }
 
@@ -385,7 +392,8 @@ class User extends Model {
             isVerified,
             isBlocked,
             blockReason,
-            avatar
+            avatar,
+            balance
         } = this.get();
 
         const roles = await this.getRoles();
@@ -408,7 +416,8 @@ class User extends Model {
                 xp: 400,
                 limit: 500
             },
-            roles: rolePreviews
+            roles: rolePreviews,
+            balance
         };
     }
 }

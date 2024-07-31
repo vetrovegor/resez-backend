@@ -178,12 +178,28 @@ class AvatarDecorationService {
             }
         });
 
-        if (!existingRecord) {
-            await UserAvatarDecoration.create({
-                avatarDecorationId,
-                userId
-            });
+        if (existingRecord) {
+            throw ApiError.badRequest('Украшение уже добавлено');
         }
+
+        const price = avatarDecoration.get('price');
+
+        if (price > 0) {
+            const user = await userService.getUserById(userId);
+            const balance = user.get('balance');
+
+            if (balance < price) {
+                throw ApiError.badRequest('Недостаточно средств');
+            }
+
+            user.set('balance', balance - price);
+            await user.save();
+        }
+
+        await UserAvatarDecoration.create({
+            avatarDecorationId,
+            userId
+        });
 
         return this.createAvatarDecorationDto({ avatarDecoration });
     }
