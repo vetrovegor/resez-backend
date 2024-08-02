@@ -10,6 +10,7 @@ import {
     RequestWithBody,
     RequestWithBodyAndUser,
     RequestWithParams,
+    RequestWithParamsAndBody,
     RequestWithParamsAndBodyAndUser,
     RequestWithParamsAndUser,
     RequestWithQueryAndUser,
@@ -320,13 +321,13 @@ class UserhController {
     }
 
     async addCoins(
-        req: RequestWithBodyAndUser<{ amount: number }>,
+        req: RequestWithParamsAndBody<IdParam, { amount: number }>,
         res: Response,
         next: NextFunction
     ) {
         try {
             const user = await userService.addCoins(
-                req.user.id,
+                req.params.id,
                 Number(req.body.amount)
             );
 

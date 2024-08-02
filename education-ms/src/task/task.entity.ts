@@ -22,7 +22,7 @@ class SemiColonArrayTransformer implements ValueTransformer {
 
     // Десериализация: из строки в массив
     from(value: string[]): string[] {
-        return value ? value[0].split(';') : [];
+        return value ? value.join().split(';') : [];
     }
 }
 

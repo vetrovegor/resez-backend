@@ -21,7 +21,22 @@ export class SettingsService {
         });
 
         if (!settings) {
-            throw new NotFoundException('Настройки пользователя не найдены');
+            // throw new NotFoundException('Настройки пользователя не найдены');
+
+            return {
+                settings: {
+                    shuffleCards: false,
+                    cardsAnswerOnFront: false,
+                    shuffleMemorization: false,
+                    showAnswerImmediately: false,
+                    maxQuestions: 20,
+                    shuffleTest: false,
+                    testAnswerOnFront: true,
+                    answerChoiceMode: true,
+                    trueFalseMode: false,
+                    writeMode: false
+                }
+            };
         }
 
         delete settings.userId;

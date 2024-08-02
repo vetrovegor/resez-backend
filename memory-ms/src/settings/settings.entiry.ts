@@ -31,7 +31,7 @@ export class Settings {
     @Column({ name: 'test_answer_on_front', default: true })
     testAnswerOnFront: boolean;
 
-    @Column({ name: 'answer_choice_mode', default: false })
+    @Column({ name: 'answer_choice_mode', default: true })
     answerChoiceMode: boolean;
 
     @Column({ name: 'true_false_mode', default: false })

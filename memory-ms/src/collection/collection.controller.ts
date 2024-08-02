@@ -8,13 +8,16 @@ import {
     ParseIntPipe,
     Patch,
     Post,
-    Query
+    Query,
+    UseGuards
 } from '@nestjs/common';
 import { CollectionService } from './collection.service';
 import { CollectionDto } from './dto/collection.dto';
 import { CurrentUser } from '@auth/current-user.decorator';
 import { JwtPayload } from '@auth/interfaces';
 import { SeedPipe } from './seed.pipe';
+import { Public } from '@auth/public.decorator';
+import { OptionalJwtAuthGuard } from '@auth/optional-jwt-auth.guard';
 
 @Controller('collection')
 export class CollectionController {
@@ -43,9 +46,30 @@ export class CollectionController {
         );
     }
 
+    @Public()
+    @UseGuards(OptionalJwtAuthGuard)
+    @Get('user/:nickname')
+    async findByNickname(
+        @CurrentUser() user: JwtPayload,
+        @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
+        @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
+        @Param('nickname') nickname: string,
+        @Query('search') search: string
+    ) {
+        return await this.collectionService.findByNickname(
+            user.id,
+            limit,
+            offset,
+            nickname,
+            search
+        );
+    }
+
+    @Public()
+    @UseGuards(OptionalJwtAuthGuard)
     @Get('popular')
     async findPopular(@CurrentUser() user: JwtPayload) {
-        return await this.collectionService.findPopular(user.id);
+        return await this.collectionService.findPopular(user?.id);
     }
 
     @Get('liked')
@@ -63,6 +87,8 @@ export class CollectionController {
         );
     }
 
+    @Public()
+    @UseGuards(OptionalJwtAuthGuard)
     @Get(':id')
     async findOne(
         @Param('id', ParseIntPipe) id: number,
@@ -88,6 +114,8 @@ export class CollectionController {
         );
     }
 
+    @Public()
+    @UseGuards(OptionalJwtAuthGuard)
     @Get(':id/cards')
     async findCards(
         @Param('id', ParseIntPipe) id: number,
@@ -105,6 +133,8 @@ export class CollectionController {
         );
     }
 
+    @Public()
+    @UseGuards(OptionalJwtAuthGuard)
     @Get(':id/test')
     async getTest(
         @Param('id', ParseIntPipe) id: number,

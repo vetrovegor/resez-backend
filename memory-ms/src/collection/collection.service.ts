@@ -123,6 +123,26 @@ export class CollectionService {
         };
     }
 
+    async findByNickname(
+        userId: number,
+        take: number,
+        skip: number,
+        nickname: string,
+        search: string
+    ) {
+        const user = await this.rabbitMqService.sendRequest({
+            client: this.userClient,
+            pattern: 'preview-by-nickname',
+            data: nickname
+        });
+
+        if (!user) {
+            throw new NotFoundException('Пользователь не найден');
+        }
+
+        return await this.findAll(userId, take, skip, user.id, search);
+    }
+
     async findPopular(userId: number) {
         const collectionsData = await this.collectionRepository
             .createQueryBuilder('collection')
@@ -212,8 +232,10 @@ export class CollectionService {
         });
 
         return {
-            ...collectionShortInfo,
-            pairs
+            collection: {
+                ...collectionShortInfo,
+                pairs
+            }
         };
     }
 
@@ -265,6 +287,8 @@ export class CollectionService {
         await this.findAccessibleCollectionById(id, userId);
 
         const { settings } = await this.settingsService.get(userId);
+
+        console.log({ settings });
 
         const {
             shuffleTest,

@@ -94,7 +94,11 @@ class RmqService {
                 const { userId, telegramChatId, telegramUsername } = JSON.parse(
                     msg.content.toString()
                 );
-                await userService.verifyUser(userId, telegramChatId, telegramUsername);
+                await userService.verifyUser(
+                    userId,
+                    telegramChatId,
+                    telegramUsername
+                );
             },
             { noAck: true }
         );
@@ -105,10 +109,20 @@ class RmqService {
                 const message = JSON.parse(msg.content.toString());
                 let response = null;
 
-                if (message.pattern == 'preview') {
-                    response = (
-                        await userService.getUserById(message.data)
-                    ).toPreview();
+                // довести до ума
+                try {
+                    if (message.pattern == 'preview') {
+                        response = (
+                            await userService.getUserById(message.data)
+                        ).toPreview();
+                    } else if (message.pattern == 'preview-by-nickname') {
+                        console.log({ message, data: message.data });
+                        response = (
+                            await userService.getUserByNickname(message.data)
+                        ).toPreview();
+                    }
+                } catch (error) {
+                    
                 }
 
                 this.channel.sendToQueue(
