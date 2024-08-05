@@ -79,9 +79,7 @@ export class Task {
     })
     subjectTask: SubjectTask;
 
-    @ManyToOne(() => SubTheme, subTheme => subTheme.tasks, {
-        onDelete: 'CASCADE'
-    })
+    @ManyToOne(() => SubTheme, subTheme => subTheme.tasks)
     @JoinColumn({
         name: 'subject_theme_id'
     })

@@ -17,6 +17,7 @@ import {
     Query,
     UseGuards
 } from '@nestjs/common';
+import { MatchDto } from '@task/dto/match.dto';
 import { TaskDto } from '@task/dto/task.dto';
 import { TaskService } from '@task/task.service';
 
@@ -109,5 +110,10 @@ export class AdminTaskController {
     @UseGuards(PermissionGuard)
     async delete(@Param('id', ParseIntPipe) id: number) {
         return await this.taskService.delete(id);
+    }
+
+    @Post('match')
+    async findMatches(@Body() dto: MatchDto) {
+        return await this.taskService.findMatches(dto);
     }
 }

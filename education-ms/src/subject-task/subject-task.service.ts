@@ -4,13 +4,15 @@ import { SubjectTask } from './subject-task.entity';
 import { In, Not, Repository } from 'typeorm';
 import { SubThemeService } from '@sub-theme/sub-theme.service';
 import { SubjectTaskDto } from '@subject/dto/subject.dto';
+import { TaskService } from '@task/task.service';
 
 @Injectable()
 export class SubjectTaskService {
     constructor(
         @InjectRepository(SubjectTask)
         private readonly subjectTaskRepository: Repository<SubjectTask>,
-        private readonly subThemeService: SubThemeService
+        private readonly subThemeService: SubThemeService,
+        private readonly taskService: TaskService
     ) {}
 
     async getTotalPrimaryScoreBySubjectId(subjectId: number) {
@@ -69,6 +71,11 @@ export class SubjectTaskService {
 
             subjectTaskIds.push(subjectTaskId);
         }
+
+        await this.taskService.archiveTasksBySubjectTasksIds(
+            subjectId,
+            subjectTaskIds
+        );
 
         await this.subjectTaskRepository.delete({
             subject: { id: subjectId },

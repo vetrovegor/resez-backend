@@ -8,10 +8,12 @@ import {
 import { TaskDto } from './dto/task.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Task } from './task.entity';
-import { Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
 import { SubjectService } from '@subject/subject.service';
 import { RabbitMqService } from '@rabbit-mq/rabbit-mq.service';
 import { ClientProxy } from '@nestjs/microservices';
+import { MatchDto } from './dto/match.dto';
+import * as stringSimilarity from 'string-similarity';
 
 @Injectable()
 export class TaskService {
@@ -71,8 +73,8 @@ export class TaskService {
 
     async createShortInfo(task: Task) {
         const { subject } = task.subject;
-        const { number, theme } = task.subjectTask;
-        const { subTheme } = task.subTheme;
+        const { number, theme } = task.subjectTask || {};
+        const { subTheme } = task.subTheme || {};
         const user = await this.rabbitMqService.sendRequest({
             client: this.userClient,
             pattern: 'preview',
@@ -190,6 +192,8 @@ export class TaskService {
             throw new NotFoundException('Задание не найдено');
         }
 
+        task.answers = task.answers.filter(answer => answer.length > 0);
+
         return { task };
     }
 
@@ -271,6 +275,49 @@ export class TaskService {
         return { task: { ...task, isArchived } };
     }
 
+    // вынести в общий метод
+    async archiveTasksBySubjectTasksIds(
+        subjectId: number,
+        subjectTasksIds: number[]
+    ) {
+        console.log({
+            method: 'archiveTasksBySubjectTasksIds',
+            subjectId,
+            subjectTasksIds
+        });
+        await this.taskRepository.update(
+            {
+                subject: { id: subjectId },
+                subjectTask: { id: Not(In(subjectTasksIds)) }
+            },
+            {
+                subjectTask: null,
+                subTheme: null,
+                isVerified: false,
+                isArchived: true
+            }
+        );
+    }
+
+    // вынести в общий метод
+    async archiveTasksBySubThemeIds(
+        subjectTaskId: number,
+        subThemeIds: number[]
+    ) {
+        console.log({
+            method: 'archiveTasksBySubThemeIds',
+            subjectTaskId,
+            subThemeIds
+        });
+        await this.taskRepository.update(
+            {
+                subjectTask: { id: subjectTaskId },
+                subTheme: { id: Not(In(subThemeIds)) }
+            },
+            { subTheme: null, isVerified: false, isArchived: true }
+        );
+    }
+
     async delete(id: number) {
         const task = await this.taskRepository.findOne({
             where: { id },
@@ -334,5 +381,49 @@ export class TaskService {
             .orderBy('RANDOM()')
             .limit(limit)
             .getMany();
+    }
+
+    async findMatches(dto: MatchDto) {
+        const where = {
+            subject: { id: dto.subjectId },
+            ...(dto.excludeTaskId && {
+                id: Not(dto.excludeTaskId)
+            })
+        };
+
+        const tasksData = await this.taskRepository.find({
+            where,
+            relations: ['subject', 'subjectTask', 'subTheme']
+        });
+
+        if (tasksData.length == 0) {
+            return { matches: [] };
+        }
+
+        const tasksContent = tasksData.map(task => task.task);
+
+        const matchesData = stringSimilarity.findBestMatch(
+            dto.task,
+            tasksContent
+        );
+
+        const topMatches = matchesData.ratings
+            .sort((a, b) => b.rating - a.rating)
+            .slice(0, 3);
+
+        const matches = await Promise.all(
+            topMatches.map(async match => {
+                const taskData = tasksData.find(
+                    task => task.task == match.target
+                );
+                const taskShortInfo = await this.createShortInfo(taskData);
+                return {
+                    task: taskShortInfo,
+                    percent: Math.round(match.rating * 100)
+                };
+            })
+        );
+
+        return { matches };
     }
 }

@@ -59,6 +59,11 @@ export class SubThemeService {
             subThemeIds.push(subTheme.id);
         }
 
+        await this.taskService.archiveTasksBySubThemeIds(
+            subjectTaskId,
+            subThemeIds
+        );
+
         await this.subThemeRepository.delete({
             subjectTask: { id: subjectTaskId },
             id: Not(In(subThemeIds))

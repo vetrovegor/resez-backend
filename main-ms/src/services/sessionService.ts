@@ -30,10 +30,6 @@ class SessionService {
         let sessionId;
 
         if (sessionData) {
-            // if (!sessionData.get("isActive")) {
-            // await notifyService.createSessionNotify('В ваш аккаунт был выполнен вход', sessionData);
-            // }
-
             await sessionData.update({
                 isActive: true,
                 date,

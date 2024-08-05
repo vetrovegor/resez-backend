@@ -27,8 +27,6 @@ export class SubTheme {
     })
     subjectTask: SubjectTask;
 
-    @OneToMany(() => Task, task => task.subTheme, {
-        cascade: true
-    })
+    @OneToMany(() => Task, task => task.subTheme)
     tasks: Task[];
 }

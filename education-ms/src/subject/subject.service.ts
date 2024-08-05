@@ -144,7 +144,23 @@ export class SubjectService {
     }
 
     async update(id: number, dto: SubjectDto) {
-        const existingSubject = await this.getById(id);
+        const existingSubject = await this.subjectRepository.findOne({
+            where: { id },
+            relations: [
+                'subjectTasks',
+                'subjectTasks.subThemes',
+                'subjectTasks.subThemes.subjectTask',
+                'subjectTasks.subThemes.tasks',
+                'subjectTasks.subThemes.tasks.tests'
+            ],
+            order: {
+                subjectTasks: { number: 'ASC', subThemes: { id: 'ASC' } }
+            }
+        });
+
+        if (!existingSubject) {
+            throw new NotFoundException('Предмет не найден');
+        }
 
         const occupiedSubject = await this.subjectRepository.findOne({
             where: { slug: dto.slug, id: Not(id) }
@@ -156,6 +172,7 @@ export class SubjectService {
             );
         }
 
+        // проверка на корректность id тем, подтем
         for (const { id: subjectTaskId, subThemes } of dto.subjectTasks) {
             if (!subjectTaskId) continue;
 
@@ -178,6 +195,29 @@ export class SubjectService {
 
                 if (!existingSubTheme) {
                     throw new BadRequestException('Некорректное id подтемы');
+                }
+            }
+        }
+
+        // проверка чтобы у удаляемых подтем не было тестов
+        const existingSubThemes = existingSubject.subjectTasks
+            .map(({ subThemes }) => subThemes)
+            .flat();
+
+        const dtoSubThemeIds = dto.subjectTasks.flatMap(({ subThemes }) =>
+            subThemes.map(subTheme => subTheme.id)
+        );
+
+        const notFoundSubThemes = existingSubThemes.filter(
+            subTheme => !dtoSubThemeIds.includes(subTheme.id)
+        );
+
+        for (const { tasks, subjectTask, subTheme } of notFoundSubThemes) {
+            for (const task of tasks) {
+                if (task.tests.length > 0) {
+                    throw new BadRequestException(
+                        `Нельзя удалить «${subjectTask.number}. ${subjectTask.theme} ● ${subTheme}», т.к. в базе есть тесты с заданиями по этой подтеме.`
+                    );
                 }
             }
         }
