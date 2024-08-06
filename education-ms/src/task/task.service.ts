@@ -72,9 +72,9 @@ export class TaskService {
     }
 
     async createShortInfo(task: Task) {
-        const { subject } = task.subject;
-        const { number, theme } = task.subjectTask || {};
-        const { subTheme } = task.subTheme || {};
+        const { subject = null } = task.subject || {};
+        const { number = null, theme = null } = task.subjectTask || {};
+        const { subTheme = null } = task.subTheme || {};
         const user = await this.rabbitMqService.sendRequest({
             client: this.userClient,
             pattern: 'preview',

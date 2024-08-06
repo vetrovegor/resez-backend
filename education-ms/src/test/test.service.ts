@@ -221,13 +221,17 @@ export class TestService {
 
         const tasks = test.tasks.map(taskItem => {
             const { id, task, subjectTask, subTheme } = taskItem;
-            const { number, theme, isDetailedAnswer } = subjectTask;
+            const {
+                number = null,
+                theme = null,
+                isDetailedAnswer
+            } = subjectTask || {};
 
             return {
                 id,
                 number,
                 theme,
-                subTheme: subTheme.subTheme,
+                subTheme: subTheme?.subTheme || null,
                 isDetailedAnswer,
                 task
             };

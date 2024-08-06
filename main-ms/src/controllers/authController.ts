@@ -59,7 +59,7 @@ class AuthController {
             );
 
             const { accessToken, refreshToken, sessionId } =
-                await sessionService.saveSession(req, await user.toTokenInfo());
+                await sessionService.saveSession(req, await user.toTokenInfo(), true);
 
             res.cookie('refreshToken', refreshToken, {
                 maxAge: 30 * 24 * 60 * 60 * 1000,
@@ -87,7 +87,7 @@ class AuthController {
             const user = await codeService.verifyAuthCode(req.params.code);
 
             const { accessToken, refreshToken, sessionId } =
-                await sessionService.saveSession(req, await user.toTokenInfo());
+                await sessionService.saveSession(req, await user.toTokenInfo(), true);
 
             res.cookie('refreshToken', refreshToken, {
                 maxAge: 30 * 24 * 60 * 60 * 1000,

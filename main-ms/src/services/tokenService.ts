@@ -6,7 +6,6 @@ import { Tokens } from 'types/session';
 
 class TokenService {
     generateTokens(payload: UserTokenInfo): Tokens {
-        console.log({ payload });
         const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, {
             expiresIn: process.env.JWT_ACCESS_EXPIRATION
         });

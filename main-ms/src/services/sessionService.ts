@@ -20,7 +20,8 @@ class SessionService {
     // добавить параметр shouldCreateNotify
     async saveSession(
         req: Request,
-        userTokenInfo: UserTokenInfo
+        userTokenInfo: UserTokenInfo,
+        isLogin: boolean = false
     ): Promise<SessionSaveResult> {
         const { id: userId, telegramChatId } = userTokenInfo;
         const sessionData = await this.findCurrentSession(req, userId);
@@ -53,7 +54,9 @@ class SessionService {
             //     await logService.createNewDeviceLoginLogEntry(userId, sessionId);
             // }
 
-            if (telegramChatId) {
+            console.log({ isLogin });
+
+            if (isLogin && telegramChatId) {
                 rmqService.sendToQueue('telegram', 'new-session', {
                     telegramChatId,
                     session: newSession
@@ -306,7 +309,11 @@ class SessionService {
 
             await tokenService.deleteTokenBySessionId(session.id);
 
-            rmqService.sendToQueue('socket-queue', 'emit-end-session', session.get('id'));
+            rmqService.sendToQueue(
+                'socket-queue',
+                'emit-end-session',
+                session.get('id')
+            );
         }
 
         return this.getUserSessions(req, userId, limit, offset);
