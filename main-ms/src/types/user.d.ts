@@ -3,6 +3,7 @@ import { PermissionDTO } from './permission';
 import { VerificationCodeData } from './code';
 import { RolePreview } from './role';
 import { SubscriptionDTO } from './subscription';
+import Subscription from 'db/models/subscription/Subscription';
 
 export type UserAuthDTO = {
     nickname: string;
@@ -13,7 +14,7 @@ export type UserTokenInfo = {
     id: number;
     nickname: string;
     telegramChatId: string;
-    subscription: SubscriptionDTO;
+    subscription: Subscription;
     permissions: PermissionDTO[];
 };
 
@@ -30,8 +31,7 @@ export type UserShortInfo = {
         isHideAvatars: boolean;
     };
     permissions: PermissionDTO[];
-    unreadNotifiesCount: number;
-    subscription: SubscriptionDTO;
+    subscription: Subscription;
     balance: number;
 };
 
@@ -63,7 +63,7 @@ export type UserChatPreview = UserPreview & {
     activity: {
         isOnline: boolean;
         lastSeen: Date;
-    }
+    };
 };
 
 export type UserProfilePreview = {
@@ -105,6 +105,7 @@ export type UserAdminInfo = {
     // theme: string,
     roles: RolePreview[];
     balance: number;
+    subscription: { id: number; subscription: string };
 };
 
 export type UserSettingsInfo = {
@@ -123,4 +124,5 @@ export type UserFiltersQuery = {
     online: string;
     has_role: string;
     role: number;
+    short: string;
 };

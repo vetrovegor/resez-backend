@@ -251,7 +251,8 @@ class UserhController {
                 verified,
                 online,
                 has_role: hasRole,
-                role: roleId
+                role: roleId,
+                short
             } = req.query;
 
             const data = await userService.getUsers(
@@ -262,7 +263,8 @@ class UserhController {
                 verified,
                 online,
                 hasRole,
-                roleId
+                roleId,
+                short
             );
 
             res.json(data);

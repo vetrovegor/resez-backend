@@ -10,6 +10,13 @@ import { validationMiddleware } from "../middlewares/validationMiddleware";
 export const notifyRouter = Router();
 
 notifyRouter.get(
+    '/unread-count',
+    accessTokenMiddleware,
+    blockedMiddleware,
+    notifyController.getUserUnreadNotifiesCount
+);
+
+notifyRouter.get(
     '/',
     query('unread').isBoolean().optional(),
     validationMiddleware,

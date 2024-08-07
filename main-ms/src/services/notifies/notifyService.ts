@@ -89,6 +89,15 @@ class NotifyService {
         }
     }
 
+    async getUserUnreadNotifiesCount(userId: number) {
+        return await UserNotify.count({
+            where: {
+                userId,
+                isRead: false
+            }
+        });
+    }
+
     async getUserNotifies(
         userId: number,
         limit: number,

@@ -402,8 +402,9 @@ class UserService {
         verified?: string,
         online?: string,
         hasRole?: string,
-        roleId?: number
-    ): Promise<PaginationDTO<UserAdminInfo>> {
+        roleId?: number,
+        short?: string
+    ): Promise<PaginationDTO<UserAdminInfo | UserPreview>> {
         const whereOptions: {
             nickname?: { [Op.iLike]: string };
             isBlocked?: boolean;
@@ -470,15 +471,19 @@ class UserService {
 
         const usersDtos = await Promise.all(
             users.map(async user => {
-                const activity = await rmqService.sendToQueue(
-                    'socket-queue',
-                    'user-activity',
-                    user.get('id')
-                );
-                return {
-                    ...(await user.toAdminInfo()),
-                    activity
-                };
+                if(short && short.toLowerCase() == 'true') {
+                    return user.toPreview();
+                } else {
+                    const activity = await rmqService.sendToQueue(
+                        'socket-queue',
+                        'user-activity',
+                        user.get('id')
+                    );
+                    return {
+                        ...(await user.toAdminInfo()),
+                        activity
+                    };
+                }
             })
         );
 
@@ -486,7 +491,7 @@ class UserService {
             where: whereOptions
         });
 
-        return new PaginationDTO<UserAdminInfo>(
+        return new PaginationDTO<UserAdminInfo | UserPreview>(
             'users',
             usersDtos,
             totalCount,

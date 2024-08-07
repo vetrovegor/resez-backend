@@ -306,7 +306,7 @@ class User extends Model {
 
         const subscription = await Subscription.findByPk(subscriptionId);
 
-        return subscription.toDto();
+        return subscription;
     }
 
     async toTokenInfo(): Promise<UserTokenInfo> {
@@ -343,13 +343,6 @@ class User extends Model {
 
         const levelInfo = calculateLevelInfo(xp);
 
-        const unreadNotifiesCount = await UserNotify.count({
-            where: {
-                userId: id,
-                isRead: false
-            }
-        });
-
         const subscription = await this.getSubscription();
 
         return {
@@ -365,7 +358,6 @@ class User extends Model {
                 isHideAvatars
             },
             permissions,
-            unreadNotifiesCount,
             subscription,
             balance
         };
@@ -396,8 +388,9 @@ class User extends Model {
             balance
         } = this.get();
 
-        const roles = await this.getRoles();
-        const rolePreviews = roles.map(role => role.toPreview());
+        const rolesData = await this.getRoles();
+        const roles = rolesData.map(role => role.toPreview());
+        const subscriptionData = await this.getSubscription();
 
         return {
             id,
@@ -416,8 +409,14 @@ class User extends Model {
                 xp: 400,
                 limit: 500
             },
-            roles: rolePreviews,
-            balance
+            roles,
+            balance,
+            subscription: subscriptionData
+                ? {
+                      id: subscriptionData.get('id'),
+                      subscription: subscriptionData.get('subscription')
+                  }
+                : null
         };
     }
 }

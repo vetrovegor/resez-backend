@@ -3,7 +3,7 @@ import cookieParser from 'cookie-parser';
 import useragent from 'express-useragent';
 import fileUpload from 'express-fileupload';
 import swaggerUi from 'swagger-ui-express';
-import http from 'http';
+import cron from 'node-cron';
 
 import { router } from './routes/router';
 import { errorMiddleWare } from './middlewares/errorMiddleware';
@@ -33,8 +33,6 @@ app.use(errorMiddleWare);
 
 const PORT = process.env.PORT || 8080;
 
-const server = http.createServer(app);
-
 const start = async () => {
     await sequelize.authenticate();
 
@@ -61,9 +59,9 @@ const start = async () => {
     // завершение сессий
 
     // отправка отложенных уведомлений
-    // cron.schedule('* * * * *', notifyService.sendDelayedNotifies);
+    cron.schedule('* * * * *', notifyService.sendDelayedNotifies);
 
-    server.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+    app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 };
 
 start();

@@ -3,32 +3,36 @@ import { Op } from 'sequelize';
 import Subscription from '../db/models/subscription/Subscription';
 import { ApiError } from '../ApiError';
 import userService from './userService';
+import { getSubscriptionExpiredhDate } from '../utils';
 
 const initialSubscriptions = [
     {
         subscription: 'ResEz Premium',
-        canUploadImages: 'true'
+        canUploadImages: 'true',
+        price: 99
     },
     {
         subscription: 'ResEz Premium Plus',
-        canUploadImages: 'true'
+        canUploadImages: 'true',
+        price: 379
     }
 ];
 
 class SubscriptionService {
     async initSubscriptions() {
-        for (const { subscription, canUploadImages } of initialSubscriptions) {
+        for (const data of initialSubscriptions) {
             const existedSubscription = await Subscription.findOne({
                 where: {
-                    subscription
+                    subscription: data.subscription
                 }
             });
 
             if (!existedSubscription) {
                 await Subscription.create({
-                    subscription,
-                    canUploadImages
+                    ...data
                 });
+            } else {
+                await existedSubscription.update({ ...data });
             }
         }
 
@@ -64,6 +68,39 @@ class SubscriptionService {
         existedUser.set('isSubscriptionPermanent', isPermanent);
 
         await existedUser.save();
+    }
+
+    async getSubscriptions() {
+        return await Subscription.findAll();
+    }
+
+    async buySubscription(id: number, userId: number) {
+        const subscription = await Subscription.findByPk(id);
+
+        if (!subscription) {
+            throw ApiError.notFound('Подписка не найдена');
+        }
+
+        const price = subscription.get('price');
+        const user = await userService.getUserById(userId);
+        const { subscriptionId, subscriptionExpiredDate, balance } =
+            user.toJSON();
+
+        if (subscriptionId == id && subscriptionExpiredDate > new Date()) {
+            throw ApiError.badRequest('Подписка уже действует');
+        }
+
+        if (price > balance) {
+            throw ApiError.badRequest('Недостаточно средств');
+        }
+
+        const expiredDate = getSubscriptionExpiredhDate(new Date());
+
+        user.set('balance', balance - price);
+        user.set('subscriptionId', id);
+        user.set('subscriptionExpiredDate', expiredDate);
+
+        await user.save();
     }
 }
 

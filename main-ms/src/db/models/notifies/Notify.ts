@@ -15,7 +15,7 @@ class Notify extends Model {
     title: string;
 
     @Column({
-        type: DataType.STRING,
+        type: DataType.TEXT,
     })
     content: string;
 

@@ -11,6 +11,12 @@ class Subscription extends Model {
         type: DataType.STRING
     })
     subscription: string;
+    
+    @Column({
+        type: DataType.INTEGER,
+        defaultValue: 0
+    })
+    price: number;
 
     @Column({
         type: DataType.BOOLEAN
@@ -19,15 +25,6 @@ class Subscription extends Model {
 
     @HasMany(() => User)
     users: User[];
-
-    toDto(): SubscriptionDTO {
-        const { subscription, canUploadImages } = this.get();
-
-        return {
-            name: subscription,
-            canUploadImages
-        };
-    }
 }
 
 export default Subscription;

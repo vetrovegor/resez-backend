@@ -9,6 +9,7 @@ import { messengerRouter } from "./messenger/mesengerRouter";
 import { notifyRouter } from "./notifyRouter";
 import { achievementRouter } from "./achievementRouter";
 import { storeRouter } from "./store/storeRouter";
+import { subscriptionRouter } from "./subscriptionRouter";
 
 export const router = Router();
 
@@ -29,3 +30,5 @@ router.use('/messenger', messengerRouter);
 router.use('/achievement', achievementRouter);
 
 router.use('/store', storeRouter);
+
+router.use('/subscription', subscriptionRouter);
