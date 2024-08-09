@@ -33,6 +33,7 @@ import MessageRead from './messenger/MessageRead';
 import Subscription from './subscription/Subscription';
 import AvatarDecoration from './store/AvatarDecorations';
 import UserAvatarDecoration from './store/UserAvatarDecorations';
+import Feedback from './Feedback';
 
 @Table({
     timestamps: false,
@@ -259,6 +260,11 @@ class User extends Model {
     @BelongsTo(() => AvatarDecoration)
     avatarDecoration: AvatarDecoration;
 
+    @HasMany(() => Feedback, {
+        onDelete: 'CASCADE'
+    })
+    feedback: Feedback[];
+
     async getRoles(): Promise<Role[]> {
         const userRoles = await UserRole.findAll({
             where: { userId: this.get('id') },
@@ -385,7 +391,9 @@ class User extends Model {
             isBlocked,
             blockReason,
             avatar,
-            balance
+            balance,
+            subscriptionExpiredDate,
+            isSubscriptionPermanent
         } = this.get();
 
         const rolesData = await this.getRoles();
@@ -414,7 +422,9 @@ class User extends Model {
             subscription: subscriptionData
                 ? {
                       id: subscriptionData.get('id'),
-                      subscription: subscriptionData.get('subscription')
+                      subscription: subscriptionData.get('subscription'),
+                      subscriptionExpiredDate,
+                      isSubscriptionPermanent
                   }
                 : null
         };

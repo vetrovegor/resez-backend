@@ -252,6 +252,7 @@ class UserhController {
                 online,
                 has_role: hasRole,
                 role: roleId,
+                ids,
                 short
             } = req.query;
 
@@ -264,6 +265,7 @@ class UserhController {
                 online,
                 hasRole,
                 roleId,
+                ids,
                 short
             );
 

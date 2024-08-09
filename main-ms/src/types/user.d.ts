@@ -105,7 +105,12 @@ export type UserAdminInfo = {
     // theme: string,
     roles: RolePreview[];
     balance: number;
-    subscription: { id: number; subscription: string };
+    subscription: {
+        id: number;
+        subscription: string;
+        subscriptionExpiredDate: Date;
+        isSubscriptionPermanent: boolean;
+    };
 };
 
 export type UserSettingsInfo = {
@@ -124,5 +129,6 @@ export type UserFiltersQuery = {
     online: string;
     has_role: string;
     role: number;
+    ids: number[];
     short: string;
 };

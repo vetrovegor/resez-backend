@@ -27,6 +27,7 @@ userRouter.get(
     query('online').isBoolean().optional(),
     query('has_role').isBoolean().optional(),
     query('role').isNumeric().optional(),
+    query('ids').isNumeric().optional(),
     query('short').isBoolean().optional(),
     validationMiddleware,
     paginationMiddleware,

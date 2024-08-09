@@ -8,6 +8,7 @@ import { notifyTypeRouter } from "./notify/notifyTypeRouter";
 import { userRouter } from "./userRouter";
 import { subscriptionRouter } from "./subscriptionRouter";
 import { storeRouter } from "./store/storeRouter";
+import { feedbackRouter } from "./feedbackRouter";
 
 export const adminRouter = Router();
 
@@ -26,3 +27,5 @@ adminRouter.use('/notify-type', notifyTypeRouter);
 adminRouter.use('/subscription', subscriptionRouter);
 
 adminRouter.use('/store', storeRouter);
+
+adminRouter.use('/feedback', feedbackRouter);

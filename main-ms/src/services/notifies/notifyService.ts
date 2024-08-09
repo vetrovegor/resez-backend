@@ -93,7 +93,8 @@ class NotifyService {
         return await UserNotify.count({
             where: {
                 userId,
-                isRead: false
+                isRead: false,
+                isSent: true
             }
         });
     }

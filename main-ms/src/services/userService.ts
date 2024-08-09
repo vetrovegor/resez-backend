@@ -19,7 +19,6 @@ import fileService from './fileService';
 import rmqService from './rmqService';
 import { redisClient } from '../redisClient';
 import avatarDecorationService from './store/avatarDecorationService';
-import Role from '../db/models/roles/Role';
 
 class UserService {
     async getUserById(id: number): Promise<User> {
@@ -403,17 +402,23 @@ class UserService {
         online?: string,
         hasRole?: string,
         roleId?: number,
+        userIds?: number[],
         short?: string
     ): Promise<PaginationDTO<UserAdminInfo | UserPreview>> {
         const whereOptions: {
-            nickname?: { [Op.iLike]: string };
+            [Op.or]?: Array<
+                { id?: number } | { nickname?: { [Op.iLike]: string } }
+            >;
             isBlocked?: boolean;
             isVerified?: boolean;
             id?: { [Op.in]: number[] };
         } = {};
 
         if (search) {
-            whereOptions.nickname = { [Op.iLike]: `%${search}%` };
+            whereOptions[Op.or] = [
+                ...(!isNaN(Number(search)) && [{ id: Number(search) }]),
+                { nickname: { [Op.iLike]: `%${search}%` } }
+            ];
         }
 
         if (blocked) {
@@ -456,9 +461,9 @@ class UserService {
             );
         }
 
-        if (userIDsArrays.length) {
+        if (userIDsArrays.length || userIds) {
             whereOptions.id = {
-                [Op.in]: getArraysIntersection(userIDsArrays)
+                [Op.in]: getArraysIntersection(userIDsArrays).concat(userIds)
             };
         }
 
@@ -471,7 +476,7 @@ class UserService {
 
         const usersDtos = await Promise.all(
             users.map(async user => {
-                if(short && short.toLowerCase() == 'true') {
+                if (short && short.toLowerCase() == 'true') {
                     return user.toPreview();
                 } else {
                     const activity = await rmqService.sendToQueue(

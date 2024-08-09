@@ -10,6 +10,7 @@ import { notifyRouter } from "./notifyRouter";
 import { achievementRouter } from "./achievementRouter";
 import { storeRouter } from "./store/storeRouter";
 import { subscriptionRouter } from "./subscriptionRouter";
+import { feedbackRouter } from "./feedbackRouter";
 
 export const router = Router();
 
@@ -32,3 +33,5 @@ router.use('/achievement', achievementRouter);
 router.use('/store', storeRouter);
 
 router.use('/subscription', subscriptionRouter);
+
+router.use('/feedback', feedbackRouter);
