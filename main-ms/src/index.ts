@@ -36,7 +36,7 @@ const PORT = process.env.PORT || 8080;
 const start = async () => {
     await sequelize.authenticate();
 
-    if (process.env.SEQUELIZE_SYNC_MODE == 'alter') {
+    if (process.env.SEQUELIZE_SYNC_MODE == 'default') {
         await sequelize.sync({ alter: true });
 
         await permissionService.initPermissions();

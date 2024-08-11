@@ -1,7 +1,9 @@
 import { Response, NextFunction } from 'express';
 import {
+    IdParam,
     PaginationQuery,
     RequestWithBodyAndUser,
+    RequestWithParams,
     RequestWithQuery
 } from 'types/request';
 
@@ -28,6 +30,15 @@ class FeedbackController {
         );
 
         res.json(data);
+    }
+
+    async readFeedback(
+        req: RequestWithParams<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
+        const feedback = await feedbackService.readFeedback(req.params.id);
+        res.json({ feedback });
     }
 }
 

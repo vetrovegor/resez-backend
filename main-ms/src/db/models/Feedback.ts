@@ -11,6 +11,11 @@ class Feedback extends Model {
         type: DataType.TEXT,
     })
     text: string;
+    @Column({
+        type: DataType.BOOLEAN,
+        defaultValue: false
+    })
+    isRead: boolean;
 
     @ForeignKey(() => User)
     @Column

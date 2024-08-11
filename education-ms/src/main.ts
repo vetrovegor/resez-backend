@@ -6,9 +6,14 @@ import { ConfigService } from '@nestjs/config';
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
 
+    const configService = app.get(ConfigService);
+
     app.useGlobalPipes(new ValidationPipe());
 
-    const configService = app.get(ConfigService);
+    app.enableCors({
+        credentials: true,
+        origin: configService.get('ALLOWED_ORIGINS').split(',')
+    });
 
     await app.listen(configService.get('PORT'));
 }
