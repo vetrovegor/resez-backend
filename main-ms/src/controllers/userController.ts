@@ -12,6 +12,8 @@ import {
     RequestWithParams,
     RequestWithParamsAndBody,
     RequestWithParamsAndBodyAndUser,
+    RequestWithParamsAndQuery,
+    RequestWithParamsAndQueryAndUser,
     RequestWithParamsAndUser,
     RequestWithQueryAndUser,
     RequestWithUser
@@ -23,6 +25,7 @@ import {
     UserSearchQuery,
     UserSettingsInfo
 } from 'types/user';
+import roleService from '../services/roles/roleService';
 
 class UserhController {
     async getUserShortInfo(
@@ -351,6 +354,24 @@ class UserhController {
             );
 
             res.json({ user });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getUserRoles(
+        req: RequestWithParamsAndQuery<IdParam, PaginationQuery>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const data = await roleService.getUserRoles(
+                req.params.id,
+                req.query.limit,
+                req.query.offset
+            );
+
+            res.json(data);
         } catch (error) {
             next(error);
         }

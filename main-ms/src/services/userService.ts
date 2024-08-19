@@ -90,8 +90,6 @@ class UserService {
             { EX: 5 }
         );
 
-        console.log('Из бд');
-
         return shortInfo;
     }
 
@@ -420,10 +418,15 @@ class UserService {
         } = {};
 
         if (search) {
-            whereOptions[Op.or] = [
-                ...(!isNaN(Number(search)) && [{ id: Number(search) }]),
-                { nickname: { [Op.iLike]: `%${search}%` } }
-            ];
+            whereOptions[Op.or] = [];
+
+            if (!isNaN(Number(search))) {
+                whereOptions[Op.or].push({ id: Number(search) });
+            }
+
+            whereOptions[Op.or].push({
+                nickname: { [Op.iLike]: `%${search}%` }
+            });
         }
 
         if (blocked) {

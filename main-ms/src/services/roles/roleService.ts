@@ -1,13 +1,14 @@
-import { Op } from "sequelize";
+import { Op } from 'sequelize';
 
-import Role from "../../db/models/roles/Role";
-import { ApiError } from "../../ApiError";
-import userService from "../userService";
-import permissionService from "./permissionService";
-import RolePermission from "../../db/models/roles/RolePermission";
-import UserRole from "../../db/models/UserRole";
-import { RoleFullInfo, RoleShortInfo } from "types/role";
-import { PaginationDTO } from "../../dto/PaginationDTO";
+import Role from '../../db/models/roles/Role';
+import { ApiError } from '../../ApiError';
+import userService from '../userService';
+import permissionService from './permissionService';
+import RolePermission from '../../db/models/roles/RolePermission';
+import UserRole from '../../db/models/UserRole';
+import { RoleFullInfo, RoleShortInfo } from 'types/role';
+import { PaginationDTO } from '../../dto/PaginationDTO';
+import rmqService from '../../services/rmqService';
 
 class RoleService {
     async getRoleById(roleId: number): Promise<Role> {
@@ -49,7 +50,12 @@ class RoleService {
         });
     }
 
-    async createRole(role: string, permissions: number[], textColor: string, backgroundColor: string): Promise<RoleShortInfo> {
+    async createRole(
+        role: string,
+        permissions: number[],
+        textColor: string,
+        backgroundColor: string
+    ): Promise<RoleShortInfo> {
         const existedRole = await Role.findOne({
             where: {
                 role
@@ -60,7 +66,8 @@ class RoleService {
             this.throwRoleAlreadyExistsError();
         }
 
-        const validatedPermissions = await permissionService.validatePermissionIDs(permissions);
+        const validatedPermissions =
+            await permissionService.validatePermissionIDs(permissions);
 
         const createdRole = await Role.create({
             role,
@@ -78,7 +85,11 @@ class RoleService {
         return await createdRole.toShortInfo();
     }
 
-    async getRoles(limit: number, offset: number, isArchived: boolean = false): Promise<PaginationDTO<RoleShortInfo>> {
+    async getRoles(
+        limit: number,
+        offset: number,
+        isArchived: boolean = false
+    ): Promise<PaginationDTO<RoleShortInfo>> {
         const whereOptions = {
             isArchived
         };
@@ -91,16 +102,14 @@ class RoleService {
         });
 
         const roleDTOs = await Promise.all(
-            roles.map(
-                async role => await role.toShortInfo()
-            )
+            roles.map(async role => await role.toShortInfo())
         );
 
         const totalCount = await Role.count({
             where: whereOptions
         });
 
-        return new PaginationDTO("roles", roleDTOs, totalCount, limit, offset);
+        return new PaginationDTO('roles', roleDTOs, totalCount, limit, offset);
     }
 
     async getRole(roleId: number): Promise<RoleFullInfo> {
@@ -109,7 +118,19 @@ class RoleService {
         return role.toFullInfo();
     }
 
-    async updateRole(roleId: number, role: string, permissions: number[], textColor: string, backgroundColor: string): Promise<RoleShortInfo> {
+    async notifyUsersRoleUpdated(roleId: number) {
+        const userRolesData = await UserRole.findAll({ where: { roleId } });
+        const userIds = userRolesData.map(item => item.get('userId'));
+        await rmqService.sendToQueue('socket-queue', 'role-updated', userIds);
+    }
+
+    async updateRole(
+        roleId: number,
+        role: string,
+        permissions: number[],
+        textColor: string,
+        backgroundColor: string
+    ): Promise<RoleShortInfo> {
         const roleData = await Role.findByPk(roleId);
 
         if (!roleData) {
@@ -127,7 +148,8 @@ class RoleService {
             this.throwRoleAlreadyExistsError();
         }
 
-        const validatedPermissions = await permissionService.validatePermissionIDs(permissions);
+        const validatedPermissions =
+            await permissionService.validatePermissionIDs(permissions);
 
         roleData.set('role', role);
         roleData.set('textColor', textColor);
@@ -142,7 +164,7 @@ class RoleService {
             await RolePermission.create({ roleId, permissionId });
         }
 
-        // уведомить пользователей с этой ролью, что их роль обновилась
+        this.notifyUsersRoleUpdated(roleId);
 
         return await roleData.toShortInfo();
     }
@@ -168,7 +190,41 @@ class RoleService {
         });
     }
 
-    async setRoleArchiveStatus(roleId: number, status: boolean, userId: number): Promise<RoleShortInfo> {
+    async removeRoleFromUser(roleId: number, userId: number) {
+        const userRole = await UserRole.findOne({ where: { roleId, userId } });
+
+        if (!userRole) {
+            throw ApiError.notFound('Роль пользователя не найдена');
+        }
+
+        return await userRole.destroy();
+    }
+
+    async toggleRole(roleId: number, userId: number) {
+        await this.getRoleById(roleId);
+        await userService.getUserById(userId);
+
+        const userRole = await UserRole.findOne({
+            where: { roleId, userId }
+        });
+
+        if (userRole) {
+            await userRole.destroy();
+        } else {
+            await UserRole.create({
+                userId,
+                roleId
+            });
+        }
+
+        this.notifyUsersRoleUpdated(roleId);
+    }
+
+    async setRoleArchiveStatus(
+        roleId: number,
+        status: boolean,
+        userId: number
+    ): Promise<RoleShortInfo> {
         const role = await this.getRoleById(roleId);
 
         role.set('isArchived', status);
@@ -189,6 +245,24 @@ class RoleService {
         // отправить emit полльзователям с этой ролью что их роль удалена или новый permissions = []
 
         return await role.toShortInfo();
+    }
+
+    async getUserRoles(userId: number, limit: number, offset: number) {
+        await userService.getUserById(userId);
+
+        const userRolesData = await UserRole.findAll({ where: { userId } });
+        const userRoleIds = userRolesData.map(item => item.get('roleId'));
+
+        const data = await this.getRoles(limit, offset);
+
+        const roles = data.roles as RoleShortInfo[];
+
+        data.roles = roles.map(role => ({
+            ...role,
+            isAssigned: userRoleIds.includes(role.id)
+        }));
+
+        return data;
     }
 
     throwRoleAlreadyExistsError() {

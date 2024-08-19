@@ -1,13 +1,26 @@
 import { Request, Response, NextFunction } from 'express';
 
-import { PaginationQuery, RequestWithBody, RequestWithParams, RequestWithParamsAndBody, RequestWithQuery, IdParam, RequestWithParamsAndUser, RequestWithQueryAndUser } from 'types/request';
+import {
+    PaginationQuery,
+    RequestWithBody,
+    RequestWithParams,
+    RequestWithParamsAndBody,
+    RequestWithQuery,
+    IdParam,
+    RequestWithParamsAndUser,
+    RequestWithQueryAndUser
+} from 'types/request';
 import roleService from '../../services/roles/roleService';
-import { AssignRoleBodyDTO, RoleBodyDTO } from 'types/role';
+import { ToggleRoleBodyDTO, RoleBodyDTO } from 'types/role';
 import permissionService from '../../services/roles/permissionService';
 
 class RoleController {
     // убрать в будущем
-    async giveFullRoleToUser(req: RequestWithBody<{ nickname: string }>, res: Response, next: NextFunction) {
+    async giveFullRoleToUser(
+        req: RequestWithBody<{ nickname: string }>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             await roleService.giveFullRoleToUser(req.body.nickname);
 
@@ -17,7 +30,11 @@ class RoleController {
         }
     }
 
-    async createRole(req: RequestWithBody<RoleBodyDTO>, res: Response, next: NextFunction) {
+    async createRole(
+        req: RequestWithBody<RoleBodyDTO>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const { role, permissions, textColor, backgroundColor } = req.body;
 
@@ -34,7 +51,11 @@ class RoleController {
         }
     }
 
-    async getRoles(req: RequestWithQuery<PaginationQuery>, res: Response, next: NextFunction) {
+    async getRoles(
+        req: RequestWithQuery<PaginationQuery>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const { limit, offset } = req.query;
 
@@ -46,7 +67,11 @@ class RoleController {
         }
     }
 
-    async getRole(req: RequestWithParams<IdParam>, res: Response, next: NextFunction) {
+    async getRole(
+        req: RequestWithParams<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const role = await roleService.getRole(req.params.id);
 
@@ -56,7 +81,11 @@ class RoleController {
         }
     }
 
-    async updateRole(req: RequestWithParamsAndBody<IdParam, RoleBodyDTO>, res: Response, next: NextFunction) {
+    async updateRole(
+        req: RequestWithParamsAndBody<IdParam, RoleBodyDTO>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const { role, permissions, textColor, backgroundColor } = req.body;
 
@@ -74,7 +103,11 @@ class RoleController {
         }
     }
 
-    async assignRoleToUser(req: RequestWithBody<AssignRoleBodyDTO>, res: Response, next: NextFunction) {
+    async assignRoleToUser(
+        req: RequestWithBody<ToggleRoleBodyDTO>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const { roleId, userId } = req.body;
 
@@ -86,7 +119,43 @@ class RoleController {
         }
     }
 
-    async archiveRole(req: RequestWithParamsAndUser<IdParam>, res: Response, next: NextFunction) {
+    async removeRoleFromUser(
+        req: RequestWithBody<ToggleRoleBodyDTO>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const { roleId, userId } = req.body;
+
+            await roleService.removeRoleFromUser(roleId, userId);
+
+            res.sendStatus(200);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async toggleRole(
+        req: RequestWithBody<ToggleRoleBodyDTO>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const { roleId, userId } = req.body;
+
+            await roleService.toggleRole(roleId, userId);
+
+            res.sendStatus(200);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async archiveRole(
+        req: RequestWithParamsAndUser<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const role = await roleService.setRoleArchiveStatus(
                 req.params.id,
@@ -100,7 +169,11 @@ class RoleController {
         }
     }
 
-    async restoreRole(req: RequestWithParamsAndUser<IdParam>, res: Response, next: NextFunction) {
+    async restoreRole(
+        req: RequestWithParamsAndUser<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const role = await roleService.setRoleArchiveStatus(
                 req.params.id,
@@ -114,9 +187,16 @@ class RoleController {
         }
     }
 
-    async deleteRole(req: RequestWithParamsAndUser<IdParam>, res: Response, next: NextFunction) {
+    async deleteRole(
+        req: RequestWithParamsAndUser<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
-            const role = await roleService.deleteRole(req.params.id, req.user.id);
+            const role = await roleService.deleteRole(
+                req.params.id,
+                req.user.id
+            );
 
             res.json({ role });
         } catch (error) {
@@ -124,7 +204,11 @@ class RoleController {
         }
     }
 
-    async getArchivedRoles(req: RequestWithQueryAndUser<PaginationQuery>, res: Response, next: NextFunction) {
+    async getArchivedRoles(
+        req: RequestWithQueryAndUser<PaginationQuery>,
+        res: Response,
+        next: NextFunction
+    ) {
         try {
             const { limit, offset } = req.query;
 

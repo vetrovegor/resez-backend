@@ -71,7 +71,34 @@ roleRouter.post(
     validationMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,
+    permissionMiddleware(Permissions.AssignRoles),
     roleController.assignRoleToUser
+);
+
+roleRouter.post(
+    '/remove',
+    body('roleId').isNumeric()
+        .withMessage('id роли должно быть числом'),
+    body('userId').isNumeric()
+        .withMessage('id пользователя должно быть числом'),
+    validationMiddleware,
+    accessTokenMiddleware,
+    blockedMiddleware,
+    permissionMiddleware(Permissions.AssignRoles),
+    roleController.removeRoleFromUser
+);
+
+roleRouter.post(
+    '/toggle',
+    body('roleId').isNumeric()
+        .withMessage('id роли должно быть числом'),
+    body('userId').isNumeric()
+        .withMessage('id пользователя должно быть числом'),
+    validationMiddleware,
+    accessTokenMiddleware,
+    blockedMiddleware,
+    permissionMiddleware(Permissions.AssignRoles),
+    roleController.toggleRole
 );
 
 roleRouter.delete(

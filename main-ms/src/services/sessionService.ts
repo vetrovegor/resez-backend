@@ -54,8 +54,6 @@ class SessionService {
             //     await logService.createNewDeviceLoginLogEntry(userId, sessionId);
             // }
 
-            console.log({ isLogin });
-
             if (isLogin && telegramChatId) {
                 rmqService.sendToQueue('telegram', 'new-session', {
                     telegramChatId,

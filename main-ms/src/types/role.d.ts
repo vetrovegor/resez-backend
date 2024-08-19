@@ -31,7 +31,7 @@ export type RoleFullInfo = {
     permissions: ExtendedPermissionDTO[]
 }
 
-export type AssignRoleBodyDTO = {
+export type ToggleRoleBodyDTO = {
     roleId: number,
     userId: number
 }

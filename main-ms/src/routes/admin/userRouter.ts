@@ -6,7 +6,7 @@ import { blockedMiddleware } from "../../middlewares/blockedMiddleware";
 import { permissionMiddleware } from "../../middlewares/permissionMiddleware";
 import { Permissions } from "types/permission";
 import userController from "../../controllers/userController";
-import { body, query } from "express-validator";
+import { body, param, query } from "express-validator";
 import { validationMiddleware } from "../../middlewares/validationMiddleware";
 
 export const userRouter = Router();
@@ -39,6 +39,8 @@ userRouter.get(
 
 userRouter.patch(
     '/:id/block',
+    param('id').isNumeric(),
+    validationMiddleware,
     body('reason').isString().optional(),
     accessTokenMiddleware,
     blockedMiddleware,
@@ -48,6 +50,8 @@ userRouter.patch(
 
 userRouter.patch(
     '/:id/unblock',
+    param('id').isNumeric(),
+    validationMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,
     permissionMiddleware(Permissions.BlockUsers),
@@ -64,10 +68,23 @@ userRouter.patch(
 
 userRouter.patch(
     '/:id/add-coins',
+    param('id').isNumeric(),
+    validationMiddleware,
     body('amount').isNumeric(),
     validationMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,
     permissionMiddleware(Permissions.Users),
     userController.addCoins   
+);
+
+userRouter.get(
+    '/:id/role',
+    param('id').isNumeric(),
+    validationMiddleware,
+    paginationMiddleware,
+    accessTokenMiddleware,
+    blockedMiddleware,
+    permissionMiddleware(Permissions.AssignRoles),
+    userController.getUserRoles   
 );

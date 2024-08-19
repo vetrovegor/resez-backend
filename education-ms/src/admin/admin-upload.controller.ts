@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { Permissions } from '@auth/interfaces';
 import { Permission } from '@auth/permission.decorator';
 import { PermissionGuard } from '@auth/permission.guard';
@@ -30,8 +31,8 @@ export class AdminUploadController {
             new ParseFilePipe({
                 validators: [
                     new MaxFileSizeValidator({
-                        maxSize: 10000000,
-                        message: 'Картинка не должна превышать 10 мб'
+                        maxSize: Number(process.env.MAX_FILE_SIZE_MB) * 1000000,
+                        message: `Картинка не должна превышать ${process.env.MAX_FILE_SIZE_MB} мб`
                     }),
                     new FileTypeValidator({ fileType: 'image/*' })
                 ]
@@ -52,8 +53,8 @@ export class AdminUploadController {
             new ParseFilePipe({
                 validators: [
                     new MaxFileSizeValidator({
-                        maxSize: 10000000,
-                        message: 'Файл не должен превышать 10 мб'
+                        maxSize: Number(process.env.MAX_FILE_SIZE_MB) * 1000000,
+                        message: `Файл не должен превышать ${process.env.MAX_FILE_SIZE_MB} мб`
                     })
                 ]
             })

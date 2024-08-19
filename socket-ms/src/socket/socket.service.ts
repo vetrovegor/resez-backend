@@ -134,13 +134,15 @@ export class SocketService implements OnGatewayConnection {
         }
     }
 
-    emitNewPermissions(userIDs: number[], permissions: any) {
-        // сделать чтобы сначала отбирались те пользователи которые в сети в данный момент и уже им отправлялось
-        userIDs.forEach(userId => {
-            this.emitToRoom(userId.toString(), EmitTypes.NewPermissions, {
-                permissions
-            });
-        });
+    emitRoleUpdating(userIds: number[]) {
+        console.log({ userIds });
+        const socketIds = this.authUsers
+            .filter(authUser => userIds.includes(Number(authUser.userId)))
+            .map(authUser => authUser.socketId);
+        console.log({ socketIds });
+        for (const socketId of socketIds) {
+            this.emitToRoom(socketId, EmitTypes.RoleUpdated);
+        }
     }
 
     async getUserActivity(userId: string) {

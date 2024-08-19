@@ -363,7 +363,8 @@ export class TaskService {
         return await this.taskRepository
             .createQueryBuilder('task')
             .where('task.subjectTask.id = :subjectTaskId', { subjectTaskId })
-            .andWhere('task.isVerified = true') // Assuming you want only verified tasks
+            .andWhere('task.isVerified = true')
+            .andWhere('task.isArchived = false')
             .orderBy('RANDOM()')
             .limit(1)
             .getOne();
@@ -378,6 +379,7 @@ export class TaskService {
             .innerJoin('task.subTheme', 'subTheme')
             .where('subTheme.id IN (:...subThemeIds)', { subThemeIds })
             .andWhere('task.isVerified = true')
+            .andWhere('task.isArchived = false')
             .orderBy('RANDOM()')
             .limit(limit)
             .getMany();

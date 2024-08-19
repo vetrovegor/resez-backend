@@ -30,9 +30,9 @@ export class SocketController {
         this.socketService.emitAuthCode(uniqueId, code);
     }
 
-    @EventPattern('emit-new-permissions')
-    emitNewPermissions(userIDs: number[], permissions: any) {
-        this.socketService.emitNewPermissions(userIDs, permissions);
+    @EventPattern('role-updated')
+    emitRoleUpdating(@Payload() userIds: number[]) {
+        this.socketService.emitRoleUpdating(userIds);
     }
 
     @MessagePattern('online-users')
