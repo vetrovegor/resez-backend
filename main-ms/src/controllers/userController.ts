@@ -45,6 +45,21 @@ class UserhController {
         }
     }
 
+    async getUserPermissions(
+        req: RequestWithUser,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const permissions = await userService.getUserPermissions(
+                req.user.id
+            );
+            res.json({ permissions });
+        } catch (error) {
+            next(error);
+        }
+    }
+
     async sendChangePasswordCode(
         req: RequestWithBodyAndUser<UserChangePasswordDTO>,
         res: Response,

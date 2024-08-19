@@ -95,6 +95,11 @@ class UserService {
         return shortInfo;
     }
 
+    async getUserPermissions(userId: number) {
+        const user = await this.getUserById(userId);
+        return user.getPermissions();
+    }
+
     async verifyUser(
         userId: number,
         telegramChatId: string,

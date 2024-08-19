@@ -19,6 +19,13 @@ userRouter.get(
     userController.getUserShortInfo
 );
 
+userRouter.get(
+    '/permission',
+    accessTokenMiddleware,
+    blockedMiddleware,
+    userController.getUserPermissions
+);
+
 userRouter.post(
     '/send-change-password-code',
     body('oldPassword').isLength({ min: 8, max: 32 }),
