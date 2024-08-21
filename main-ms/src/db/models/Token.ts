@@ -1,6 +1,7 @@
 import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript';
 
 import Session from './Session.js';
+import User from './User.js';
 
 @Table({
     timestamps: false,
@@ -11,6 +12,13 @@ class Token extends Model {
         type: DataType.TEXT
     })
     token: string;
+
+    @ForeignKey(() => User)
+    @Column
+    userId: number;
+
+    @BelongsTo(() => User)
+    user: User;
 
     @ForeignKey(() => Session)
     @Column

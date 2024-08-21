@@ -30,7 +30,6 @@ export type UserShortInfo = {
         isPrivateAccount: boolean;
         isHideAvatars: boolean;
     };
-    permissions: PermissionDTO[];
     subscription: Subscription;
     balance: number;
 };

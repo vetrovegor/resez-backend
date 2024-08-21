@@ -226,6 +226,11 @@ class UserService {
         return await this.createProfileInfo(user);
     }
 
+    async getUserSettings(userId: number) {
+        const user = await this.getUserById(userId);
+        return user.getSettings();
+    }
+
     async updateSettings(
         userId: number,
         isPrivateAccount: boolean,

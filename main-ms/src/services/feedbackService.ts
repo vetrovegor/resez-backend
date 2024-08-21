@@ -1,11 +1,30 @@
+import { Op } from "sequelize";
+
 import { PaginationDTO } from '../dto/PaginationDTO';
 import Feedback from '../db/models/Feedback';
 import userService from './userService';
 import { ApiError } from '../ApiError';
 
 class FeedbackService {
-    async createFeedback(userId: number, text: string) {
+    async createFeedback(ip: string, userId: number, text: string) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const count = await Feedback.count({
+            where: {
+                ip,
+                createdAt: {
+                    [Op.gt]: today
+                }
+            }
+        });
+
+        if (count > 4) {
+            throw ApiError.badRequest('Исчерпан лимит обратной связи на сегодня');
+        }
+
         return await Feedback.create({
+            ip,
             userId: userId != -1 ? userId : null,
             text
         });

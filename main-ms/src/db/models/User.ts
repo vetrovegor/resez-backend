@@ -34,6 +34,7 @@ import Subscription from './subscription/Subscription';
 import AvatarDecoration from './store/AvatarDecorations';
 import UserAvatarDecoration from './store/UserAvatarDecorations';
 import Feedback from './Feedback';
+import Token from './Token';
 
 @Table({
     timestamps: false,
@@ -179,6 +180,11 @@ class User extends Model {
         onDelete: 'CASCADE'
     })
     sessions: Session[];
+
+    @HasMany(() => Token, {
+        onDelete: 'CASCADE'
+    })
+    tokens: Token[];
 
     @HasMany(() => Code, {
         onDelete: 'CASCADE'
@@ -345,8 +351,6 @@ class User extends Model {
             balance
         } = this.get();
 
-        const permissions = await this.getPermissions();
-
         const levelInfo = calculateLevelInfo(xp);
 
         const subscription = await this.getSubscription();
@@ -363,10 +367,14 @@ class User extends Model {
                 isPrivateAccount,
                 isHideAvatars
             },
-            permissions,
             subscription,
             balance
         };
+    }
+
+    getSettings() {
+        const { isPrivateAccount, isHideAvatars } = this.get();
+        return { isPrivateAccount, isHideAvatars };
     }
 
     toPreview(): UserPreview {

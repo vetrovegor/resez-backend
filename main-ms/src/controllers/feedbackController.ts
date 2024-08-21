@@ -15,8 +15,12 @@ class FeedbackController {
         res: Response,
         next: NextFunction
     ) {
-        await feedbackService.createFeedback(req.user.id, req.body.text);
-        res.sendStatus(200);
+        try {
+            await feedbackService.createFeedback(req.ip, req.user.id, req.body.text);
+            res.sendStatus(200);
+        } catch (error) {
+            next(error);
+        }
     }
 
     async getFeedback(
@@ -24,12 +28,16 @@ class FeedbackController {
         res: Response,
         next: NextFunction
     ) {
-        const data = await feedbackService.getFeedback(
-            req.query.limit,
-            req.query.offset
-        );
-
-        res.json(data);
+        try {
+            const data = await feedbackService.getFeedback(
+                req.query.limit,
+                req.query.offset
+            );
+    
+            res.json(data);
+        } catch (error) {
+            next(error);
+        }
     }
 
     async readFeedback(
@@ -37,8 +45,12 @@ class FeedbackController {
         res: Response,
         next: NextFunction
     ) {
-        const feedback = await feedbackService.readFeedback(req.params.id);
-        res.json({ feedback });
+        try {
+            const feedback = await feedbackService.readFeedback(req.params.id);
+            res.json({ feedback });
+        } catch (error) {
+            next(error);
+        }
     }
 }
 

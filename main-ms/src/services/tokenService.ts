@@ -3,15 +3,15 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import { UserTokenInfo } from 'types/user';
 import Token from '../db/models/Token';
 import { Tokens } from 'types/session';
+import User from '../db/models/User';
+import { v4 } from 'uuid';
 
 class TokenService {
     generateTokens(payload: UserTokenInfo): Tokens {
         const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, {
             expiresIn: process.env.JWT_ACCESS_EXPIRATION
         });
-        const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
-            expiresIn: process.env.JWT_REFRESH_EXPIRATION
-        });
+        const refreshToken = v4();
 
         return {
             accessToken,
@@ -19,9 +19,10 @@ class TokenService {
         };
     }
 
-    async saveToken(token: string, sessionId: number): Promise<Token> {
+    async saveToken(token: string, userId: number, sessionId: number): Promise<Token> {
         const existedToken = await Token.findOne({
             where: {
+                userId,
                 sessionId
             }
         });
@@ -33,6 +34,7 @@ class TokenService {
 
         return await Token.create({
             token,
+            userId,
             sessionId
         });
     }
@@ -59,12 +61,17 @@ class TokenService {
         };
     }
 
-    async findTokenByToken(token: string) {
-        return await Token.findOne({
+    async validateRefreshToken(token: string) {
+        const tokenData = await Token.findOne({
             where: {
                 token
-            }
+            },
+            include: User
         });
+
+        const user = tokenData.get('user');
+
+        return await user.toTokenInfo();
     }
 }
 

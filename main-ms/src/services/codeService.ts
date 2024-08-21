@@ -23,7 +23,8 @@ class CodeService {
         const code = this.generateCode();
         const currentDate = Date.now();
         const retryDate = currentDate + 60000;
-        const lifetime = 30000;
+        const lifetime =
+            Number(process.env.VERIFICATION_CODE_EXPIRATION) * 1000;
         const expiredDate = currentDate + lifetime;
         const verificationCodeData = { code, lifetime };
 

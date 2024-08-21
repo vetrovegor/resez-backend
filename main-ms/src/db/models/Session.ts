@@ -72,7 +72,9 @@ class Session extends Model {
     @BelongsTo(() => User)
     user: User;
 
-    @HasMany(() => Token)
+    @HasMany(() => Token, {
+        onDelete: 'CASCADE'
+    })
     tokens: Token[];
 
     toDTO(): SessionDTO {

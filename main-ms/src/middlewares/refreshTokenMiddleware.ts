@@ -16,10 +16,9 @@ export const refreshTokenMiddleware = async (
             return next(ApiError.unauthorizedError());
         }
 
-        const userData = tokenService.validateToken(refreshToken);
-        const foundToken = await tokenService.findTokenByToken(refreshToken);
+        const userData = await tokenService.validateRefreshToken(refreshToken);
 
-        if (!userData || !foundToken) {
+        if (!userData) {
             return next(ApiError.unauthorizedError());
         }
 

@@ -103,10 +103,10 @@ userRouter.delete(
 );
 
 userRouter.get(
-    '/:nickname',
-    param('nickname').isString(),
-    validationMiddleware,
-    userController.getUser
+    '/settings',
+    accessTokenMiddleware,
+    blockedMiddleware,
+    userController.getUserSettings
 );
 
 userRouter.patch(
@@ -117,6 +117,13 @@ userRouter.patch(
     accessTokenMiddleware,
     blockedMiddleware,
     userController.updateSettings
+);
+
+userRouter.get(
+    '/:nickname',
+    param('nickname').isString(),
+    validationMiddleware,
+    userController.getUser
 );
 
 userRouter.get(

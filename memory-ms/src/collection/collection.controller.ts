@@ -97,6 +97,8 @@ export class CollectionController {
         return await this.collectionService.findOne(id, user.id);
     }
 
+    @Public()
+    @UseGuards(OptionalJwtAuthGuard)
     @Get(':id/pairs')
     async findPairs(
         @Param('id', ParseIntPipe) id: number,

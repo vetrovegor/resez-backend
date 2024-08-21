@@ -37,7 +37,8 @@ class UserhController {
             const userId = req.user.id;
 
             const user = await userService.getUserShortInfo(userId);
-            const { id: sessionId } = await sessionService.findCurrentSession(
+
+            const { id: sessionId } = await sessionService.findOrCreateCurrentSession(
                 req,
                 userId
             );
@@ -128,6 +129,22 @@ class UserhController {
             );
 
             res.json({ user });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getUserSettings(
+        req: RequestWithUser,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const settings = await userService.getUserSettings(
+                req.user.id
+            );
+
+            res.json({ settings });
         } catch (error) {
             next(error);
         }

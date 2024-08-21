@@ -10,7 +10,13 @@ class Feedback extends Model {
     @Column({
         type: DataType.TEXT,
     })
+    ip: string;
+
+    @Column({
+        type: DataType.TEXT,
+    })
     text: string;
+
     @Column({
         type: DataType.BOOLEAN,
         defaultValue: false

@@ -125,7 +125,10 @@ const handleStart = async (
     const codeData = await validateVerifyCode(startPayload);
 
     if (!codeData) {
-        return sendInfoMessage(telegramChatId);
+        return bot.telegram.sendMessage(
+            telegramChatId,
+            'Срок действия кода верификации истек. Пожалуйста, обновите код на сайте и попробуйте снова.'
+        );
     }
 
     channel.publish(

@@ -17,7 +17,6 @@ import { ApiError } from '../ApiError';
 import rmqService from './rmqService';
 
 class SessionService {
-    // добавить параметр shouldCreateNotify
     async saveSession(
         req: Request,
         userTokenInfo: UserTokenInfo,
@@ -64,7 +63,7 @@ class SessionService {
 
         const { accessToken, refreshToken } =
             tokenService.generateTokens(userTokenInfo);
-        tokenService.saveToken(refreshToken, sessionId);
+        tokenService.saveToken(refreshToken, userId, sessionId);
 
         return {
             sessionId,
