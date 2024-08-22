@@ -15,16 +15,20 @@ import { CollectionService } from './collection.service';
 import { CollectionDto } from './dto/collection.dto';
 import { CurrentUser } from '@auth/current-user.decorator';
 import { JwtPayload } from '@auth/interfaces';
-import { SeedPipe } from './seed.pipe';
+import { SeedPipe } from './pipe/seed.pipe';
 import { Public } from '@auth/public.decorator';
 import { OptionalJwtAuthGuard } from '@auth/optional-jwt-auth.guard';
+import { CollectionDtoPipe } from './pipe/dto.pipe';
 
 @Controller('collection')
 export class CollectionController {
     constructor(private readonly collectionService: CollectionService) {}
 
     @Post()
-    async create(@CurrentUser() user: JwtPayload, @Body() dto: CollectionDto) {
+    async create(
+        @CurrentUser() user: JwtPayload,
+        @Body(new CollectionDtoPipe()) dto: CollectionDto
+    ) {
         return await this.collectionService.create(user.id, dto);
     }
 
@@ -165,7 +169,7 @@ export class CollectionController {
     async update(
         @Param('id', ParseIntPipe) id: number,
         @CurrentUser() user: JwtPayload,
-        @Body() dto: CollectionDto
+        @Body(new CollectionDtoPipe()) dto: CollectionDto
     ) {
         return await this.collectionService.update(id, user.id, dto);
     }

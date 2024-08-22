@@ -13,6 +13,8 @@ import {
 } from 'class-validator';
 
 export class QaDto {
+    id?: number;
+
     @Transform(({ value }) => value.toString())
     @ValidateIf(o => o.questionText || !o.questionPicture)
     @IsString({ message: 'Текст вопроса должен быть строкой' })
