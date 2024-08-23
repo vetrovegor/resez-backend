@@ -7,6 +7,7 @@ import { SubjectModule } from '@subject/subject.module';
 import { TaskModule } from '@task/task.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
+import { TestHistoryModule } from '@test-history/test-history.module';
 
 @Module({
     imports: [
@@ -25,7 +26,8 @@ import { ConfigService } from '@nestjs/config';
             }
         ]),
         SubjectModule,
-        TaskModule
+        TaskModule,
+        TestHistoryModule
     ],
     controllers: [TestController],
     providers: [TestService],

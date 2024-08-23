@@ -37,7 +37,11 @@
             "@test": ["src/test/"],
             "@test/*": ["src/test/*"],
             "@utils": ["src/utils/"],
-            "@utils/*": ["src/utils/*"]
+            "@utils/*": ["src/utils/*"],
+            "@test-history": ["src/test-history/"],
+            "@test-history/*": ["src/test-history/*"],
+            "@task-attempt": ["src/task-attempt/"],
+            "@task-attempt/*": ["src/task-attempt/*"]
         }
     }
 }

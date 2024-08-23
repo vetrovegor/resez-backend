@@ -10,6 +10,11 @@ import {
 } from 'class-validator';
 
 export class TestSubmitDto {
+    @Transform(({ value }) => Number(value))
+    @IsNumber({}, { message: 'Затраченное время должно быть числом' })
+    @Min(1, { message: 'Затраченное время должно быть положительным' })
+    secondsSpent: number;
+
     @IsOptional()
     @IsArray({
         message: 'Задания без развернутого ответа должны быть массивом'

@@ -16,6 +16,8 @@ import { TestModule } from './test/test.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-redis-store';
 import { ConfigService } from '@nestjs/config';
+import { TestHistoryModule } from './test-history/test-history.module';
+import { TaskAttemptModule } from './task-attempt/task-attempt.module';
 
 @Module({
     imports: [
@@ -43,7 +45,9 @@ import { ConfigService } from '@nestjs/config';
         AdminModule,
         UploadModule,
         RabbitMqModule,
-        TestModule
+        TestModule,
+        TestHistoryModule,
+        TaskAttemptModule
     ],
     controllers: [],
     providers: []

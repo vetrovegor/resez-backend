@@ -13,8 +13,9 @@ import { TaskService } from '@task/task.service';
 import { RabbitMqService } from '@rabbit-mq/rabbit-mq.service';
 import { ClientProxy } from '@nestjs/microservices';
 import { CustomTestDto } from './dto/custom-test.dto';
-import { TestSubmitDto } from './dto/test-dubmit.dto';
+import { TestSubmitDto } from './dto/test-submit.dto';
 import { arraysEqualSet } from '@utils/array-equal-set';
+import { TestHistoryService } from '@test-history/test-history.service';
 
 @Injectable()
 export class TestService {
@@ -24,7 +25,8 @@ export class TestService {
         private readonly subjectService: SubjectService,
         private readonly taskService: TaskService,
         private readonly rabbitMqService: RabbitMqService,
-        @Inject('USER_SERVICE') private readonly userClient: ClientProxy
+        @Inject('USER_SERVICE') private readonly userClient: ClientProxy,
+        private readonly testHistoryService: TestHistoryService
     ) {}
 
     async create(dto: ExamTestDto, userId: number, isExam: boolean) {
@@ -294,7 +296,7 @@ export class TestService {
         return { tasks };
     }
 
-    async evaluate(id: number, dto: TestSubmitDto) {
+    async evaluate(id: number, dto: TestSubmitDto, userId: number) {
         const existingTest = await this.testRepository.findOne({
             where: { id },
             relations: [
@@ -302,6 +304,7 @@ export class TestService {
                 'subject.scoreConversions',
                 'tasks',
                 'tasks.subjectTask',
+                'tasks.subTheme',
                 'tasks.subject'
             ]
         });
@@ -399,14 +402,28 @@ export class TestService {
                 totalPrimaryScore >= item.minScore &&
                 totalPrimaryScore <= item.maxScore
         );
-        const grade = gradeEntry ? gradeEntry.grade : null;
+        const grade = isMark && gradeEntry ? gradeEntry.grade : null;
 
         const secondaryScoreEntry = scoreConversions.find(
             item => item.primaryScore == totalPrimaryScore
         );
-        const secondaryScore = secondaryScoreEntry
-            ? secondaryScoreEntry.secondaryScore
-            : null;
+        const secondaryScore =
+            !isMark && secondaryScoreEntry
+                ? secondaryScoreEntry.secondaryScore
+                : null;
+
+        // сохранение результатов
+        if (userId != -1) {
+            await this.testHistoryService.save(
+                userId,
+                dto,
+                existingTest,
+                maxPrimaryScore,
+                totalPrimaryScore,
+                secondaryScore,
+                grade
+            );
+        }
 
         return {
             isExam,
@@ -415,8 +432,8 @@ export class TestService {
             detailedTasks: detailedTasksResult,
             primaryScore: totalPrimaryScore,
             maxPrimaryScore,
-            grade: isMark && !grade ? grade : 2,
-            secondaryScore: !isMark && secondaryScore ? secondaryScore : 0
+            grade,
+            secondaryScore
         };
     }
 }

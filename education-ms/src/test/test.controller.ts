@@ -6,11 +6,15 @@ import {
     Param,
     ParseIntPipe,
     Post,
-    Query
+    Query,
+    UseGuards
 } from '@nestjs/common';
 import { TestService } from './test.service';
 import { Public } from '@auth/public.decorator';
-import { TestSubmitDto } from './dto/test-dubmit.dto';
+import { TestSubmitDto } from './dto/test-submit.dto';
+import { OptionalJwtAuthGuard } from '@auth/optional-jwt-auth.guard';
+import { CurrentUser } from '@auth/current-user.decorator';
+import { JwtPayload } from '@auth/interfaces';
 
 @Public()
 @Controller('test')
@@ -42,11 +46,14 @@ export class TestController {
         return await this.testService.getDetailedTasksByTestId(id);
     }
 
+    @Public()
+    @UseGuards(OptionalJwtAuthGuard)
     @Post(':id/submit')
     async evaluate(
         @Param('id', ParseIntPipe) id: number,
-        @Body() dto: TestSubmitDto
+        @Body() dto: TestSubmitDto,
+        @CurrentUser() user: JwtPayload
     ) {
-        return await this.testService.evaluate(id, dto);
+        return await this.testService.evaluate(id, dto, user.id);
     }
 }
