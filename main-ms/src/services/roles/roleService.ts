@@ -118,12 +118,6 @@ class RoleService {
         return role.toFullInfo();
     }
 
-    async notifyUsersRoleUpdated(roleId: number) {
-        const userRolesData = await UserRole.findAll({ where: { roleId } });
-        const userIds = userRolesData.map(item => item.get('userId'));
-        await rmqService.sendToQueue('socket-queue', 'role-updated', userIds);
-    }
-
     async updateRole(
         roleId: number,
         role: string,
@@ -164,7 +158,9 @@ class RoleService {
             await RolePermission.create({ roleId, permissionId });
         }
 
-        this.notifyUsersRoleUpdated(roleId);
+        const userRolesData = await UserRole.findAll({ where: { roleId } });
+        const userIds = userRolesData.map(item => item.get('userId'));
+        await rmqService.sendToQueue('socket-queue', 'role-updated', userIds);
 
         return await roleData.toShortInfo();
     }
@@ -217,7 +213,7 @@ class RoleService {
             });
         }
 
-        this.notifyUsersRoleUpdated(roleId);
+        await rmqService.sendToQueue('socket-queue', 'role-updated', [userId]);
     }
 
     async setRoleArchiveStatus(

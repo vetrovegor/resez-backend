@@ -77,7 +77,6 @@ class UserService {
         );
 
         if (cachedUser) {
-            console.log('Из кеша');
             return JSON.parse(cachedUser);
         }
 

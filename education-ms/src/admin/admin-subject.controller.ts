@@ -57,7 +57,7 @@ export class AdminSubjectController {
     }
 
     @Get()
-    @Permission(Permissions.Subjects)
+    @Permission(Permissions.Tests)
     @UseGuards(PermissionGuard)
     async find(
         @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
@@ -123,7 +123,7 @@ export class AdminSubjectController {
     }
 
     @Get(':id/subject-task')
-    @Permission(Permissions.Subjects)
+    @Permission(Permissions.Tests)
     @UseGuards(PermissionGuard)
     async getSubjectTasksById(@Param('id', ParseIntPipe) id: number) {
         return await this.subjectService.getSubjectTasksById(id);

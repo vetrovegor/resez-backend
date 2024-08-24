@@ -2,7 +2,6 @@ import { CurrentUser } from '@auth/current-user.decorator';
 import { JwtPayload, Permissions } from '@auth/interfaces';
 import { Permission } from '@auth/permission.decorator';
 import { PermissionGuard } from '@auth/permission.guard';
-import { VerifyTaskGuard } from '@auth/verify-task.guard';
 import {
     Body,
     Controller,
@@ -27,9 +26,9 @@ export class AdminTaskController {
 
     @Post()
     @Permission(Permissions.CreateTasks)
-    @UseGuards(PermissionGuard, VerifyTaskGuard)
+    @UseGuards(PermissionGuard)
     async create(@Body() dto: TaskDto, @CurrentUser() user: JwtPayload) {
-        return await this.taskService.create(dto, user.id);
+        return await this.taskService.create(dto, user);
     }
 
     @Get()
@@ -79,9 +78,13 @@ export class AdminTaskController {
 
     @Patch(':id')
     @Permission(Permissions.UpdateTasks)
-    @UseGuards(PermissionGuard, VerifyTaskGuard)
-    async update(@Param('id', ParseIntPipe) id: number, @Body() dto: TaskDto) {
-        return await this.taskService.update(id, dto);
+    @UseGuards(PermissionGuard)
+    async update(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() dto: TaskDto,
+        @CurrentUser() user: JwtPayload
+    ) {
+        return await this.taskService.update(id, dto, user.permissions);
     }
 
     @Patch(':id/toggle-verify')

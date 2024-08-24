@@ -33,7 +33,6 @@ export class TaskAttemptService {
             const isCorrect = !!existingAnswer;
             const primaryScore = isCorrect ? subjectTask.primaryScore : 0;
 
-            // вынести в отдельный метод
             await this.taskAttemptRepository.save({
                 taskId,
                 themeId: subjectTask.id,
@@ -62,7 +61,6 @@ export class TaskAttemptService {
                 source
             } = testTasks.find(task => task.id == taskId);
 
-            // вынести в отдельный метод
             await this.taskAttemptRepository.save({
                 taskId,
                 themeId: subjectTask.id,

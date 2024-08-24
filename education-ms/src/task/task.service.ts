@@ -14,6 +14,7 @@ import { RabbitMqService } from '@rabbit-mq/rabbit-mq.service';
 import { ClientProxy } from '@nestjs/microservices';
 import { MatchDto } from './dto/match.dto';
 import * as stringSimilarity from 'string-similarity';
+import { JwtPayload, Permissions } from '@auth/interfaces';
 
 @Injectable()
 export class TaskService {
@@ -26,7 +27,7 @@ export class TaskService {
         @Inject('USER_SERVICE') private readonly userClient: ClientProxy
     ) {}
 
-    async create(dto: TaskDto, userId: number) {
+    async create(dto: TaskDto, user: JwtPayload) {
         // вынести
         const subject = await this.subjectService.getById(dto.subjectId);
 
@@ -58,12 +59,17 @@ export class TaskService {
             );
         }
 
+        const hasVerifiedPermission = user.permissions.some(
+            permission => permission.permission == Permissions.VerifyTasks
+        );
+
         const createdTask = this.taskRepository.create({
             ...dto,
+            isVerified: hasVerifiedPermission ? dto.isVerified : false,
             subject: { id: dto.subjectId },
             subjectTask: { id: dto.subjectTaskId },
             subTheme: { id: dto.subThemeId },
-            userId
+            userId: user.id
         });
 
         const savedTask = await this.taskRepository.save(createdTask);
@@ -194,10 +200,25 @@ export class TaskService {
 
         task.answers = task.answers.filter(answer => answer.length > 0);
 
+        task['user'] = await this.rabbitMqService.sendRequest({
+            client: this.userClient,
+            pattern: 'preview',
+            data: task.userId
+        });
+
+        delete task.userId;
+
         return { task };
     }
 
-    async update(id: number, dto: TaskDto) {
+    async update(
+        id: number,
+        dto: TaskDto,
+        permissions: {
+            id: number;
+            permission: string;
+        }[]
+    ) {
         await this.getById(id);
 
         // вынести
@@ -231,9 +252,14 @@ export class TaskService {
             );
         }
 
+        const hasVerifiedPermission = permissions.some(
+            permission => permission.permission == Permissions.VerifyTasks
+        );
+
         const savedTask = await this.taskRepository.save({
             id,
             ...dto,
+            isVerified: hasVerifiedPermission ? dto.isVerified : false,
             subject: { id: dto.subjectId },
             subjectTask: { id: dto.subjectTaskId },
             subTheme: { id: dto.subThemeId }
