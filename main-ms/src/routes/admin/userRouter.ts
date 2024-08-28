@@ -37,6 +37,37 @@ userRouter.get(
     userController.getUsers   
 );
 
+userRouter.get(
+    '/:id',
+    param('id').isNumeric(),
+    validationMiddleware,
+    accessTokenMiddleware,
+    blockedMiddleware,
+    permissionMiddleware(Permissions.Users),
+    userController.getAdminUserProfileInfo   
+);
+
+userRouter.get(
+    '/:id/info',
+    param('id').isNumeric(),
+    validationMiddleware,
+    accessTokenMiddleware,
+    blockedMiddleware,
+    permissionMiddleware(Permissions.Users),
+    userController.getAdminUserBasicInfo   
+);
+
+userRouter.get(
+    '/:id/session',
+    param('id').isNumeric(),
+    paginationMiddleware,
+    validationMiddleware,
+    accessTokenMiddleware,
+    blockedMiddleware,
+    permissionMiddleware(Permissions.Users),
+    userController.getUserSessions   
+);
+
 userRouter.patch(
     '/:id/block',
     param('id').isNumeric(),

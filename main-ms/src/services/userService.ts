@@ -517,6 +517,68 @@ class UserService {
         );
     }
 
+    async getAdminUserProfileInfo(userId: number) {
+        const user = await this.getUserById(userId);
+
+        let avatarDecoration = null;
+
+        if (user.get('avatarDecorationId')) {
+            avatarDecoration =
+                await avatarDecorationService.createAvatarDecorationDtoById(
+                    user.get('avatarDecorationId')
+                );
+        }
+
+        const activity = await rmqService.sendToQueue(
+            'socket-queue',
+            'user-activity',
+            user.get('id')
+        );
+
+        return {
+            id: user.get('id'),
+            nickname: user.get('nickname'),
+            firstName: user.get('firstName'),
+            lastName: user.get('lastName'),
+            isVerified: user.get('isVerified'),
+            isBlocked: user.get('isBlocked'),
+            blockReason: user.get('blockReason'),
+            avatar: user.get('avatar')
+                ? process.env.STATIC_URL + user.get('avatar')
+                : null,
+            avatarDecoration,
+            status: 'Новичек',
+            activity
+        };
+    }
+
+    async getAdminUserBasicInfo(userId: number) {
+        const user = await this.getUserById(userId);
+        const { xp, subscriptionExpiredDate, isSubscriptionPermanent } =
+            user.toJSON();
+        const levelInfo = calculateLevelInfo(xp);
+        const subscription = await user.getSubscription();
+
+        const activity = await rmqService.sendToQueue(
+            'socket-queue',
+            'activity-data',
+            user.get('id')
+        );
+
+        return {
+            levelInfo,
+            balance: user.get('balance'),
+            subscription: subscription
+                ? {
+                      ...subscription.toJSON(),
+                      subscriptionExpiredDate,
+                      isSubscriptionPermanent
+                  }
+                : null,
+            activity
+        };
+    }
+
     async setUserBlockStatus(
         adminId: number,
         userId: number,

@@ -1,9 +1,23 @@
 {
   "moduleFileExtensions": ["js", "json", "ts"],
   "rootDir": ".",
-  "testEnvironment": "node",
-  "testRegex": ".e2e-spec.ts$",
+  "testRegex": ".*\\.e2e-spec\\.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
-  }
+  },
+  "moduleNameMapper": {
+    "^@auth/(.*)$": "<rootDir>/../src/auth/$1",
+    "^@subject/(.*)$": "<rootDir>/../src/subject/$1",
+    "^@score-conversion/(.*)$": "<rootDir>/../src/score-conversion/$1",
+    "^@subject-task/(.*)$": "<rootDir>/../src/subject-task/$1",
+    "^@sub-theme/(.*)$": "<rootDir>/../src/sub-theme/$1",
+    "^@task/(.*)$": "<rootDir>/../src/task/$1",
+    "^@upload/(.*)$": "<rootDir>/../src/upload/$1",
+    "^@rabbit-mq/(.*)$": "<rootDir>/../src/rabbit-mq/$1",
+    "^@test/(.*)$": "<rootDir>/../src/test/$1",
+    "^@utils/(.*)$": "<rootDir>/../src/utils/$1",
+    "^@test-history/(.*)$": "<rootDir>/../src/test-history/$1",
+    "^@task-attempt/(.*)$": "<rootDir>/../src/task-attempt/$1"
+  },
+  "testEnvironment": "node"
 }

@@ -315,6 +315,29 @@ class SessionService {
 
         return this.getUserSessions(req, userId, limit, offset);
     }
+
+    async getUserSessionsToAdmin(userId: number, limit: number, offset: number) {
+        const sessionsData = await Session.findAll({
+            where: { userId },
+            order: [['date', 'DESC']],
+            limit,
+            offset
+        });
+
+        const sessions = sessionsData.map(session => session.toDTO());
+
+        const sessionsCount = await Session.count({
+            where: { userId }
+        });
+
+        return new PaginationDTO<SessionDTO>(
+            'sessions',
+            sessions,
+            sessionsCount,
+            limit,
+            offset
+        );
+    }
 }
 
 export default new SessionService();

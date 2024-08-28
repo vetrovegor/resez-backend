@@ -28,4 +28,13 @@ export class ActivityService {
 
         return data?.date ?? null;
     }
+
+    async getActivityData(userId: string) {
+        return await this.prismaService.activity.findMany({
+            select: { id: true, type: true, date: true },
+            where: { userId },
+            orderBy: { date: 'desc' },
+            take: 20
+        });
+    }
 }

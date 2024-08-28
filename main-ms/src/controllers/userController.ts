@@ -38,10 +38,8 @@ class UserhController {
 
             const user = await userService.getUserShortInfo(userId);
 
-            const { id: sessionId } = await sessionService.findOrCreateCurrentSession(
-                req,
-                userId
-            );
+            const { id: sessionId } =
+                await sessionService.findOrCreateCurrentSession(req, userId);
 
             res.json({ user, sessionId });
         } catch (error) {
@@ -140,9 +138,7 @@ class UserhController {
         next: NextFunction
     ) {
         try {
-            const settings = await userService.getUserSettings(
-                req.user.id
-            );
+            const settings = await userService.getUserSettings(req.user.id);
 
             res.json({ settings });
         } catch (error) {
@@ -302,6 +298,56 @@ class UserhController {
                 roleId,
                 ids,
                 short
+            );
+
+            res.json(data);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getAdminUserProfileInfo(
+        req: RequestWithParams<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const user = await userService.getAdminUserProfileInfo(
+                req.params.id
+            );
+
+            res.json({ user });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getAdminUserBasicInfo(
+        req: RequestWithParams<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const info = await userService.getAdminUserBasicInfo(
+                req.params.id
+            );
+
+            res.json({ info });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getUserSessions(
+        req: RequestWithParamsAndQuery<IdParam, PaginationQuery>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const data = await sessionService.getUserSessionsToAdmin(
+                req.params.id,
+                req.query.limit,
+                req.query.offset
             );
 
             res.json(data);
