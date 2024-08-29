@@ -7,8 +7,8 @@ import {
     Query
 } from '@nestjs/common';
 import { TestHistoryService } from './test-history.service';
-import { CurrentUser } from '@auth/current-user.decorator';
-import { JwtPayload } from '@auth/interfaces';
+import { CurrentUser } from '@auth/decorators/current-user.decorator';
+import { JwtPayload } from '@auth/interfaces/interfaces';
 
 @Controller('test-history')
 export class TestHistoryController {

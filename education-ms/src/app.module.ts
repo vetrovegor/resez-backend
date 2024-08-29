@@ -1,23 +1,25 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { SubjectModule } from './subject/subject.module';
-import { DatabaseModule } from './database/database.module';
-import { SubjectTaskModule } from './subject-task/subject-task.module';
-import { SubThemeModule } from './sub-theme/sub-theme.module';
-import { ScoreConversionModule } from './score-conversion/score-conversion.module';
-import { TaskModule } from './task/task.module';
 import { AuthModule } from '@auth/auth.module';
-import { AdminModule } from './admin/admin.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { UploadModule } from './upload/upload.module';
 import { RabbitMqModule } from '@rabbit-mq/rabbit-mq.module';
-import { TestModule } from './test/test.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-redis-store';
 import { ConfigService } from '@nestjs/config';
-import { TestHistoryModule } from './test-history/test-history.module';
-import { TaskAttemptModule } from './task-attempt/task-attempt.module';
+import { LogModule } from '@log/log.module';
+import { UserModule } from '@user/user.module';
+import { SubjectModule } from '@subject/subject.module';
+import { DatabaseModule } from './database/database.module';
+import { SubjectTaskModule } from '@subject-task/subject-task.module';
+import { SubThemeModule } from '@sub-theme/sub-theme.module';
+import { ScoreConversionModule } from '@score-conversion/score-conversion.module';
+import { TaskModule } from '@task/task.module';
+import { AdminModule } from './admin/admin.module';
+import { UploadModule } from '@upload/upload.module';
+import { TestModule } from '@test/test.module';
+import { TestHistoryModule } from '@test-history/test-history.module';
+import { TaskAttemptModule } from '@task-attempt/task-attempt.module';
 
 @Module({
     imports: [
@@ -47,7 +49,9 @@ import { TaskAttemptModule } from './task-attempt/task-attempt.module';
         RabbitMqModule,
         TestModule,
         TestHistoryModule,
-        TaskAttemptModule
+        TaskAttemptModule,
+        LogModule,
+        UserModule
     ],
     controllers: [],
     providers: []

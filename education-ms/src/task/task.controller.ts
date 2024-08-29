@@ -1,6 +1,6 @@
 import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
 import { TaskService } from './task.service';
-import { Public } from '@auth/public.decorator';
+import { Public } from '@auth/decorators/public.decorator';
 
 @Public()
 @Controller('task')

@@ -25,5 +25,6 @@ export const enum Permissions {
     Tests = 'Тесты',
     CreateOfficialTests = 'Создание официальных тестов',
     DeleteTests = 'Удаление тестов',
-    Archive = 'Архив'
+    Archive = 'Архив',
+    Logs = 'Логирование'
 }

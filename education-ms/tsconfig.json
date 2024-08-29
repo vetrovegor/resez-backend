@@ -41,7 +41,11 @@
             "@test-history": ["src/test-history/"],
             "@test-history/*": ["src/test-history/*"],
             "@task-attempt": ["src/task-attempt/"],
-            "@task-attempt/*": ["src/task-attempt/*"]
+            "@task-attempt/*": ["src/task-attempt/*"],
+            "@log": ["src/log/"],
+            "@log/*": ["src/log/*"],
+            "@user": ["src/user/"],
+            "@user/*": ["src/user/*"]
         }
     }
 }

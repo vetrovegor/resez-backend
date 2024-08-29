@@ -1,7 +1,7 @@
-import { CurrentUser } from '@auth/current-user.decorator';
-import { JwtPayload, Permissions } from '@auth/interfaces';
-import { Permission } from '@auth/permission.decorator';
-import { PermissionGuard } from '@auth/permission.guard';
+import { CurrentUser } from '@auth/decorators/current-user.decorator';
+import { JwtPayload, Permissions } from '@auth/interfaces/interfaces';
+import { Permission } from '@auth/decorators/permission.decorator';
+import { PermissionGuard } from '@auth/guards/permission.guard';
 import {
     Body,
     Controller,
@@ -21,7 +21,7 @@ import { TaskDto } from '@task/dto/task.dto';
 import { TaskService } from '@task/task.service';
 
 @Controller('admin/task')
-export class AdminTaskController {
+export class TaskController {
     constructor(private readonly taskService: TaskService) {}
 
     @Post()
@@ -84,7 +84,7 @@ export class AdminTaskController {
         @Body() dto: TaskDto,
         @CurrentUser() user: JwtPayload
     ) {
-        return await this.taskService.update(id, dto, user.permissions);
+        return await this.taskService.update(id, dto, user);
     }
 
     @Patch(':id/toggle-verify')

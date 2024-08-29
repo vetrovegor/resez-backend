@@ -428,6 +428,7 @@ export class TestService {
         return {
             isExam,
             isMark,
+            secondsSpent: dto.secondsSpent,
             simpleTasks: simpleTasksResult,
             detailedTasks: detailedTasksResult,
             primaryScore: totalPrimaryScore,

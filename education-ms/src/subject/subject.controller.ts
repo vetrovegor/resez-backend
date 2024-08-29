@@ -1,7 +1,7 @@
 import { Controller, Get, Param, UseInterceptors } from '@nestjs/common';
 import { SubjectService } from './subject.service';
 import { CacheInterceptor } from '@nestjs/cache-manager';
-import { Public } from '@auth/public.decorator';
+import { Public } from '@auth/decorators/public.decorator';
 
 @Public()
 @Controller('subject')

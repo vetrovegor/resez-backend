@@ -1,18 +1,20 @@
 import { Module } from '@nestjs/common';
-import { AdminSubjectController } from './admin-subject.controller';
+import { SubjectController } from './controllers/subject.controller';
 import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard } from '@auth/jwt-auth.guard';
+import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
 import { SubjectModule } from '@subject/subject.module';
 import { ScoreConversionModule } from '@score-conversion/score-conversion.module';
 import { TaskModule } from '@task/task.module';
 import { SubjectTaskModule } from '@subject-task/subject-task.module';
 import { SubThemeModule } from '@sub-theme/sub-theme.module';
-import { AdminSubjectTaskController } from './admin-subject-task.controller';
-import { AdminTaskController } from './admin-task.controller';
-import { AdminUploadController } from './admin-upload.controller';
+import { SubjectTaskController } from './controllers/subject-task.controller';
+import { TaskController } from './controllers/task.controller';
+import { UploadController } from './controllers/upload.controller';
 import { UploadModule } from '@upload/upload.module';
 import { TestModule } from '@test/test.module';
-import { AdminTestController } from './admin-test.controller';
+import { TestController } from './controllers/test.controller';
+import { LogModule } from '@log/log.module';
+import { LogController } from './controllers/log.controller';
 
 @Module({
     imports: [
@@ -22,14 +24,16 @@ import { AdminTestController } from './admin-test.controller';
         SubThemeModule,
         TaskModule,
         UploadModule,
-        TestModule
+        TestModule,
+        LogModule
     ],
     controllers: [
-        AdminSubjectController,
-        AdminSubjectTaskController,
-        AdminTaskController,
-        AdminUploadController,
-        AdminTestController
+        SubjectController,
+        SubjectTaskController,
+        TaskController,
+        UploadController,
+        TestController,
+        LogController
     ],
     providers: [
         {

@@ -10,11 +10,11 @@ import {
     UseGuards
 } from '@nestjs/common';
 import { TestService } from './test.service';
-import { Public } from '@auth/public.decorator';
+import { Public } from '@auth/decorators/public.decorator';
 import { TestSubmitDto } from './dto/test-submit.dto';
-import { OptionalJwtAuthGuard } from '@auth/optional-jwt-auth.guard';
-import { CurrentUser } from '@auth/current-user.decorator';
-import { JwtPayload } from '@auth/interfaces';
+import { OptionalJwtAuthGuard } from '@auth/guards/optional-jwt-auth.guard';
+import { CurrentUser } from '@auth/decorators/current-user.decorator';
+import { JwtPayload } from '@auth/interfaces/interfaces';
 
 @Public()
 @Controller('test')

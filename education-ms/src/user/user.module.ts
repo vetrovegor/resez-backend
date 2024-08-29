@@ -1,16 +1,11 @@
-import { forwardRef, Module } from '@nestjs/common';
-import { TaskService } from './task.service';
-import { TaskController } from './task.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Task } from './task.entity';
-import { SubjectModule } from '@subject/subject.module';
+import { Global, Module } from '@nestjs/common';
+import { UserService } from './user.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
-import { LogModule } from '@log/log.module';
 
+@Global()
 @Module({
     imports: [
-        TypeOrmModule.forFeature([Task]),
         ClientsModule.registerAsync([
             {
                 name: 'USER_SERVICE',
@@ -23,12 +18,9 @@ import { LogModule } from '@log/log.module';
                 }),
                 inject: [ConfigService]
             }
-        ]),
-        forwardRef(() => SubjectModule),
-        LogModule
+        ])
     ],
-    controllers: [TaskController],
-    providers: [TaskService],
-    exports: [TaskService]
+    providers: [UserService],
+    exports: [UserService]
 })
-export class TaskModule {}
+export class UserModule {}

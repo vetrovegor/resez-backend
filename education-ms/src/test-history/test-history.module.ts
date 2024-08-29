@@ -5,7 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TestHistory } from './test-history.entity';
 import { TaskAttemptModule } from '@task-attempt/task-attempt.module';
 import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard } from '@auth/jwt-auth.guard';
+import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
 
 @Module({
     imports: [TypeOrmModule.forFeature([TestHistory]), TaskAttemptModule],

@@ -1,6 +1,6 @@
-import { Permissions } from '@auth/interfaces';
-import { Permission } from '@auth/permission.decorator';
-import { PermissionGuard } from '@auth/permission.guard';
+import { Permissions } from '@auth/interfaces/interfaces';
+import { Permission } from '@auth/decorators/permission.decorator';
+import { PermissionGuard } from '@auth/guards/permission.guard';
 import {
     Controller,
     Get,
@@ -11,7 +11,7 @@ import {
 import { SubjectTaskService } from '@subject-task/subject-task.service';
 
 @Controller('admin/subject-task')
-export class AdminSubjectTaskController {
+export class SubjectTaskController {
     constructor(private readonly subjectTaskService: SubjectTaskService) {}
 
     @Get(':id/sub-theme')

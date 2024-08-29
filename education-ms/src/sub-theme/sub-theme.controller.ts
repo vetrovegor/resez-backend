@@ -7,7 +7,7 @@ import {
     Query
 } from '@nestjs/common';
 import { SubThemeService } from './sub-theme.service';
-import { Public } from '@auth/public.decorator';
+import { Public } from '@auth/decorators/public.decorator';
 
 @Public()
 @Controller('sub-theme')

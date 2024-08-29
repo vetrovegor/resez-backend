@@ -14,7 +14,9 @@ import { RabbitMqService } from '@rabbit-mq/rabbit-mq.service';
 import { ClientProxy } from '@nestjs/microservices';
 import { MatchDto } from './dto/match.dto';
 import * as stringSimilarity from 'string-similarity';
-import { JwtPayload, Permissions } from '@auth/interfaces';
+import { JwtPayload, Permissions } from '@auth/interfaces/interfaces';
+import { LogService } from '@log/log.service';
+import { LogType } from '@log/log.entity';
 
 @Injectable()
 export class TaskService {
@@ -24,7 +26,8 @@ export class TaskService {
         @Inject(forwardRef(() => SubjectService))
         private readonly subjectService: SubjectService,
         private readonly rabbitMqService: RabbitMqService,
-        @Inject('USER_SERVICE') private readonly userClient: ClientProxy
+        @Inject('USER_SERVICE') private readonly userClient: ClientProxy,
+        private readonly logService: LogService
     ) {}
 
     async create(dto: TaskDto, user: JwtPayload) {
@@ -73,6 +76,15 @@ export class TaskService {
         });
 
         const savedTask = await this.taskRepository.save(createdTask);
+
+        const { task: fullInfo } = await this.getFullInfo(savedTask.id, false);
+
+        await this.logService.create(
+            LogType.CREATE_TASK,
+            user.id,
+            savedTask.id,
+            JSON.stringify({ ...fullInfo })
+        );
 
         return { task: savedTask };
     }
@@ -211,15 +223,8 @@ export class TaskService {
         return { task };
     }
 
-    async update(
-        id: number,
-        dto: TaskDto,
-        permissions: {
-            id: number;
-            permission: string;
-        }[]
-    ) {
-        await this.getById(id);
+    async update(id: number, dto: TaskDto, user: JwtPayload) {
+        const { task: oldFullInfo } = await this.getFullInfo(id, false);
 
         // вынести
         const subject = await this.subjectService.getById(dto.subjectId);
@@ -252,7 +257,7 @@ export class TaskService {
             );
         }
 
-        const hasVerifiedPermission = permissions.some(
+        const hasVerifiedPermission = user.permissions.some(
             permission => permission.permission == Permissions.VerifyTasks
         );
 
@@ -264,6 +269,16 @@ export class TaskService {
             subjectTask: { id: dto.subjectTaskId },
             subTheme: { id: dto.subThemeId }
         });
+
+        const { task: newFullInfo } = await this.getFullInfo(savedTask.id);
+
+        await this.logService.create(
+            LogType.CREATE_TASK,
+            user.id,
+            savedTask.id,
+            JSON.stringify({ ...newFullInfo }),
+            JSON.stringify({ ...oldFullInfo })
+        );
 
         return { task: savedTask };
     }

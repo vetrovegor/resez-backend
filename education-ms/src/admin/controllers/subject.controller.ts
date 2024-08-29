@@ -1,6 +1,6 @@
-import { Permissions } from '@auth/interfaces';
-import { Permission } from '@auth/permission.decorator';
-import { PermissionGuard } from '@auth/permission.guard';
+import { Permissions } from '@auth/interfaces/interfaces';
+import { Permission } from '@auth/decorators/permission.decorator';
+import { PermissionGuard } from '@auth/guards/permission.guard';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 import {
     Body,
@@ -24,7 +24,7 @@ import { SubjectDto } from '@subject/dto/subject.dto';
 import { SubjectService } from '@subject/subject.service';
 
 @Controller('admin/subject')
-export class AdminSubjectController {
+export class SubjectController {
     constructor(
         private readonly subjectService: SubjectService,
         private readonly scoreConversionService: ScoreConversionService

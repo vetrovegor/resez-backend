@@ -1,7 +1,7 @@
-import { CurrentUser } from '@auth/current-user.decorator';
-import { JwtPayload, Permissions } from '@auth/interfaces';
-import { Permission } from '@auth/permission.decorator';
-import { PermissionGuard } from '@auth/permission.guard';
+import { CurrentUser } from '@auth/decorators/current-user.decorator';
+import { JwtPayload, Permissions } from '@auth/interfaces/interfaces';
+import { Permission } from '@auth/decorators/permission.decorator';
+import { PermissionGuard } from '@auth/guards/permission.guard';
 import {
     Body,
     Controller,
@@ -20,7 +20,7 @@ import { ExamTestDto } from '@test/dto/exam-test.dto';
 import { TestService } from '@test/test.service';
 
 @Controller('admin/test')
-export class AdminTestController {
+export class TestController {
     constructor(private readonly testService: TestService) {}
 
     @Post('exam')

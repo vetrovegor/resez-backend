@@ -1,7 +1,7 @@
 import 'dotenv/config';
-import { Permissions } from '@auth/interfaces';
-import { Permission } from '@auth/permission.decorator';
-import { PermissionGuard } from '@auth/permission.guard';
+import { Permissions } from '@auth/interfaces/interfaces';
+import { Permission } from '@auth/decorators/permission.decorator';
+import { PermissionGuard } from '@auth/guards/permission.guard';
 import {
     Body,
     Controller,
@@ -19,7 +19,7 @@ import { SharpPipe } from '@upload/pipe/sharp.pipe';
 import { UploadService } from '@upload/upload.service';
 
 @Controller('admin/upload')
-export class AdminUploadController {
+export class UploadController {
     constructor(private readonly uploadService: UploadService) {}
 
     @Post('image')
