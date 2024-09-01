@@ -52,14 +52,14 @@ class RoleController {
     }
 
     async getRoles(
-        req: RequestWithQuery<PaginationQuery>,
+        req: RequestWithQuery<PaginationQuery & { search: string }>,
         res: Response,
         next: NextFunction
     ) {
         try {
-            const { limit, offset } = req.query;
+            const { limit, offset, search } = req.query;
 
-            const data = await roleService.getRoles(limit, offset);
+            const data = await roleService.getRoles(limit, offset, undefined, search);
 
             res.json(data);
         } catch (error) {

@@ -19,7 +19,7 @@ import { redisClient } from './redisClient';
 import subscribeService from './services/subscribeService';
 import achievementService from './services/achievementService';
 
-const app = express();
+export const app = express();
 
 app.use(express.json());
 app.use(cookieParser());

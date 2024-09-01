@@ -13,6 +13,8 @@ import { ScoreConversionService } from '@score-conversion/score-conversion.servi
 import { SubjectTaskService } from '@subject-task/subject-task.service';
 import { SubjectFullInfo } from './dto/subject-full-info.dto';
 import { TaskService } from '@task/task.service';
+import { LogService } from '@log/log.service';
+import { LogType } from '@log/log.entity';
 
 @Injectable()
 export class SubjectService {
@@ -23,7 +25,8 @@ export class SubjectService {
         private readonly scoreConversionService: ScoreConversionService,
         private readonly subjectTaskService: SubjectTaskService,
         @Inject(forwardRef(() => TaskService))
-        private readonly taskService: TaskService
+        private readonly taskService: TaskService,
+        private readonly logService: LogService
     ) {}
 
     // попробовать сделать с помощью одного запроса через queryBuilder
@@ -70,7 +73,7 @@ export class SubjectService {
         return subjectData as SubjectFullInfo;
     }
 
-    async create(dto: SubjectDto) {
+    async create(dto: SubjectDto, userId: number) {
         const existingSubject = await this.subjectRepository.findOne({
             where: { slug: dto.slug }
         });
@@ -81,11 +84,20 @@ export class SubjectService {
             );
         }
 
-        const createdSubject = this.subjectRepository.create({
+        const savedSubject = await this.subjectRepository.save({
             ...dto
         });
 
-        const savedSubject = await this.subjectRepository.save(createdSubject);
+        const { subject: fullInfo } = await this.getFullInfoById(
+            savedSubject.id
+        );
+
+        await this.logService.create(
+            LogType.CREATE_SUBJECT,
+            userId,
+            savedSubject.id,
+            JSON.stringify({ ...fullInfo })
+        );
 
         return { subject: savedSubject };
     }
@@ -143,7 +155,7 @@ export class SubjectService {
         return { subject };
     }
 
-    async update(id: number, dto: SubjectDto) {
+    async update(id: number, dto: SubjectDto, userId: number) {
         const existingSubject = await this.subjectRepository.findOne({
             where: { id },
             relations: [
@@ -161,6 +173,8 @@ export class SubjectService {
         if (!existingSubject) {
             throw new NotFoundException('Предмет не найден');
         }
+
+        const { subject: oldFullInfo } = await this.getFullInfoById(id);
 
         const occupiedSubject = await this.subjectRepository.findOne({
             where: { slug: dto.slug, id: Not(id) }
@@ -231,6 +245,16 @@ export class SubjectService {
         await this.subjectRepository.save({ id, ...subjectInfo });
 
         await this.subjectTaskService.update(subjectTasks, id);
+
+        const { subject: newFullInfo } = await this.getFullInfoById(id);
+
+        await this.logService.create(
+            LogType.UPDATE_SUBJECT,
+            userId,
+            id,
+            JSON.stringify({ ...newFullInfo }),
+            JSON.stringify({ ...oldFullInfo })
+        );
 
         return { subject: existingSubject };
     }

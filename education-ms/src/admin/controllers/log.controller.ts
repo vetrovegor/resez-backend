@@ -1,7 +1,9 @@
 import { Permission } from '@auth/decorators/permission.decorator';
 import { PermissionGuard } from '@auth/guards/permission.guard';
 import { Permissions } from '@auth/interfaces/interfaces';
+import { LogType } from '@log/log.entity';
 import { LogService } from '@log/log.service';
+import { LogTypePipe } from '@log/pipe/log-type.pipe';
 import {
     Controller,
     DefaultValuePipe,
@@ -21,9 +23,11 @@ export class LogController {
     @UseGuards(PermissionGuard)
     async find(
         @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
-        @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number
+        @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
+        @Query('type', LogTypePipe)
+        type: LogType
     ) {
-        return await this.logService.find(limit, offset);
+        return await this.logService.find(limit, offset, type);
     }
 
     @Get(':id')

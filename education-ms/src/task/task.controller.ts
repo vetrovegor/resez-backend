@@ -9,6 +9,6 @@ export class TaskController {
 
     @Get(':id')
     async getFullInfo(@Param('id', ParseIntPipe) id: number) {
-        return await this.taskService.getFullInfo(id, true);
+        return await this.taskService.getFullInfoById(id, true);
     }
 }

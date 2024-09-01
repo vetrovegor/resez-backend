@@ -1,14 +1,14 @@
-import { Router } from "express";
-import { body, param } from "express-validator";
+import { Router } from 'express';
+import { body, param, query } from 'express-validator';
 
-import roleController from "../../../controllers/roles/roleController";
-import { validationMiddleware } from "../../../middlewares/validationMiddleware";
-import { accessTokenMiddleware } from "../../../middlewares/accessTokenMiddleware";
-import { blockedMiddleware } from "../../../middlewares/blockedMiddleware";
-import { permissionMiddleware } from "../../../middlewares/permissionMiddleware";
-import { Permissions } from "types/permission";
-import { paginationMiddleware } from "../../../middlewares/paginationMiddleware";
-import { roleBodyMiddleware } from "../../../middlewares/roleBodyMiddleware";
+import roleController from '../../../controllers/roles/roleController';
+import { validationMiddleware } from '../../../middlewares/validationMiddleware';
+import { accessTokenMiddleware } from '../../../middlewares/accessTokenMiddleware';
+import { blockedMiddleware } from '../../../middlewares/blockedMiddleware';
+import { permissionMiddleware } from '../../../middlewares/permissionMiddleware';
+import { Permissions } from 'types/permission';
+import { paginationMiddleware } from '../../../middlewares/paginationMiddleware';
+import { roleBodyMiddleware } from '../../../middlewares/roleBodyMiddleware';
 
 export const roleRouter = Router();
 
@@ -32,7 +32,9 @@ roleRouter.post(
 
 roleRouter.get(
     '/',
+    query('search').notEmpty().optional(),
     paginationMiddleware,
+    validationMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,
     permissionMiddleware(Permissions.Roles),
@@ -41,8 +43,7 @@ roleRouter.get(
 
 roleRouter.get(
     '/:id',
-    param('id').isNumeric()
-        .withMessage('id роли должно быть числом'),
+    param('id').isNumeric().withMessage('id роли должно быть числом'),
     validationMiddleware,
     accessTokenMiddleware,
     blockedMiddleware,
@@ -52,8 +53,7 @@ roleRouter.get(
 
 roleRouter.patch(
     '/:id',
-    param('id').isNumeric()
-        .withMessage('id роли должно быть числом'),
+    param('id').isNumeric().withMessage('id роли должно быть числом'),
     roleBodyMiddleware,
     validationMiddleware,
     accessTokenMiddleware,
@@ -64,9 +64,9 @@ roleRouter.patch(
 
 roleRouter.post(
     '/assign',
-    body('roleId').isNumeric()
-        .withMessage('id роли должно быть числом'),
-    body('userId').isNumeric()
+    body('roleId').isNumeric().withMessage('id роли должно быть числом'),
+    body('userId')
+        .isNumeric()
         .withMessage('id пользователя должно быть числом'),
     validationMiddleware,
     accessTokenMiddleware,
@@ -77,9 +77,9 @@ roleRouter.post(
 
 roleRouter.post(
     '/remove',
-    body('roleId').isNumeric()
-        .withMessage('id роли должно быть числом'),
-    body('userId').isNumeric()
+    body('roleId').isNumeric().withMessage('id роли должно быть числом'),
+    body('userId')
+        .isNumeric()
         .withMessage('id пользователя должно быть числом'),
     validationMiddleware,
     accessTokenMiddleware,
@@ -90,9 +90,9 @@ roleRouter.post(
 
 roleRouter.post(
     '/toggle',
-    body('roleId').isNumeric()
-        .withMessage('id роли должно быть числом'),
-    body('userId').isNumeric()
+    body('roleId').isNumeric().withMessage('id роли должно быть числом'),
+    body('userId')
+        .isNumeric()
         .withMessage('id пользователя должно быть числом'),
     validationMiddleware,
     accessTokenMiddleware,

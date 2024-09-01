@@ -1,10 +1,11 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { LogService } from './log.service';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Log } from './log.entity';
 
+@Global()
 @Module({
     imports: [TypeOrmModule.forFeature([Log])],
     providers: [

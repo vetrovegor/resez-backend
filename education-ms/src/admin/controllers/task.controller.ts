@@ -73,7 +73,7 @@ export class TaskController {
     @Permission(Permissions.Tasks)
     @UseGuards(PermissionGuard)
     async getFullInfo(@Param('id', ParseIntPipe) id: number) {
-        return await this.taskService.getFullInfo(id, false);
+        return await this.taskService.getFullInfoById(id, false);
     }
 
     @Patch(':id')

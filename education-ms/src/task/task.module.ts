@@ -4,28 +4,11 @@ import { TaskController } from './task.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Task } from './task.entity';
 import { SubjectModule } from '@subject/subject.module';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import { ConfigService } from '@nestjs/config';
-import { LogModule } from '@log/log.module';
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([Task]),
-        ClientsModule.registerAsync([
-            {
-                name: 'USER_SERVICE',
-                useFactory: (configService: ConfigService) => ({
-                    transport: Transport.RMQ,
-                    options: {
-                        urls: [`${configService.get('RMQ_URL')}`],
-                        queue: 'user-queue'
-                    }
-                }),
-                inject: [ConfigService]
-            }
-        ]),
-        forwardRef(() => SubjectModule),
-        LogModule
+        forwardRef(() => SubjectModule)
     ],
     controllers: [TaskController],
     providers: [TaskService],

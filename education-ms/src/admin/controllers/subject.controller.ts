@@ -1,4 +1,4 @@
-import { Permissions } from '@auth/interfaces/interfaces';
+import { JwtPayload, Permissions } from '@auth/interfaces/interfaces';
 import { Permission } from '@auth/decorators/permission.decorator';
 import { PermissionGuard } from '@auth/guards/permission.guard';
 import { CacheInterceptor } from '@nestjs/cache-manager';
@@ -22,6 +22,7 @@ import { ScoreConversionService } from '@score-conversion/score-conversion.servi
 import { SubjectTaskPipe } from '@subject-task/pipe/subject-task.pipe';
 import { SubjectDto } from '@subject/dto/subject.dto';
 import { SubjectService } from '@subject/subject.service';
+import { CurrentUser } from '@auth/decorators/current-user.decorator';
 
 @Controller('admin/subject')
 export class SubjectController {
@@ -33,8 +34,11 @@ export class SubjectController {
     @Post()
     @Permission(Permissions.CreateSubjects)
     @UseGuards(PermissionGuard)
-    async create(@Body(SubjectTaskPipe) dto: SubjectDto) {
-        return await this.subjectService.create(dto);
+    async create(
+        @Body(SubjectTaskPipe) dto: SubjectDto,
+        @CurrentUser() user: JwtPayload
+    ) {
+        return await this.subjectService.create(dto, user.id);
     }
 
     @Post(':subjectId/score-conversion')
@@ -88,9 +92,10 @@ export class SubjectController {
     @UseGuards(PermissionGuard)
     async update(
         @Param('id', ParseIntPipe) id: number,
-        @Body(SubjectTaskPipe) dto: SubjectDto
+        @Body(SubjectTaskPipe) dto: SubjectDto,
+        @CurrentUser() user: JwtPayload
     ) {
-        return await this.subjectService.update(id, dto);
+        return await this.subjectService.update(id, dto, user.id);
     }
 
     @Patch(':id/toggle-publish')

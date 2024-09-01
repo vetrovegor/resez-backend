@@ -88,14 +88,20 @@ class RoleService {
     async getRoles(
         limit: number,
         offset: number,
-        isArchived: boolean = false
+        isArchived: boolean = false,
+        search?: string
     ): Promise<PaginationDTO<RoleShortInfo>> {
-        const whereOptions = {
+        const where = {
+            ...(search != undefined && {
+                role: { [Op.iLike]: `%${search}%` }
+            }),
             isArchived
         };
 
+        console.log({ where });
+
         const roles = await Role.findAll({
-            where: whereOptions,
+            where,
             order: [['id', 'DESC']],
             limit,
             offset
@@ -106,7 +112,7 @@ class RoleService {
         );
 
         const totalCount = await Role.count({
-            where: whereOptions
+            where
         });
 
         return new PaginationDTO('roles', roleDTOs, totalCount, limit, offset);

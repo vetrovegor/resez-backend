@@ -10,13 +10,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Task } from './task.entity';
 import { In, Not, Repository } from 'typeorm';
 import { SubjectService } from '@subject/subject.service';
-import { RabbitMqService } from '@rabbit-mq/rabbit-mq.service';
-import { ClientProxy } from '@nestjs/microservices';
 import { MatchDto } from './dto/match.dto';
 import * as stringSimilarity from 'string-similarity';
 import { JwtPayload, Permissions } from '@auth/interfaces/interfaces';
 import { LogService } from '@log/log.service';
 import { LogType } from '@log/log.entity';
+import { UserService } from '@user/user.service';
 
 @Injectable()
 export class TaskService {
@@ -25,9 +24,8 @@ export class TaskService {
         private readonly taskRepository: Repository<Task>,
         @Inject(forwardRef(() => SubjectService))
         private readonly subjectService: SubjectService,
-        private readonly rabbitMqService: RabbitMqService,
-        @Inject('USER_SERVICE') private readonly userClient: ClientProxy,
-        private readonly logService: LogService
+        private readonly logService: LogService,
+        private readonly userService: UserService
     ) {}
 
     async create(dto: TaskDto, user: JwtPayload) {
@@ -77,7 +75,10 @@ export class TaskService {
 
         const savedTask = await this.taskRepository.save(createdTask);
 
-        const { task: fullInfo } = await this.getFullInfo(savedTask.id, false);
+        const { task: fullInfo } = await this.getFullInfoById(
+            savedTask.id,
+            false
+        );
 
         await this.logService.create(
             LogType.CREATE_TASK,
@@ -93,11 +94,7 @@ export class TaskService {
         const { subject = null } = task.subject || {};
         const { number = null, theme = null } = task.subjectTask || {};
         const { subTheme = null } = task.subTheme || {};
-        const user = await this.rabbitMqService.sendRequest({
-            client: this.userClient,
-            pattern: 'preview',
-            data: task.userId
-        });
+        const user = await this.userService.getById(task.userId);
 
         delete task.solution;
         delete task.answers;
@@ -203,7 +200,7 @@ export class TaskService {
         return task;
     }
 
-    async getFullInfo(id: number, isAccessCheck: boolean = true) {
+    async getFullInfoById(id: number, isAccessCheck: boolean = true) {
         const task = await this.getById(id);
 
         if (isAccessCheck && (!task.isVerified || task.isArchived)) {
@@ -212,11 +209,7 @@ export class TaskService {
 
         task.answers = task.answers.filter(answer => answer.length > 0);
 
-        task['user'] = await this.rabbitMqService.sendRequest({
-            client: this.userClient,
-            pattern: 'preview',
-            data: task.userId
-        });
+        task['user'] = await this.userService.getById(task.userId);
 
         delete task.userId;
 
@@ -224,7 +217,7 @@ export class TaskService {
     }
 
     async update(id: number, dto: TaskDto, user: JwtPayload) {
-        const { task: oldFullInfo } = await this.getFullInfo(id, false);
+        const { task: oldFullInfo } = await this.getFullInfoById(id, false);
 
         // вынести
         const subject = await this.subjectService.getById(dto.subjectId);
@@ -270,10 +263,10 @@ export class TaskService {
             subTheme: { id: dto.subThemeId }
         });
 
-        const { task: newFullInfo } = await this.getFullInfo(savedTask.id);
+        const { task: newFullInfo } = await this.getFullInfoById(id, false);
 
         await this.logService.create(
-            LogType.CREATE_TASK,
+            LogType.UPDATE_TASK,
             user.id,
             savedTask.id,
             JSON.stringify({ ...newFullInfo }),

@@ -28,8 +28,15 @@ export class LogService {
         });
     }
 
-    async find(take: number, skip: number) {
+    async find(take: number, skip: number, type: LogType) {
+        const where = {
+            ...(type != undefined && {
+                type
+            })
+        };
+
         const logsData = await this.logRepository.find({
+            where,
             order: { createdAt: 'DESC' },
             take,
             skip
@@ -51,7 +58,7 @@ export class LogService {
             })
         );
 
-        const totalCount = await this.logRepository.count();
+        const totalCount = await this.logRepository.count({ where });
 
         return {
             logs,

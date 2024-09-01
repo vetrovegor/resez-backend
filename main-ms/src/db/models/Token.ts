@@ -1,7 +1,7 @@
 import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript';
 
-import Session from './Session.js';
-import User from './User.js';
+import Session from './Session';
+import User from './User';
 
 @Table({
     timestamps: false,

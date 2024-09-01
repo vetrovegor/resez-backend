@@ -1,6 +1,5 @@
 import {
     BadRequestException,
-    Inject,
     Injectable,
     NotFoundException
 } from '@nestjs/common';
@@ -10,12 +9,11 @@ import { Repository } from 'typeorm';
 import { ExamTestDto } from './dto/exam-test.dto';
 import { SubjectService } from '@subject/subject.service';
 import { TaskService } from '@task/task.service';
-import { RabbitMqService } from '@rabbit-mq/rabbit-mq.service';
-import { ClientProxy } from '@nestjs/microservices';
 import { CustomTestDto } from './dto/custom-test.dto';
 import { TestSubmitDto } from './dto/test-submit.dto';
 import { arraysEqualSet } from '@utils/array-equal-set';
 import { TestHistoryService } from '@test-history/test-history.service';
+import { UserService } from '@user/user.service';
 
 @Injectable()
 export class TestService {
@@ -24,9 +22,8 @@ export class TestService {
         private readonly testRepository: Repository<Test>,
         private readonly subjectService: SubjectService,
         private readonly taskService: TaskService,
-        private readonly rabbitMqService: RabbitMqService,
-        @Inject('USER_SERVICE') private readonly userClient: ClientProxy,
-        private readonly testHistoryService: TestHistoryService
+        private readonly testHistoryService: TestHistoryService,
+        private readonly userService: UserService
     ) {}
 
     async create(dto: ExamTestDto, userId: number, isExam: boolean) {
@@ -239,11 +236,7 @@ export class TestService {
             };
         });
 
-        const user = await this.rabbitMqService.sendRequest({
-            client: this.userClient,
-            pattern: 'preview',
-            data: test.userId
-        });
+        const user = await this.userService.getById(test.userId);
 
         delete test.userId;
 
