@@ -61,20 +61,12 @@ const permissionsHierarchy = [
         parent: Permissions.Admin
     },
     {
-        permission: Permissions.Tests,
+        permission: Permissions.Education,
         parent: Permissions.Admin
     },
     {
-        permission: Permissions.CreateOfficialTests,
-        parent: Permissions.Tests
-    },
-    {
-        permission: Permissions.DeleteTests,
-        parent: Permissions.Tests
-    },
-    {
         permission: Permissions.Subjects,
-        parent: Permissions.Tests
+        parent: Permissions.Education
     },
     {
         permission: Permissions.CreateSubjects,
@@ -90,7 +82,7 @@ const permissionsHierarchy = [
     },
     {
         permission: Permissions.Tasks,
-        parent: Permissions.Tests
+        parent: Permissions.Education
     },
     {
         permission: Permissions.CreateTasks,
@@ -107,6 +99,18 @@ const permissionsHierarchy = [
     {
         permission: Permissions.VerifyTasks,
         parent: Permissions.Tasks
+    },
+    {
+        permission: Permissions.Tests,
+        parent: Permissions.Education
+    },
+    {
+        permission: Permissions.CreateOfficialTests,
+        parent: Permissions.Tests
+    },
+    {
+        permission: Permissions.DeleteTests,
+        parent: Permissions.Tests
     },
     {
         permission: Permissions.Complaints,

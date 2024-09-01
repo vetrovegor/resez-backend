@@ -13,6 +13,7 @@ export interface JwtPayload {
 }
 
 export const enum Permissions {
+    Education = 'Обучение',
     Subjects = 'Предметы',
     CreateSubjects = 'Создание предметов',
     UpdateSubjects = 'Редактирование предметов',

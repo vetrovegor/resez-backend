@@ -4,7 +4,7 @@ import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
 @Injectable()
 export class LogTypePipe implements PipeTransform {
     transform(value: string) {
-        if (!Object.values(LogType).includes(value as LogType)) {
+        if (value && !Object.values(LogType).includes(value as LogType)) {
             throw new BadRequestException('Некорректное значение type');
         }
 

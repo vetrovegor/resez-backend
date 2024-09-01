@@ -61,7 +61,7 @@ export class SubjectController {
     }
 
     @Get()
-    @Permission(Permissions.Tests)
+    @Permission(Permissions.Education)
     @UseGuards(PermissionGuard)
     async find(
         @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
@@ -128,7 +128,7 @@ export class SubjectController {
     }
 
     @Get(':id/subject-task')
-    @Permission(Permissions.Tests)
+    @Permission(Permissions.Education)
     @UseGuards(PermissionGuard)
     async getSubjectTasksById(@Param('id', ParseIntPipe) id: number) {
         return await this.subjectService.getSubjectTasksById(id);

@@ -13,6 +13,7 @@ export const enum Permissions {
     UpdateThemes = 'Редактирование тем',
     DeleteThemes = 'Удаление тем',
     Logs = 'Логирование',
+    Education = 'Обучение',
     Tests = 'Тесты',
     CreateOfficialTests = 'Создание официальных тестов',
     DeleteTests = 'Удаление тестов',

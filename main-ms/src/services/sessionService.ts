@@ -261,8 +261,6 @@ class SessionService {
     async endSessionById(id: number, userId?: number): Promise<void> {
         const session = await Session.findByPk(id);
 
-        console.log({ userId, sessionUserId: session.get('userId') });
-
         if (!session || (userId && session.get('userId') != userId)) {
             throw ApiError.notFound('Сессия не найдена');
         }

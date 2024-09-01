@@ -15,7 +15,7 @@ export class SubjectTaskController {
     constructor(private readonly subjectTaskService: SubjectTaskService) {}
 
     @Get(':id/sub-theme')
-    @Permission(Permissions.Tests)
+    @Permission(Permissions.Education)
     @UseGuards(PermissionGuard)
     async getSubjectTasksById(@Param('id', ParseIntPipe) id: number) {
         return await this.subjectTaskService.getSubThemesById(id);
