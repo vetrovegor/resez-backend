@@ -36,7 +36,9 @@ export class TaskAttemptService {
             await this.taskAttemptRepository.save({
                 taskId,
                 themeId: subjectTask.id,
+                number: subjectTask.number,
                 theme: subjectTask.theme,
+                isDetailedAnswer: subjectTask.isDetailedAnswer,
                 subThemeId: subTheme.id,
                 subTheme: subTheme.subTheme,
                 task,
@@ -64,7 +66,9 @@ export class TaskAttemptService {
             await this.taskAttemptRepository.save({
                 taskId,
                 themeId: subjectTask.id,
+                number: subjectTask.number,
                 theme: subjectTask.theme,
+                isDetailedAnswer: subjectTask.isDetailedAnswer,
                 subThemeId: subTheme.id,
                 subTheme: subTheme.subTheme,
                 task,

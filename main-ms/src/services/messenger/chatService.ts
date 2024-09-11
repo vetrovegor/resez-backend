@@ -395,13 +395,13 @@ class ChatService {
 
     // тестовое кеширование
     async getChatInfo(chatId: number, userId: number) {
-        const cache = await redisClient.get(
-            JSON.stringify({ req: 'chat_info', chatId, userId })
-        );
+        // const cache = await redisClient.get(
+        //     JSON.stringify({ req: 'chat_info', chatId, userId })
+        // );
 
-        if (cache) {
-            return JSON.parse(cache);
-        }
+        // if (cache) {
+        //     return JSON.parse(cache);
+        // }
 
         const chatData = await this.checkUserInChat(chatId, userId);
 
@@ -416,11 +416,11 @@ class ChatService {
             messages
         };
 
-        await redisClient.set(
-            JSON.stringify({ req: 'chat_info', chatId, userId }),
-            JSON.stringify(result),
-            { EX: 5 }
-        );
+        // await redisClient.set(
+        //     JSON.stringify({ req: 'chat_info', chatId, userId }),
+        //     JSON.stringify(result),
+        //     { EX: 5 }
+        // );
 
         return result;
     }

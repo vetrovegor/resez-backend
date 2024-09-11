@@ -67,8 +67,14 @@ export class TaskAttempt {
     @Column({ name: 'is_correct', nullable: true })
     isCorrect: boolean;
 
+    @Column()
+    number: number;
+
     @Column({ name: 'primary_score' })
     primaryScore: number;
+
+    @Column({ name: 'is_detailed_answer' })
+    isDetailedAnswer: boolean;
 
     @ManyToOne(() => TestHistory, testHistory => testHistory.taskAttempts, {
         onDelete: 'CASCADE'

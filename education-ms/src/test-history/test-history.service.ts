@@ -5,13 +5,15 @@ import { Repository } from 'typeorm';
 import { TestSubmitDto } from '@test/dto/test-submit.dto';
 import { Test } from '@test/test.entity';
 import { TaskAttemptService } from '@task-attempt/task-attempt.service';
+import { UserService } from '@user/user.service';
 
 @Injectable()
 export class TestHistoryService {
     constructor(
         @InjectRepository(TestHistory)
         private readonly testHistoryRepository: Repository<TestHistory>,
-        private readonly taskAttemptService: TaskAttemptService
+        private readonly taskAttemptService: TaskAttemptService,
+        private readonly userService: UserService
     ) {}
 
     async save(
@@ -86,8 +88,63 @@ export class TestHistoryService {
             throw new NotFoundException('Решение теста не найдено');
         }
 
-        delete history.userId;
+        const user = await this.userService.getById(userId);
 
-        return { history };
+        const { subjectId, subject, taskAttempts } = history;
+
+        let tasks = taskAttempts.map(taskAttempt => {
+            const {
+                taskId,
+                correctAnswers: answers,
+                themeId,
+                number,
+                theme,
+                isDetailedAnswer,
+                subThemeId,
+                subTheme,
+                maxPrimaryScore
+            } = taskAttempt;
+
+            delete taskAttempt.id;
+            delete taskAttempt.taskId;
+            delete taskAttempt.themeId;
+            delete taskAttempt.theme;
+            delete taskAttempt.number;
+            delete taskAttempt.isDetailedAnswer;
+            delete taskAttempt.subThemeId;
+            delete taskAttempt.subTheme;
+            delete taskAttempt.maxPrimaryScore;
+            delete taskAttempt.correctAnswers;
+
+            return {
+                id: taskId,
+                ...taskAttempt,
+                answers,
+                subjectTask: {
+                    id: themeId,
+                    number,
+                    theme,
+                    primaryScore: maxPrimaryScore,
+                    isDetailedAnswer
+                },
+                subTheme: { id: subThemeId, subTheme }
+            };
+        });
+
+        tasks = [tasks[0]];
+
+        delete history.userId;
+        delete history.subjectId;
+        delete history.subject;
+        delete history.taskAttempts;
+
+        return {
+            history: {
+                ...history,
+                user,
+                subject: { id: subjectId, subject },
+                tasks
+            }
+        };
     }
 }

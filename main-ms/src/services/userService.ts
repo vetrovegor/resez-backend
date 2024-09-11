@@ -72,22 +72,22 @@ class UserService {
 
     // тестовое кеширование
     async getUserShortInfo(userId: number): Promise<UserShortInfo> {
-        const cachedUser = await redisClient.get(
-            JSON.stringify({ req: 'short_info', userId })
-        );
+        // const cachedUser = await redisClient.get(
+        //     JSON.stringify({ req: 'short_info', userId })
+        // );
 
-        if (cachedUser) {
-            return JSON.parse(cachedUser);
-        }
+        // if (cachedUser) {
+        //     return JSON.parse(cachedUser);
+        // }
 
         const user = await this.getUserById(userId);
         const shortInfo = await user.toShortInfo();
 
-        await redisClient.set(
-            JSON.stringify({ req: 'short_info', userId }),
-            JSON.stringify(shortInfo),
-            { EX: 5 }
-        );
+        // await redisClient.set(
+        //     JSON.stringify({ req: 'short_info', userId }),
+        //     JSON.stringify(shortInfo),
+        //     { EX: 5 }
+        // );
 
         return shortInfo;
     }
