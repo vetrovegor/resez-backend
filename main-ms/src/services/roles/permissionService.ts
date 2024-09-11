@@ -143,6 +143,10 @@ const permissionsHierarchy = [
     {
         permission: Permissions.PublishProducts,
         parent: Permissions.Store
+    },
+    {
+        permission: Permissions.PromoCodes,
+        parent: Permissions.Admin
     }
 ];
 

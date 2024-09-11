@@ -250,6 +250,12 @@ export class TaskService {
             );
         }
 
+        if (oldFullInfo.isArchived && dto.isVerified) {
+            throw new BadRequestException(
+                'Нельзя верифицировать архивное задание'
+            );
+        }
+
         const hasVerifiedPermission = user.permissions.some(
             permission => permission.permission == Permissions.VerifyTasks
         );
@@ -278,6 +284,12 @@ export class TaskService {
 
     async toggleIsVerified(id: number) {
         const task = await this.getById(id);
+
+        if (task.isArchived) {
+            throw new BadRequestException(
+                'Нельзя верифицировать архивное задание'
+            );
+        }
 
         const isVerified = !task.isVerified;
 

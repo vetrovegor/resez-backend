@@ -3,7 +3,6 @@ import amqp from 'amqplib';
 import userService from './userService';
 import codeService from './codeService';
 import sessionService from './sessionService';
-import { v4 } from 'uuid';
 
 class RmqService {
     private channel: amqp.Channel;

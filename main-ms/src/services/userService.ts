@@ -647,6 +647,15 @@ class UserService {
 
         return user.toAdminInfo();
     }
+
+    async rewardUser(userId: number, xp: number, coins: number) {
+        const user = await this.getUserById(userId);
+
+        await user.increment('xp', { by: xp });
+        await user.increment('balance', { by: coins });
+
+        return await user.save();
+    }
 }
 
 export default new UserService();

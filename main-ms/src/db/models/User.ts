@@ -35,6 +35,8 @@ import AvatarDecoration from './store/AvatarDecorations';
 import UserAvatarDecoration from './store/UserAvatarDecorations';
 import Feedback from './Feedback';
 import Token from './Token';
+import PromoCode from './promo/PromoCode';
+import UserPromocode from './promo/UserPromoCode';
 
 @Table({
     timestamps: false,
@@ -270,6 +272,19 @@ class User extends Model {
         onDelete: 'CASCADE'
     })
     feedback: Feedback[];
+
+    @HasMany(() => PromoCode, {
+        onDelete: 'CASCADE'
+    })
+    createdPromoCodes: PromoCode[];
+
+    @BelongsToMany(() => PromoCode, () => UserPromocode)
+    promocodes: PromoCode[];
+
+    @HasMany(() => UserPromocode, {
+        onDelete: 'CASCADE'
+    })
+    userPromocodes: UserPromocode[];
 
     async getRoles(): Promise<Role[]> {
         const userRoles = await UserRole.findAll({

@@ -9,6 +9,7 @@ import { userRouter } from "./userRouter";
 import { subscriptionRouter } from "./subscriptionRouter";
 import { storeRouter } from "./store/storeRouter";
 import { feedbackRouter } from "./feedbackRouter";
+import { promoCodeRouter } from "./promoCodeRouter";
 
 export const adminRouter = Router();
 
@@ -29,3 +30,5 @@ adminRouter.use('/subscription', subscriptionRouter);
 adminRouter.use('/store', storeRouter);
 
 adminRouter.use('/feedback', feedbackRouter);
+
+adminRouter.use('/promo-code', promoCodeRouter);

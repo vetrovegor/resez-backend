@@ -302,7 +302,7 @@ export class SubjectService {
 
         const subject = await this.createShortInfo(existingSubject);
 
-        return { subject: { ...subject, isArchived } };
+        return { subject };
     }
 
     async getPublished() {
