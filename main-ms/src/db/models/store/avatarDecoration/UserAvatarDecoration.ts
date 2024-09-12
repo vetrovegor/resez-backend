@@ -1,7 +1,7 @@
 import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript';
 
-import User from '../User';
-import AvatarDecoration from './AvatarDecorations';
+import User from '../../User';
+import AvatarDecoration from './AvatarDecoration';
 
 @Table({
     timestamps: true,

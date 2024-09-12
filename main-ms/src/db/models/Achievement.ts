@@ -1,5 +1,5 @@
 import { Table, Column, Model, DataType, HasMany } from 'sequelize-typescript';
-import AvatarDecoration from './store/AvatarDecorations';
+import AvatarDecoration from './store/avatarDecoration/AvatarDecoration';
 
 @Table({
     timestamps: false,

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { body, param } from 'express-validator';
+import { body, param, query } from 'express-validator';
 
 import { accessTokenMiddleware } from '../../middlewares/accessTokenMiddleware';
 import { blockedMiddleware } from '../../middlewares/blockedMiddleware';
@@ -28,6 +28,27 @@ promoCodeRouter.post(
     body('coins').optional().isFloat({ min: 0 }),
     validationMiddleware,
     promoCodeController.createPromoCode
+);
+
+promoCodeRouter.get(
+    '/',
+    accessTokenMiddleware,
+    blockedMiddleware,
+    permissionMiddleware(Permissions.PromoCodes),
+    query('active').isBoolean().optional(),
+    validationMiddleware,
+    paginationMiddleware,
+    promoCodeController.getPromocodes
+);
+
+promoCodeRouter.get(
+    '/:id',
+    accessTokenMiddleware,
+    blockedMiddleware,
+    permissionMiddleware(Permissions.PromoCodes),
+    param('id').isNumeric(),
+    validationMiddleware,
+    promoCodeController.getPromocodeById
 );
 
 promoCodeRouter.get(

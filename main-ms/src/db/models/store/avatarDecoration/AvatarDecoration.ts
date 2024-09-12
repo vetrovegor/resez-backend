@@ -8,11 +8,11 @@ import {
     BelongsToMany,
     HasMany
 } from 'sequelize-typescript';
-import Subscription from '../subscription/Subscription';
-import { StoreContentType } from '../../../enums/store';
-import Achievement from '../Achievement';
-import User from '../User';
-import UserAvatarDecoration from './UserAvatarDecorations';
+import Subscription from '../../subscription/Subscription';
+import { StoreContentType } from '../../../../enums/store';
+import Achievement from '../../Achievement';
+import User from '../../User';
+import UserAvatarDecoration from './UserAvatarDecoration';
 
 @Table({
     timestamps: true,

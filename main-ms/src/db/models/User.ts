@@ -31,12 +31,14 @@ import { calculateLevelInfo } from '../../utils';
 import Activity from './Activity';
 import MessageRead from './messenger/MessageRead';
 import Subscription from './subscription/Subscription';
-import AvatarDecoration from './store/AvatarDecorations';
-import UserAvatarDecoration from './store/UserAvatarDecorations';
+import AvatarDecoration from './store/avatarDecoration/AvatarDecoration';
+import UserAvatarDecoration from './store/avatarDecoration/UserAvatarDecoration';
 import Feedback from './Feedback';
 import Token from './Token';
 import PromoCode from './promo/PromoCode';
 import UserPromocode from './promo/UserPromoCode';
+import Theme from './store/theme/Theme';
+import UserTheme from './store/theme/UserTheme';
 
 @Table({
     timestamps: false,
@@ -267,6 +269,21 @@ class User extends Model {
 
     @BelongsTo(() => AvatarDecoration)
     avatarDecoration: AvatarDecoration;
+
+    @BelongsToMany(() => Theme, () => UserTheme)
+    themes: Theme[];
+
+    @HasMany(() => UserTheme, {
+        onDelete: 'CASCADE'
+    })
+    userThemes: UserTheme[];
+
+    @ForeignKey(() => Theme)
+    @Column
+    themeId: number;
+
+    @BelongsTo(() => Theme)
+    theme: Theme;
 
     @HasMany(() => Feedback, {
         onDelete: 'CASCADE'

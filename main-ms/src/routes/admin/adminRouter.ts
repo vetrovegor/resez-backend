@@ -10,6 +10,7 @@ import { subscriptionRouter } from "./subscriptionRouter";
 import { storeRouter } from "./store/storeRouter";
 import { feedbackRouter } from "./feedbackRouter";
 import { promoCodeRouter } from "./promoCodeRouter";
+import { themeRouter } from "./themeRouter";
 
 export const adminRouter = Router();
 
@@ -32,3 +33,5 @@ adminRouter.use('/store', storeRouter);
 adminRouter.use('/feedback', feedbackRouter);
 
 adminRouter.use('/promo-code', promoCodeRouter);
+
+adminRouter.use('/theme', themeRouter);
