@@ -225,6 +225,37 @@ class UserhController {
         }
     }
 
+    async setTheme(
+        req: RequestWithParamsAndUser<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const user = await userService.setTheme(
+                req.params.id,
+                req.user.id
+            );
+
+            res.json({ user });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async deleteTheme(
+        req: RequestWithUser,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const user = await userService.deleteTheme(req.user.id);
+
+            res.json({ user });
+        } catch (error) {
+            next(error);
+        }
+    }
+
     async getUser(
         req: RequestWithParams<{ nickname: string }>,
         res: Response,

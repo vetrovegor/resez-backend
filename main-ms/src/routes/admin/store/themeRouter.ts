@@ -1,20 +1,18 @@
 import { Router } from 'express';
 import { body, param } from 'express-validator';
 
-import avatarDecorationController from '../../../controllers/store/avatarDecorationController';
-import { fileMiddleware } from '../../../middlewares/fileMiddleware';
 import { accessTokenMiddleware } from '../../../middlewares/accessTokenMiddleware';
 import { blockedMiddleware } from '../../../middlewares/blockedMiddleware';
-import { avatarDecorationMiddleware } from '../../../middlewares/store/avatarDecorationMiddleware';
 import { permissionMiddleware } from '../../../middlewares/permissionMiddleware';
-import { Permissions } from 'types/permission';
-import { paginationMiddleware } from '../../../middlewares/paginationMiddleware';
-import { validationMiddleware } from '../../../middlewares/validationMiddleware';
 import { productMiddleware } from '../../../middlewares/store/productMiddleware';
+import { validationMiddleware } from '../../../middlewares/validationMiddleware';
+import themeController from '../../../controllers/store/themeController';
+import { paginationMiddleware } from '../../../middlewares/paginationMiddleware';
+import { Permissions } from 'types/permission';
 
-export const avatarDecorationRouter = Router();
+export const themeRouter = Router();
 
-avatarDecorationRouter.post(
+themeRouter.post(
     '/',
     accessTokenMiddleware,
     blockedMiddleware,
@@ -25,29 +23,47 @@ avatarDecorationRouter.post(
     body('achievementId').isNumeric().optional(),
     body('seasonStartDate').isISO8601().optional(),
     body('seasonEndDate').isISO8601().optional(),
-    body('options').isJSON().notEmpty(),
+    body('primary').isHexColor(),
+    body('light').isHexColor(),
     validationMiddleware,
-    fileMiddleware(10),
     productMiddleware,
-    avatarDecorationMiddleware,
-    avatarDecorationController.createAvatarDecoration
+    themeController.createTheme
 );
 
-avatarDecorationRouter.get(
+themeRouter.get(
     '/',
     accessTokenMiddleware,
     blockedMiddleware,
     permissionMiddleware(Permissions.Store),
     paginationMiddleware,
-    avatarDecorationController.getAvatarDecorations
+    themeController.getThemes
 );
 
-avatarDecorationRouter.patch(
+themeRouter.patch(
     '/:id/toggle-publish',
     accessTokenMiddleware,
     blockedMiddleware,
     permissionMiddleware(Permissions.PublishProducts),
     param('id').isNumeric(),
     validationMiddleware,
-    avatarDecorationController.togglePublishAvatarDecoration
+    themeController.togglePublishTheme
+);
+
+themeRouter.patch(
+    '/:id',
+    accessTokenMiddleware,
+    blockedMiddleware,
+    permissionMiddleware(Permissions.PublishProducts),
+    param('id').isNumeric(),
+    body('title').isString().notEmpty(),
+    body('price').isFloat({ gt: 0 }).optional(),
+    body('requiredSubscriptionId').isNumeric().optional(),
+    body('achievementId').isNumeric().optional(),
+    body('seasonStartDate').isISO8601().optional(),
+    body('seasonEndDate').isISO8601().optional(),
+    body('primary').isHexColor(),
+    body('light').isHexColor(),
+    validationMiddleware,
+    productMiddleware,
+    themeController.updateTheme
 );

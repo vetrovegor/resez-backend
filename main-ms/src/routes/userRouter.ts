@@ -10,6 +10,7 @@ import { imageMiddleware } from "../middlewares/imageMiddleware";
 import { validationMiddleware } from "../middlewares/validationMiddleware";
 import { paginationMiddleware } from "../middlewares/paginationMiddleware";
 import avatarDecorationController from "../controllers/store/avatarDecorationController";
+import themeController from "../controllers/store/themeController";
 
 export const userRouter = Router();
 
@@ -78,6 +79,7 @@ userRouter.delete(
     userController.deleteAvatar
 );
 
+// магазин
 userRouter.get(
     '/avatar-decoration',
     accessTokenMiddleware,
@@ -100,6 +102,30 @@ userRouter.delete(
     accessTokenMiddleware,
     blockedMiddleware,
     userController.deleteAvatarDecoration
+);
+
+userRouter.get(
+    '/theme',
+    accessTokenMiddleware,
+    blockedMiddleware,
+    paginationMiddleware,
+    themeController.getUserThemes
+);
+
+userRouter.patch(
+    '/theme/:id',
+    accessTokenMiddleware,
+    blockedMiddleware,
+    param('id').isNumeric(),
+    validationMiddleware,
+    userController.setTheme
+);
+
+userRouter.delete(
+    '/theme',
+    accessTokenMiddleware,
+    blockedMiddleware,
+    userController.deleteTheme
 );
 
 userRouter.get(

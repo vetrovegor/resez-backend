@@ -4,6 +4,7 @@ import { VerificationCodeData } from './code';
 import { RolePreview } from './role';
 import { SubscriptionDTO } from './subscription';
 import Subscription from 'db/models/subscription/Subscription';
+import { ThemeBasic } from './store';
 
 export type UserAuthDTO = {
     nickname: string;
@@ -32,6 +33,7 @@ export type UserShortInfo = {
     };
     subscription: Subscription;
     balance: number;
+    theme: ThemeBasic;
 };
 
 export type AuthResponse = {

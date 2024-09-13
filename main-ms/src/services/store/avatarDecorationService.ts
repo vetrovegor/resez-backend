@@ -182,19 +182,10 @@ class AvatarDecorationService {
             throw ApiError.badRequest('Украшение уже добавлено');
         }
 
-        const price = avatarDecoration.get('price');
-
-        if (price > 0) {
-            const user = await userService.getUserById(userId);
-            const balance = user.get('balance');
-
-            if (balance < price) {
-                throw ApiError.badRequest('Недостаточно средств');
-            }
-
-            user.set('balance', balance - price);
-            await user.save();
-        }
+        await userService.takePaymentForTheProduct({
+            userId,
+            price: avatarDecoration.get('price')
+        });
 
         await UserAvatarDecoration.create({
             avatarDecorationId,

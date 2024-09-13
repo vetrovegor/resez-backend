@@ -353,6 +353,19 @@ class User extends Model {
         return subscription;
     }
 
+    async getTheme() {
+        const { themeId } = this.get();
+
+        if (!themeId) {
+            return null;
+        }
+
+        const theme = await Theme.findByPk(themeId);
+        const { id, primary, light } = theme.toJSON();
+
+        return { id, primary, light };
+    }
+
     async toTokenInfo(): Promise<UserTokenInfo> {
         const { id, nickname, telegramChatId } = this.get();
 
@@ -387,6 +400,8 @@ class User extends Model {
 
         const subscription = await this.getSubscription();
 
+        const theme = await this.getTheme();
+
         return {
             id,
             nickname,
@@ -399,8 +414,9 @@ class User extends Model {
                 isPrivateAccount,
                 isHideAvatars
             },
+            balance,
             subscription,
-            balance
+            theme
         };
     }
 

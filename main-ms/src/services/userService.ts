@@ -19,6 +19,7 @@ import fileService from './fileService';
 import rmqService from './rmqService';
 import { redisClient } from '../redisClient';
 import avatarDecorationService from './store/avatarDecorationService';
+import themeService from './store/themeService';
 
 class UserService {
     async getUserById(id: number): Promise<User> {
@@ -296,6 +297,29 @@ class UserService {
         const user = await User.findByPk(userId);
 
         user.set('avatarDecorationId', null);
+        await user.save();
+
+        return await this.createProfileInfo(user);
+    }
+
+    async setTheme(themeId: number, userId: number) {
+        await themeService.getUserTheme(
+            themeId,
+            userId
+        );
+
+        const user = await User.findByPk(userId);
+
+        user.set('themeId', themeId);
+        await user.save();
+
+        return await this.createProfileInfo(user);
+    }
+
+    async deleteTheme(userId: number) {
+        const user = await User.findByPk(userId);
+
+        user.set('themeId', null);
         await user.save();
 
         return await this.createProfileInfo(user);
@@ -655,6 +679,20 @@ class UserService {
         await user.increment('balance', { by: coins });
 
         return await user.save();
+    }
+
+    async takePaymentForTheProduct({ userId, price }: { userId: number; price: number }) {
+        if (price > 0) {
+            const user = await this.getUserById(userId);
+            const balance = user.get('balance');
+
+            if (balance < price) {
+                throw ApiError.badRequest('Недостаточно средств');
+            }
+
+            user.set('balance', balance - price);
+            await user.save();
+        }
     }
 }
 
