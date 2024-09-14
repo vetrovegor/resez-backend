@@ -92,7 +92,7 @@ export class TestHistoryService {
 
         const { subjectId, subject, taskAttempts } = history;
 
-        let tasks = taskAttempts.map(taskAttempt => {
+        const tasks = taskAttempts.map(taskAttempt => {
             const {
                 taskId,
                 correctAnswers: answers,
@@ -130,8 +130,6 @@ export class TestHistoryService {
                 subTheme: { id: subThemeId, subTheme }
             };
         });
-
-        tasks = [tasks[0]];
 
         delete history.userId;
         delete history.subjectId;
