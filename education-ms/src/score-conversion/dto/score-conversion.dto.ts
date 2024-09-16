@@ -49,7 +49,7 @@ export class ScoreConversionItemDto {
     @IsNotEmpty({ message: 'Поле "isRed" не должно быть пустым' })
     isRed: boolean;
 
-    @IsBoolean({ message: 'Поле "isRed" должно быть булевым значением' })
+    @IsBoolean({ message: 'Поле "isGreen" должно быть булевым значением' })
     @IsNotEmpty({ message: 'Поле "isGreen" не должно быть пустым' })
     isGreen: boolean;
 }

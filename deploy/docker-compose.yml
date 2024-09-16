@@ -50,6 +50,18 @@ services:
         volumes:
             - ./education-ms-db:/var/lib/postgresql/data
         restart: unless-stopped
+        
+    resez-battle-db:
+        image: postgres:16
+        container_name: resez-battle-db
+        ports:
+            - '5436:5432'
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+        volumes:
+            - ./battle-ms-db:/var/lib/postgresql/data
+        restart: unless-stopped
 
     # resez-memory:
     #     image: xw1nchester/resez-memory
