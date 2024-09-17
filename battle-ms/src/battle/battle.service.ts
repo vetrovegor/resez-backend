@@ -11,7 +11,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import 'dotenv/config';
-import { EmitTypes, EventTypes, User } from './constants';
+import { EmitTypes, EventTypes, User, UserBattle } from './constants';
 
 @WebSocketGateway({
     cors: {
@@ -20,7 +20,8 @@ import { EmitTypes, EventTypes, User } from './constants';
 })
 @Injectable()
 export class BattleService implements OnGatewayConnection, OnGatewayDisconnect {
-    private users: User[] = [];
+    private connectedUsers: User[] = [];
+    private usersBattles: UserBattle[] = [];
 
     constructor(
         @InjectRepository(Battle)
@@ -44,39 +45,52 @@ export class BattleService implements OnGatewayConnection, OnGatewayDisconnect {
             return;
         }
 
-        this.users.push({ socketId, userId: userId.toString() });
+        this.connectedUsers.push({ socketId, userId: userId.toString() });
 
         this.logUsers();
 
         socket.on(EventTypes.Join, (battleId: string) =>
             this.handleJoinEvent(socket, battleId)
         );
-    }
 
-    logUsers() {
-        console.log({ user: this.users });
+        socket.on(EventTypes.Leave, () => this.handleLeaveEvent(socket));
     }
 
     async handleDisconnect(socket: Socket) {
-        console.log('Disnnected client:', socket.id);
-        this.users = this.users.filter(user => user.socketId != socket.id);
+        const socketId = socket.id;
+
+        console.log('Disnnected client:', socketId);
+
+        const { userId } = this.connectedUsers.find(
+            user => user.socketId == socketId
+        );
+
+        this.connectedUsers = this.connectedUsers.filter(
+            user => user.socketId != socketId
+        );
+
+        this.usersBattles = this.usersBattles.filter(
+            user => user.userId != userId
+        );
+
         this.logUsers();
     }
 
     private async handleJoinEvent(socket: Socket, battleId: string) {
-        console.log('Joined client:', { socketId: socket.id });
+        console.log('Joined client:', socket.id);
 
-        const existedUser = this.users.find(user => user.socketId == socket.id);
+        const existedUser = this.connectedUsers.find(
+            user => user.socketId == socket.id
+        );
 
         if (!existedUser) {
             socket.emit(EmitTypes.UserNotFound, {
                 message: 'Пользователь не найден'
             });
-            socket.disconnect();
             return;
         }
 
-        console.log({ battleId });
+        // сделать проверку, чтобы пользователь не был уже подключен к какому-то батлу
 
         if (!battleId || isNaN(Number(battleId))) {
             socket.emit(EmitTypes.IncorrectBattleId, {
@@ -107,12 +121,44 @@ export class BattleService implements OnGatewayConnection, OnGatewayDisconnect {
 
         socket.join(battleId);
 
+        this.usersBattles.push({ userId: existedUser.userId, battleId });
+
         this.server
             .to(battleId)
             .emit(
                 EmitTypes.BattleJoined,
                 `Вы получили это сообщение, т.к. вы успешно присоединились к битве ${battleId}`
             );
+
+        this.logUsers();
+    }
+
+    handleLeaveEvent(socket: Socket) {
+        console.log('Leaved client:', socket.id);
+
+        const existedUser = this.connectedUsers.find(
+            user => user.socketId == socket.id
+        );
+
+        if (!existedUser) {
+            socket.emit(EmitTypes.UserNotFound, {
+                message: 'Пользователь не найден'
+            });
+            return;
+        }
+
+        this.usersBattles = this.usersBattles.filter(
+            userBattle => userBattle.userId != existedUser.userId
+        );
+
+        this.logUsers();
+    }
+
+    logUsers() {
+        console.log({
+            connectedUsers: this.connectedUsers,
+            usersBattles: this.usersBattles
+        });
     }
 
     async create(dto: BattleDto, creatorId: number) {
