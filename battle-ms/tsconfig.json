@@ -23,7 +23,11 @@
             "@database": ["src/database/"],
             "@database/*": ["src/database/*"],
             "@battle": ["src/battle/"],
-            "@battle/*": ["src/battle/*"]
+            "@battle/*": ["src/battle/*"],
+            "@rabbit-mq": ["src/rabbit-mq/"],
+            "@rabbit-mq/*": ["src/rabbit-mq/*"],
+            "@user": ["src/user/"],
+            "@user/*": ["src/user/*"]
         }
     }
 }

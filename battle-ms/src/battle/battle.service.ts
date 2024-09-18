@@ -11,7 +11,9 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import 'dotenv/config';
-import { EmitTypes, EventTypes, User, UserBattle } from './constants';
+import { EmitTypes, EventTypes } from './enums';
+import { User, UserBattle } from './interfaces';
+import { UserService } from '@user/user.service';
 
 @WebSocketGateway({
     cors: {
@@ -25,32 +27,62 @@ export class BattleService implements OnGatewayConnection, OnGatewayDisconnect {
 
     constructor(
         @InjectRepository(Battle)
-        private readonly battleRepository: Repository<Battle>
+        private readonly battleRepository: Repository<Battle>,
+        private readonly userService: UserService
     ) {}
 
     @WebSocketServer() server: Server;
+
+    private emitToSocket(
+        socket: Socket,
+        emitType: EmitTypes,
+        data: any,
+        disconnect: boolean = false
+    ) {
+        socket.emit(emitType, data);
+        if (disconnect) {
+            socket.disconnect();
+        }
+        return;
+    }
 
     async handleConnection(socket: Socket) {
         console.log('Connected client:', socket.id);
 
         const socketId = socket.id;
         // заменить на auth потом
-        const userId = socket.handshake.query.user_id;
+        const userId = Number(socket.handshake.query.user_id);
 
-        if (!userId) {
-            socket.emit(EmitTypes.EmptyUserId, {
-                message: 'Id пользователя не должно быть пустым'
-            });
-            socket.disconnect();
-            return;
+        if (!userId || isNaN(userId)) {
+            return this.emitToSocket(
+                socket,
+                EmitTypes.UserNotFound,
+                {
+                    message: 'Пользователь не найден'
+                },
+                true
+            );
         }
 
-        this.connectedUsers.push({ socketId, userId: userId.toString() });
+        const user = await this.userService.getById(Number(userId));
+
+        if (!user) {
+            return this.emitToSocket(
+                socket,
+                EmitTypes.UserNotFound,
+                {
+                    message: 'Пользователь не найден'
+                },
+                true
+            );
+        }
+
+        this.connectedUsers.push({ socketId, ...user });
 
         this.logUsers();
 
         socket.on(EventTypes.Join, (battleId: string) =>
-            this.handleJoinEvent(socket, battleId)
+            this.handleJoinEvent(socket, Number(battleId))
         );
 
         socket.on(EventTypes.Leave, () => this.handleLeaveEvent(socket));
@@ -61,7 +93,7 @@ export class BattleService implements OnGatewayConnection, OnGatewayDisconnect {
 
         console.log('Disnnected client:', socketId);
 
-        const { userId } = this.connectedUsers.find(
+        const connectedUser = this.connectedUsers.find(
             user => user.socketId == socketId
         );
 
@@ -70,13 +102,13 @@ export class BattleService implements OnGatewayConnection, OnGatewayDisconnect {
         );
 
         this.usersBattles = this.usersBattles.filter(
-            user => user.userId != userId
+            user => user.userId != connectedUser?.id
         );
 
         this.logUsers();
     }
 
-    private async handleJoinEvent(socket: Socket, battleId: string) {
+    private async handleJoinEvent(socket: Socket, battleId: number) {
         console.log('Joined client:', socket.id);
 
         const existedUser = this.connectedUsers.find(
@@ -84,53 +116,78 @@ export class BattleService implements OnGatewayConnection, OnGatewayDisconnect {
         );
 
         if (!existedUser) {
-            socket.emit(EmitTypes.UserNotFound, {
+            return this.emitToSocket(socket, EmitTypes.UserNotFound, {
                 message: 'Пользователь не найден'
             });
-            return;
         }
 
-        // сделать проверку, чтобы пользователь не был уже подключен к какому-то батлу
-
-        if (!battleId || isNaN(Number(battleId))) {
-            socket.emit(EmitTypes.IncorrectBattleId, {
-                message: 'Некорректное значение id битвы'
+        if (!battleId || isNaN(battleId)) {
+            return this.emitToSocket(socket, EmitTypes.BattleNotFound, {
+                message: 'Битва не найдена'
             });
-            return;
         }
 
-        const exitedBattle = await this.battleRepository.findOne({
+        const existedBattle = await this.battleRepository.findOne({
             where: { id: Number(battleId) }
         });
 
-        if (!exitedBattle) {
-            socket.emit(EmitTypes.BattleNotFound, {
+        if (!existedBattle) {
+            return this.emitToSocket(socket, EmitTypes.BattleNotFound, {
                 message: 'Битва не найдена'
             });
-            return;
         }
 
-        const clientsInRoom = await this.server.in(battleId).fetchSockets();
+        // проверка что пользователь уже в батле
+        const existedUserBattle = this.usersBattles.find(
+            userBattle => userBattle.userId == existedUser.id
+        );
 
-        if (clientsInRoom.length + 1 > exitedBattle.playersCount) {
-            socket.emit(EmitTypes.BattleFull, {
+        if (existedUserBattle) {
+            return this.emitToSocket(socket, EmitTypes.AlreadyInBattle, {
+                battle: existedBattle
+            });
+        }
+
+        const playersCount = this.usersBattles.filter(
+            userBattle => userBattle.battleId == battleId
+        ).length;
+
+        if (playersCount + 1 > existedBattle.playersCount) {
+            return this.emitToSocket(socket, EmitTypes.BattleFull, {
                 message: 'Битва переполнена'
             });
-            return;
         }
 
-        socket.join(battleId);
+        this.usersBattles.push({
+            userId: existedUser.id,
+            battleId,
+            status: 'waiting'
+        });
 
-        this.usersBattles.push({ userId: existedUser.userId, battleId });
+        const users = this.getUsersByBattleId(battleId);
 
-        this.server
-            .to(battleId)
-            .emit(
-                EmitTypes.BattleJoined,
-                `Вы получили это сообщение, т.к. вы успешно присоединились к битве ${battleId}`
-            );
+        socket.join(battleId.toString());
+
+        this.emitToSocket(socket, EmitTypes.BattleJoined, {
+            battle: existedBattle,
+            users
+        });
+
+        socket
+            .to(battleId.toString())
+            .emit(EmitTypes.UserJoined, { user: existedUser });
 
         this.logUsers();
+    }
+
+    private getUsersByBattleId(battleId: number) {
+        const usersInBattle = this.usersBattles
+            .filter(userBattle => userBattle.battleId === battleId)
+            .map(userBattle => userBattle.userId);
+
+        return this.connectedUsers.filter(user =>
+            usersInBattle.includes(user.id)
+        );
     }
 
     handleLeaveEvent(socket: Socket) {
@@ -140,16 +197,17 @@ export class BattleService implements OnGatewayConnection, OnGatewayDisconnect {
             user => user.socketId == socket.id
         );
 
-        if (!existedUser) {
-            socket.emit(EmitTypes.UserNotFound, {
-                message: 'Пользователь не найден'
-            });
-            return;
-        }
+        const battleId = this.usersBattles
+            .find(userBattle => userBattle.userId)
+            .battleId.toString();
 
         this.usersBattles = this.usersBattles.filter(
-            userBattle => userBattle.userId != existedUser.userId
+            userBattle => userBattle.userId != existedUser?.id
         );
+
+        socket.to(battleId).emit(EmitTypes.UserLeaved, { user: existedUser });
+
+        socket.leave(battleId);
 
         this.logUsers();
     }
