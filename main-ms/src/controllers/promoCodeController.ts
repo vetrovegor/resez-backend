@@ -103,6 +103,22 @@ class PromoCodeController {
             next(error);
         }
     }
+
+    async finishPromocode(
+        req: RequestWithParams<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const promocode = await promoCodeService.finishPromocode(
+                req.params.id
+            );
+
+            res.json({ promocode });
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export default new PromoCodeController();

@@ -61,3 +61,13 @@ promoCodeRouter.get(
     validationMiddleware,
     promoCodeController.getUsersByPromocodeId
 );
+
+promoCodeRouter.delete(
+    '/:id/finish',
+    accessTokenMiddleware,
+    blockedMiddleware,
+    permissionMiddleware(Permissions.PromoCodes),
+    param('id').isNumeric(),
+    validationMiddleware,
+    promoCodeController.finishPromocode
+);

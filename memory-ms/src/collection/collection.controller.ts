@@ -37,7 +37,7 @@ export class CollectionController {
         @CurrentUser() user: JwtPayload,
         @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
         @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
-        @Query('targetUserId', new ParseIntPipe({ optional: true }))
+        @Query('target_user_id', new ParseIntPipe({ optional: true }))
         targetUserId: number,
         @Query('search') search: string
     ) {

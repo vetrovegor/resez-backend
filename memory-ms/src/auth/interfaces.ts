@@ -6,4 +6,8 @@ export interface JwtPayload {
         name: string;
         canUploadImages: boolean;
     };
+    permissions: {
+        id: number;
+        permission: string;
+    }[];
 }

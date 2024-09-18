@@ -12,6 +12,7 @@ import { join } from 'path';
 import { QaModule } from '@qa/qa.module';
 import { RabbitMqModule } from '@rabbit-mq/rabbit-mq.module';
 import { LikeModule } from './like/like.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
     imports: [
@@ -26,7 +27,8 @@ import { LikeModule } from './like/like.module';
         SettingsModule,
         UploadModule,
         RabbitMqModule,
-        LikeModule
+        LikeModule,
+        AdminModule
     ],
     providers: [
         {

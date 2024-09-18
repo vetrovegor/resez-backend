@@ -36,7 +36,7 @@ export class BattleService implements OnGatewayConnection, OnGatewayDisconnect {
     private emitToSocket(
         socket: Socket,
         emitType: EmitTypes,
-        data: any,
+        data?: any,
         disconnect: boolean = false
     ) {
         socket.emit(emitType, data);
@@ -86,6 +86,8 @@ export class BattleService implements OnGatewayConnection, OnGatewayDisconnect {
         );
 
         socket.on(EventTypes.Leave, () => this.handleLeaveEvent(socket));
+
+        this.emitToSocket(socket, EmitTypes.Connected);
     }
 
     async handleDisconnect(socket: Socket) {
@@ -197,17 +199,23 @@ export class BattleService implements OnGatewayConnection, OnGatewayDisconnect {
             user => user.socketId == socket.id
         );
 
-        const battleId = this.usersBattles
-            .find(userBattle => userBattle.userId)
-            .battleId.toString();
-
-        this.usersBattles = this.usersBattles.filter(
-            userBattle => userBattle.userId != existedUser?.id
+        const userBattle = this.usersBattles.find(
+            userBattle => userBattle.userId
         );
 
-        socket.to(battleId).emit(EmitTypes.UserLeaved, { user: existedUser });
+        if (userBattle) {
+            this.usersBattles = this.usersBattles.filter(
+                userBattle => userBattle.userId != existedUser.id
+            );
 
-        socket.leave(battleId);
+            const battleId = userBattle.battleId.toString();
+
+            socket
+                .to(battleId)
+                .emit(EmitTypes.UserLeaved, { user: existedUser });
+
+            socket.leave(battleId);
+        }
 
         this.logUsers();
     }

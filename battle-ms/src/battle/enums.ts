@@ -4,6 +4,7 @@ export const enum EventTypes {
 }
 
 export const enum EmitTypes {
+    Connected = 'connected',
     UserNotFound = 'user-not-found',
     BattleNotFound = 'battle-not-found',
     AlreadyInBattle = 'already-in-battle',

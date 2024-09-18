@@ -214,6 +214,16 @@ class PromoCodeService {
             offset
         );
     }
+
+    async finishPromocode(id: number) {
+        const promoCode = await this.getPromoCodeById(id);
+
+        promoCode.set('isFinished', true);
+
+        const updatedPromoCode = await promoCode.save();
+
+        return await this.createDto(updatedPromoCode);
+    }
 }
 
 export default new PromoCodeService();
