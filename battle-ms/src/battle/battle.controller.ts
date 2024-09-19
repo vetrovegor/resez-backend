@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { BattleService } from './battle.service';
 import { BattleDto } from './dto/battle.dto';
 import { CurrentUser } from '@auth/decorators/current-user.decorator';
@@ -11,5 +11,10 @@ export class BattleController {
     @Post()
     async create(@Body() dto: BattleDto, @CurrentUser() user: JwtPayload) {
         return await this.battleService.create(dto, user.id);
+    }
+
+    @Get()
+    async find() {
+        return await this.battleService.find();
     }
 }

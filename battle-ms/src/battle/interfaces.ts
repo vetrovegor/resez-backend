@@ -9,4 +9,5 @@ export interface UserBattle {
     userId: number;
     battleId: number;
     status: 'waiting' | 'ready';
+    isLeader: boolean;
 }

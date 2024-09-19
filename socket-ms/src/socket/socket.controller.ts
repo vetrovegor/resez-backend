@@ -32,6 +32,7 @@ export class SocketController {
 
     @EventPattern('role-updated')
     emitRoleUpdating(@Payload() userIds: number[]) {
+        console.log('role-updated', { userIds });
         this.socketService.emitRoleUpdating(userIds);
     }
 

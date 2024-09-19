@@ -217,7 +217,7 @@ class RoleService {
             });
         }
 
-        await rmqService.sendToQueue('socket-queue', 'role-updated', [userId]);
+        await rmqService.sendToQueue('socket-queue', 'role-updated', [Number(userId)]);
     }
 
     async setRoleArchiveStatus(

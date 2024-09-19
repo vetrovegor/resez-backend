@@ -113,7 +113,7 @@ class PromoCodeService {
             promoCodeId: id
         });
 
-        if (users.length + 1 >= limit) {
+        if (limit && users.length + 1 >= limit) {
             promoCode.set('isFinished', true);
             await promoCode.save();
         }

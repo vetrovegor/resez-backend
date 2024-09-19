@@ -103,9 +103,24 @@ export class BattleService implements OnGatewayConnection, OnGatewayDisconnect {
             user => user.socketId != socketId
         );
 
-        this.usersBattles = this.usersBattles.filter(
-            user => user.userId != connectedUser?.id
+        // вынести 1
+        const userBattle = this.usersBattles.find(
+            userBattle => userBattle.userId == connectedUser.id
         );
+
+        if (userBattle) {
+            this.usersBattles = this.usersBattles.filter(
+                userBattle => userBattle.userId != connectedUser.id
+            );
+
+            const battleId = userBattle.battleId.toString();
+
+            socket
+                .to(battleId)
+                .emit(EmitTypes.UserLeaved, { user: connectedUser });
+
+            socket.leave(battleId);
+        }
 
         this.logUsers();
     }
@@ -163,33 +178,26 @@ export class BattleService implements OnGatewayConnection, OnGatewayDisconnect {
         this.usersBattles.push({
             userId: existedUser.id,
             battleId,
+            isLeader: existedUser.id == existedBattle.creatorId,
             status: 'waiting'
         });
 
-        const users = this.getUsersByBattleId(battleId);
-
         socket.join(battleId.toString());
 
+        const battleDto = this.createDto(existedBattle);
+
         this.emitToSocket(socket, EmitTypes.BattleJoined, {
-            battle: existedBattle,
-            users
+            battle: battleDto
         });
 
-        socket
-            .to(battleId.toString())
-            .emit(EmitTypes.UserJoined, { user: existedUser });
+        socket.to(battleId.toString()).emit(EmitTypes.UserJoined, {
+            user: {
+                ...existedUser,
+                isLeader: existedUser.id == existedBattle.creatorId
+            }
+        });
 
         this.logUsers();
-    }
-
-    private getUsersByBattleId(battleId: number) {
-        const usersInBattle = this.usersBattles
-            .filter(userBattle => userBattle.battleId === battleId)
-            .map(userBattle => userBattle.userId);
-
-        return this.connectedUsers.filter(user =>
-            usersInBattle.includes(user.id)
-        );
     }
 
     handleLeaveEvent(socket: Socket) {
@@ -199,8 +207,9 @@ export class BattleService implements OnGatewayConnection, OnGatewayDisconnect {
             user => user.socketId == socket.id
         );
 
+        // вынести 1
         const userBattle = this.usersBattles.find(
-            userBattle => userBattle.userId
+            userBattle => userBattle.userId == existedUser.id
         );
 
         if (userBattle) {
@@ -232,5 +241,41 @@ export class BattleService implements OnGatewayConnection, OnGatewayDisconnect {
             ...dto,
             creatorId
         });
+    }
+
+    createDto(battle: Battle, usersLimit?: number) {
+        const usersInBattle = this.usersBattles
+            .filter(userBattle => userBattle.battleId === battle.id)
+            .map(userBattle => userBattle.userId);
+
+        let users = this.connectedUsers
+            .filter(user => usersInBattle.includes(user.id))
+            .map(user => ({
+                ...user,
+                isLeader: user.id === battle.creatorId
+            }));
+
+        if (usersLimit) {
+            users = users.slice(0, usersLimit);
+        }
+
+        delete battle.creatorId;
+
+        return {
+            ...battle,
+            users
+        };
+    }
+
+    async find() {
+        const battlesData = await this.battleRepository.find({
+            where: { isPrivate: false },
+            order: {
+                createdAt: 'DESC'
+            },
+            take: 9
+        });
+
+        return battlesData.map(battle => this.createDto(battle, 3));
     }
 }
