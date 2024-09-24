@@ -13,6 +13,8 @@ import { QaModule } from '@qa/qa.module';
 import { RabbitMqModule } from '@rabbit-mq/rabbit-mq.module';
 import { LikeModule } from './like/like.module';
 import { AdminModule } from './admin/admin.module';
+import { MatchScoreModule } from '@match-score/match-score.module';
+import { UserModule } from '@user/user.module';
 
 @Module({
     imports: [
@@ -28,7 +30,9 @@ import { AdminModule } from './admin/admin.module';
         UploadModule,
         RabbitMqModule,
         LikeModule,
-        AdminModule
+        AdminModule,
+        MatchScoreModule,
+        UserModule
     ],
     providers: [
         {

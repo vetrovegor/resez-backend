@@ -4,6 +4,7 @@ import useragent from 'express-useragent';
 import fileUpload from 'express-fileupload';
 import swaggerUi from 'swagger-ui-express';
 import cron from 'node-cron';
+import { collectDefaultMetrics, register } from 'prom-client';
 
 import { router } from './routes/router';
 import { errorMiddleWare } from './middlewares/errorMiddleware';
@@ -19,7 +20,18 @@ import { redisClient } from './redisClient';
 import subscribeService from './services/subscribeService';
 import achievementService from './services/achievementService';
 
+collectDefaultMetrics();
+
 export const app = express();
+
+app.get('/metrics', async (_req, res) => {
+    try {
+        res.set('Content-Type', register.contentType);
+        res.end(await register.metrics());
+    } catch (err) {
+        res.status(500).end(err);
+    }
+});
 
 app.use(express.json());
 app.use(cookieParser());

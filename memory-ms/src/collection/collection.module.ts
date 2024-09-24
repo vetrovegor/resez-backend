@@ -8,6 +8,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { SettingsModule } from '@settings/settings.module';
 import { LikeModule } from '@like/like.module';
+import { MatchScoreModule } from '@match-score/match-score.module';
 
 @Module({
     imports: [
@@ -27,7 +28,8 @@ import { LikeModule } from '@like/like.module';
         ]),
         QaModule,
         SettingsModule,
-        forwardRef(() => LikeModule)
+        forwardRef(() => LikeModule),
+        forwardRef(() => MatchScoreModule)
     ],
     controllers: [CollectionController],
     providers: [CollectionService],

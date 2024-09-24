@@ -149,12 +149,25 @@ export class CollectionController {
         return await this.collectionService.getTest(id, user.id);
     }
 
+    @Public()
+    @UseGuards(OptionalJwtAuthGuard)
     @Get(':id/match')
     async getMatches(
         @Param('id', ParseIntPipe) id: number,
         @CurrentUser() user: JwtPayload
     ) {
         return await this.collectionService.getMatches(id, user.id);
+    }
+
+    @Public()
+    @UseGuards(OptionalJwtAuthGuard)
+    @Get(':id/match-score')
+    async getMatchScores(
+        @Param('id', ParseIntPipe) id: number,
+        @CurrentUser() user: JwtPayload,
+        @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number
+    ) {
+        return await this.collectionService.getMatchScores(id, user.id, limit);
     }
 
     @Delete(':id')

@@ -1,4 +1,5 @@
 import { Like } from '@like/like.entity';
+import { MatchScore } from '@match-score/match-score.enity';
 import { Qa } from '@qa/qa.entity';
 import {
     Column,
@@ -43,4 +44,9 @@ export class Collection {
         cascade: true
     })
     likes: Like[];
+
+    @OneToMany(() => MatchScore, matchScore => matchScore.collection, {
+        cascade: true
+    })
+    matchScores: MatchScore[];
 }

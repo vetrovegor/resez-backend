@@ -33,7 +33,11 @@
             "@like": ["src/like/"],
             "@like/*": ["src/like//*"],
             "@file": ["src/file/"],
-            "@file/*": ["src/file//*"]
+            "@file/*": ["src/file//*"],
+            "@match-score": ["src/match-score/"],
+            "@match-score/*": ["src/match-score//*"],
+            "@user": ["src/user/"],
+            "@user/*": ["src/user//*"]
         }
     }
 }

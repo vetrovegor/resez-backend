@@ -6,8 +6,26 @@ import UserTheme from '../../db/models/store/theme/UserTheme';
 import userService from '../../services/userService';
 
 class AvatarDecorationService {
-    async createTheme(dto: ThemeDTO) {
-        return await Theme.create({ ...dto });
+    async createTheme({
+        title,
+        price,
+        requiredSubscriptionId,
+        achievementId,
+        seasonStartDate,
+        seasonEndDate,
+        primary,
+        light
+    }: ThemeDTO) {
+        return await Theme.create({
+            title,
+            price,
+            requiredSubscriptionId,
+            achievementId,
+            seasonStartDate,
+            seasonEndDate,
+            primary,
+            light
+        });
     }
 
     async getThemes(limit: number, offset: number) {
@@ -48,10 +66,34 @@ class AvatarDecorationService {
         return theme;
     }
 
-    async updateTheme(id: number, dto: ThemeDTO) {
+    async updateTheme(
+        id: number,
+        {
+            title,
+            price,
+            requiredSubscriptionId,
+            achievementId,
+            seasonStartDate,
+            seasonEndDate,
+            primary,
+            light
+        }: ThemeDTO
+    ) {
         const theme = await this.getThemeById(id);
 
-        const result = await Theme.update({ ...dto }, { where: { id } });
+        await Theme.update(
+            {
+                title,
+                price,
+                requiredSubscriptionId,
+                achievementId,
+                seasonStartDate,
+                seasonEndDate,
+                primary,
+                light
+            },
+            { where: { id } }
+        );
 
         return theme;
     }

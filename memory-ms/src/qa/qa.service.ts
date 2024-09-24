@@ -271,10 +271,14 @@ export class QaService {
     }
 
     async getMatches(collectionId: number) {
-        const { cards } = await this.getCollectionPairs({
-            collectionId,
-            take: 8
-        });
+        const cards = await this.qaRepository
+            .createQueryBuilder('qa')
+            .where('collection_id = :collectionId', {
+                collectionId
+            })
+            .orderBy('RANDOM()')
+            .limit(8)
+            .getMany();
 
         const matches = cards.flatMap(card => {
             const firstId = v4();

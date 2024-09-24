@@ -9,10 +9,10 @@ import { Collection } from './collection.entity';
 import { ILike, In, Repository } from 'typeorm';
 import { CollectionDto } from './dto/collection.dto';
 import { QaService } from '@qa/qa.service';
-import { ClientProxy } from '@nestjs/microservices';
-import { RabbitMqService } from '@rabbit-mq/rabbit-mq.service';
 import { SettingsService } from '@settings/settings.service';
 import { LikeService } from '@like/like.service';
+import { MatchScoreService } from '@match-score/match-score.service';
+import { UserService } from '@user/user.service';
 
 @Injectable()
 export class CollectionService {
@@ -21,18 +21,15 @@ export class CollectionService {
         private readonly collectionRepository: Repository<Collection>,
         private readonly qaService: QaService,
         private readonly settingsService: SettingsService,
-        private readonly rabbitMqService: RabbitMqService,
-        @Inject('USER_SERVICE') private readonly userClient: ClientProxy,
         @Inject(forwardRef(() => LikeService))
-        private readonly likeService: LikeService
+        private readonly likeService: LikeService,
+        @Inject(forwardRef(() => MatchScoreService))
+        private readonly matchScoreService: MatchScoreService,
+        private readonly userService: UserService
     ) {}
 
     async getShortInfo(collectionData: Collection, userId: number) {
-        const user = await this.rabbitMqService.sendRequest({
-            client: this.userClient,
-            pattern: 'preview',
-            data: collectionData.userId
-        });
+        const user = await this.userService.getById(collectionData.userId);
 
         delete collectionData.userId;
 
@@ -130,11 +127,7 @@ export class CollectionService {
         nickname: string,
         search: string
     ) {
-        const user = await this.rabbitMqService.sendRequest({
-            client: this.userClient,
-            pattern: 'preview-by-nickname',
-            data: nickname
-        });
+        const user = await this.userService.getByNickname(nickname);
 
         if (!user) {
             throw new NotFoundException('Пользователь не найден');
@@ -288,8 +281,6 @@ export class CollectionService {
 
         const { settings } = await this.settingsService.get(userId);
 
-        console.log({ settings });
-
         const {
             shuffleTest,
             maxQuestions,
@@ -316,6 +307,11 @@ export class CollectionService {
         const matches = await this.qaService.getMatches(id);
 
         return { matches };
+    }
+
+    async getMatchScores(id: number, userId: number, take: number) {
+        await this.findAccessibleCollectionById(id, userId);
+        return await this.matchScoreService.getBestScores(id, take);
     }
 
     async getByIdAndUserId(id: number, userId: number) {
