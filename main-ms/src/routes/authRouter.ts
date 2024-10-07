@@ -4,7 +4,6 @@ import { body, param } from 'express-validator';
 import authController from '../controllers/authController';
 import { refreshTokenMiddleware } from '../middlewares/refreshTokenMiddleware';
 import { accessTokenMiddleware } from '../middlewares/accessTokenMiddleware';
-import { blockedMiddleware } from '../middlewares/blockedMiddleware';
 import { validationMiddleware } from '../middlewares/validationMiddleware';
 
 export const authRouter = Router();
@@ -48,7 +47,7 @@ authRouter.get('/logout', refreshTokenMiddleware, authController.logout);
 
 authRouter.get(
     '/check',
-    accessTokenMiddleware,
+    accessTokenMiddleware(true),
     refreshTokenMiddleware,
     authController.checkAuth
 );
@@ -57,8 +56,7 @@ authRouter.get('/refresh', refreshTokenMiddleware, authController.refresh);
 
 authRouter.get(
     '/send-verification-code',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     authController.sendVerificationCode
 );
 

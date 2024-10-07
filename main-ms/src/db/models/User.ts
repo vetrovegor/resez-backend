@@ -39,6 +39,8 @@ import PromoCode from './promo/PromoCode';
 import UserPromocode from './promo/UserPromoCode';
 import Theme from './store/theme/Theme';
 import UserTheme from './store/theme/UserTheme';
+import Achievement from './achievement/Achievement';
+import UserAchievement from './achievement/UserAchievement';
 
 @Table({
     timestamps: false,
@@ -302,6 +304,14 @@ class User extends Model {
         onDelete: 'CASCADE'
     })
     userPromocodes: UserPromocode[];
+
+    @BelongsToMany(() => Achievement, () => UserAchievement)
+    achievements: Achievement[];
+
+    @HasMany(() => UserAchievement, {
+        onDelete: 'CASCADE'
+    })
+    userAchievements: UserAchievement[];
 
     async getRoles(): Promise<Role[]> {
         const userRoles = await UserRole.findAll({

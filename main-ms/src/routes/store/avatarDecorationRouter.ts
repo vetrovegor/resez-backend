@@ -19,8 +19,7 @@ avatarDecorationRouter.get(
 
 avatarDecorationRouter.get(
     '/:id/add',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     param('id').isNumeric(),
     validationMiddleware,
     avatarDecorationController.addAvatarDecorationToUser

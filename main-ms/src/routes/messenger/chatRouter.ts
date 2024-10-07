@@ -2,7 +2,6 @@ import { Router } from "express";
 import { body, param, query } from "express-validator";
 
 import { accessTokenMiddleware } from "../../middlewares/accessTokenMiddleware";
-import { blockedMiddleware } from "../../middlewares/blockedMiddleware";
 import { paginationMiddleware } from "../../middlewares/paginationMiddleware";
 import chatController from "../../controllers/messenger/chatController";
 import { fileMiddleware } from "../../middlewares/fileMiddleware";
@@ -16,8 +15,7 @@ export const chatRouter = Router();
 chatRouter.get(
     '/',
     paginationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     chatController.getUserChats
 );
 
@@ -27,8 +25,7 @@ chatRouter.post(
     validationMiddleware,
     fileMiddleware(2, false),
     imageMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     groupUsersMiddleware,
     chatController.createGroup
 );
@@ -37,15 +34,13 @@ chatRouter.post(
     '/:id/picture',
     fileMiddleware(2),
     imageMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     chatController.setPicture
 );
 
 chatRouter.delete(
     '/:id/picture',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     chatController.deletePicture
 );
 
@@ -56,8 +51,7 @@ chatRouter.post(
     param('userId').isNumeric(),
     body('showHistory').isBoolean(),
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     chatController.addUserToChat
 );
 
@@ -67,45 +61,39 @@ chatRouter.delete(
     param('chatId').isNumeric(),
     param('userId').isNumeric(),
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     chatController.removeUserFromChat
 );
 
 chatRouter.get(
     '/:id',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     chatController.getChatInfo
 );
 
 chatRouter.get(
     '/:id/user',
     paginationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     chatController.getChatUsers
 );
 
 chatRouter.get(
     '/:id/user',
     paginationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     chatController.getChatUsers
 );
 
 chatRouter.get(
     '/link/:inviteLink',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     chatController.getChatByInviteLink
 );
 
 chatRouter.get(
     '/join/:inviteLink',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     chatController.joinChatViaLink
 );
 
@@ -113,21 +101,18 @@ chatRouter.delete(
     '/:id/leave',
     query('clear_history').isBoolean().optional(),
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     chatController.leaveChat
 );
 
 chatRouter.get(
     '/:id/return',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     chatController.returnToChat
 );
 
 chatRouter.delete(
     '/:id/history',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     chatController.clearHistory
 );

@@ -16,8 +16,7 @@ export const avatarDecorationRouter = Router();
 
 avatarDecorationRouter.post(
     '/',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.CreateProducts),
     body('title').isString().notEmpty(),
     body('price').isFloat({ gt: 0 }).optional(),
@@ -35,8 +34,7 @@ avatarDecorationRouter.post(
 
 avatarDecorationRouter.get(
     '/',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.Store),
     paginationMiddleware,
     avatarDecorationController.getAvatarDecorations
@@ -44,8 +42,7 @@ avatarDecorationRouter.get(
 
 avatarDecorationRouter.patch(
     '/:id/toggle-publish',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.PublishProducts),
     param('id').isNumeric(),
     validationMiddleware,

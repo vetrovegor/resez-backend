@@ -21,8 +21,7 @@ notifyRouter.post(
     body('date').optional().isISO8601(),
     validationMiddleware,
     notifyBodyMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.Notifies),
     notifyController.sendNotifies
 );

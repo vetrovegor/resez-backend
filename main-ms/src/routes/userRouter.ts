@@ -3,7 +3,6 @@ import { body, param, query } from "express-validator";
 
 import { accessTokenMiddleware } from "../middlewares/accessTokenMiddleware";
 import userController from "../controllers/userController";
-import { blockedMiddleware } from "../middlewares/blockedMiddleware";
 import { userProfileMiddleware } from "../middlewares/userProfileMiddleware";
 import { fileMiddleware } from "../middlewares/fileMiddleware";
 import { imageMiddleware } from "../middlewares/imageMiddleware";
@@ -16,14 +15,13 @@ export const userRouter = Router();
 
 userRouter.get(
     '/short-info',
-    accessTokenMiddleware,
+    accessTokenMiddleware(false),
     userController.getUserShortInfo
 );
 
 userRouter.get(
     '/permission',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     userController.getUserPermissions
 );
 
@@ -32,8 +30,7 @@ userRouter.post(
     body('oldPassword').isLength({ min: 8, max: 32 }),
     body('newPassword').isLength({ min: 8, max: 32 }),
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     userController.sendChangePasswordCode
 );
 
@@ -43,30 +40,26 @@ userRouter.patch(
     body('newPassword').isLength({ min: 8, max: 32 }),
     body('code').matches(/^[0-9]{6}$/),
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     userController.verifyChangePasswordCode
 );
 
 userRouter.get(
     '/profile-info',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     userController.getProfileInfo
 );
 
 userRouter.patch(
     '/profile-info',
     userProfileMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     userController.updateProfile
 );
 
 userRouter.post(
     '/avatar',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     fileMiddleware(2),
     imageMiddleware,
     userController.setAvatar
@@ -74,24 +67,21 @@ userRouter.post(
 
 userRouter.delete(
     '/avatar',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     userController.deleteAvatar
 );
 
 // магазин
 userRouter.get(
     '/avatar-decoration',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     paginationMiddleware,
     avatarDecorationController.getUserAvatarDecorations
 );
 
 userRouter.patch(
     '/avatar-decoration/:id',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     param('id').isNumeric(),
     validationMiddleware,
     userController.setAvatarDecoration
@@ -99,23 +89,20 @@ userRouter.patch(
 
 userRouter.delete(
     '/avatar-decoration',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     userController.deleteAvatarDecoration
 );
 
 userRouter.get(
     '/theme',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     paginationMiddleware,
     themeController.getUserThemes
 );
 
 userRouter.patch(
     '/theme/:id',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     param('id').isNumeric(),
     validationMiddleware,
     userController.setTheme
@@ -123,15 +110,13 @@ userRouter.patch(
 
 userRouter.delete(
     '/theme',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     userController.deleteTheme
 );
 
 userRouter.get(
     '/settings',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     userController.getUserSettings
 );
 
@@ -140,9 +125,14 @@ userRouter.patch(
     body('isPrivateAccount').isBoolean().optional(),
     body('isHideAvatars').isBoolean().optional(),
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     userController.updateSettings
+);
+
+userRouter.get(
+    '/achievement',
+    accessTokenMiddleware(true),
+    userController.getUserAchievements
 );
 
 userRouter.get(
@@ -157,7 +147,6 @@ userRouter.get(
     query('search').isString().withMessage('Параметр search является обязательным.'),
     validationMiddleware,
     paginationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     userController.searchUsers
 );

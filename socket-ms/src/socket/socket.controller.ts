@@ -32,7 +32,6 @@ export class SocketController {
 
     @EventPattern('role-updated')
     emitRoleUpdating(@Payload() userIds: number[]) {
-        console.log('role-updated', { userIds });
         this.socketService.emitRoleUpdating(userIds);
     }
 
@@ -65,5 +64,12 @@ export class SocketController {
         const { replyTo } = originalMsg.properties;
         const online = this.socketService.getOnline();
         channel.sendToQueue(replyTo, Buffer.from(JSON.stringify(online)));
+    }
+
+    @EventPattern('achievement')
+    emitGettingAchievement(
+        @Payload() data: { userId: number; achievement: any }
+    ) {
+        this.socketService.emitGettingAchievement(data);
     }
 }

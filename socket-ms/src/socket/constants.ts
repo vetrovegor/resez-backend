@@ -27,5 +27,6 @@ export const enum EmitTypes {
     MessagesDeleting = 'messages-deleting',
     RoleUpdated = 'role-updated',
     Auth = 'auth',
-    NewLevel = 'new-level'
+    NewLevel = 'new-level',
+    Achievement = 'achievement'
 }

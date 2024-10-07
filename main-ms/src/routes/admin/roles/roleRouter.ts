@@ -24,8 +24,7 @@ roleRouter.post(
     '/',
     roleBodyMiddleware,
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.CreateRoles),
     roleController.createRole
 );
@@ -35,8 +34,7 @@ roleRouter.get(
     query('search').notEmpty().optional(),
     paginationMiddleware,
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.Roles),
     roleController.getRoles
 );
@@ -45,8 +43,7 @@ roleRouter.get(
     '/:id',
     param('id').isNumeric().withMessage('id роли должно быть числом'),
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.Roles),
     roleController.getRole
 );
@@ -56,8 +53,7 @@ roleRouter.patch(
     param('id').isNumeric().withMessage('id роли должно быть числом'),
     roleBodyMiddleware,
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.UpdateRoles),
     roleController.updateRole
 );
@@ -69,8 +65,7 @@ roleRouter.post(
         .isNumeric()
         .withMessage('id пользователя должно быть числом'),
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.AssignRoles),
     roleController.assignRoleToUser
 );
@@ -82,8 +77,7 @@ roleRouter.post(
         .isNumeric()
         .withMessage('id пользователя должно быть числом'),
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.AssignRoles),
     roleController.removeRoleFromUser
 );
@@ -95,8 +89,7 @@ roleRouter.post(
         .isNumeric()
         .withMessage('id пользователя должно быть числом'),
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.AssignRoles),
     roleController.toggleRole
 );
@@ -105,8 +98,7 @@ roleRouter.delete(
     '/:id/archive',
     param('id').isNumeric(),
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.DeleteRoles),
     roleController.archiveRole
 );
@@ -115,8 +107,7 @@ roleRouter.patch(
     '/:id/restore',
     param('id').isNumeric(),
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.Archive),
     roleController.restoreRole
 );
@@ -125,8 +116,7 @@ roleRouter.delete(
     '/:id',
     param('id').isNumeric(),
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.DeleteRoles),
     roleController.deleteRole
 );

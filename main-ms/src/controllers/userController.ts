@@ -1,9 +1,6 @@
 import { Response, NextFunction, Request } from 'express';
 import { UploadedFile } from 'express-fileupload';
 
-import codeService from '../services/codeService';
-import userService from '../services/userService';
-import sessionService from '../services/sessionService';
 import {
     IdParam,
     PaginationQuery,
@@ -25,7 +22,11 @@ import {
     UserSearchQuery,
     UserSettingsInfo
 } from 'types/user';
+import codeService from '../services/codeService';
+import userService from '../services/userService';
+import sessionService from '../services/sessionService';
 import roleService from '../services/roles/roleService';
+import achievementService from '../services/achievementService';
 
 class UserhController {
     async getUserShortInfo(
@@ -231,10 +232,7 @@ class UserhController {
         next: NextFunction
     ) {
         try {
-            const user = await userService.setTheme(
-                req.params.id,
-                req.user.id
-            );
+            const user = await userService.setTheme(req.params.id, req.user.id);
 
             res.json({ user });
         } catch (error) {
@@ -242,11 +240,7 @@ class UserhController {
         }
     }
 
-    async deleteTheme(
-        req: RequestWithUser,
-        res: Response,
-        next: NextFunction
-    ) {
+    async deleteTheme(req: RequestWithUser, res: Response, next: NextFunction) {
         try {
             const user = await userService.deleteTheme(req.user.id);
 
@@ -264,6 +258,22 @@ class UserhController {
         try {
             const user = await userService.getUser(req.params.nickname);
             res.json({ user });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getUserAchievements(
+        req: RequestWithUser,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const achievements = await achievementService.getUserAchievements(
+                req.user.id
+            );
+
+            res.json({ achievements });
         } catch (error) {
             next(error);
         }
@@ -359,9 +369,7 @@ class UserhController {
         next: NextFunction
     ) {
         try {
-            const info = await userService.getAdminUserBasicInfo(
-                req.params.id
-            );
+            const info = await userService.getAdminUserBasicInfo(req.params.id);
 
             res.json({ info });
         } catch (error) {

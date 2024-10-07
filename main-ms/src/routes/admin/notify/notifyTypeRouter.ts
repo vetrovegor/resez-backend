@@ -11,8 +11,7 @@ export const notifyTypeRouter = Router();
 
 notifyTypeRouter.get(
     '/',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.Notifies),
     notifyTypeController.getNotifyTypes
 );

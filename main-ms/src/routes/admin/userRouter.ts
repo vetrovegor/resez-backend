@@ -2,7 +2,6 @@ import { Router } from "express";
 
 import { paginationMiddleware } from "../../middlewares/paginationMiddleware";
 import { accessTokenMiddleware } from "../../middlewares/accessTokenMiddleware";
-import { blockedMiddleware } from "../../middlewares/blockedMiddleware";
 import { permissionMiddleware } from "../../middlewares/permissionMiddleware";
 import { Permissions } from "types/permission";
 import userController from "../../controllers/userController";
@@ -13,8 +12,7 @@ export const userRouter = Router();
 
 userRouter.get(
     '/stats',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.Admin),
     userController.getStats   
 );
@@ -31,8 +29,7 @@ userRouter.get(
     query('short').isBoolean().optional(),
     validationMiddleware,
     paginationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.Users),
     userController.getUsers   
 );
@@ -41,8 +38,7 @@ userRouter.get(
     '/:id',
     param('id').isNumeric(),
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.Users),
     userController.getAdminUserProfileInfo   
 );
@@ -51,8 +47,7 @@ userRouter.get(
     '/:id/info',
     param('id').isNumeric(),
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.Users),
     userController.getAdminUserBasicInfo   
 );
@@ -62,8 +57,7 @@ userRouter.get(
     param('id').isNumeric(),
     paginationMiddleware,
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.Users),
     userController.getUserSessions   
 );
@@ -73,8 +67,7 @@ userRouter.patch(
     param('id').isNumeric(),
     validationMiddleware,
     body('reason').isString().optional(),
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.BlockUsers),
     userController.blockUser   
 );
@@ -83,8 +76,7 @@ userRouter.patch(
     '/:id/unblock',
     param('id').isNumeric(),
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.BlockUsers),
     userController.unblockUser   
 );
@@ -103,8 +95,7 @@ userRouter.patch(
     validationMiddleware,
     body('amount').isNumeric(),
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.Users),
     userController.addCoins   
 );
@@ -114,8 +105,7 @@ userRouter.get(
     param('id').isNumeric(),
     validationMiddleware,
     paginationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.AssignRoles),
     userController.getUserRoles   
 );

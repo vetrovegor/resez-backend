@@ -10,8 +10,7 @@ export const permissionRouter = Router();
 
 permissionRouter.get(
     '/',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.Roles),
     permissionController.getPermissionsHierarchy
 );

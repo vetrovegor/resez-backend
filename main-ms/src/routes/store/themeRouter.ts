@@ -19,8 +19,7 @@ themeRouter.get(
 
 themeRouter.get(
     '/:id/add',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     param('id').isNumeric(),
     validationMiddleware,
     themeController.addThemeToUser

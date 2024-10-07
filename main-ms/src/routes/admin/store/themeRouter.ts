@@ -14,8 +14,7 @@ export const themeRouter = Router();
 
 themeRouter.post(
     '/',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.CreateProducts),
     body('title').isString().notEmpty(),
     body('price').isFloat({ gt: 0 }).optional(),
@@ -32,8 +31,7 @@ themeRouter.post(
 
 themeRouter.get(
     '/',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.Store),
     paginationMiddleware,
     themeController.getThemes
@@ -41,8 +39,7 @@ themeRouter.get(
 
 themeRouter.patch(
     '/:id/toggle-publish',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.PublishProducts),
     param('id').isNumeric(),
     validationMiddleware,
@@ -51,8 +48,7 @@ themeRouter.patch(
 
 themeRouter.patch(
     '/:id',
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.PublishProducts),
     param('id').isNumeric(),
     body('title').isString().notEmpty(),

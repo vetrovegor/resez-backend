@@ -3,7 +3,6 @@ import { body, param, query } from "express-validator";
 
 import messageController from "../../controllers/messenger/messageController";
 import { accessTokenMiddleware } from "../../middlewares/accessTokenMiddleware";
-import { blockedMiddleware } from "../../middlewares/blockedMiddleware";
 import { validationMiddleware } from "../../middlewares/validationMiddleware";
 
 export const messageRouter = Router();
@@ -13,8 +12,7 @@ messageRouter.post(
     param('id').isNumeric(),
     body('message').isLength({ min: 1 }),
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     messageController.sendMessageToUser
 );
 
@@ -23,8 +21,7 @@ messageRouter.post(
     param('id').isNumeric(),
     body('message').isLength({ min: 1 }),
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     messageController.sendMessageToChat
 );
 
@@ -33,8 +30,7 @@ messageRouter.patch(
     param('id').isNumeric(),
     body('message').isLength({ min: 1 }),
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     messageController.editMessage
 );
 
@@ -44,8 +40,7 @@ messageRouter.delete(
     query('for_all').isBoolean().optional(),
     validationMiddleware,
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     messageController.deleteMessage
 );
 
@@ -53,8 +48,7 @@ messageRouter.patch(
     '/:id/read',
     param('id').isNumeric(),
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     messageController.readMessage
 );
 
@@ -62,7 +56,6 @@ messageRouter.get(
     '/:id/readers',
     param('id').isNumeric(),
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     messageController.getMessageReaders
 );

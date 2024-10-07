@@ -4,7 +4,6 @@ import { param } from "express-validator";
 import { paginationMiddleware } from "../middlewares/paginationMiddleware";
 import sessionController from "../controllers/sessionController";
 import { accessTokenMiddleware } from "../middlewares/accessTokenMiddleware";
-import { blockedMiddleware } from "../middlewares/blockedMiddleware";
 import { validationMiddleware } from "../middlewares/validationMiddleware";
 
 export const sessionRouter = Router();
@@ -12,8 +11,7 @@ export const sessionRouter = Router();
 sessionRouter.get(
     '/',
     paginationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     sessionController.getUserSessions
 );
 
@@ -21,14 +19,12 @@ sessionRouter.patch(
     '/end/:id',
     param('id').isNumeric(),
     validationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     sessionController.endSessionById
 );
 
 sessionRouter.patch('/end-all',
     paginationMiddleware,
-    accessTokenMiddleware,
-    blockedMiddleware,
+    accessTokenMiddleware(true),
     sessionController.endAllSessions
 );

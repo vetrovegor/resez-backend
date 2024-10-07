@@ -9,7 +9,7 @@ import {
     HasMany
 } from 'sequelize-typescript';
 import Subscription from '../../subscription/Subscription';
-import Achievement from '../../Achievement';
+import Achievement from '../../achievement/Achievement';
 import User from '../../User';
 import UserTheme from './UserTheme';
 

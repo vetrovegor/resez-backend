@@ -143,6 +143,10 @@ export class SocketService implements OnGatewayConnection {
         }
     }
 
+    emitGettingAchievement(data: { userId: number; achievement: any }) {
+        this.emitToUser(data.userId, EmitTypes.Achievement, data.achievement);
+    }
+
     async getUserActivity(userId: string) {
         const isOnline = this.authUsers.some(u => u.userId === userId);
 
