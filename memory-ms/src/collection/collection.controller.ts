@@ -159,6 +159,7 @@ export class CollectionController {
         return await this.collectionService.getMatches(id, user.id);
     }
 
+    // убрать
     @Public()
     @UseGuards(OptionalJwtAuthGuard)
     @Get(':id/match-score')

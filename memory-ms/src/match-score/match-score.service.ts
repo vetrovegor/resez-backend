@@ -17,16 +17,20 @@ export class MatchScoreService {
     ) {}
 
     async create(userId: number, { collectionId, time }: MatchDto) {
-        await this.collectionService.findAccessibleCollectionById(
-            collectionId,
-            userId
-        );
+        if (userId !== -1) {
+            await this.collectionService.findAccessibleCollectionById(
+                collectionId,
+                userId
+            );
 
-        return await this.matchScoreRepository.save({
-            userId,
-            collection: { id: collectionId },
-            time
-        });
+            await this.matchScoreRepository.save({
+                userId,
+                collection: { id: collectionId },
+                time
+            });
+        }
+
+        return await this.getBestScores(collectionId, 10);
     }
 
     async getBestScores(collectionId: number, take: number) {
@@ -54,13 +58,14 @@ export class MatchScoreService {
             .getRawMany();
 
         const scores = await Promise.all(
-            data.map(async matchScore => {
+            data.map(async (matchScore, index) => {
                 const user = await this.userService.getById(matchScore.userId);
 
                 delete matchScore.userId;
                 delete matchScore.collection;
 
                 return {
+                    place: index + 1,
                     ...matchScore,
                     user
                 };
