@@ -74,7 +74,7 @@ export class MatchScoreService {
         const user = await this.userService.getById(userId);
 
         const scores = await Promise.all(
-            data.slice(0, 1).map(async (matchScore, index) => {
+            data.slice(0, take).map(async (matchScore, index) => {
                 const user = await this.userService.getById(matchScore.userId);
 
                 delete matchScore.userId;
