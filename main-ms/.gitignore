@@ -10,7 +10,11 @@
 
 # production
 /build
-/static/*
+
+# static
+/static/avatars
+/static/chats
+/static/store
 
 # misc
 .DS_Store

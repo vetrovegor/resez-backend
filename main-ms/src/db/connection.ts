@@ -1,5 +1,4 @@
 import { Sequelize } from 'sequelize-typescript';
-import 'dotenv/config';
 
 export const sequelize = new Sequelize({
     database: process.env.DB_NAME,

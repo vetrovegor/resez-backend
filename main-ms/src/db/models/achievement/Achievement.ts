@@ -1,37 +1,50 @@
-import { Table, Column, Model, DataType, HasMany, BelongsToMany } from 'sequelize-typescript';
+import {
+    Table,
+    Column,
+    Model,
+    DataType,
+    HasMany,
+    BelongsToMany
+} from 'sequelize-typescript';
 import AvatarDecoration from '../store/avatarDecoration/AvatarDecoration';
 import UserAchievement from './UserAchievement';
 import User from '../User';
 
 @Table({
     timestamps: false,
-    tableName: "achievements"
+    tableName: 'achievements'
 })
 class Achievement extends Model {
     @Column({
-        type: DataType.STRING,
+        type: DataType.STRING
     })
     achievement: string;
-    
+
     @Column({
-        type: DataType.TEXT,
+        type: DataType.TEXT
     })
     icon: string;
-    
+
     @Column({
-        type: DataType.STRING,
+        type: DataType.STRING
     })
     description: string;
-    
+
     @Column({
-        type: DataType.INTEGER,
+        type: DataType.INTEGER
     })
     xp: number;
-    
+
     @Column({
-        type: DataType.INTEGER,
+        type: DataType.INTEGER
     })
     coins: number;
+
+    @Column({
+        type: DataType.BOOLEAN,
+        defaultValue: false
+    })
+    isSecret: boolean;
 
     @HasMany(() => AvatarDecoration, {
         onDelete: 'CASCADE'

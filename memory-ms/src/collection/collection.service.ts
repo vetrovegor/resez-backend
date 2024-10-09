@@ -11,7 +11,6 @@ import { CollectionDto } from './dto/collection.dto';
 import { QaService } from '@qa/qa.service';
 import { SettingsService } from '@settings/settings.service';
 import { LikeService } from '@like/like.service';
-import { MatchScoreService } from '@match-score/match-score.service';
 import { UserService } from '@user/user.service';
 
 @Injectable()
@@ -23,8 +22,6 @@ export class CollectionService {
         private readonly settingsService: SettingsService,
         @Inject(forwardRef(() => LikeService))
         private readonly likeService: LikeService,
-        @Inject(forwardRef(() => MatchScoreService))
-        private readonly matchScoreService: MatchScoreService,
         private readonly userService: UserService
     ) {}
 
@@ -307,11 +304,6 @@ export class CollectionService {
         const matches = await this.qaService.getMatches(id);
 
         return { matches };
-    }
-
-    async getMatchScores(id: number, userId: number, take: number) {
-        await this.findAccessibleCollectionById(id, userId);
-        return await this.matchScoreService.getBestScores(id, take);
     }
 
     async getByIdAndUserId(id: number, userId: number) {

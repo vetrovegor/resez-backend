@@ -5,6 +5,7 @@ import fileUpload from 'express-fileupload';
 import swaggerUi from 'swagger-ui-express';
 import cron from 'node-cron';
 import { collectDefaultMetrics, register } from 'prom-client';
+import 'dotenv/config';
 
 import { router } from './routes/router';
 import { errorMiddleWare } from './middlewares/errorMiddleware';
@@ -47,8 +48,6 @@ const PORT = process.env.PORT || 8080;
 
 const start = async () => {
     await sequelize.authenticate();
-
-    console.log(process.env.NODE_ENV);
 
     if (process.env.NODE_ENV == 'development') {
         await sequelize.sync({ alter: true });
