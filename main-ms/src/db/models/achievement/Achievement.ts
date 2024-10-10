@@ -9,12 +9,18 @@ import {
 import AvatarDecoration from '../store/avatarDecoration/AvatarDecoration';
 import UserAchievement from './UserAchievement';
 import User from '../User';
+import { AchievementTypes } from '../../../enums/achievement';
 
 @Table({
     timestamps: false,
     tableName: 'achievements'
 })
 class Achievement extends Model {
+    @Column({
+        type: DataType.ENUM(...Object.values(AchievementTypes))
+    })
+    type: AchievementTypes;
+
     @Column({
         type: DataType.STRING
     })

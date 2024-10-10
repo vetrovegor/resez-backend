@@ -1,4 +1,4 @@
-export enum Achievements {
+export enum AchievementNames {
     MOTHER_HACKER = 'Мамкин хакер',
     LVL_5 = 'Стремительный старт',
     LVL_10 = 'Первый рубеж',
@@ -11,4 +11,10 @@ export enum Achievements {
     TEST_10 = 'Тестер 10',
     TEST_100 = 'Тестер 100',
     TEST_1000 = 'Тестер 1000'
+}
+
+export enum AchievementTypes {
+    LVL = 'Уровень',
+    TEST = 'Тесты',
+    SECRET = 'Секретные'
 }
