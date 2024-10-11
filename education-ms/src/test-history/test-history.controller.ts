@@ -9,6 +9,12 @@ import {
 import { TestHistoryService } from './test-history.service';
 import { CurrentUser } from '@auth/decorators/current-user.decorator';
 import { JwtPayload } from '@auth/interfaces/interfaces';
+import {
+    Ctx,
+    MessagePattern,
+    Payload,
+    RmqContext
+} from '@nestjs/microservices';
 
 @Controller('test-history')
 export class TestHistoryController {
@@ -36,5 +42,19 @@ export class TestHistoryController {
         @Param('id', ParseIntPipe) id: number
     ) {
         return await this.testHistoryService.getById(id, user.id);
+    }
+
+    @MessagePattern('tests-count')
+    async getCountByUserId(
+        @Payload() userId: number,
+        @Ctx() context: RmqContext
+    ) {
+        console.log({ userId });
+        const channel = context.getChannelRef();
+        const originalMsg = context.getMessage();
+        const { replyTo } = originalMsg.properties;
+        const testsCount =
+            await this.testHistoryService.getCountByUserId(userId);
+        channel.sendToQueue(replyTo, Buffer.from(JSON.stringify(testsCount)));
     }
 }

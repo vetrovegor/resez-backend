@@ -109,3 +109,12 @@ userRouter.get(
     permissionMiddleware(Permissions.AssignRoles),
     userController.getUserRoles   
 );
+
+userRouter.delete(
+    '/:id/subscription',
+    param('id').isNumeric(),
+    validationMiddleware,
+    accessTokenMiddleware(true),
+    permissionMiddleware(Permissions.Users),
+    userController.removeSubscriptionFromUser   
+);

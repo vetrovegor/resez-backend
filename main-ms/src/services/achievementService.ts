@@ -12,117 +12,117 @@ const initialAchievements: {
     achievement: string;
     icon: string;
     description: string;
+    targetValue: number;
     xp: number;
     coins: number;
-    isSecret: boolean;
 }[] = [
     {
         type: AchievementTypes.SECRET,
         achievement: AchievementNames.MOTHER_HACKER,
         icon: process.env.STATIC_URL + 'achievements/mother-hacker.svg',
         description: 'Попытаться взломать админку (/wp-admin)',
+        targetValue: 1,
         xp: 100,
-        coins: 100,
-        isSecret: true
+        coins: 100
     },
     {
         type: AchievementTypes.LVL,
         achievement: AchievementNames.LVL_5,
         icon: process.env.STATIC_URL + 'achievements/lvl-5.svg',
         description: 'Достигнуть 5 уровня',
+        targetValue: 5,
         xp: 100,
-        coins: 100,
-        isSecret: false
+        coins: 100
     },
     {
         type: AchievementTypes.LVL,
         achievement: AchievementNames.LVL_10,
         icon: process.env.STATIC_URL + 'achievements/lvl-10.svg',
         description: 'Достигнуть 10 уровня',
+        targetValue: 10,
         xp: 100,
-        coins: 100,
-        isSecret: false
+        coins: 100
     },
     {
         type: AchievementTypes.LVL,
         achievement: AchievementNames.LVL_25,
         icon: process.env.STATIC_URL + 'achievements/lvl-25.svg',
         description: 'Достигнуть 25 уровня',
+        targetValue: 25,
         xp: 100,
-        coins: 100,
-        isSecret: false
+        coins: 100
     },
     {
         type: AchievementTypes.LVL,
         achievement: AchievementNames.LVL_50,
         icon: process.env.STATIC_URL + 'achievements/lvl-50.svg',
         description: 'Достигнуть 50 уровня',
+        targetValue: 50,
         xp: 100,
-        coins: 100,
-        isSecret: false
+        coins: 100
     },
     {
         type: AchievementTypes.LVL,
         achievement: AchievementNames.LVL_100,
         icon: process.env.STATIC_URL + 'achievements/lvl-10.svg',
         description: 'Достигнуть 100 уровня',
+        targetValue: 100,
         xp: 100,
-        coins: 100,
-        isSecret: false
+        coins: 100
     },
     {
         type: AchievementTypes.LVL,
         achievement: AchievementNames.LVL_500,
         icon: process.env.STATIC_URL + 'achievements/lvl-500.svg',
         description: 'Достигнуть 500 уровня',
+        targetValue: 500,
         xp: 100,
-        coins: 100,
-        isSecret: false
+        coins: 100
     },
     {
         type: AchievementTypes.LVL,
         achievement: AchievementNames.LVL_1000,
         icon: process.env.STATIC_URL + 'achievements/lvl-1000.svg',
         description: 'Достигнуть 1000 уровня',
+        targetValue: 1000,
         xp: 100,
-        coins: 100,
-        isSecret: false
+        coins: 100
     },
     {
         type: AchievementTypes.TEST,
         achievement: AchievementNames.TEST_1,
         icon: process.env.STATIC_URL + 'achievements/test-1.svg',
         description: 'Решите 1 тест',
+        targetValue: 1,
         xp: 50,
-        coins: 70,
-        isSecret: false
+        coins: 70
     },
     {
         type: AchievementTypes.TEST,
         achievement: AchievementNames.TEST_10,
         icon: process.env.STATIC_URL + 'achievements/test-10.svg',
         description: 'Решите 10 тестов',
+        targetValue: 10,
         xp: 50,
-        coins: 70,
-        isSecret: false
+        coins: 70
     },
     {
         type: AchievementTypes.TEST,
         achievement: AchievementNames.TEST_100,
         icon: process.env.STATIC_URL + 'achievements/test-100.svg',
         description: 'Решите 100 тестов',
+        targetValue: 100,
         xp: 50,
-        coins: 70,
-        isSecret: false
+        coins: 70
     },
     {
         type: AchievementTypes.TEST,
         achievement: AchievementNames.TEST_1000,
         icon: process.env.STATIC_URL + 'achievements/test-1000.svg',
         description: 'Решите 1000 тестов',
+        targetValue: 1000,
         xp: 50,
-        coins: 70,
-        isSecret: false
+        coins: 70
     }
 ];
 
@@ -133,9 +133,9 @@ class AchievementService {
             achievement,
             icon,
             description,
+            targetValue,
             xp,
-            coins,
-            isSecret
+            coins
         } of initialAchievements) {
             const existedAchievement = await Achievement.findOne({
                 where: { achievement }
@@ -145,18 +145,18 @@ class AchievementService {
                 existedAchievement.set('type', type);
                 existedAchievement.set('icon', icon);
                 existedAchievement.set('description', description);
+                existedAchievement.set('targetValue', targetValue);
                 existedAchievement.set('xp', xp);
                 existedAchievement.set('coins', coins);
-                existedAchievement.set('isSecret', isSecret);
                 await existedAchievement.save();
             } else {
                 await Achievement.create({
                     achievement,
                     icon,
                     description,
+                    targetValue,
                     xp,
-                    coins,
-                    isSecret
+                    coins
                 });
             }
         }
@@ -238,15 +238,16 @@ class AchievementService {
                     achievement,
                     icon,
                     description,
+                    targetValue,
                     xp,
-                    coins,
-                    isSecret
+                    coins
                 } = achievementData.toJSON();
 
                 const collectedData = userAchievementData.find(
                     item => item.get('achievementId') == id
                 );
 
+                const isSecret = type == AchievementTypes.SECRET;
                 const isShowInfo = !isSecret || (isSecret && collectedData);
 
                 return {
@@ -255,6 +256,7 @@ class AchievementService {
                     achievement: isShowInfo ? achievement : null,
                     icon: isShowInfo ? icon : null,
                     description: isShowInfo ? description : null,
+                    targetValue,
                     xp: isShowInfo ? xp : null,
                     coins: isShowInfo ? coins : null,
                     isCollected: !!collectedData,
@@ -263,24 +265,56 @@ class AchievementService {
             }
         );
 
+        const { level } = await userService.getUserLevelInfoById(userId);
+
+        const testsCount = (await rmqService.sendToQueue(
+            'education-queue',
+            'tests-count',
+            userId
+        )) as number;
+
+        const determineProgress = (
+            achievement: Partial<Achievement> & { isCollected: boolean },
+            value: number
+        ) =>
+            achievement.isCollected || value >= achievement.targetValue
+                ? achievement.targetValue
+                : value;
+
         return [
             {
                 type: AchievementTypes.LVL,
-                elements: modiifedAchievementsData.filter(
-                    achievement => achievement.type == AchievementTypes.LVL
-                )
+                elements: modiifedAchievementsData
+                    .filter(
+                        achievement => achievement.type == AchievementTypes.LVL
+                    )
+                    .map(achievement => ({
+                        ...achievement,
+                        progress: determineProgress(achievement, level)
+                    }))
             },
             {
                 type: AchievementTypes.TEST,
-                elements: modiifedAchievementsData.filter(
-                    achievement => achievement.type == AchievementTypes.TEST
-                )
+                elements: modiifedAchievementsData
+                    .filter(
+                        achievement => achievement.type == AchievementTypes.TEST
+                    )
+                    .map(achievement => ({
+                        ...achievement,
+                        progress: determineProgress(achievement, testsCount)
+                    }))
             },
             {
                 type: AchievementTypes.SECRET,
-                elements: modiifedAchievementsData.filter(
-                    achievement => achievement.type == AchievementTypes.SECRET
-                )
+                elements: modiifedAchievementsData
+                    .filter(
+                        achievement =>
+                            achievement.type == AchievementTypes.SECRET
+                    )
+                    .map(achievement => ({
+                        ...achievement,
+                        progress: determineProgress(achievement, 0)
+                    }))
             }
         ];
     }

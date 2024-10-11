@@ -1,10 +1,10 @@
 import { LevelInfo } from "types/user";
 
-const XPIncreaseFactor = 10;
-const baseXP = 490;
+const XP_INCREASE_FACTOR = 10;
+const BASE_XP = 490;
 
 const calculateLevelXpLimit = (level: number): number => {
-    return XPIncreaseFactor * level * level + baseXP;
+    return XP_INCREASE_FACTOR * level * level + BASE_XP;
 }
 
 export const calculateLevelInfo = (xp: number): LevelInfo => {

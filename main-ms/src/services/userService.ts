@@ -303,10 +303,7 @@ class UserService {
     }
 
     async setTheme(themeId: number, userId: number) {
-        await themeService.getUserTheme(
-            themeId,
-            userId
-        );
+        await themeService.getUserTheme(themeId, userId);
 
         const user = await User.findByPk(userId);
 
@@ -581,7 +578,7 @@ class UserService {
         const { xp, subscriptionExpiredDate, isSubscriptionPermanent } =
             user.toJSON();
         const levelInfo = calculateLevelInfo(xp);
-        const subscription = await user.getSubscription();
+        const subscriptionData = await user.getSubscription();
 
         const activity = await rmqService.sendToQueue(
             'socket-queue',
@@ -592,11 +589,12 @@ class UserService {
         return {
             levelInfo,
             balance: user.get('balance'),
-            subscription: subscription
+            subscription: subscriptionData
                 ? {
-                      ...subscription.toJSON(),
-                      subscriptionExpiredDate,
-                      isSubscriptionPermanent
+                      id: subscriptionData.get('id'),
+                      subscription: subscriptionData.get('subscription'),
+                      expiredDate: subscriptionExpiredDate,
+                      isPermanent: isSubscriptionPermanent
                   }
                 : null,
             activity
@@ -656,6 +654,11 @@ class UserService {
         return await user.toShortInfo();
     }
 
+    async getUserLevelInfoById(id: number) {
+        const user = await this.getUserById(id);
+        return calculateLevelInfo(user.get('xp'));
+    }
+
     async addCoins(userId: number, amount: number) {
         const user = await this.getUserById(userId);
         const balance = user.get('balance');
@@ -681,7 +684,13 @@ class UserService {
         return await user.save();
     }
 
-    async takePaymentForTheProduct({ userId, price }: { userId: number; price: number }) {
+    async takePaymentForTheProduct({
+        userId,
+        price
+    }: {
+        userId: number;
+        price: number;
+    }) {
         if (price > 0) {
             const user = await this.getUserById(userId);
             const balance = user.get('balance');
@@ -693,6 +702,16 @@ class UserService {
             user.set('balance', balance - price);
             await user.save();
         }
+    }
+
+    async removeSubscriptionFromUser(userId: number) {
+        const user = await this.getUserById(userId);
+
+        user.set('subscriptionId', null);
+        user.set('subscriptionExpiredDate', null);
+        user.set('isSubscriptionPermanent', null);
+
+        return await user.save();
     }
 }
 

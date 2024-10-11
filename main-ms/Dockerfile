@@ -8,6 +8,8 @@ RUN npm install
 
 COPY build build
 
+COPY static static
+
 EXPOSE 8080
 
 CMD ["npm", "start"]

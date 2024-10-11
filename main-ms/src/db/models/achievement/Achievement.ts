@@ -39,18 +39,17 @@ class Achievement extends Model {
     @Column({
         type: DataType.INTEGER
     })
+    targetValue: number;
+
+    @Column({
+        type: DataType.INTEGER
+    })
     xp: number;
 
     @Column({
         type: DataType.INTEGER
     })
     coins: number;
-
-    @Column({
-        type: DataType.BOOLEAN,
-        defaultValue: false
-    })
-    isSecret: boolean;
 
     @HasMany(() => AvatarDecoration, {
         onDelete: 'CASCADE'

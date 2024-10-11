@@ -478,6 +478,20 @@ class UserhController {
             next(error);
         }
     }
+
+    async removeSubscriptionFromUser(
+        req: RequestWithParamsAndUser<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            await userService.removeSubscriptionFromUser(req.params.id);
+
+            res.sendStatus(200);
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export default new UserhController();

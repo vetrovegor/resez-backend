@@ -145,4 +145,8 @@ export class TestHistoryService {
             }
         };
     }
+
+    async getCountByUserId(userId: number) {
+        return await this.testHistoryRepository.count({ where: { userId } });
+    }
 }

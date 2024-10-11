@@ -6,25 +6,21 @@ import {
     RequestWithBody,
     RequestWithParamsAndUser
 } from 'types/request';
+import { AssignsubscriptionDTO } from 'types/subscription';
 
 class SubscriptionController {
     async assignSubscription(
-        req: RequestWithBody<{
-            subscription: string;
-            nickname: string;
-            expiredDate: Date;
-            isPermanent: boolean;
-        }>,
+        req: RequestWithBody<AssignsubscriptionDTO>,
         res: Response,
         next: NextFunction
     ) {
         try {
-            const { subscription, nickname, expiredDate, isPermanent } =
+            const {subscriptionId, userId, expiredDate, isPermanent } =
                 req.body;
 
             await subscribeService.assignSubscription(
-                subscription,
-                nickname,
+                subscriptionId,
+                userId,
                 expiredDate,
                 isPermanent
             );

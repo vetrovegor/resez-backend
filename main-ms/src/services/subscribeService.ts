@@ -48,20 +48,26 @@ class SubscriptionService {
     }
 
     async assignSubscription(
-        subscription: string,
-        nickname: string,
+        subscriptionId: number,
+        userId: number,
         expiredDate: Date,
         isPermanent: boolean
     ) {
-        const existedSubscription = await Subscription.findOne({
-            where: { subscription }
-        });
+        if (!isPermanent) {
+            if (new Date(expiredDate) < new Date()) {
+                throw ApiError.badRequest('Некорректный срок действия');
+            }
+        } else {
+            expiredDate = null;
+        }
+
+        const existedSubscription = await Subscription.findByPk(subscriptionId);
 
         if (!existedSubscription) {
             throw ApiError.notFound('Подписка не найдена');
         }
 
-        const existedUser = await userService.getUserByNickname(nickname);
+        const existedUser = await userService.getUserById(userId);
 
         existedUser.set('subscriptionId', existedSubscription.get('id'));
         existedUser.set('subscriptionExpiredDate', expiredDate);

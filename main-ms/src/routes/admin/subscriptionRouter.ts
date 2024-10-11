@@ -10,11 +10,11 @@ export const subscriptionRouter = Router();
 subscriptionRouter.post(
     '/assign',
     // заменить в будущем на subscriptionId и userId
-    body('subscription')
-        .isString()
-        .withMessage('название подписки должно быть строкой'),
-    body('nickname').isString().withMessage('никнейм должен быть строкой'),
-    body('expiredDate').isISO8601().withMessage('expiredDate должна быть датой'),
+    body('subscriptionId').isNumeric(),
+    body('userId').isNumeric(),
+    body('expiredDate')
+        .isISO8601()
+        .withMessage('expiredDate должна быть датой'),
     body('isPermanent')
         .isBoolean()
         .withMessage('isPermanent должен быть булевым'),
