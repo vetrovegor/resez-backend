@@ -6,8 +6,14 @@ export interface User {
 }
 
 export interface UserBattle {
+    socketId: string;
     userId: number;
     battleId: number;
-    status: 'waiting' | 'ready';
+    isReady: boolean;
     isLeader: boolean;
+}
+
+export interface BattleDeleteTimeout {
+    battleId: number;
+    timeout: NodeJS.Timeout;
 }

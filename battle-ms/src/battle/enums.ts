@@ -1,6 +1,7 @@
 export const enum EventTypes {
     Join = 'join',
-    Leave = 'leave'
+    Leave = 'leave',
+    ToggleReady = 'toggle-ready'
 }
 
 export const enum EmitTypes {
@@ -11,5 +12,6 @@ export const enum EmitTypes {
     BattleFull = 'battle-full',
     UserJoined = 'user-joined',
     BattleJoined = 'battle-joined',
-    UserLeaved = 'user-leaved'
+    UserLeaved = 'user-leaved',
+    UserToggleReady = 'user-toggle-ready'
 }
