@@ -3,6 +3,7 @@ import amqp from 'amqplib';
 import userService from './userService';
 import codeService from './codeService';
 import sessionService from './sessionService';
+import achievementService from './achievementService';
 
 class RmqService {
     private channel: amqp.Channel;
@@ -115,13 +116,23 @@ class RmqService {
                             await userService.getUserById(message.data)
                         ).toPreview();
                     } else if (message.pattern == 'preview-by-nickname') {
-                        console.log({ message, data: message.data });
                         response = (
                             await userService.getUserByNickname(message.data)
                         ).toPreview();
+                    } else if (message.pattern == 'check-achievement') {
+                        const { userId, achievementType, value } = message.data;
+
+                        await achievementService.checkAchievementCompletion(
+                            userId,
+                            achievementType,
+                            value
+                        );
                     }
                 } catch (error) {
-                    
+                    console.log(
+                        'Произошла ошибка при обработке сообщения RabbitMQ',
+                        error
+                    );
                 }
 
                 this.channel.sendToQueue(

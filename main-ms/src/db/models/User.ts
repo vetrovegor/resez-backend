@@ -85,7 +85,7 @@ class User extends Model {
     blockReason: string;
 
     @Column({
-        type: DataType.INTEGER,
+        type: DataType.BIGINT,
         defaultValue: 0
     })
     xp: number;

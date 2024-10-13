@@ -49,7 +49,6 @@ export class TestHistoryController {
         @Payload() userId: number,
         @Ctx() context: RmqContext
     ) {
-        console.log({ userId });
         const channel = context.getChannelRef();
         const originalMsg = context.getMessage();
         const { replyTo } = originalMsg.properties;

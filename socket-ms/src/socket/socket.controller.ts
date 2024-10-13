@@ -15,6 +15,7 @@ export class SocketController {
 
     @EventPattern('emit-to-user')
     emitToUser(content: { userId: number; emitType: EmitTypes; data: any }) {
+        console.log(content);
         const { userId, emitType, data } = content;
         this.socketService.emitToUser(userId, emitType, data);
     }
@@ -70,6 +71,9 @@ export class SocketController {
     emitGettingAchievement(
         @Payload() data: { userId: number; achievement: any }
     ) {
+        console.log(
+            `Пользователь ${data.userId} получил достижение ${data.achievement.achievement}`
+        );
         this.socketService.emitGettingAchievement(data);
     }
 }

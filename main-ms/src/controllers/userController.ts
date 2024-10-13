@@ -269,11 +269,11 @@ class UserhController {
         next: NextFunction
     ) {
         try {
-            const achievements = await achievementService.getUserAchievements(
+            const data = await achievementService.getUserAchievements(
                 req.user.id
             );
 
-            res.json({ achievements });
+            res.json(data);
         } catch (error) {
             next(error);
         }

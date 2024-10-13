@@ -6,6 +6,7 @@ import { TestSubmitDto } from '@test/dto/test-submit.dto';
 import { Test } from '@test/test.entity';
 import { TaskAttemptService } from '@task-attempt/task-attempt.service';
 import { UserService } from '@user/user.service';
+import { AchievementTypes } from '@user/enums';
 
 @Injectable()
 export class TestHistoryService {
@@ -46,6 +47,16 @@ export class TestHistoryService {
         });
 
         await this.taskAttemptService.save(dto, test, savedTestHistory);
+
+        const solvedTestsCount = await this.testHistoryRepository.count({
+            where: { userId }
+        });
+
+        await this.userService.checkAchievementCompletion(
+            userId,
+            AchievementTypes.TEST,
+            solvedTestsCount
+        );
     }
 
     async find(userId: number, take: number, skip: number, subjectId: number) {

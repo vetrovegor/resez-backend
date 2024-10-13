@@ -326,11 +326,6 @@ export class TaskService {
         subjectId: number,
         subjectTasksIds: number[]
     ) {
-        console.log({
-            method: 'archiveTasksBySubjectTasksIds',
-            subjectId,
-            subjectTasksIds
-        });
         await this.taskRepository.update(
             {
                 subject: { id: subjectId },
@@ -350,11 +345,6 @@ export class TaskService {
         subjectTaskId: number,
         subThemeIds: number[]
     ) {
-        console.log({
-            method: 'archiveTasksBySubThemeIds',
-            subjectTaskId,
-            subThemeIds
-        });
         await this.taskRepository.update(
             {
                 subjectTask: { id: subjectTaskId },

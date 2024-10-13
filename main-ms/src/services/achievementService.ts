@@ -22,8 +22,8 @@ const initialAchievements: {
         icon: process.env.STATIC_URL + 'achievements/mother-hacker.svg',
         description: 'Попытаться взломать админку (/wp-admin)',
         targetValue: 1,
-        xp: 100,
-        coins: 100
+        xp: 404,
+        coins: 32
     },
     {
         type: AchievementTypes.LVL,
@@ -31,8 +31,8 @@ const initialAchievements: {
         icon: process.env.STATIC_URL + 'achievements/lvl-5.svg',
         description: 'Достигнуть 5 уровня',
         targetValue: 5,
-        xp: 100,
-        coins: 100
+        xp: 50,
+        coins: 5
     },
     {
         type: AchievementTypes.LVL,
@@ -40,8 +40,8 @@ const initialAchievements: {
         icon: process.env.STATIC_URL + 'achievements/lvl-10.svg',
         description: 'Достигнуть 10 уровня',
         targetValue: 10,
-        xp: 100,
-        coins: 100
+        xp: 150,
+        coins: 10
     },
     {
         type: AchievementTypes.LVL,
@@ -49,8 +49,8 @@ const initialAchievements: {
         icon: process.env.STATIC_URL + 'achievements/lvl-25.svg',
         description: 'Достигнуть 25 уровня',
         targetValue: 25,
-        xp: 100,
-        coins: 100
+        xp: 500,
+        coins: 20
     },
     {
         type: AchievementTypes.LVL,
@@ -58,8 +58,8 @@ const initialAchievements: {
         icon: process.env.STATIC_URL + 'achievements/lvl-50.svg',
         description: 'Достигнуть 50 уровня',
         targetValue: 50,
-        xp: 100,
-        coins: 100
+        xp: 1500,
+        coins: 30
     },
     {
         type: AchievementTypes.LVL,
@@ -67,8 +67,8 @@ const initialAchievements: {
         icon: process.env.STATIC_URL + 'achievements/lvl-10.svg',
         description: 'Достигнуть 100 уровня',
         targetValue: 100,
-        xp: 100,
-        coins: 100
+        xp: 2500,
+        coins: 40
     },
     {
         type: AchievementTypes.LVL,
@@ -76,8 +76,8 @@ const initialAchievements: {
         icon: process.env.STATIC_URL + 'achievements/lvl-500.svg',
         description: 'Достигнуть 500 уровня',
         targetValue: 500,
-        xp: 100,
-        coins: 100
+        xp: 5000,
+        coins: 50
     },
     {
         type: AchievementTypes.LVL,
@@ -85,7 +85,7 @@ const initialAchievements: {
         icon: process.env.STATIC_URL + 'achievements/lvl-1000.svg',
         description: 'Достигнуть 1000 уровня',
         targetValue: 1000,
-        xp: 100,
+        xp: 7500,
         coins: 100
     },
     {
@@ -95,7 +95,7 @@ const initialAchievements: {
         description: 'Решите 1 тест',
         targetValue: 1,
         xp: 50,
-        coins: 70
+        coins: 5
     },
     {
         type: AchievementTypes.TEST,
@@ -103,8 +103,8 @@ const initialAchievements: {
         icon: process.env.STATIC_URL + 'achievements/test-10.svg',
         description: 'Решите 10 тестов',
         targetValue: 10,
-        xp: 50,
-        coins: 70
+        xp: 150,
+        coins: 10
     },
     {
         type: AchievementTypes.TEST,
@@ -112,8 +112,8 @@ const initialAchievements: {
         icon: process.env.STATIC_URL + 'achievements/test-100.svg',
         description: 'Решите 100 тестов',
         targetValue: 100,
-        xp: 50,
-        coins: 70
+        xp: 500,
+        coins: 20
     },
     {
         type: AchievementTypes.TEST,
@@ -121,8 +121,8 @@ const initialAchievements: {
         icon: process.env.STATIC_URL + 'achievements/test-1000.svg',
         description: 'Решите 1000 тестов',
         targetValue: 1000,
-        xp: 50,
-        coins: 70
+        xp: 1000,
+        coins: 30
     }
 ];
 
@@ -217,10 +217,7 @@ class AchievementService {
 
         await userService.rewardUser(userId, xp, coins);
 
-        rmqService.sendToQueue('socket-queue', 'achievement', {
-            userId,
-            achievement: achievementData
-        });
+        this.sendAchievementNotification(userId, achievementData);
     }
 
     async getUserAchievements(userId: number) {
@@ -281,42 +278,96 @@ class AchievementService {
                 ? achievement.targetValue
                 : value;
 
-        return [
-            {
-                type: AchievementTypes.LVL,
-                elements: modiifedAchievementsData
-                    .filter(
-                        achievement => achievement.type == AchievementTypes.LVL
-                    )
-                    .map(achievement => ({
-                        ...achievement,
-                        progress: determineProgress(achievement, level)
-                    }))
-            },
-            {
-                type: AchievementTypes.TEST,
-                elements: modiifedAchievementsData
-                    .filter(
-                        achievement => achievement.type == AchievementTypes.TEST
-                    )
-                    .map(achievement => ({
-                        ...achievement,
-                        progress: determineProgress(achievement, testsCount)
-                    }))
-            },
-            {
-                type: AchievementTypes.SECRET,
-                elements: modiifedAchievementsData
-                    .filter(
-                        achievement =>
-                            achievement.type == AchievementTypes.SECRET
-                    )
-                    .map(achievement => ({
-                        ...achievement,
-                        progress: determineProgress(achievement, 0)
-                    }))
+        const getAchievementsByType = (type: AchievementTypes, value: number) =>
+            modiifedAchievementsData
+                .filter(achievement => achievement.type == type)
+                .map(achievement => ({
+                    ...achievement,
+                    progress: determineProgress(achievement, value)
+                }));
+
+        const lvlAchievements = getAchievementsByType(
+            AchievementTypes.LVL,
+            level
+        );
+        const testAchievements = getAchievementsByType(
+            AchievementTypes.TEST,
+            testsCount
+        );
+        const secretAchievements = getAchievementsByType(
+            AchievementTypes.SECRET,
+            0
+        );
+
+        return {
+            totalCount: modiifedAchievementsData.length,
+            achievements: [
+                {
+                    type: AchievementTypes.LVL,
+                    totalCount: lvlAchievements.length,
+                    elements: lvlAchievements
+                },
+                {
+                    type: AchievementTypes.TEST,
+                    totalCount: testAchievements.length,
+                    elements: testAchievements
+                },
+                {
+                    type: AchievementTypes.SECRET,
+                    totalCount: secretAchievements.length,
+                    elements: secretAchievements
+                }
+            ]
+        };
+    }
+
+    async checkAchievementCompletion(
+        userId: number,
+        achievementType: AchievementTypes,
+        value: number
+    ) {
+        const achievementsByType = await Achievement.findAll({
+            where: { type: achievementType }
+        });
+
+        const userAchievementIds = (
+            await UserAchievement.findAll({
+                where: { userId }
+            })
+        ).map(item => item.get('achievementId'));
+
+        for (const achievement of achievementsByType) {
+            const {
+                id: achievementId,
+                targetValue,
+                xp,
+                coins
+            } = achievement.toJSON();
+
+            if (
+                !userAchievementIds.includes(achievementId) &&
+                value >= targetValue
+            ) {
+                await UserAchievement.create({
+                    userId,
+                    achievementId
+                });
+
+                await userService.rewardUser(userId, xp, coins);
+
+                this.sendAchievementNotification(userId, achievement);
             }
-        ];
+        }
+    }
+
+    async sendAchievementNotification(
+        userId: number,
+        achievement: Achievement
+    ) {
+        rmqService.sendToQueue('socket-queue', 'achievement', {
+            userId,
+            achievement
+        });
     }
 }
 

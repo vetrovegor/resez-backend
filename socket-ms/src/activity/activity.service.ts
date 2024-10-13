@@ -34,7 +34,7 @@ export class ActivityService {
             select: { id: true, type: true, date: true },
             where: { userId },
             orderBy: { date: 'desc' },
-            take: 20
+            take: 3
         });
     }
 }

@@ -20,6 +20,8 @@ import rmqService from './rmqService';
 import { redisClient } from '../redisClient';
 import avatarDecorationService from './store/avatarDecorationService';
 import themeService from './store/themeService';
+import achievementService from './achievementService';
+import { AchievementTypes } from '../enums/achievement';
 
 class UserService {
     async getUserById(id: number): Promise<User> {
@@ -403,21 +405,39 @@ class UserService {
     }
 
     async getStats() {
+        const online = await rmqService.sendToQueue('socket-queue', 'online');
+
+        const cachedAdminStats = await redisClient.get('stats');
+
+        if (cachedAdminStats) {
+            return {
+                online,
+                ...JSON.parse(cachedAdminStats)
+            };
+        }
+
         const usersCount = await User.count();
+
         const adminsCount = await UserRole.count({
             col: 'userId',
             distinct: true
         });
+
         const blockedUsersCount = await User.count({
             where: { isBlocked: true }
         });
-        const online = await rmqService.sendToQueue('socket-queue', 'online');
+
+        await redisClient.set(
+            'stats',
+            JSON.stringify({ usersCount, adminsCount, blockedUsersCount }),
+            { EX: 15 }
+        );
 
         return {
+            online,
             usersCount,
             adminsCount,
-            blockedUsersCount,
-            online
+            blockedUsersCount
         };
     }
 
@@ -643,12 +663,21 @@ class UserService {
 
         const levelInfo = calculateLevelInfo(user.get('xp'));
 
-        if (levelInfo.level > oldLevel) {
+        const userId = user.get('id');
+        const { level: newLevel } = levelInfo;
+
+        if (newLevel > oldLevel) {
             rmqService.sendToQueue('socket-queue', 'emit-to-user', {
-                userId: user.get('id'),
+                userId,
                 emitType: EmitTypes.NewLevel,
                 data: levelInfo
             });
+
+            await achievementService.checkAchievementCompletion(
+                userId,
+                AchievementTypes.LVL,
+                newLevel
+            );
         }
 
         return await user.toShortInfo();
