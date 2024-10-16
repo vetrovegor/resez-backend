@@ -1,3 +1,8 @@
+export enum BattleTypes {
+    Collection = 'collection',
+    Subject = 'subject'
+}
+
 export const enum EventTypes {
     Join = 'join',
     Leave = 'leave',

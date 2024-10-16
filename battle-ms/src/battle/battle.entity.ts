@@ -5,6 +5,7 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from 'typeorm';
+import { BattleTypes } from './enums';
 
 @Entity({
     name: 'battles'
@@ -12,6 +13,12 @@ import {
 export class Battle {
     @PrimaryGeneratedColumn()
     id: number;
+
+    @Column({
+        type: 'enum',
+        enum: BattleTypes
+    })
+    type: BattleTypes;
 
     @Column({ name: 'players_count' })
     playersCount: number;

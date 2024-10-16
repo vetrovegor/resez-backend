@@ -96,54 +96,17 @@ export class BattleService implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     async handleDisconnect(socket: Socket) {
-        const socketId = socket.id;
-
-        console.log('Disnnected client:', socketId);
+        console.log('Disnnected client:', socket.id);
 
         const connectedUser = this.connectedUsers.find(
-            user => user.socketId == socketId
+            user => user.socketId == socket.id
         );
 
         this.connectedUsers = this.connectedUsers.filter(
-            user => user.socketId != socketId
+            user => user.socketId != socket.id
         );
 
-        // вынести 1
-        const userBattle = this.usersBattles.find(
-            userBattle => userBattle.socketId == socketId
-        );
-
-        if (userBattle) {
-            this.usersBattles = this.usersBattles.filter(
-                userBattle => userBattle.socketId != socketId
-            );
-
-            const battleId = userBattle.battleId;
-
-            socket
-                .to(battleId.toString())
-                .emit(EmitTypes.UserLeaved, { user: connectedUser });
-
-            socket.leave(battleId.toString());
-
-            if (this.usersBattles.length === 0) {
-                const timeout = setTimeout(
-                    () => {
-                        this.battleDeleteTimeouts =
-                            this.battleDeleteTimeouts.filter(
-                                item => item.battleId != battleId
-                            );
-                        this.delete(battleId);
-                    },
-                    Number(this.configService.get('BATTLE_AUTO_DELETE_TIMEOUT'))
-                );
-
-                this.battleDeleteTimeouts.push({
-                    battleId,
-                    timeout
-                });
-            }
-        }
+        this.disconnectUserFromBattle(socket, connectedUser);
 
         this.logInfo();
     }
@@ -225,7 +188,7 @@ export class BattleService implements OnGatewayConnection, OnGatewayDisconnect {
         });
 
         const battleDeleteTimeout = this.battleDeleteTimeouts.find(
-            item => item.battleId === battleId
+            item => item.battleId == battleId
         );
 
         if (battleDeleteTimeout) {
@@ -239,33 +202,36 @@ export class BattleService implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     handleLeaveEvent(socket: Socket) {
-        const socketId = socket.id;
-
-        console.log('Leaved client:', socketId);
+        console.log('Leaved client:', socket.id);
 
         const connectedUser = this.connectedUsers.find(
             user => user.socketId == socket.id
         );
 
-        // вынести 1
+        this.disconnectUserFromBattle(socket, connectedUser);
+
+        this.logInfo();
+    }
+
+    disconnectUserFromBattle(socket: Socket, user: User) {
         const userBattle = this.usersBattles.find(
-            userBattle => userBattle.socketId == socketId
+            userBattle => userBattle.socketId == socket.id
         );
 
         if (userBattle) {
             this.usersBattles = this.usersBattles.filter(
-                userBattle => userBattle.socketId != socketId
+                userBattle => userBattle.socketId != socket.id
             );
 
-            const battleId = userBattle.battleId;
+            const { battleId, isLeader, isReady } = userBattle;
 
-            socket
-                .to(battleId.toString())
-                .emit(EmitTypes.UserLeaved, { user: connectedUser });
+            socket.to(battleId.toString()).emit(EmitTypes.UserLeaved, {
+                user: { ...user, isLeader, isReady }
+            });
 
             socket.leave(battleId.toString());
 
-            if (this.usersBattles.length === 0) {
+            if (this.usersBattles.length == 0) {
                 const timeout = setTimeout(
                     () => {
                         this.battleDeleteTimeouts =
@@ -283,8 +249,6 @@ export class BattleService implements OnGatewayConnection, OnGatewayDisconnect {
                 });
             }
         }
-
-        this.logInfo();
     }
 
     toggleReadyEvent(socket: Socket) {
@@ -306,7 +270,7 @@ export class BattleService implements OnGatewayConnection, OnGatewayDisconnect {
             user => user.socketId == socketId
         );
 
-        socket
+        this.server
             .to(existedUserBattle.battleId.toString())
             .emit(EmitTypes.UserToggleReady, {
                 user: {
@@ -336,16 +300,20 @@ export class BattleService implements OnGatewayConnection, OnGatewayDisconnect {
 
     createDto(battle: Battle, usersLimit?: number) {
         let users = this.usersBattles
-            .filter(userBattle => userBattle.battleId === battle.id)
+            .filter(userBattle => userBattle.battleId == battle.id)
             .map(userBattle =>
-                this.connectedUsers.find(u => u.id === userBattle.userId)
+                this.connectedUsers.find(u => u.id == userBattle.userId)
             )
             .filter(user => user !== undefined)
             .map(user => {
                 const { isReady } = this.usersBattles.find(
                     userBattle => userBattle.userId == user.id
                 );
-                return { ...user, isReady };
+                return {
+                    ...user,
+                    isLeader: battle.creatorId == user.id,
+                    isReady
+                };
             });
 
         if (usersLimit) {
