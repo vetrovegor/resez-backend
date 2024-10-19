@@ -17,16 +17,31 @@ class AvatarDecorationService {
         activeId?: number;
         collectedIds?: number[];
     }) {
-        const id = avatarDecoration.get('id');
+        avatarDecoration = avatarDecoration.toJSON();
+
+        delete avatarDecoration.requiredSubscriptionId;
+        delete avatarDecoration.requiredAchievementId;
+
+        const id = avatarDecoration.id;
 
         return {
-            ...avatarDecoration.toJSON(),
+            ...avatarDecoration,
+            requiredSubscription: avatarDecoration.requiredSubscription ? {
+                id: avatarDecoration.requiredSubscription.id,
+                subscription: avatarDecoration.requiredSubscription.subscription
+            }: null,
+            requiredAchievement: avatarDecoration.requiredAchievement ? {
+                id: avatarDecoration.requiredAchievement.id,
+                type: avatarDecoration.requiredAchievement.type,
+                achievement: avatarDecoration.requiredAchievement.achievement,
+                icon: avatarDecoration.requiredAchievement.icon,
+                description: avatarDecoration.requiredAchievement.description
+            }: null,
             isActive: id == activeId,
             isCollected: collectedIds.includes(id),
             type: 'avatar_decoration',
-            contentUrl:
-                process.env.STATIC_URL + avatarDecoration.get('contentUrl'),
-            options: JSON.parse(avatarDecoration.get('options').toString())
+            contentUrl: process.env.STATIC_URL + avatarDecoration.contentUrl,
+            options: JSON.parse(avatarDecoration.options.toString())
         };
     }
 
@@ -36,7 +51,8 @@ class AvatarDecorationService {
         price: number,
         seasonStartDate: Date,
         seasonEndDate: Date,
-        achievementId: number,
+        requiredSubscriptionId: number,
+        requiredAchievementId: number,
         options: string,
         content: UploadedFile
     ) {
@@ -48,7 +64,8 @@ class AvatarDecorationService {
             price,
             seasonStartDate,
             seasonEndDate,
-            achievementId,
+            requiredSubscriptionId,
+            requiredAchievementId,
             options,
             contentUrl
         });
@@ -60,6 +77,7 @@ class AvatarDecorationService {
 
     async getAvatarDecorations(limit: number, offset: number) {
         const avatarDecorations = await AvatarDecoration.findAll({
+            include: ['requiredSubscription', 'requiredAchievement'],
             order: [['createdAt', 'DESC']],
             limit,
             offset
@@ -132,6 +150,7 @@ class AvatarDecorationService {
         const where = { isPublished: true };
 
         const avatarDecorations = await AvatarDecoration.findAll({
+            include: ['requiredSubscription', 'requiredAchievement'],
             where,
             order: [['createdAt', 'DESC']],
             limit,
@@ -207,6 +226,7 @@ class AvatarDecorationService {
         const where = { userId };
 
         const userAvatarDecorations = await UserAvatarDecoration.findAll({
+            include: ['requiredSubscription', 'requiredAchievement'],
             where,
             order: [['createdAt', 'DESC']],
             limit,

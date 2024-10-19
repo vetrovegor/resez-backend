@@ -25,7 +25,8 @@ class AvatarDecorationController {
                 price,
                 seasonStartDate,
                 seasonEndDate,
-                achievementId,
+                requiredSubscriptionId,
+                requiredAchievementId,
                 options
             } = req.body;
             const { content } = req.files;
@@ -37,7 +38,8 @@ class AvatarDecorationController {
                     price,
                     seasonStartDate,
                     seasonEndDate,
-                    achievementId,
+                    requiredSubscriptionId,
+                    requiredAchievementId,
                     options,
                     content as UploadedFile
                 );

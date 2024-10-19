@@ -40,10 +40,10 @@ class Theme extends Model {
 
     @ForeignKey(() => Achievement)
     @Column
-    achievementId: number;
+    requiredAchievementId: number;
 
     @BelongsTo(() => Achievement)
-    achievement: Achievement;
+    requiredAchievement: Achievement;
 
     @Column({
         type: DataType.DATE

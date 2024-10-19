@@ -47,6 +47,16 @@ class SubscriptionService {
         });
     }
 
+    async getSubscriptionById(id: number) {
+        const subscription = await Subscription.findByPk(id);
+
+        if (!subscription) {
+            throw ApiError.notFound('Подписка не найдена');
+        }
+
+        return subscription;
+    }
+
     async assignSubscription(
         subscriptionId: number,
         userId: number,
@@ -61,11 +71,7 @@ class SubscriptionService {
             expiredDate = null;
         }
 
-        const existedSubscription = await Subscription.findByPk(subscriptionId);
-
-        if (!existedSubscription) {
-            throw ApiError.notFound('Подписка не найдена');
-        }
+        const existedSubscription = await this.getSubscriptionById(subscriptionId);;
 
         const existedUser = await userService.getUserById(userId);
 
@@ -81,11 +87,7 @@ class SubscriptionService {
     }
 
     async buySubscription(id: number, userId: number) {
-        const subscription = await Subscription.findByPk(id);
-
-        if (!subscription) {
-            throw ApiError.notFound('Подписка не найдена');
-        }
+        const subscription = await this.getSubscriptionById(id);
 
         const price = subscription.get('price');
         const user = await userService.getUserById(userId);

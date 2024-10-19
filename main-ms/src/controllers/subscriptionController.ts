@@ -1,6 +1,6 @@
 import { Response, NextFunction, Request } from 'express';
 
-import subscribeService from '../services/subscribeService';
+import subscriptionService from '../services/subscribtionService';
 import {
     IdParam,
     RequestWithBody,
@@ -18,7 +18,7 @@ class SubscriptionController {
             const {subscriptionId, userId, expiredDate, isPermanent } =
                 req.body;
 
-            await subscribeService.assignSubscription(
+            await subscriptionService.assignSubscription(
                 subscriptionId,
                 userId,
                 expiredDate,
@@ -33,7 +33,7 @@ class SubscriptionController {
 
     async getSubscriptions(req: Request, res: Response, next: NextFunction) {
         try {
-            const subscriptions = await subscribeService.getSubscriptions();
+            const subscriptions = await subscriptionService.getSubscriptions();
             res.json({ subscriptions });
         } catch (error) {
             next(error);
@@ -46,7 +46,7 @@ class SubscriptionController {
         next: NextFunction
     ) {
         try {
-            await subscribeService.buySubscription(req.params.id, req.user.id);
+            await subscriptionService.buySubscription(req.params.id, req.user.id);
             res.sendStatus(200);
         } catch (error) {
             next(error);

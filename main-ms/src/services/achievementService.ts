@@ -220,6 +220,13 @@ class AchievementService {
         this.sendAchievementNotification(userId, achievementData);
     }
 
+    getAchievementsByType<T extends Partial<Achievement>>(
+        achievements: T[],
+        type: AchievementTypes
+    ) {
+        return achievements.filter(achievement => achievement.type === type);
+    }
+
     async getUserAchievements(userId: number) {
         const achievementsData = await Achievement.findAll();
 
@@ -241,7 +248,7 @@ class AchievementService {
                 } = achievementData.toJSON();
 
                 const collectedData = userAchievementData.find(
-                    item => item.get('achievementId') == id
+                    item => item.get('requiredAchievementId') == id
                 );
 
                 const isSecret = type == AchievementTypes.SECRET;
@@ -278,23 +285,26 @@ class AchievementService {
                 ? achievement.targetValue
                 : value;
 
-        const getAchievementsByType = (type: AchievementTypes, value: number) =>
-            modiifedAchievementsData
-                .filter(achievement => achievement.type == type)
-                .map(achievement => ({
+        const getAchievementsByTypeWithProgress = (
+            type: AchievementTypes,
+            value: number
+        ) =>
+            this.getAchievementsByType(modiifedAchievementsData, type).map(
+                achievement => ({
                     ...achievement,
                     progress: determineProgress(achievement, value)
-                }));
+                })
+            );
 
-        const lvlAchievements = getAchievementsByType(
+        const lvlAchievements = getAchievementsByTypeWithProgress(
             AchievementTypes.LVL,
             level
         );
-        const testAchievements = getAchievementsByType(
+        const testAchievements = getAchievementsByTypeWithProgress(
             AchievementTypes.TEST,
             testsCount
         );
-        const secretAchievements = getAchievementsByType(
+        const secretAchievements = getAchievementsByTypeWithProgress(
             AchievementTypes.SECRET,
             0
         );
@@ -321,6 +331,36 @@ class AchievementService {
         };
     }
 
+    async getAchievementsForSelect() {
+        const achievementData = await Achievement.findAll();
+
+        const getShortAchievementsByType = (type: AchievementTypes) =>
+            this.getAchievementsByType(
+                achievementData.map(achievement => achievement.toJSON()),
+                type
+            ).map(({ id, achievement, icon, description }) => ({
+                id,
+                achievement,
+                icon,
+                description
+            }));
+
+        return [
+            {
+                type: AchievementTypes.LVL,
+                elements: getShortAchievementsByType(AchievementTypes.LVL)
+            },
+            {
+                type: AchievementTypes.TEST,
+                elements: getShortAchievementsByType(AchievementTypes.TEST)
+            },
+            {
+                type: AchievementTypes.SECRET,
+                elements: getShortAchievementsByType(AchievementTypes.SECRET)
+            }
+        ];
+    }
+
     async checkAchievementCompletion(
         userId: number,
         achievementType: AchievementTypes,
@@ -334,7 +374,7 @@ class AchievementService {
             await UserAchievement.findAll({
                 where: { userId }
             })
-        ).map(item => item.get('achievementId'));
+        ).map(item => item.get('requiredAchievementId'));
 
         for (const achievement of achievementsByType) {
             const {

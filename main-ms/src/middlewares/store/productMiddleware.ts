@@ -4,6 +4,7 @@ import { RequestWithBody } from 'types/request';
 import { ProductDTO } from 'types/store';
 import achievementService from '../../services/achievementService';
 import { ApiError } from '../../ApiError';
+import subscriptionService from '../../services/subscribtionService';
 
 export const productMiddleware = async (
     req: RequestWithBody<ProductDTO>,
@@ -11,11 +12,23 @@ export const productMiddleware = async (
     next: NextFunction
 ) => {
     try {
-        let { seasonStartDate, seasonEndDate, achievementId } = req.body;
+        let {
+            requiredAchievementId,
+            requiredSubscriptionId,
+            seasonStartDate,
+            seasonEndDate
+        } = req.body;
 
         // валидация id достижения
-        if (achievementId) {
-            await achievementService.getAchievementById(achievementId);
+        if (requiredAchievementId) {
+            await achievementService.getAchievementById(requiredAchievementId);
+        }
+
+        // валидация id подписки
+        if (requiredSubscriptionId) {
+            await subscriptionService.getSubscriptionById(
+                requiredSubscriptionId
+            );
         }
 
         // валидация даты начала и окончания

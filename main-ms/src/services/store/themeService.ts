@@ -10,7 +10,7 @@ class AvatarDecorationService {
         title,
         price,
         requiredSubscriptionId,
-        achievementId,
+        requiredAchievementId,
         seasonStartDate,
         seasonEndDate,
         primary,
@@ -20,7 +20,7 @@ class AvatarDecorationService {
             title,
             price,
             requiredSubscriptionId,
-            achievementId,
+            requiredAchievementId,
             seasonStartDate,
             seasonEndDate,
             primary,
@@ -28,12 +28,54 @@ class AvatarDecorationService {
         });
     }
 
+    createThemeDto({
+        theme,
+        activeId,
+        collectedIds = []
+    }: {
+        theme: Theme;
+        activeId?: number;
+        collectedIds?: number[];
+    }) {
+        theme = theme.toJSON();
+
+        delete theme.requiredSubscriptionId;
+        delete theme.requiredAchievementId;
+
+        const id = theme.id;
+
+        return {
+            ...theme,
+            requiredSubscription: theme.requiredSubscription
+                ? {
+                      id: theme.requiredSubscription.id,
+                      subscription: theme.requiredSubscription.subscription
+                  }
+                : null,
+            requiredAchievement: theme.requiredAchievement
+                ? {
+                      id: theme.requiredAchievement.id,
+                      type: theme.requiredAchievement.type,
+                      achievement: theme.requiredAchievement.achievement,
+                      icon: theme.requiredAchievement.icon,
+                      description: theme.requiredAchievement.description
+                  }
+                : null,
+            isActive: id == activeId,
+            isCollected: collectedIds.includes(id),
+            type: 'theme'
+        };
+    }
+
     async getThemes(limit: number, offset: number) {
-        const themes = await Theme.findAll({
+        const themesData = await Theme.findAll({
+            include: ['requiredSubscription', 'requiredAchievement'],
             order: [['createdAt', 'DESC']],
             limit,
             offset
         });
+
+        const themes = themesData.map(theme => this.createThemeDto({ theme }));
 
         const totalCount = await Theme.count();
 
@@ -72,7 +114,7 @@ class AvatarDecorationService {
             title,
             price,
             requiredSubscriptionId,
-            achievementId,
+            requiredAchievementId,
             seasonStartDate,
             seasonEndDate,
             primary,
@@ -86,7 +128,7 @@ class AvatarDecorationService {
                 title,
                 price,
                 requiredSubscriptionId,
-                achievementId,
+                requiredAchievementId,
                 seasonStartDate,
                 seasonEndDate,
                 primary,
@@ -98,34 +140,11 @@ class AvatarDecorationService {
         return theme;
     }
 
-    createUserThemeDto({
-        theme,
-        activeId,
-        collectedIds = []
-    }: {
-        theme: Theme;
-        activeId?: number;
-        collectedIds?: number[];
-    }) {
-        theme = theme.toJSON();
-
-        delete theme.isPublished;
-        delete theme.isArchived;
-        delete theme.createdAt;
-        delete theme.updatedAt;
-
-        return {
-            ...theme,
-            isActive: theme.id == activeId,
-            isCollected: collectedIds.includes(theme.id),
-            type: 'theme'
-        };
-    }
-
     async getPublishedThemes(limit: number, offset: number, userId: number) {
         const where = { isPublished: true };
 
         const themes = await Theme.findAll({
+            include: ['requiredSubscription', 'requiredAchievement'],
             where,
             order: [['createdAt', 'DESC']],
             limit,
@@ -139,7 +158,7 @@ class AvatarDecorationService {
         ).map(item => item.get('themeId'));
 
         const themeDTOs = themes.map(theme =>
-            this.createUserThemeDto({
+            this.createThemeDto({
                 theme,
                 collectedIds
             })
@@ -180,7 +199,7 @@ class AvatarDecorationService {
             userId
         });
 
-        return this.createUserThemeDto({ theme });
+        return this.createThemeDto({ theme });
     }
 
     async getUserThemes(userId: number, limit: number, offset: number) {
@@ -191,17 +210,25 @@ class AvatarDecorationService {
         const where = { userId };
 
         const userThemes = await UserTheme.findAll({
+            include: [
+                {
+                    association: 'theme',
+                    include: ['requiredSubscription', 'requiredAchievement']
+                }
+            ],
             where,
             order: [['createdAt', 'DESC']],
             limit,
             offset
         });
 
+        // TODO: сделать по нормальному (через include)
         const themeDTOs = await Promise.all(
             userThemes.map(async item => {
-                const theme = await this.getThemeById(item.get('themeId'));
-                return this.createUserThemeDto({
-                    theme,
+                const theme = item.get('theme').toJSON();
+                console.log({ theme });
+                return this.createThemeDto({
+                    theme: item.get('theme'),
                     activeId
                 });
             })

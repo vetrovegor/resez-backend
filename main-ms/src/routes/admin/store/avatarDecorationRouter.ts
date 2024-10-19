@@ -21,7 +21,7 @@ avatarDecorationRouter.post(
     body('title').isString().notEmpty(),
     body('price').isFloat({ gt: 0 }).optional(),
     body('requiredSubscriptionId').isNumeric().optional(),
-    body('achievementId').isNumeric().optional(),
+    body('requiredAchievementId').isNumeric().optional(),
     body('seasonStartDate').isISO8601().optional(),
     body('seasonEndDate').isISO8601().optional(),
     body('options').isJSON().notEmpty(),

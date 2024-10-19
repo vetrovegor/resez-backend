@@ -18,7 +18,7 @@ import notifyTypeService from './services/notifies/notifyTypeService';
 import notifyService from './services/notifies/notifyService';
 import rmqService from './services/rmqService';
 import { redisClient } from './redisClient';
-import subscribeService from './services/subscribeService';
+import subscriptionService from './services/subscribtionService';
 import achievementService from './services/achievementService';
 
 collectDefaultMetrics();
@@ -58,7 +58,7 @@ const start = async () => {
 
         await notifyTypeService.initNotifyTypes();
 
-        await subscribeService.initSubscriptions();
+        await subscriptionService.initSubscriptions();
 
         await achievementService.initAchievements();
     } else {

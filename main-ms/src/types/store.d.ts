@@ -4,7 +4,7 @@ export type ProductDTO = {
     title: string;
     price: number;
     requiredSubscriptionId: number;
-    achievementId: number;
+    requiredAchievementId: number;
     seasonStartDate: Date;
     seasonEndDate: Date;
 };
