@@ -77,12 +77,6 @@ class AvatarDecoration extends Model {
     })
     isPublished: boolean;
 
-    @Column({
-        type: DataType.BOOLEAN,
-        defaultValue: false
-    })
-    isArchived: boolean;
-
     @BelongsToMany(() => User, () => UserAvatarDecoration)
     users: User[];
 

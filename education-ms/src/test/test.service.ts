@@ -395,7 +395,7 @@ export class TestService {
                 totalPrimaryScore >= item.minScore &&
                 totalPrimaryScore <= item.maxScore
         );
-        const grade = isMark && gradeEntry ? gradeEntry.grade : null;
+        const grade = isMark && gradeEntry ? gradeEntry.grade : 0;
 
         const secondaryScoreEntry = scoreConversions.find(
             item => item.primaryScore == totalPrimaryScore
@@ -403,7 +403,7 @@ export class TestService {
         const secondaryScore =
             !isMark && secondaryScoreEntry
                 ? secondaryScoreEntry.secondaryScore
-                : null;
+                : 0;
 
         // сохранение результатов
         if (userId != -1) {

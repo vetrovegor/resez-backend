@@ -133,14 +133,27 @@ class AvatarDecorationController {
         try {
             const { limit, offset } = req.query;
 
-            const data =
-                await avatarDecorationService.getUserAvatarDecorations(
-                    req.user.id,
-                    limit,
-                    offset
-                );
+            const data = await avatarDecorationService.getUserAvatarDecorations(
+                req.user.id,
+                limit,
+                offset
+            );
 
             res.json(data);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async deleteAvatarDecoration(
+        req: RequestWithParams<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            await avatarDecorationService.deleteAvatarDecoration(req.params.id);
+
+            res.sendStatus(200);
         } catch (error) {
             next(error);
         }

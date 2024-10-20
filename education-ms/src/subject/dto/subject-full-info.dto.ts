@@ -12,5 +12,6 @@ class SubjectTaskWithTasksCount extends SubjectTask {
 }
 
 export class SubjectFullInfo extends Subject {
+    tasksCount: number;
     subjectTasks: SubjectTaskWithTasksCount[];
 }

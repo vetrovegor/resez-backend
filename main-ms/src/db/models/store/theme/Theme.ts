@@ -62,12 +62,6 @@ class Theme extends Model {
     isPublished: boolean;
 
     @Column({
-        type: DataType.BOOLEAN,
-        defaultValue: false
-    })
-    isArchived: boolean;
-
-    @Column({
         type: DataType.STRING
     })
     primary: string;

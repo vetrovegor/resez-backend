@@ -742,6 +742,17 @@ class UserService {
 
         return await user.save();
     }
+
+    // TODO: подумать как сделать на уровне бд чтобы при удалении становился null
+    async resetProductByProductId(
+        productField: 'avatarDecorationId' | 'themeId',
+        id: number
+    ) {
+        return await User.update(
+            { [productField]: null },
+            { where: { [productField]: id } }
+        );
+    }
 }
 
 export default new UserService();

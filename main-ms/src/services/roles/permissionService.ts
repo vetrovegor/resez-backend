@@ -41,22 +41,6 @@ const permissionsHierarchy = [
         parent: Permissions.Roles
     },
     {
-        permission: Permissions.Themes,
-        parent: Permissions.Admin
-    },
-    {
-        permission: Permissions.CreateThemes,
-        parent: Permissions.Themes
-    },
-    {
-        permission: Permissions.UpdateThemes,
-        parent: Permissions.Themes
-    },
-    {
-        permission: Permissions.DeleteThemes,
-        parent: Permissions.Themes
-    },
-    {
         permission: Permissions.Logs,
         parent: Permissions.Admin
     },

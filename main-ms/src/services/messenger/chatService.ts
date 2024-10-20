@@ -183,13 +183,13 @@ class ChatService {
         limit: number,
         offset: number
     ): Promise<PaginationDTO<ChatDTO>> {
-        const cache = await redisClient.get(
-            JSON.stringify({ req: 'user_chats', userId, limit, offset })
-        );
+        // const cache = await redisClient.get(
+        //     JSON.stringify({ req: 'user_chats', userId, limit, offset })
+        // );
 
-        if (cache) {
-            return JSON.parse(cache);
-        }
+        // if (cache) {
+        //     return JSON.parse(cache);
+        // }
 
         const userChatIDs = await messageService.getUniqueChatIds(
             userId,
@@ -231,11 +231,11 @@ class ChatService {
             offset
         );
 
-        await redisClient.set(
-            JSON.stringify({ req: 'user_chats', userId, limit, offset }),
-            JSON.stringify(result),
-            { EX: 5 }
-        );
+        // await redisClient.set(
+        //     JSON.stringify({ req: 'user_chats', userId, limit, offset }),
+        //     JSON.stringify(result),
+        //     { EX: 5 }
+        // );
 
         return result;
     }

@@ -34,28 +34,55 @@ export const productMiddleware = async (
         // валидация даты начала и окончания
         if (seasonStartDate || seasonEndDate) {
             const currentDate = new Date();
+            const moscowOffset = 3 * 60 * 60 * 1000;
 
-            if (seasonStartDate && !seasonEndDate) {
+            if (!seasonEndDate) {
                 throw ApiError.badRequest('Не указана дата окончания');
             }
 
-            if (seasonEndDate && !seasonStartDate) {
-                seasonStartDate = currentDate;
-            }
+            if (!seasonStartDate) {
+                seasonStartDate = new Date(
+                    Date.UTC(
+                        currentDate.getFullYear(),
+                        currentDate.getMonth(),
+                        currentDate.getDate()
+                    ) + moscowOffset
+                );
+            } else {
+                seasonStartDate = new Date(seasonStartDate);
 
-            if (new Date(seasonStartDate) < currentDate) {
-                throw ApiError.badRequest('Некорректная дата начала');
-            }
-
-            const difference =
-                new Date(seasonEndDate).getTime() -
-                new Date(seasonStartDate).getTime();
-
-            if (difference < 60 * 60 * 1000) {
-                throw ApiError.badRequest(
-                    'Дата окончания должна быть больше даты начала более чем на час'
+                seasonStartDate = new Date(
+                    Date.UTC(
+                        seasonStartDate.getFullYear(),
+                        seasonStartDate.getMonth(),
+                        seasonStartDate.getDate()
+                    ) + moscowOffset
                 );
             }
+
+            seasonEndDate = new Date(seasonEndDate);
+
+            seasonEndDate = new Date(
+                Date.UTC(
+                    seasonEndDate.getFullYear(),
+                    seasonEndDate.getMonth(),
+                    seasonEndDate.getDate(),
+                    23,
+                    59,
+                    59,
+                    999
+                ) + moscowOffset
+            );
+
+            if (
+                seasonEndDate < seasonStartDate ||
+                seasonEndDate < currentDate
+            ) {
+                throw ApiError.badRequest('Некорректная дата окончания');
+            }
+
+            req.body.seasonStartDate = seasonStartDate;
+            req.body.seasonEndDate = seasonEndDate;
         }
 
         next();

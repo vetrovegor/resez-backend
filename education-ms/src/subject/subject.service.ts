@@ -43,6 +43,8 @@ export class SubjectService {
             throw new NotFoundException('Предмет не найден');
         }
 
+        subjectData.tasksCount = 0;
+
         subjectData.subjectTasks = await Promise.all(
             subjectData.subjectTasks.map(async subjectTask => {
                 let totalTasksCount = 0;
@@ -62,6 +64,8 @@ export class SubjectService {
                         };
                     })
                 );
+
+                subjectData.tasksCount += totalTasksCount;
 
                 return {
                     ...subjectTask,
@@ -366,8 +370,8 @@ export class SubjectService {
     }
 
     async getTaskInfoById(id: number) {
-        const { subjectTasks } = await this.getById(id);
-        return { subjectTasks };
+        const { subjectTasks, tasksCount } = await this.getById(id);
+        return { subjectTasks, tasksCount };
     }
 
     async getTaskInfoBySlug(slug: string) {

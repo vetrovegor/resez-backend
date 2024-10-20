@@ -27,7 +27,7 @@ class Achievement extends Model {
     achievement: string;
 
     @Column({
-        type: DataType.TEXT
+        type: DataType.STRING
     })
     icon: string;
 

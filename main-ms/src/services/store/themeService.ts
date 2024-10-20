@@ -39,10 +39,12 @@ class AvatarDecorationService {
     }) {
         theme = theme.toJSON();
 
+        const id = theme.id;
+        const usersCount = theme.userThemes.length;
+
         delete theme.requiredSubscriptionId;
         delete theme.requiredAchievementId;
-
-        const id = theme.id;
+        delete theme.userThemes;
 
         return {
             ...theme,
@@ -61,6 +63,7 @@ class AvatarDecorationService {
                       description: theme.requiredAchievement.description
                   }
                 : null,
+            usersCount,
             isActive: id == activeId,
             isCollected: collectedIds.includes(id),
             type: 'theme'
@@ -69,7 +72,11 @@ class AvatarDecorationService {
 
     async getThemes(limit: number, offset: number) {
         const themesData = await Theme.findAll({
-            include: ['requiredSubscription', 'requiredAchievement'],
+            include: [
+                'requiredSubscription',
+                'requiredAchievement',
+                'userThemes'
+            ],
             order: [['createdAt', 'DESC']],
             limit,
             offset
@@ -144,7 +151,11 @@ class AvatarDecorationService {
         const where = { isPublished: true };
 
         const themes = await Theme.findAll({
-            include: ['requiredSubscription', 'requiredAchievement'],
+            include: [
+                'requiredSubscription',
+                'requiredAchievement',
+                'userThemes'
+            ],
             where,
             order: [['createdAt', 'DESC']],
             limit,
@@ -213,7 +224,11 @@ class AvatarDecorationService {
             include: [
                 {
                     association: 'theme',
-                    include: ['requiredSubscription', 'requiredAchievement']
+                    include: [
+                        'requiredSubscription',
+                        'requiredAchievement',
+                        'userThemes'
+                    ]
                 }
             ],
             where,
@@ -222,17 +237,12 @@ class AvatarDecorationService {
             offset
         });
 
-        // TODO: сделать по нормальному (через include)
-        const themeDTOs = await Promise.all(
-            userThemes.map(async item => {
-                const theme = item.get('theme').toJSON();
-                console.log({ theme });
-                return this.createThemeDto({
-                    theme: item.get('theme'),
-                    activeId
-                });
-            })
-        );
+        const themeDTOs = userThemes.map(item => {
+            return this.createThemeDto({
+                theme: item.get('theme'),
+                activeId
+            });
+        });
 
         const totalCount = await UserTheme.count({ where });
 
@@ -258,6 +268,13 @@ class AvatarDecorationService {
         }
 
         return userTheme;
+    }
+
+    async deleteTheme(id: number) {
+        await this.getThemeById(id);
+        // TODO: подумать как сделать на уровне бд чтобы при удалении становился null
+        await userService.resetProductByProductId('themeId', id);
+        return await Theme.destroy({ where: { id } });
     }
 }
 

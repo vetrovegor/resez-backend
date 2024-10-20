@@ -8,11 +8,13 @@ import { getSubscriptionExpiredhDate } from '../utils';
 const initialSubscriptions = [
     {
         subscription: 'ResEz Premium',
+        icon: process.env.STATIC_URL + 'subscriptions/premium.svg',
         canUploadImages: 'true',
         price: 99
     },
     {
         subscription: 'ResEz Premium Plus',
+        icon: process.env.STATIC_URL + 'subscriptions/premium-plus.svg',
         canUploadImages: 'true',
         price: 379
     }
@@ -63,15 +65,15 @@ class SubscriptionService {
         expiredDate: Date,
         isPermanent: boolean
     ) {
-        if (!isPermanent) {
-            if (new Date(expiredDate) < new Date()) {
-                throw ApiError.badRequest('Некорректный срок действия');
-            }
-        } else {
+        if (isPermanent) {
             expiredDate = null;
+        } else if (!expiredDate || new Date(expiredDate) < new Date()) {
+            throw ApiError.badRequest('Некорректный срок действия');
         }
 
-        const existedSubscription = await this.getSubscriptionById(subscriptionId);;
+        const existedSubscription = await this.getSubscriptionById(
+            subscriptionId
+        );
 
         const existedUser = await userService.getUserById(userId);
 

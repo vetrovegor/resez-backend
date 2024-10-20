@@ -19,24 +19,34 @@ class AvatarDecorationService {
     }) {
         avatarDecoration = avatarDecoration.toJSON();
 
+        const id = avatarDecoration.id;
+        const usersCount = avatarDecoration?.userAvatarDecorations?.length;
+
         delete avatarDecoration.requiredSubscriptionId;
         delete avatarDecoration.requiredAchievementId;
-
-        const id = avatarDecoration.id;
+        delete avatarDecoration.userAvatarDecorations;
 
         return {
             ...avatarDecoration,
-            requiredSubscription: avatarDecoration.requiredSubscription ? {
-                id: avatarDecoration.requiredSubscription.id,
-                subscription: avatarDecoration.requiredSubscription.subscription
-            }: null,
-            requiredAchievement: avatarDecoration.requiredAchievement ? {
-                id: avatarDecoration.requiredAchievement.id,
-                type: avatarDecoration.requiredAchievement.type,
-                achievement: avatarDecoration.requiredAchievement.achievement,
-                icon: avatarDecoration.requiredAchievement.icon,
-                description: avatarDecoration.requiredAchievement.description
-            }: null,
+            requiredSubscription: avatarDecoration.requiredSubscription
+                ? {
+                      id: avatarDecoration.requiredSubscription.id,
+                      subscription:
+                          avatarDecoration.requiredSubscription.subscription
+                  }
+                : null,
+            requiredAchievement: avatarDecoration.requiredAchievement
+                ? {
+                      id: avatarDecoration.requiredAchievement.id,
+                      type: avatarDecoration.requiredAchievement.type,
+                      achievement:
+                          avatarDecoration.requiredAchievement.achievement,
+                      icon: avatarDecoration.requiredAchievement.icon,
+                      description:
+                          avatarDecoration.requiredAchievement.description
+                  }
+                : null,
+            usersCount,
             isActive: id == activeId,
             isCollected: collectedIds.includes(id),
             type: 'avatar_decoration',
@@ -77,7 +87,11 @@ class AvatarDecorationService {
 
     async getAvatarDecorations(limit: number, offset: number) {
         const avatarDecorations = await AvatarDecoration.findAll({
-            include: ['requiredSubscription', 'requiredAchievement'],
+            include: [
+                'requiredSubscription',
+                'requiredAchievement',
+                'userAvatarDecorations'
+            ],
             order: [['createdAt', 'DESC']],
             limit,
             offset
@@ -150,7 +164,11 @@ class AvatarDecorationService {
         const where = { isPublished: true };
 
         const avatarDecorations = await AvatarDecoration.findAll({
-            include: ['requiredSubscription', 'requiredAchievement'],
+            include: [
+                'requiredSubscription',
+                'requiredAchievement',
+                'userAvatarDecorations'
+            ],
             where,
             order: [['createdAt', 'DESC']],
             limit,
@@ -226,24 +244,28 @@ class AvatarDecorationService {
         const where = { userId };
 
         const userAvatarDecorations = await UserAvatarDecoration.findAll({
-            include: ['requiredSubscription', 'requiredAchievement'],
+            include: [
+                {
+                    association: 'avatarDecoration',
+                    include: [
+                        'requiredSubscription',
+                        'requiredAchievement',
+                        'userAvatarDecorations'
+                    ]
+                }
+            ],
             where,
             order: [['createdAt', 'DESC']],
             limit,
             offset
         });
 
-        const avatarDecorationDTOs = await Promise.all(
-            userAvatarDecorations.map(async item => {
-                const avatarDecoration = await this.getAvatarDecorationById(
-                    item.get('avatarDecorationId')
-                );
-                return this.createAvatarDecorationDto({
-                    avatarDecoration,
-                    activeId
-                });
-            })
-        );
+        const avatarDecorationDTOs = userAvatarDecorations.map(item => {
+            return this.createAvatarDecorationDto({
+                avatarDecoration: item.get('avatarDecoration'),
+                activeId
+            });
+        });
 
         const totalCount = await UserAvatarDecoration.count({ where });
 
@@ -259,6 +281,14 @@ class AvatarDecorationService {
     async createAvatarDecorationDtoById(id: number) {
         const avatarDecoration = await this.getAvatarDecorationById(id);
         return this.createAvatarDecorationDto({ avatarDecoration });
+    }
+
+    async deleteAvatarDecoration(id: number) {
+        const avatarDecoration = await this.getAvatarDecorationById(id);
+        await fileService.deleteFile(avatarDecoration.get('contentUrl'));
+        // TODO: подумать как сделать на уровне бд чтобы при удалении становился null
+        await userService.resetProductByProductId('avatarDecorationId', id);
+        return await AvatarDecoration.destroy({ where: { id } });
     }
 
     throwAvatarDecorationNotFoundError() {

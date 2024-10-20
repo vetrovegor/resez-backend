@@ -14,7 +14,8 @@ subscriptionRouter.post(
     body('userId').isNumeric(),
     body('expiredDate')
         .isISO8601()
-        .withMessage('expiredDate должна быть датой'),
+        .withMessage('expiredDate должна быть датой')
+        .optional(),
     body('isPermanent')
         .isBoolean()
         .withMessage('isPermanent должен быть булевым'),

@@ -127,6 +127,20 @@ class ThemeController {
             next(error);
         }
     }
+
+    async deleteTheme(
+        req: RequestWithParams<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            await themeService.deleteTheme(req.params.id);
+
+            res.sendStatus(200);
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export default new ThemeController();

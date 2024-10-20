@@ -63,3 +63,12 @@ themeRouter.patch(
     productMiddleware,
     themeController.updateTheme
 );
+
+themeRouter.delete(
+    '/:id',
+    accessTokenMiddleware(true),
+    permissionMiddleware(Permissions.PublishProducts),
+    param('id').isNumeric(),
+    validationMiddleware,
+    themeController.deleteTheme
+);

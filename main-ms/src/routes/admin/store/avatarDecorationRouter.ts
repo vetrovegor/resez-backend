@@ -48,3 +48,13 @@ avatarDecorationRouter.patch(
     validationMiddleware,
     avatarDecorationController.togglePublishAvatarDecoration
 );
+
+
+avatarDecorationRouter.delete(
+    '/:id',
+    accessTokenMiddleware(true),
+    permissionMiddleware(Permissions.PublishProducts),
+    param('id').isNumeric(),
+    validationMiddleware,
+    avatarDecorationController.deleteAvatarDecoration
+);
