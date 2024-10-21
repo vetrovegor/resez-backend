@@ -2,11 +2,12 @@ import { Op } from 'sequelize';
 
 import Notify from '../../db/models/notifies/Notify';
 import UserNotify from '../../db/models/notifies/UserNotify';
-import { EmitTypes } from 'types/socket';
+import { EmitTypes } from '../../enums/socket';
 import { PaginationDTO } from '../../dto/PaginationDTO';
 import { ApiError } from '../../ApiError';
 import { NotifyDTO } from 'types/notify';
 import rmqService from '../../services/rmqService';
+import { Queues } from '../../enums/rmq';
 
 class NotifyService {
     async createUserNotify(
@@ -23,7 +24,7 @@ class NotifyService {
         });
 
         if (isSent) {
-            rmqService.sendToQueue('socket-queue', 'emit-to-user', {
+            rmqService.sendToQueue(Queues.Socket, 'emit-to-user', {
                 userId,
                 emitType: EmitTypes.Notify,
                 data: {
@@ -79,7 +80,7 @@ class NotifyService {
 
             await userNotify.save();
             
-            rmqService.sendToQueue('socket-queue', 'emit-to-user', {
+            rmqService.sendToQueue(Queues.Socket, 'emit-to-user', {
                 userId: userNotify.get('userId'),
                 emitType: EmitTypes.Notify,
                 data: {

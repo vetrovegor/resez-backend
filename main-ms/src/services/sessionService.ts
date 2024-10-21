@@ -15,6 +15,7 @@ import Session from '../db/models/Session';
 import { PaginationDTO } from '../dto/PaginationDTO';
 import { ApiError } from '../ApiError';
 import rmqService from './rmqService';
+import { Queues } from '../enums/rmq';
 
 class SessionService {
     async saveSession(
@@ -271,7 +272,7 @@ class SessionService {
 
         await tokenService.deleteTokenBySessionId(id);
 
-        rmqService.sendToQueue('socket-queue', 'emit-end-session', id);
+        rmqService.sendToQueue(Queues.Socket, 'emit-end-session', id);
     }
 
     // типизировать
@@ -305,7 +306,7 @@ class SessionService {
             await tokenService.deleteTokenBySessionId(session.id);
 
             rmqService.sendToQueue(
-                'socket-queue',
+                Queues.Socket,
                 'emit-end-session',
                 session.get('id')
             );

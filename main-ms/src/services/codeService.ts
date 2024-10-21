@@ -5,8 +5,9 @@ import { VerificationCodeData } from 'types/code';
 import userService from './userService';
 import { ApiError } from '../ApiError';
 import User from '../db/models/User';
-import { EmitTypes } from 'types/socket';
+import { EmitTypes } from '../enums/socket';
 import rmqService from './rmqService';
+import { Queues } from '../enums/rmq';
 
 // подумать как сделать лучше, как вынести в файл с типами
 export const enum CodeTypes {
@@ -45,7 +46,7 @@ class CodeService {
                 retryDate
             });
 
-            rmqService.sendToQueue('socket-queue', 'emit-to-user', {
+            rmqService.sendToQueue(Queues.Socket, 'emit-to-user', {
                 userId,
                 emitType: EmitTypes.VerifyCodeUpdated,
                 data: { verificationCodeData }
@@ -195,7 +196,7 @@ class CodeService {
             false
         );
 
-        rmqService.sendToQueue('socket-queue', 'emit-auth-code', {
+        rmqService.sendToQueue(Queues.Socket, 'emit-auth-code', {
             uniqueId,
             code: createdCode.get('code')
         });

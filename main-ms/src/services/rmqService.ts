@@ -4,6 +4,7 @@ import userService from './userService';
 import codeService from './codeService';
 import sessionService from './sessionService';
 import achievementService from './achievementService';
+import { Queues } from '../enums/rmq';
 
 class RmqService {
     private channel: amqp.Channel;
@@ -28,7 +29,7 @@ class RmqService {
             'validate-verify-code',
             'verify-user',
             'end-session',
-            'user-queue'
+            Queues.User
         ];
 
         for (const queue of queues) {
@@ -104,7 +105,7 @@ class RmqService {
         );
 
         this.channel.consume(
-            'user-queue',
+            Queues.User,
             async msg => {
                 const message = JSON.parse(msg.content.toString());
                 let response = null;

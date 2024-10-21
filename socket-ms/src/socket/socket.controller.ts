@@ -31,9 +31,11 @@ export class SocketController {
         this.socketService.emitAuthCode(uniqueId, code);
     }
 
-    @EventPattern('role-updated')
-    emitRoleUpdating(@Payload() userIds: number[]) {
-        this.socketService.emitRoleUpdating(userIds);
+    @EventPattern('refresh')
+    emitRoleUpdating(
+        @Payload() { userIds, action }: { userIds: number[]; action: string }
+    ) {
+        this.socketService.emitRoleUpdating(userIds, action);
     }
 
     @MessagePattern('online-users')

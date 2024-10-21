@@ -134,12 +134,12 @@ export class SocketService implements OnGatewayConnection {
         }
     }
 
-    emitRoleUpdating(userIds: number[]) {
+    emitRoleUpdating(userIds: number[], action: string) {
         const socketIds = this.authUsers
             .filter(authUser => userIds.includes(Number(authUser.userId)))
             .map(authUser => authUser.socketId);
         for (const socketId of socketIds) {
-            this.emitToRoom(socketId, EmitTypes.RoleUpdated);
+            this.emitToRoom(socketId, EmitTypes.Refresh, action);
         }
     }
 

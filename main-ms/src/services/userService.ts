@@ -12,7 +12,7 @@ import {
     UserShortInfo
 } from 'types/user';
 import { PaginationDTO } from '../dto/PaginationDTO';
-import { EmitTypes } from 'types/socket';
+import { EmitTypes } from '../enums/socket';
 import { calculateLevelInfo, getArraysIntersection } from '../utils';
 import UserRole from '../db/models/UserRole';
 import fileService from './fileService';
@@ -22,6 +22,7 @@ import avatarDecorationService from './store/avatarDecorationService';
 import themeService from './store/themeService';
 import achievementService from './achievementService';
 import { AchievementTypes } from '../enums/achievement';
+import { Queues } from '../enums/rmq';
 
 class UserService {
     async getUserById(id: number): Promise<User> {
@@ -68,7 +69,7 @@ class UserService {
             registrationDate: Date.now()
         });
 
-        rmqService.sendToQueue('memory-queue', 'create', user.get('id'));
+        rmqService.sendToQueue(Queues.Memory, 'create', user.get('id'));
 
         return user;
     }
@@ -113,7 +114,7 @@ class UserService {
 
         await user.save();
 
-        rmqService.sendToQueue('socket-queue', 'emit-to-user', {
+        rmqService.sendToQueue(Queues.Socket, 'emit-to-user', {
             userId,
             emitType: EmitTypes.Verify,
             data: { user: await user.toShortInfo() }
@@ -405,7 +406,7 @@ class UserService {
     }
 
     async getStats() {
-        const online = await rmqService.sendToQueue('socket-queue', 'online');
+        const online = await rmqService.sendToQueue(Queues.Socket, 'online');
 
         const cachedAdminStats = await redisClient.get('stats');
 
@@ -486,7 +487,7 @@ class UserService {
 
         if (online && online.toLowerCase() === 'true') {
             const onlineUserIds = (await rmqService.sendToQueue(
-                'socket-queue',
+                Queues.Socket,
                 'online-users'
             )) as number[];
             userIDsArrays.push(onlineUserIds);
@@ -533,7 +534,7 @@ class UserService {
                     return user.toPreview();
                 } else {
                     const activity = await rmqService.sendToQueue(
-                        'socket-queue',
+                        Queues.Socket,
                         'user-activity',
                         user.get('id')
                     );
@@ -571,7 +572,7 @@ class UserService {
         }
 
         const activity = await rmqService.sendToQueue(
-            'socket-queue',
+            Queues.Socket,
             'user-activity',
             user.get('id')
         );
@@ -598,10 +599,10 @@ class UserService {
         const { xp, subscriptionExpiredDate, isSubscriptionPermanent } =
             user.toJSON();
         const levelInfo = calculateLevelInfo(xp);
-        const subscriptionData = await user.getSubscription();
+        const subscription = await user.getSubscription();
 
         const activity = await rmqService.sendToQueue(
-            'socket-queue',
+            Queues.Socket,
             'activity-data',
             user.get('id')
         );
@@ -609,14 +610,7 @@ class UserService {
         return {
             levelInfo,
             balance: user.get('balance'),
-            subscription: subscriptionData
-                ? {
-                      id: subscriptionData.get('id'),
-                      subscription: subscriptionData.get('subscription'),
-                      expiredDate: subscriptionExpiredDate,
-                      isPermanent: isSubscriptionPermanent
-                  }
-                : null,
+            subscription,
             activity
         };
     }
@@ -639,7 +633,7 @@ class UserService {
         user.set('blockReason', reason);
         await user.save();
 
-        rmqService.sendToQueue('socket-queue', 'emit-to-user', {
+        rmqService.sendToQueue(Queues.Socket, 'emit-to-user', {
             userId,
             emitType: blockStatus ? EmitTypes.Blocked : EmitTypes.Unblocked,
             data: blockStatus ? { reason } : null
@@ -667,7 +661,7 @@ class UserService {
         const { level: newLevel } = levelInfo;
 
         if (newLevel > oldLevel) {
-            rmqService.sendToQueue('socket-queue', 'emit-to-user', {
+            rmqService.sendToQueue(Queues.Socket, 'emit-to-user', {
                 userId,
                 emitType: EmitTypes.NewLevel,
                 data: levelInfo

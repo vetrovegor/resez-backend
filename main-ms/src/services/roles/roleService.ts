@@ -9,6 +9,8 @@ import UserRole from '../../db/models/UserRole';
 import { RoleFullInfo, RoleShortInfo } from 'types/role';
 import { PaginationDTO } from '../../dto/PaginationDTO';
 import rmqService from '../../services/rmqService';
+import { EmitTypes } from 'enums/socket';
+import { Queues } from '../../enums/rmq';
 
 class RoleService {
     async getRoleById(roleId: number): Promise<Role> {
@@ -164,7 +166,10 @@ class RoleService {
 
         const userRolesData = await UserRole.findAll({ where: { roleId } });
         const userIds = userRolesData.map(item => item.get('userId'));
-        await rmqService.sendToQueue('socket-queue', 'role-updated', userIds);
+        await rmqService.sendToQueue(Queues.Socket, EmitTypes.Refresh, {
+            userIds,
+            action: 'role'
+        });
 
         return await roleData.toShortInfo();
     }
@@ -217,7 +222,10 @@ class RoleService {
             });
         }
 
-        await rmqService.sendToQueue('socket-queue', 'role-updated', [Number(userId)]);
+        await rmqService.sendToQueue(Queues.Socket, EmitTypes.Refresh, {
+            userIds: [userId],
+            action: 'role'
+        });
     }
 
     async setRoleArchiveStatus(

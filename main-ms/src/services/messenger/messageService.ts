@@ -5,10 +5,11 @@ import Message from '../../db/models/messenger/Message';
 import chatService from './chatService';
 import messageTypeService from './messageTypeService';
 import { ApiError } from '../../ApiError';
-import { EmitTypes } from 'types/socket';
+import { EmitTypes } from '../../enums/socket';
 import UserMessage from '../../db/models/messenger/UserMessage';
 import MessageRead from '../../db/models/messenger/MessageRead';
 import rmqService from '../../services/rmqService';
+import { Queues } from '../../enums/rmq';
 
 class MessageService {
     async getMessageById(messageId: number): Promise<Message> {
@@ -59,7 +60,7 @@ class MessageService {
                 chatId
             );
 
-            rmqService.sendToQueue('socket-queue', 'emit-to-user', {
+            rmqService.sendToQueue(Queues.Socket, 'emit-to-user', {
                 userId,
                 emitType: EmitTypes.Message,
                 data: messageDto
@@ -174,7 +175,7 @@ class MessageService {
         ).getChatMemberIDs();
 
         memberIDs.forEach(async userId => {
-            rmqService.sendToQueue('socket-queue', 'emit-to-user', {
+            rmqService.sendToQueue(Queues.Socket, 'emit-to-user', {
                 userId,
                 emitType: EmitTypes.Message,
                 data: messageDto
@@ -247,7 +248,7 @@ class MessageService {
         ).getChatMemberIDs();
 
         memberIDs.forEach(async userId => {
-            rmqService.sendToQueue('socket-queue', 'emit-to-user', {
+            rmqService.sendToQueue(Queues.Socket, 'emit-to-user', {
                 userId,
                 emitType: EmitTypes.Message,
                 data: messageIDs

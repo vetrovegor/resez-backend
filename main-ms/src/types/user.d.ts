@@ -2,7 +2,7 @@ import User from 'db/models/User';
 import { PermissionDTO } from './permission';
 import { VerificationCodeData } from './code';
 import { RolePreview } from './role';
-import { SubscriptionDTO } from './subscription';
+import { SubscriptionDTO, UserSubscription } from './subscription';
 import Subscription from 'db/models/subscription/Subscription';
 import { ThemeBasic } from './store';
 
@@ -31,10 +31,7 @@ export type UserShortInfo = {
         isPrivateAccount: boolean;
         isHideAvatars: boolean;
     };
-    subscription: Subscription & {
-        subscriptionExpiredDate: Date;
-        isSubscriptionPermanent: boolean;
-    };
+    subscription: UserSubscription;
     balance: number;
     theme: ThemeBasic;
 };
@@ -109,12 +106,7 @@ export type UserAdminInfo = {
     // theme: string,
     roles: RolePreview[];
     balance: number;
-    subscription: {
-        id: number;
-        subscription: string;
-        subscriptionExpiredDate: Date;
-        isSubscriptionPermanent: boolean;
-    };
+    subscription: UserSubscription;
 };
 
 export type UserSettingsInfo = {

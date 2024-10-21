@@ -31,11 +31,13 @@ class AvatarDecorationService {
     createThemeDto({
         theme,
         activeId,
-        collectedIds = []
+        collectedIds = [],
+        forAdmin = false
     }: {
         theme: Theme;
         activeId?: number;
         collectedIds?: number[];
+        forAdmin?: boolean;
     }) {
         theme = theme.toJSON();
 
@@ -45,6 +47,12 @@ class AvatarDecorationService {
         delete theme.requiredSubscriptionId;
         delete theme.requiredAchievementId;
         delete theme.userThemes;
+
+        if (!forAdmin) {
+            delete theme.isPublished;
+            delete theme.createdAt;
+            delete theme.updatedAt;
+        }
 
         return {
             ...theme,
@@ -88,7 +96,7 @@ class AvatarDecorationService {
             offset
         });
 
-        const themes = themesData.map(theme => this.createThemeDto({ theme }));
+        const themes = themesData.map(theme => this.createThemeDto({ theme, forAdmin: true }));
 
         const totalCount = await Theme.count();
 

@@ -15,17 +15,3 @@ export const enum EventTypes {
     Stats = 'stats',
     Disconnect = 'disconnect'
 }
-
-export const enum EmitTypes {
-    Verify = 'verify',
-    VerifyCodeUpdated = 'verify-code-updated',
-    Notify = 'notify',
-    EndSession = 'end-session',
-    Blocked = 'blocked',
-    Unblocked = 'unblocked',
-    Message = 'message',
-    MessagesDeleting = 'messages-deleting',
-    NewPermissions = 'new-permissions',
-    Auth = 'auth',
-    NewLevel = 'new-level'
-}

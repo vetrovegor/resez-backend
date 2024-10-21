@@ -11,11 +11,13 @@ class AvatarDecorationService {
     createAvatarDecorationDto({
         avatarDecoration,
         activeId,
-        collectedIds = []
+        collectedIds = [],
+        forAdmin = false
     }: {
         avatarDecoration: AvatarDecoration;
         activeId?: number;
         collectedIds?: number[];
+        forAdmin?: boolean;
     }) {
         avatarDecoration = avatarDecoration.toJSON();
 
@@ -25,6 +27,12 @@ class AvatarDecorationService {
         delete avatarDecoration.requiredSubscriptionId;
         delete avatarDecoration.requiredAchievementId;
         delete avatarDecoration.userAvatarDecorations;
+
+        if (!forAdmin) {
+            delete avatarDecoration.isPublished;
+            delete avatarDecoration.createdAt;
+            delete avatarDecoration.updatedAt;
+        }
 
         return {
             ...avatarDecoration,
@@ -104,7 +112,7 @@ class AvatarDecorationService {
         });
 
         const avatarDecorationDTOs = avatarDecorations.map(avatarDecoration =>
-            this.createAvatarDecorationDto({ avatarDecoration })
+            this.createAvatarDecorationDto({ avatarDecoration, forAdmin: true })
         );
 
         const totalCount = await AvatarDecoration.count();

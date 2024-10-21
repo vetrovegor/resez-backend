@@ -6,6 +6,7 @@ import { AchievementNames, AchievementTypes } from '../enums/achievement';
 import { ApiError } from '../ApiError';
 import rmqService from './rmqService';
 import userService from './userService';
+import { Queues } from '../enums/rmq';
 
 const initialAchievements: {
     type: AchievementTypes;
@@ -272,7 +273,7 @@ class AchievementService {
         const { level } = await userService.getUserLevelInfoById(userId);
 
         const testsCount = (await rmqService.sendToQueue(
-            'education-queue',
+            Queues.Education,
             'tests-count',
             userId
         )) as number;
@@ -404,7 +405,7 @@ class AchievementService {
         userId: number,
         achievement: Achievement
     ) {
-        rmqService.sendToQueue('socket-queue', 'achievement', {
+        rmqService.sendToQueue(Queues.Socket, 'achievement', {
             userId,
             achievement
         });

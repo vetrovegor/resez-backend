@@ -4,6 +4,9 @@ import Subscription from '../db/models/subscription/Subscription';
 import { ApiError } from '../ApiError';
 import userService from './userService';
 import { getSubscriptionExpiredhDate } from '../utils';
+import rmqService from './rmqService';
+import { EmitTypes } from 'enums/socket';
+import { Queues } from '../enums/rmq';
 
 const initialSubscriptions = [
     {
@@ -80,6 +83,11 @@ class SubscriptionService {
         existedUser.set('subscriptionId', existedSubscription.get('id'));
         existedUser.set('subscriptionExpiredDate', expiredDate);
         existedUser.set('isSubscriptionPermanent', isPermanent);
+
+        await rmqService.sendToQueue(Queues.Socket, EmitTypes.Refresh, {
+            userIds: [userId],
+            action: 'subscription'
+        });
 
         await existedUser.save();
     }

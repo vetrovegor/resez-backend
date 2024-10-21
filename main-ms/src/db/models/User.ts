@@ -352,15 +352,25 @@ class User extends Model {
     }
 
     async getSubscription() {
-        const { subscriptionId } = this.get();
+        const {
+            subscriptionId,
+            subscriptionExpiredDate,
+            isSubscriptionPermanent
+        } = this.get();
 
         if (!subscriptionId) {
             return null;
         }
 
-        const subscription = await Subscription.findByPk(subscriptionId);
+        const subscriptionData = await Subscription.findByPk(subscriptionId);
 
-        return subscription;
+        return subscriptionData
+            ? {
+                  ...subscriptionData.toJSON(),
+                  subscriptionExpiredDate,
+                  isSubscriptionPermanent
+              }
+            : null;
     }
 
     async getTheme() {
@@ -427,12 +437,7 @@ class User extends Model {
                 isHideAvatars
             },
             balance,
-            // TODO: решить с типами
-            subscription: {
-                ...subscription.toJSON(),
-                subscriptionExpiredDate,
-                isSubscriptionPermanent
-            },
+            subscription,
             theme
         };
     }
@@ -471,7 +476,7 @@ class User extends Model {
 
         const rolesData = await this.getRoles();
         const roles = rolesData.map(role => role.toPreview());
-        const subscriptionData = await this.getSubscription();
+        const subscription = await this.getSubscription();
 
         return {
             id,
@@ -492,14 +497,7 @@ class User extends Model {
             },
             roles,
             balance,
-            subscription: subscriptionData
-                ? {
-                      id: subscriptionData.get('id'),
-                      subscription: subscriptionData.get('subscription'),
-                      subscriptionExpiredDate,
-                      isSubscriptionPermanent
-                  }
-                : null
+            subscription
         };
     }
 }

@@ -13,6 +13,7 @@ import fileService from '../../services/fileService';
 import { generateInviteLink } from '../../utils';
 import { redisClient } from '../../redisClient';
 import rmqService from '../../services/rmqService';
+import { Queues } from '../../enums/rmq';
 
 class ChatService {
     async createUserChat(chatId: number, userId: number): Promise<UserChat> {
@@ -158,7 +159,7 @@ class ChatService {
         const user = (await userService.getUserById(userId)).toPreview();
 
         const activity = await rmqService.sendToQueue(
-            'socket-queue',
+            Queues.Socket,
             'user-activity',
             user.id
         );
@@ -445,7 +446,7 @@ class ChatService {
                 const userPreview = user.toPreview();
 
                 const activity = await rmqService.sendToQueue(
-                    'socket-queue',
+                    Queues.Socket,
                     'user-activity',
                     user.id
                 );
@@ -464,7 +465,7 @@ class ChatService {
             ).toPreview();
 
             const activity = await rmqService.sendToQueue(
-                'socket-queue',
+                Queues.Socket,
                 'user-activity',
                 adminId
             );
