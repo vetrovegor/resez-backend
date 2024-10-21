@@ -46,7 +46,7 @@ export const productMiddleware = async (
                         currentDate.getFullYear(),
                         currentDate.getMonth(),
                         currentDate.getDate()
-                    ) + moscowOffset
+                    ) - moscowOffset
                 );
             } else {
                 seasonStartDate = new Date(seasonStartDate);
@@ -56,7 +56,7 @@ export const productMiddleware = async (
                         seasonStartDate.getFullYear(),
                         seasonStartDate.getMonth(),
                         seasonStartDate.getDate()
-                    ) + moscowOffset
+                    ) - moscowOffset
                 );
             }
 
@@ -71,7 +71,7 @@ export const productMiddleware = async (
                     59,
                     59,
                     999
-                ) + moscowOffset
+                ) - moscowOffset
             );
 
             if (

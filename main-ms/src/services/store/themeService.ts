@@ -48,6 +48,12 @@ class AvatarDecorationService {
 
         return {
             ...theme,
+            isFree:
+                !theme.price &&
+                !theme.seasonStartDate &&
+                !theme.seasonEndDate &&
+                !theme.requiredSubscription &&
+                !theme.requiredAchievement,
             requiredSubscription: theme.requiredSubscription
                 ? {
                       id: theme.requiredSubscription.id,

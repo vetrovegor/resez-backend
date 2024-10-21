@@ -28,6 +28,12 @@ class AvatarDecorationService {
 
         return {
             ...avatarDecoration,
+            isFree:
+                !avatarDecoration.price &&
+                !avatarDecoration.seasonStartDate &&
+                !avatarDecoration.seasonEndDate &&
+                !avatarDecoration.requiredSubscription &&
+                !avatarDecoration.requiredAchievement,
             requiredSubscription: avatarDecoration.requiredSubscription
                 ? {
                       id: avatarDecoration.requiredSubscription.id,

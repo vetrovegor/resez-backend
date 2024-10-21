@@ -403,7 +403,9 @@ class User extends Model {
             xp,
             isPrivateAccount,
             isHideAvatars,
-            balance
+            balance,
+            subscriptionExpiredDate,
+            isSubscriptionPermanent
         } = this.get();
 
         const levelInfo = calculateLevelInfo(xp);
@@ -425,7 +427,12 @@ class User extends Model {
                 isHideAvatars
             },
             balance,
-            subscription,
+            // TODO: решить с типами
+            subscription: {
+                ...subscription.toJSON(),
+                subscriptionExpiredDate,
+                isSubscriptionPermanent
+            },
             theme
         };
     }

@@ -31,7 +31,10 @@ export type UserShortInfo = {
         isPrivateAccount: boolean;
         isHideAvatars: boolean;
     };
-    subscription: Subscription;
+    subscription: Subscription & {
+        subscriptionExpiredDate: Date;
+        isSubscriptionPermanent: boolean;
+    };
     balance: number;
     theme: ThemeBasic;
 };
