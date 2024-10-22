@@ -7,16 +7,17 @@ import { getSubscriptionExpiredhDate } from '../utils';
 import rmqService from './rmqService';
 import { EmitTypes } from 'enums/socket';
 import { Queues } from '../enums/rmq';
+import { Subscriptions } from '../enums/subscriptions';
 
 const initialSubscriptions = [
     {
-        subscription: 'ResEz Premium',
+        subscription: Subscriptions.Premium,
         icon: process.env.STATIC_URL + 'subscriptions/premium.svg',
         canUploadImages: 'true',
         price: 99
     },
     {
-        subscription: 'ResEz Premium Plus',
+        subscription: Subscriptions.PremiumPlus,
         icon: process.env.STATIC_URL + 'subscriptions/premium-plus.svg',
         canUploadImages: 'true',
         price: 379
@@ -85,7 +86,7 @@ class SubscriptionService {
         existedUser.set('isSubscriptionPermanent', isPermanent);
 
         await rmqService.sendToQueue(Queues.Socket, EmitTypes.Refresh, {
-            userIds: [userId],
+            userIds: [Number(userId)],
             action: 'subscription'
         });
 

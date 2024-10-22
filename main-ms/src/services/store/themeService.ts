@@ -42,7 +42,7 @@ class AvatarDecorationService {
         theme = theme.toJSON();
 
         const id = theme.id;
-        const usersCount = theme.userThemes.length;
+        const usersCount = theme?.userThemes?.length;
 
         delete theme.requiredSubscriptionId;
         delete theme.requiredAchievementId;
@@ -96,7 +96,9 @@ class AvatarDecorationService {
             offset
         });
 
-        const themes = themesData.map(theme => this.createThemeDto({ theme, forAdmin: true }));
+        const themes = themesData.map(theme =>
+            this.createThemeDto({ theme, forAdmin: true })
+        );
 
         const totalCount = await Theme.count();
 
@@ -216,7 +218,11 @@ class AvatarDecorationService {
 
         await userService.takePaymentForTheProduct({
             userId,
-            price: theme.get('price')
+            price: theme.get('price'),
+            requiredSubscriptionId: theme.get('requiredSubscriptionId'),
+            requiredAchievementId: theme.get('requiredAchievementId'),
+            seasonStartDate: theme.get('seasonStartDate'),
+            seasonEndDate: theme.get('seasonEndDate')
         });
 
         await UserTheme.create({

@@ -223,7 +223,7 @@ class RoleService {
         }
 
         await rmqService.sendToQueue(Queues.Socket, EmitTypes.Refresh, {
-            userIds: [userId],
+            userIds: [Number(userId)],
             action: 'role'
         });
     }

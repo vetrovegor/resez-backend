@@ -213,6 +213,7 @@ class AvatarDecorationService {
         );
     }
 
+    // TODO: придумать более корректное название
     async addAvatarDecorationToUser(
         avatarDecorationId: number,
         userId: number
@@ -235,7 +236,11 @@ class AvatarDecorationService {
 
         await userService.takePaymentForTheProduct({
             userId,
-            price: avatarDecoration.get('price')
+            price: avatarDecoration.get('price'),
+            requiredSubscriptionId: avatarDecoration.get('requiredSubscriptionId'),
+            requiredAchievementId: avatarDecoration.get('requiredAchievementId'),
+            seasonStartDate: avatarDecoration.get('seasonStartDate'),
+            seasonEndDate: avatarDecoration.get('seasonEndDate')
         });
 
         await UserAvatarDecoration.create({

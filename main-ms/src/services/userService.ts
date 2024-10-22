@@ -23,6 +23,7 @@ import themeService from './store/themeService';
 import achievementService from './achievementService';
 import { AchievementTypes } from '../enums/achievement';
 import { Queues } from '../enums/rmq';
+import { Subscriptions } from '../enums/subscriptions';
 
 class UserService {
     async getUserById(id: number): Promise<User> {
@@ -709,13 +710,59 @@ class UserService {
 
     async takePaymentForTheProduct({
         userId,
-        price
+        price,
+        requiredSubscriptionId,
+        requiredAchievementId,
+        seasonStartDate,
+        seasonEndDate
     }: {
         userId: number;
         price: number;
+        requiredSubscriptionId: number;
+        requiredAchievementId: number;
+        seasonStartDate: Date;
+        seasonEndDate: Date;
     }) {
+        const user = await User.findByPk(userId, {
+            include: ['subscription', 'userAchievements']
+        });
+
+        const subscription = user.get('subscription');
+
+        const userAchievementIds = user
+            .get('userAchievements')
+            .map(item => item.get('achievementId'));
+
+        const now = new Date();
+
+        if (
+            requiredSubscriptionId &&
+            (!subscription ||
+                (!user.get('isSubscriptionPermanent') &&
+                    user.get('subscriptionExpiredDate') < now) ||
+                (user.get('subscriptionId') != requiredSubscriptionId &&
+                    subscription.get('subscription') !=
+                        Subscriptions.PremiumPlus))
+        ) {
+            throw ApiError.badRequest('У вас нет требуемой подписки');
+        }
+
+        if (
+            requiredAchievementId &&
+            !userAchievementIds.includes(requiredAchievementId)
+        ) {
+            throw ApiError.badRequest('У вас нет требуемого достижения');
+        }
+
+        if (
+            seasonStartDate &&
+            seasonEndDate &&
+            (seasonStartDate > now || seasonEndDate < now)
+        ) {
+            throw ApiError.badRequest('Сезон еще не начался');
+        }
+
         if (price > 0) {
-            const user = await this.getUserById(userId);
             const balance = user.get('balance');
 
             if (balance < price) {
@@ -733,6 +780,11 @@ class UserService {
         user.set('subscriptionId', null);
         user.set('subscriptionExpiredDate', null);
         user.set('isSubscriptionPermanent', null);
+
+        await rmqService.sendToQueue(Queues.Socket, EmitTypes.Refresh, {
+            userIds: [Number(userId)],
+            action: 'subscription'
+        });
 
         return await user.save();
     }
