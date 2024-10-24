@@ -8,16 +8,17 @@ import {
     DefaultValuePipe,
     Delete,
     Get,
+    HttpStatus,
     Param,
     ParseBoolPipe,
     ParseIntPipe,
+    Patch,
     Post,
     Query,
     UseGuards
 } from '@nestjs/common';
-import { CustomTestDto } from '@test/dto/custom-test.dto';
-import { ExamTestDto } from '@test/dto/exam-test.dto';
 import { TestService } from '@test/test.service';
+import { CustomTestDto, ExamTestDto, TaskReplaceDto } from '@test/dto';
 
 @Controller('admin/test')
 export class TestController {
@@ -70,5 +71,16 @@ export class TestController {
     @UseGuards(PermissionGuard)
     async delete(@Param('id', ParseIntPipe) id: number) {
         return await this.testService.delete(id);
+    }
+
+    @Patch(':id')
+    @Permission(Permissions.Tests)
+    @UseGuards(PermissionGuard)
+    async replaceTask(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() dto: TaskReplaceDto
+    ) {
+        await this.testService.replaceTask(id, dto);
+        return HttpStatus.OK;
     }
 }

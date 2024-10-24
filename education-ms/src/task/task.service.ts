@@ -95,6 +95,10 @@ export class TaskService {
         const { number = null, theme = null } = task.subjectTask || {};
         const { subTheme = null } = task.subTheme || {};
         const user = await this.userService.getById(task.userId);
+        const tests = task.tests.map(({ id, subject }) => ({
+            id,
+            subject: subject.subject
+        }));
 
         delete task.solution;
         delete task.answers;
@@ -107,7 +111,9 @@ export class TaskService {
             subject,
             theme,
             subTheme,
-            user
+            user,
+            testsCount: tests.length,
+            tests
         };
     }
 
@@ -119,7 +125,8 @@ export class TaskService {
         subjectTaskId?: number,
         subThemeId?: number,
         userId?: number,
-        isVerified?: boolean
+        isVerified?: boolean,
+        currentTaskId?: number
     ) {
         const where = {
             isArchived,
@@ -145,12 +152,23 @@ export class TaskService {
             order: { createdAt: 'DESC' },
             take,
             skip,
-            relations: ['subject', 'subjectTask', 'subTheme']
+            relations: [
+                'subject',
+                'subjectTask',
+                'subTheme',
+                'tests',
+                'tests.subject'
+            ]
         });
 
-        const tasks = await Promise.all(
-            tasksData.map(async task => await this.createShortInfo(task))
-        );
+        const tasks = (
+            await Promise.all(
+                tasksData.map(async task => await this.createShortInfo(task))
+            )
+        ).map(task => ({
+            ...task,
+            ...(currentTaskId && { current: task.id === currentTaskId })
+        }));
 
         const totalCount = await this.taskRepository.count({ where });
 
@@ -431,7 +449,13 @@ export class TaskService {
 
         const tasksData = await this.taskRepository.find({
             where,
-            relations: ['subject', 'subjectTask', 'subTheme']
+            relations: [
+                'subject',
+                'subjectTask',
+                'subTheme',
+                'tests',
+                'tests.subject'
+            ]
         });
 
         if (tasksData.length == 0) {

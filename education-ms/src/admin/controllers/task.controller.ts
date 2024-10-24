@@ -41,11 +41,13 @@ export class TaskController {
         subjectId: number,
         @Query('subject_task_id', new ParseIntPipe({ optional: true }))
         subjectTaskId: number,
-        @Query('subTheme_id', new ParseIntPipe({ optional: true }))
+        @Query('sub_theme_id', new ParseIntPipe({ optional: true }))
         subThemeId: number,
         @Query('user_id', new ParseIntPipe({ optional: true })) userId: number,
         @Query('is_verified', new ParseBoolPipe({ optional: true }))
-        isVerified: boolean
+        isVerified: boolean,
+        @Query('current_task_id', new ParseIntPipe({ optional: true }))
+        currentTaskId: number
     ) {
         return await this.taskService.find(
             limit,
@@ -55,7 +57,8 @@ export class TaskController {
             subjectTaskId,
             subThemeId,
             userId,
-            isVerified
+            isVerified,
+            currentTaskId
         );
     }
 

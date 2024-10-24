@@ -14,6 +14,7 @@ import { TestSubmitDto } from './dto/test-submit.dto';
 import { arraysEqualSet } from '@utils/array-equal-set';
 import { TestHistoryService } from '@test-history/test-history.service';
 import { UserService } from '@user/user.service';
+import { TaskReplaceDto } from './dto';
 
 @Injectable()
 export class TestService {
@@ -218,20 +219,19 @@ export class TestService {
             throw new NotFoundException('Тест не найден');
         }
 
+        // TODO: сразу деструктуризировать
         const tasks = test.tasks.map(taskItem => {
             const { id, task, subjectTask, subTheme } = taskItem;
-            const {
-                number = null,
-                theme = null,
-                isDetailedAnswer
-            } = subjectTask || {};
+            // const {
+            //     number = null,
+            //     theme = null,
+            //     isDetailedAnswer
+            // } = subjectTask || {};
 
             return {
                 id,
-                number,
-                theme,
-                subTheme: subTheme?.subTheme || null,
-                isDetailedAnswer,
+                subjectTask,
+                subTheme,
                 task
             };
         });
@@ -429,5 +429,38 @@ export class TestService {
             grade,
             secondaryScore
         };
+    }
+
+    async replaceTask(id: number, { oldTaskId, newTaskId }: TaskReplaceDto) {
+        const existingTest = await this.testRepository.findOne({
+            where: { id },
+            relations: ['tasks', 'tasks.subjectTask']
+        });
+
+        if (!existingTest) {
+            throw new NotFoundException('Тест не найден');
+        }
+
+        const existingTestTask = existingTest.tasks.find(
+            task => task.id == oldTaskId
+        );
+
+        if (!existingTestTask) {
+            throw new NotFoundException('Задание отсутствует в тесте');
+        }
+
+        const newTask = await this.taskService.getById(newTaskId);
+
+        if (newTask.subjectTask.id != existingTestTask.subjectTask.id) {
+            throw new NotFoundException(
+                'Тема нового задания должна совпадать с темой старого'
+            );
+        }
+
+        existingTest.tasks = existingTest.tasks.map(task =>
+            task.id == oldTaskId ? newTask : task
+        );
+
+        return await this.testRepository.save(existingTest);
     }
 }
