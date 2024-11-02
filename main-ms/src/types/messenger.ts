@@ -1,5 +1,5 @@
-import { UploadedFile } from "express-fileupload"
-import { UserPreview } from "./user"
+import { UploadedFile } from 'express-fileupload';
+import { UserPreview } from './user';
 
 export const enum MessageTypes {
     Default = 'Обычное',
@@ -10,41 +10,49 @@ export const enum MessageTypes {
 }
 
 export type MessageRequestBodyDTO = {
-    message: string
-}
+    message: string;
+};
+
+export type MessageFileDTO = {
+    id: number;
+    type: string;
+    size: string;
+    path: string;
+};
 
 export type MessageDTO = MessageRequestBodyDTO & {
-    id: number,
-    type: string,
-    createdAt: Date,
-    updatedAt: Date,
-    isEdited: boolean,
-    sender: UserPreview,
-    readCount: number,
-    chatId: number
-}
+    id: number;
+    type: string;
+    createdAt: Date;
+    updatedAt: Date;
+    isEdited: boolean;
+    sender: UserPreview;
+    readsCount: number;
+    chatId: number;
+    files: MessageFileDTO[];
+};
 
 export type MessageReader = {
-    user: UserPreview,
-    date: Date
-}
+    user: UserPreview;
+    date: Date;
+};
 
 export type ChatDTO = {
-    id: number,
-    isGroup: boolean,
-    chat: string,
-    picture: string,
-    membersCount: number,
-    lastMessage: MessageDTO
-}
+    id: number;
+    isGroup: boolean;
+    chat: string;
+    picture: string;
+    membersCount: number;
+    lastMessage: MessageDTO;
+};
 
 export type GroupCreateRequestDTO = {
-    chat: string,
-    users: number[],
-    picture: UploadedFile
-}
+    chat: string;
+    users: number[];
+    picture: UploadedFile;
+};
 
 export type UserChatParams = {
-    userId: number,
-    chatId: number
-}
+    userId: number;
+    chatId: number;
+};

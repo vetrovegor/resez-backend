@@ -1,4 +1,5 @@
 import { Response, NextFunction } from 'express';
+import { UploadedFile } from 'express-fileupload';
 
 import {
     RequestWithParamsAndBodyAndUser,
@@ -22,7 +23,8 @@ class MessageController {
             const message = await messageService.sendMessageToUser(
                 req.user.id,
                 req.params.id,
-                req.body.message
+                req.body.message,
+                req.files.files as UploadedFile[]
             );
 
             res.json({ message });
@@ -40,7 +42,8 @@ class MessageController {
             const message = await messageService.sendMessageToChat(
                 req.user.id,
                 req.params.id,
-                req.body.message
+                req.body.message,
+                req.files.files as UploadedFile[]
             );
 
             res.json({ message });

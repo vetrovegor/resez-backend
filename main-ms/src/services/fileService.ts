@@ -13,7 +13,7 @@ class FileService {
 
         const fileName = Date.now() + path.extname(file.name);
 
-        fs.writeFileSync(path.join(directory, fileName), file.data);
+        fs.writeFileSync(path.join(directory, fileName), file.data.toString());
 
         return `${subPath}/${fileName}`;
     }

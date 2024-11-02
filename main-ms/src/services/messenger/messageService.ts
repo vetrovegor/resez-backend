@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+import { UploadedFile } from 'express-fileupload';
 
 import { MessageDTO, MessageTypes } from 'types/messenger';
 import Message from '../../db/models/messenger/Message';
@@ -10,6 +11,7 @@ import UserMessage from '../../db/models/messenger/UserMessage';
 import MessageRead from '../../db/models/messenger/MessageRead';
 import rmqService from '../../services/rmqService';
 import { Queues } from '../../enums/rmq';
+import messageFileService from './messageFileService';
 
 class MessageService {
     async getMessageById(messageId: number): Promise<Message> {
@@ -34,7 +36,8 @@ class MessageService {
         messageType: string,
         message: string,
         chatId: number,
-        senderId: number = null
+        senderId: number = null,
+        files?: UploadedFile[]
     ): Promise<Message> {
         const messageTypeId = await messageTypeService.getMessageTypeIdByType(
             messageType
@@ -46,6 +49,11 @@ class MessageService {
             chatId,
             senderId
         });
+
+        await messageFileService.createMessageFiles(
+            createdMessage.get('id'),
+            files
+        );
 
         const messageDto = await createdMessage.toDTO();
 
@@ -73,7 +81,8 @@ class MessageService {
     async sendMessageToUser(
         senderId: number,
         recipientId: number,
-        message: string
+        message: string,
+        files: UploadedFile[]
     ): Promise<MessageDTO> {
         const chat = await chatService.createOrGetChatBetweenUsers(
             senderId,
@@ -84,10 +93,9 @@ class MessageService {
             MessageTypes.Default,
             message,
             chat.get('id'),
-            senderId
+            senderId,
+            files
         );
-
-        // const messageDto = await createdMessage.toDTO();
 
         return await createdMessage.toDTO();
     }
@@ -95,7 +103,8 @@ class MessageService {
     async sendMessageToChat(
         senderId: number,
         chatId: number,
-        message: string
+        message: string,
+        files: UploadedFile[]
     ): Promise<MessageDTO> {
         const chat = await chatService.checkUserInChat(chatId, senderId);
 
@@ -117,7 +126,8 @@ class MessageService {
             MessageTypes.Default,
             message,
             chatId,
-            senderId
+            senderId,
+            files
         );
 
         return await createdMessage.toDTO();
@@ -235,6 +245,7 @@ class MessageService {
 
         for (const messageId of messageIDs) {
             if (forAll) {
+                await messageFileService.deleteMessageFilesByMessageId(messageId);
                 await Message.destroy({ where: { id: messageId } });
             } else {
                 UserMessage.destroy({

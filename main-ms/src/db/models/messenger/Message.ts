@@ -14,6 +14,8 @@ import MessageType from './MessageType';
 import { MessageDTO, MessageReader } from 'types/messenger';
 import UserMessage from './UserMessage';
 import MessageRead from './MessageRead';
+import MessageFile from './MessageFile';
+import { formatFileSize } from '../../../utils';
 
 @Table({
     timestamps: true,
@@ -62,33 +64,44 @@ class Message extends Model {
     })
     messageReads: MessageRead[];
 
+    @HasMany(() => MessageFile, {
+        onDelete: 'CASCADE'
+    })
+    messageFiles: MessageFile[];
+
     async toDTO(): Promise<MessageDTO> {
-        const {
-            id,
-            messageTypeId,
-            message,
-            createdAt,
-            updatedAt,
-            senderId,
-            chatId
-        } = this.get();
+        const messageData = await Message.findByPk(this.get('id'), {
+            include: ['messageType', 'sender', 'messageReads', 'messageFiles']
+        });
 
-        const messageType = await MessageType.findByPk(messageTypeId);
+        const { id, message, createdAt, updatedAt, chatId } =
+            messageData.toJSON();
 
-        const sender = await User.findByPk(senderId);
-
-        const readCount = await MessageRead.count({ where: { messageId: id } });
+        const type = messageData.get('messageType').get('type');
+        const isEdited = createdAt.toString() != updatedAt.toString();
+        const sender = messageData.get('sender');
+        const readsCount = messageData.get('messageReads').length;
+        const files = messageData.get('messageFiles').map(item => {
+            const { id, type, size, path } = item.toJSON();
+            return {
+                id,
+                type,
+                size: formatFileSize(size),
+                path: process.env.STATIC_URL + path
+            };
+        });
 
         return {
             id,
             message,
-            type: messageType.get('type'),
+            type,
             createdAt,
             updatedAt,
-            isEdited: createdAt.toString() != updatedAt.toString(),
+            isEdited,
             sender: sender ? sender.toPreview() : null,
-            readCount,
-            chatId
+            readsCount,
+            chatId,
+            files
         };
     }
 

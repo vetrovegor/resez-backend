@@ -13,7 +13,7 @@
 
 # static
 /static/avatars
-/static/chats
+/static/messenger
 /static/store
 
 # misc

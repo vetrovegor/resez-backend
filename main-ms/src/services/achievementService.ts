@@ -249,11 +249,11 @@ class AchievementService {
                 } = achievementData.toJSON();
 
                 const collectedData = userAchievementData.find(
-                    item => item.get('requiredAchievementId') == id
+                    item => item.get('achievementId') == id
                 );
 
                 const isSecret = type == AchievementTypes.SECRET;
-                const isShowInfo = !isSecret || (isSecret && collectedData);
+                const isShowInfo = !isSecret || collectedData;
 
                 return {
                     id,
@@ -375,7 +375,7 @@ class AchievementService {
             await UserAchievement.findAll({
                 where: { userId }
             })
-        ).map(item => item.get('requiredAchievementId'));
+        ).map(item => item.get('achievementId'));
 
         for (const achievement of achievementsByType) {
             const {

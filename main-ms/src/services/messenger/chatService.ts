@@ -248,7 +248,7 @@ class ChatService {
         adminId: number
     ) {
         const picturePath = picture
-            ? await fileService.saveFile('chats', picture)
+            ? await fileService.saveFile('messenger/chats', picture)
             : null;
 
         const createdChat = await this.createChat(
@@ -279,7 +279,7 @@ class ChatService {
 
         await fileService.deleteFile(chat.get('picture'));
 
-        const picturePath = await fileService.saveFile('chats', picture);
+        const picturePath = await fileService.saveFile('messenger/chats', picture);
 
         chat.set('picture', picturePath);
         await chat.save();

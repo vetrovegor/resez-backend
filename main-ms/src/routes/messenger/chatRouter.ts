@@ -7,7 +7,7 @@ import chatController from "../../controllers/messenger/chatController";
 import { fileMiddleware } from "../../middlewares/fileMiddleware";
 import { imageMiddleware } from "../../middlewares/imageMiddleware";
 import { validationMiddleware } from "../../middlewares/validationMiddleware";
-import { groupUsersMiddleware } from "../../middlewares/groupUsersMiddleware";
+import { groupUsersMiddleware } from "../../middlewares/messenger/groupUsersMiddleware";
 
 
 export const chatRouter = Router();

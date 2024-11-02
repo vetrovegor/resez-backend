@@ -4,6 +4,7 @@ import { body, param, query } from "express-validator";
 import messageController from "../../controllers/messenger/messageController";
 import { accessTokenMiddleware } from "../../middlewares/accessTokenMiddleware";
 import { validationMiddleware } from "../../middlewares/validationMiddleware";
+import { messageFilesMiddleware } from "../../middlewares/messenger/messageFilesMiddleware";
 
 export const messageRouter = Router();
 
@@ -13,6 +14,7 @@ messageRouter.post(
     body('message').isLength({ min: 1 }),
     validationMiddleware,
     accessTokenMiddleware(true),
+    messageFilesMiddleware,
     messageController.sendMessageToUser
 );
 
@@ -22,6 +24,7 @@ messageRouter.post(
     body('message').isLength({ min: 1 }),
     validationMiddleware,
     accessTokenMiddleware(true),
+    messageFilesMiddleware,
     messageController.sendMessageToChat
 );
 
