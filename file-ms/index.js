@@ -1,9 +1,12 @@
-const fastify = require('fastify')({ logger: true });
-const fm = require('@fastify/multipart')
+const fastify = require('fastify')({
+    logger: true,
+    ajv: { plugins: [require('@fastify/multipart').ajvFilePlugin] }
+});
 require('dotenv').config();
 
 const routes = require('./routes');
 const authenticate = require('./authenticate');
+const STATIC_PATH = require('./consts');
 
 // const route  = require('./routes')
 // const dbconnector = require('./db')
@@ -14,7 +17,15 @@ const authenticate = require('./authenticate');
 //     secret: process.env.JWT_ACCESS_SECRET
 // });
 
-fastify.register(fm);
+fastify.register(require('@fastify/multipart'), {
+    attachFieldsToBody: true
+});
+
+fastify.register(require('@fastify/static'), {
+    root: STATIC_PATH,
+    prefix: '/api/static/'
+});
+
 fastify.register(authenticate);
 
 // fastify.addHook('onRequest', async (request, reply) => {

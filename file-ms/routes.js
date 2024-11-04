@@ -1,8 +1,18 @@
-const fs = require('node:fs')
-const { pipeline } = require('node:stream/promises')
+const { FastifyInstance } = require('fastify');
+const { pipeline } = require('node:stream/promises');
+
+const { saveFile } = require('./file-service');
+
+// const { saveFile, deleteFile } = require('./file-service');
 // const { allTodos, addTodo, updateTodo, deleteTodo } = require('./schemas');
 
-module.exports = (fastify, options) => {
+module.exports = (
+    /**
+     * @type {FastifyInstance}
+     */
+    fastify,
+    options
+) => {
     // const client = fastify.db.client;
 
     const users = [{ id: 1337, nickname: 'xw1nchester' }];
@@ -10,18 +20,35 @@ module.exports = (fastify, options) => {
     fastify.post(
         '/upload',
         {
-            onRequest: [fastify.authenticate]
+            onRequest: [fastify.authenticate],
+            schema: {
+                consumes: ['multipart/form-data'],
+                body: {
+                    type: 'object',
+                    required: ['file'],
+                    properties: {
+                        file: { isFile: true }
+                    }
+                }
+            }
         },
         async (request, reply) => {
             try {
-                const data = await request.file();
-                console.log({ data });
+                const path = await saveFile('', request.body.file);
 
-                await pipeline(data.file, fs.createWriteStream(data.filename))
+                // console.log({ user: request.user });
+
+                // сохранение в бд
+
+                // await pipeline(data.file, fs.createWriteStream(data.filename))
 
                 // const { rows } = await client.query('SELECT * FROM files');
                 // return rows;
-                return 200;
+
+                return {
+                    success: 1,
+                    file: { url: `${process.env.STATIC_URL}${path}` }
+                };
             } catch (err) {
                 throw new Error(err);
             }

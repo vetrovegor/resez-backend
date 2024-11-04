@@ -1,19 +1,20 @@
-const saveFile = async file => {
-    try {
-        const fileName = Date.now() + path.extname(file.originalname);
+const path = require('node:path');
+const fs = require('node:fs');
 
-        const staticPath = path.resolve(process.cwd(), 'static');
+const STATIC_PATH = require('./consts');
 
-        if (!fs.existsSync(staticPath)) {
-            fs.mkdirSync(staticPath, { recursive: true });
-        }
+const saveFile = async (subPath, file) => {
+    const directory = path.join(STATIC_PATH, subPath);
 
-        fs.writeFileSync(path.join(staticPath, fileName), file.buffer);
-
-        return fileName;
-    } catch (e) {
-        console.log('Произошла ошибка при записи файла:', e);
+    if (!fs.existsSync(directory)) {
+        fs.mkdirSync(directory, { recursive: true });
     }
+
+    const fileName = Date.now() + path.extname(file.filename);
+
+    fs.writeFileSync(path.join(directory, fileName), file._buf);
+
+    return `${subPath}/${fileName}`;
 };
 
 const deleteFile = fileName => {
