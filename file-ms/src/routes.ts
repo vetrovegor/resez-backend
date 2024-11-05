@@ -1,28 +1,28 @@
-const { FastifyInstance } = require('fastify');
-const { pipeline } = require('node:stream/promises');
+import { MultipartFile } from '@fastify/multipart';
+import { FastifyInstance, FastifyPluginOptions } from 'fastify';
 
-const { saveFile } = require('./file-service');
+import { saveFile } from './file-service';
 
-// const { saveFile, deleteFile } = require('./file-service');
 // const { allTodos, addTodo, updateTodo, deleteTodo } = require('./schemas');
 
-module.exports = (
-    /**
-     * @type {FastifyInstance}
-     */
-    fastify,
-    options
-) => {
+// TODO: разобраться почему если вынести это в отельный файл, то TS не видит это
+declare module 'fastify' {
+    interface FastifyInstance {
+        authenticate: (
+            request: FastifyRequest,
+            reply: FastifyReply
+        ) => Promise<void>;
+    }
+}
+
+export default (fastify: FastifyInstance, options: FastifyPluginOptions) => {
     // const client = fastify.db.client;
 
-    const users = [{ id: 1337, nickname: 'xw1nchester' }];
-
-    fastify.post(
+    fastify.post<{ Body: { file: MultipartFile } }>(
         '/upload',
         {
             onRequest: [fastify.authenticate],
             schema: {
-                consumes: ['multipart/form-data'],
                 body: {
                     type: 'object',
                     required: ['file'],
@@ -30,6 +30,13 @@ module.exports = (
                         file: { isFile: true }
                     }
                 }
+            },
+            preValidation: async (request, reply, done) => {
+                // await request.jwtVerify();
+                console.log('preValidation');
+                // console.log(request.user);
+                // done(!!request.user ? new Error('Пользователь не авторизован') : undefined)
+                done();
             }
         },
         async (request, reply) => {

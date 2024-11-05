@@ -16,5 +16,4 @@ const adduser = {
         }
     }
 };
-
 module.exports = { adduser };

@@ -1,10 +1,14 @@
-const path = require('node:path');
-const fs = require('node:fs');
+import * as path from 'path';
+import * as fs from 'fs';
+import { MultipartFile } from '@fastify/multipart';
 
-const STATIC_PATH = require('./consts');
+import STATIC_PATH from './consts';
 
-const saveFile = async (subPath, file) => {
+export const saveFile = async (subPath: string, file: MultipartFile) => {
+    console.log({ STATIC_PATH, subPath });
     const directory = path.join(STATIC_PATH, subPath);
+
+    console.log({ directory });
 
     if (!fs.existsSync(directory)) {
         fs.mkdirSync(directory, { recursive: true });
@@ -12,12 +16,14 @@ const saveFile = async (subPath, file) => {
 
     const fileName = Date.now() + path.extname(file.filename);
 
-    fs.writeFileSync(path.join(directory, fileName), file._buf);
+    const buffer = await file.toBuffer();
+
+    fs.writeFileSync(path.join(directory, fileName), buffer);
 
     return `${subPath}/${fileName}`;
 };
 
-const deleteFile = fileName => {
+export const deleteFile = (fileName: string) => {
     if (!fileName) {
         return;
     }
@@ -28,5 +34,3 @@ const deleteFile = fileName => {
         fs.unlinkSync(filePath);
     }
 };
-
-module.exports = { saveFile, deleteFile };
