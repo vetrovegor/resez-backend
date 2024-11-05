@@ -6,6 +6,7 @@ import {
 } from 'fastify';
 import fp from 'fastify-plugin';
 import fastifyJwt from '@fastify/jwt';
+import { ApiError } from './ApiError';
 
 export default fp(async function (
     fastify: FastifyInstance,
@@ -21,7 +22,7 @@ export default fp(async function (
             try {
                 await request.jwtVerify();
             } catch (err) {
-                reply.send(err);
+                throw ApiError.unauthorizedError();
             }
         }
     );

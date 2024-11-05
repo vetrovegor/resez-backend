@@ -13,6 +13,7 @@ import STATIC_PATH from './consts';
 
 const fastify = Fastify({
     logger: {
+        level: 'warn',
         transport: {
             target: 'pino-pretty',
             options: {
@@ -24,8 +25,13 @@ const fastify = Fastify({
     ajv: { plugins: [require('@fastify/multipart').ajvFilePlugin] }
 });
 
+// register cors?
+
 fastify.register(fastifyMultipart, {
-    attachFieldsToBody: true
+    attachFieldsToBody: true,
+    limits: {
+        fileSize: 100 * 1024 ** 2
+    }
 });
 
 fastify.register(fastifyStatic, {

@@ -5,10 +5,7 @@ import { MultipartFile } from '@fastify/multipart';
 import STATIC_PATH from './consts';
 
 export const saveFile = async (subPath: string, file: MultipartFile) => {
-    console.log({ STATIC_PATH, subPath });
     const directory = path.join(STATIC_PATH, subPath);
-
-    console.log({ directory });
 
     if (!fs.existsSync(directory)) {
         fs.mkdirSync(directory, { recursive: true });
