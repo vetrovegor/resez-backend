@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Battle } from './battle.entity';
 import { Repository } from 'typeorm';
@@ -15,6 +15,8 @@ import { EmitTypes, EventTypes } from './enums';
 import { BattleDeleteTimeout, User, UserBattle } from './interfaces';
 import { UserService } from '@user/user.service';
 import { ConfigService } from '@nestjs/config';
+import { RabbitMqService } from '@rabbit-mq/rabbit-mq.service';
+import { ClientProxy } from '@nestjs/microservices';
 
 @WebSocketGateway({
     cors: {
@@ -31,7 +33,9 @@ export class BattleService implements OnGatewayConnection, OnGatewayDisconnect {
         @InjectRepository(Battle)
         private readonly battleRepository: Repository<Battle>,
         private readonly userService: UserService,
-        private readonly configService: ConfigService
+        private readonly configService: ConfigService,
+        private readonly rabbitMqService: RabbitMqService,
+        @Inject('MEMORY_SERVICE') private readonly memoryClient: ClientProxy
     ) {}
 
     @WebSocketServer() server: Server;
@@ -291,13 +295,6 @@ export class BattleService implements OnGatewayConnection, OnGatewayDisconnect {
         });
     }
 
-    async create(dto: BattleDto, creatorId: number) {
-        return await this.battleRepository.save({
-            ...dto,
-            creatorId
-        });
-    }
-
     createDto(battle: Battle, usersLimit?: number) {
         let users = this.usersBattles
             .filter(userBattle => userBattle.battleId == battle.id)
@@ -326,6 +323,29 @@ export class BattleService implements OnGatewayConnection, OnGatewayDisconnect {
             ...battle,
             users
         };
+    }
+
+    async create(dto: BattleDto, creatorId: number) {
+        const collectionData = await this.rabbitMqService.sendRequest({
+            client: this.memoryClient,
+            pattern: 'cards',
+            data: {
+                collectionId: dto.collectionId,
+                userId: creatorId,
+                limit: dto.tasksCount
+            }
+        });
+
+        console.log({ collectionData });
+
+        if (!collectionData) {
+            throw new NotFoundException('Коллекция не найдена');
+        }
+
+        return await this.battleRepository.save({
+            ...dto,
+            creatorId
+        });
     }
 
     async find() {

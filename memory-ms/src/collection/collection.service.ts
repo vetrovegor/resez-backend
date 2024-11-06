@@ -253,7 +253,7 @@ export class CollectionService {
         userId: number,
         take: number,
         skip: number,
-        seed: number
+        seed?: number
     ) {
         await this.findAccessibleCollectionById(id, userId);
 

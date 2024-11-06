@@ -19,6 +19,7 @@ import { SeedPipe } from './pipe/seed.pipe';
 import { Public } from '@auth/public.decorator';
 import { OptionalJwtAuthGuard } from '@auth/optional-jwt-auth.guard';
 import { CollectionDtoPipe } from './pipe/dto.pipe';
+import { MessagePattern } from '@nestjs/microservices';
 
 @Controller('collection')
 export class CollectionController {
@@ -174,5 +175,27 @@ export class CollectionController {
         @Body(new CollectionDtoPipe()) dto: CollectionDto
     ) {
         return await this.collectionService.update(id, user.id, dto);
+    }
+
+    @MessagePattern('cards')
+    async getCardsToBattle({
+        collectionId,
+        userId,
+        limit
+    }: {
+        collectionId: number;
+        userId: number;
+        limit: number;
+    }) {
+        try {
+            return await this.collectionService.findCards(
+                collectionId,
+                userId,
+                limit,
+                0
+            );
+        } catch (error) {
+            return null;
+        }
     }
 }
