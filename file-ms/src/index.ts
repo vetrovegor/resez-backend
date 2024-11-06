@@ -1,4 +1,5 @@
 import Fastify from 'fastify';
+import cors from '@fastify/cors';
 import fastifyMultipart from '@fastify/multipart';
 import fastifyStatic from '@fastify/static';
 import 'dotenv/config';
@@ -26,6 +27,10 @@ const fastify = Fastify({
 });
 
 // register cors?
+fastify.register(cors, {
+    credentials: true,
+    origin: process.env.ALLOWED_ORIGINS.split(',')
+});
 
 fastify.register(fastifyMultipart, {
     attachFieldsToBody: true,
