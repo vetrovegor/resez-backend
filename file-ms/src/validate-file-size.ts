@@ -3,7 +3,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { JwtPayload } from './types/interfaces';
 import { ApiError } from './ApiError';
-import { Subscriptions } from './types/enums';
+import { Permissions, Subscriptions } from './types/enums';
 
 export const validateFileSize = async (
     request: FastifyRequest<{ Body: { file: MultipartFile } }>,
@@ -22,7 +22,7 @@ export const validateFileSize = async (
 
     if (
         bytesRead > 1 * 1024 ** 2 &&
-        subscription.subscription == Subscriptions.Premium &&
+        (!subscription || subscription.subscription == Subscriptions.Premium) &&
         !isAdmin
     ) {
         throw ApiError.requestEntityTooLarge(
@@ -30,8 +30,12 @@ export const validateFileSize = async (
         );
     }
 
-    // TODO: добавить проверку что у пользователя нет пермишина загрузки больших файлов
-    if (bytesRead > 5 * 1024 ** 2) {
+    if (
+        bytesRead > 5 * 1024 ** 2 &&
+        !user.permissions.some(
+            permission => permission.permission == Permissions.UploadBigFiles
+        )
+    ) {
         throw ApiError.requestEntityTooLarge(
             'Вы можете загружать файлы не более 5 MB'
         );

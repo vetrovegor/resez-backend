@@ -30,7 +30,7 @@ const fastify = Fastify({
 fastify.register(fastifyMultipart, {
     attachFieldsToBody: true,
     limits: {
-        fileSize: 100 * 1024 ** 2
+        fileSize: 15 * 1024 ** 2
     }
 });
 

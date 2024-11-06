@@ -1,10 +1,9 @@
 import { MultipartFile } from '@fastify/multipart';
 import { FastifyInstance, FastifyPluginOptions } from 'fastify';
 
-import { saveFile } from './file-service';
+import { saveFile, uploadImageByUrl } from './file-service';
 import { validateFileSize } from './validate-file-size';
-
-// const { allTodos, addTodo, updateTodo, deleteTodo } = require('./schemas');
+import { FileDto } from './FileDto';
 
 // TODO: разобраться почему если вынести это в отельный файл, то TS не видит это
 declare module 'fastify' {
@@ -23,7 +22,7 @@ export default (fastify: FastifyInstance, options: FastifyPluginOptions) => {
         '/upload',
         {
             onRequest: [fastify.authenticate],
-            // TODO: разобраться почему если вынести это в отельный файл, то не работает
+            // TODO: разобраться почему если вынести cхему в отельный файл, то не работает
             schema: {
                 body: {
                     type: 'object',
@@ -33,25 +32,39 @@ export default (fastify: FastifyInstance, options: FastifyPluginOptions) => {
                     }
                 }
             },
-            preHandler: validateFileSize,
+            preHandler: validateFileSize
         },
         async (request, reply) => {
             try {
                 const path = await saveFile('', request.body.file);
 
-                // console.log({ user: request.user });
+                return new FileDto(`${process.env.STATIC_URL}${path}`);
+            } catch (err) {
+                throw new Error(err);
+            }
+        }
+    );
 
-                // сохранение в бд
+    fastify.post<{ Body: { url: string } }>(
+        '/upload/image-by-url',
+        {
+            onRequest: [fastify.authenticate],
+            // TODO: разобраться почему если вынести cхему в отельный файл, то не работает
+            schema: {
+                body: {
+                    type: 'object',
+                    required: ['url'],
+                    properties: {
+                        url: { type: 'string' }
+                    }
+                }
+            }
+        },
+        async (request, reply) => {
+            try {
+                const path = await uploadImageByUrl(request.body.url);
 
-                // await pipeline(data.file, fs.createWriteStream(data.filename))
-
-                // const { rows } = await client.query('SELECT * FROM files');
-                // return rows;
-
-                return {
-                    success: 1,
-                    file: { url: `${process.env.STATIC_URL}${path}` }
-                };
+                return new FileDto(`${process.env.STATIC_URL}${path}`);
             } catch (err) {
                 throw new Error(err);
             }

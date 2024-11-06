@@ -22,6 +22,7 @@ export const enum Permissions {
     UpdateTasks = 'Редактирование заданий',
     DeleteTasks = 'Удаление заданий',
     VerifyTasks = 'Верификация заданий',
+    AnalysisTasks = 'Разбор заданий',
     Complaints = 'Жалобы',
     Archive = 'Архив',
     Store = 'Магазин',
@@ -30,7 +31,8 @@ export const enum Permissions {
     DeleteProducts = 'Удаление товаров',
     AssignProducts = 'Выдача товаров',
     PublishProducts = 'Публикация товаров',
-    PromoCodes = 'Промокоды'
+    PromoCodes = 'Промокоды',
+    UploadBigFiles = 'Загрузка больших файлов (до 100 MB)',
 }
 
 export type PermissionDTO = {

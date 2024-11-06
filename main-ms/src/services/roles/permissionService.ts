@@ -85,6 +85,10 @@ const permissionsHierarchy = [
         parent: Permissions.Tasks
     },
     {
+        permission: Permissions.AnalysisTasks,
+        parent: Permissions.Tasks
+    },
+    {
         permission: Permissions.Tests,
         parent: Permissions.Education
     },
@@ -130,6 +134,10 @@ const permissionsHierarchy = [
     },
     {
         permission: Permissions.PromoCodes,
+        parent: Permissions.Admin
+    },
+    {
+        permission: Permissions.UploadBigFiles,
         parent: Permissions.Admin
     }
 ];
