@@ -1,3 +1,13 @@
+build
+node_modules
+__tests__
 /static/avatars
-/static/chats
+/static/messenger
 /static/store
+.env
+.env.example
+.gitignore
+.dockerignore
+Dockerfile
+jest.config.js
+nodemon.json

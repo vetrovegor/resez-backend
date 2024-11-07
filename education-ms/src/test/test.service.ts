@@ -210,7 +210,8 @@ export class TestService {
                 'subject',
                 'tasks',
                 'tasks.subjectTask',
-                'tasks.subTheme'
+                'tasks.subTheme',
+                'tasks.tests'
             ],
             order: { tasks: { subjectTask: { number: 'ASC' } } }
         });
@@ -221,7 +222,7 @@ export class TestService {
 
         // TODO: сразу деструктуризировать
         const tasks = test.tasks.map(taskItem => {
-            const { id, task, subjectTask, subTheme } = taskItem;
+            const { id, task, subjectTask, subTheme, tests } = taskItem;
             // const {
             //     number = null,
             //     theme = null,
@@ -232,7 +233,8 @@ export class TestService {
                 id,
                 subjectTask,
                 subTheme,
-                task
+                task,
+                testsCount: tests.length
             };
         });
 

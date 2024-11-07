@@ -147,6 +147,27 @@ export class TaskService {
             })
         };
 
+        let current = null;
+
+        if (currentTaskId) {
+            const currentTaskData = await this.taskRepository.findOne({
+                where: { id: currentTaskId },
+                relations: [
+                    'subject',
+                    'subjectTask',
+                    'subTheme',
+                    'tests',
+                    'tests.subject'
+                ]
+            });
+
+            if (!currentTaskData) {
+                throw new NotFoundException('Задание не найдено');
+            }
+
+            current = await this.createShortInfo(currentTaskData);
+        }
+
         const tasksData = await this.taskRepository.find({
             where,
             order: { createdAt: 'DESC' },
@@ -161,18 +182,14 @@ export class TaskService {
             ]
         });
 
-        const tasks = (
-            await Promise.all(
-                tasksData.map(async task => await this.createShortInfo(task))
-            )
-        ).map(task => ({
-            ...task,
-            ...(currentTaskId && { current: task.id === currentTaskId })
-        }));
+        const tasks = await Promise.all(
+            tasksData.map(async task => await this.createShortInfo(task))
+        );
 
         const totalCount = await this.taskRepository.count({ where });
 
         return {
+            ...(current && { current }),
             tasks,
             totalCount,
             isLast: totalCount <= take + skip,

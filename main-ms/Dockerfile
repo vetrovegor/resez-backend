@@ -6,9 +6,9 @@ COPY package*.json .
 
 RUN npm install
 
-COPY build build
+COPY . .
 
-COPY static static
+RUN npm run build || true
 
 EXPOSE 8080
 
