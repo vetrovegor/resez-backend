@@ -35,7 +35,7 @@ fastify.register(cors, {
 fastify.register(fastifyMultipart, {
     attachFieldsToBody: true,
     limits: {
-        fileSize: 15 * 1024 ** 2
+        fileSize: Number(process.env.MAX_FILE_SIZE_MB) * 1024 ** 2
     }
 });
 
@@ -52,7 +52,7 @@ const PORT = Number(process.env.PORT) || 8080;
 
 function start() {
     try {
-        fastify.listen({ port: PORT }, () =>
+        fastify.listen({ port: PORT, host: '0.0.0.0' }, () =>
             console.log(`Server started at port ${PORT}`)
         );
     } catch (err) {
