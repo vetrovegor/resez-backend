@@ -23,6 +23,7 @@ export const enum Permissions {
     UpdateTasks = 'Редактирование заданий',
     DeleteTasks = 'Удаление заданий',
     VerifyTasks = 'Верификация заданий',
+    AnalysisTasks = 'Разбор заданий',
     Tests = 'Тесты',
     CreateOfficialTests = 'Создание официальных тестов',
     DeleteTests = 'Удаление тестов',

@@ -20,6 +20,7 @@ import { UploadModule } from '@upload/upload.module';
 import { TestModule } from '@test/test.module';
 import { TestHistoryModule } from '@test-history/test-history.module';
 import { TaskAttemptModule } from '@task-attempt/task-attempt.module';
+import { TaskAnalysisModule } from '@task-analysis/task-analysis.module';
 
 @Module({
     imports: [
@@ -51,7 +52,8 @@ import { TaskAttemptModule } from '@task-attempt/task-attempt.module';
         TestHistoryModule,
         TaskAttemptModule,
         LogModule,
-        UserModule
+        UserModule,
+        TaskAnalysisModule
     ],
     controllers: [],
     providers: []

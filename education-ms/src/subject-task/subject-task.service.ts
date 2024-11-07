@@ -15,6 +15,18 @@ export class SubjectTaskService {
         private readonly taskService: TaskService
     ) {}
 
+    async getById(id: number) {
+        const subjectTask = await this.subjectTaskRepository.findOne({
+            where: { id }
+        });
+
+        if (!subjectTask) {
+            throw new NotFoundException('Задание предмета не найдено');
+        }
+
+        return subjectTask;
+    }
+
     async getTotalPrimaryScoreBySubjectId(subjectId: number) {
         const result = await this.subjectTaskRepository.sum('primaryScore', {
             subject: { id: subjectId }
@@ -31,13 +43,7 @@ export class SubjectTaskService {
     }
 
     async getSubThemesById(id: number) {
-        const subjectTask = await this.subjectTaskRepository.findOne({
-            where: { id }
-        });
-
-        if (!subjectTask) {
-            throw new NotFoundException('Задание предмета не найдено');
-        }
+        await this.getById(id);
 
         const subThemes = await this.subThemeService.getBySubjectTaskId(id);
 

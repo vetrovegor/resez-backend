@@ -45,7 +45,9 @@
             "@log": ["src/log/"],
             "@log/*": ["src/log/*"],
             "@user": ["src/user/"],
-            "@user/*": ["src/user/*"]
+            "@user/*": ["src/user/*"],
+            "@task-analysis": ["src/task-analysis/"],
+            "@task-analysis/*": ["src/task-analysis/*"]
         }
     }
 }

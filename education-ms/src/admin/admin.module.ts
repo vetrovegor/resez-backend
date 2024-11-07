@@ -15,6 +15,8 @@ import { TestModule } from '@test/test.module';
 import { TestController } from './controllers/test.controller';
 import { LogModule } from '@log/log.module';
 import { LogController } from './controllers/log.controller';
+import { TaskAnalysisController } from './controllers/task-analysis.controller';
+import { TaskAnalysisModule } from '@task-analysis/task-analysis.module';
 
 @Module({
     imports: [
@@ -25,7 +27,8 @@ import { LogController } from './controllers/log.controller';
         TaskModule,
         UploadModule,
         TestModule,
-        LogModule
+        LogModule,
+        TaskAnalysisModule
     ],
     controllers: [
         SubjectController,
@@ -33,7 +36,8 @@ import { LogController } from './controllers/log.controller';
         TaskController,
         UploadController,
         TestController,
-        LogController
+        LogController,
+        TaskAnalysisController
     ],
     providers: [
         {
