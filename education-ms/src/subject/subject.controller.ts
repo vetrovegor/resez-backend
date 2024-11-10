@@ -1,4 +1,10 @@
-import { Controller, Get, Param, UseInterceptors } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    Param,
+    ParseIntPipe,
+    UseInterceptors
+} from '@nestjs/common';
 import { SubjectService } from './subject.service';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 import { Public } from '@auth/decorators/public.decorator';
@@ -22,5 +28,10 @@ export class SubjectController {
     @Get(':slug/task-info')
     async getTaskInfoById(@Param('slug') slug: string) {
         return await this.subjectService.getTaskInfoBySlug(slug);
+    }
+
+    @Get(':id/task-analisys')
+    async getTaskAnalisysById(@Param('id', ParseIntPipe) id: number) {
+        return await this.subjectService.getTaskAnalisysById(id);
     }
 }

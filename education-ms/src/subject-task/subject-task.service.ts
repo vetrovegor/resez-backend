@@ -17,7 +17,8 @@ export class SubjectTaskService {
 
     async getById(id: number) {
         const subjectTask = await this.subjectTaskRepository.findOne({
-            where: { id }
+            where: { id },
+            relations: ['subject']
         });
 
         if (!subjectTask) {

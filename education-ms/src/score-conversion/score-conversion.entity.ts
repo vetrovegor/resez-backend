@@ -35,6 +35,7 @@ export class ScoreConversion {
     @Column({ name: 'is_green' })
     isGreen: boolean;
 
+    // TODO: сделать связь 1 к 1
     @ManyToOne(() => Subject, subject => subject.subjectTasks, {
         onDelete: 'CASCADE'
     })

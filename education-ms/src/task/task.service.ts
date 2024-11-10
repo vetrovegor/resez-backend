@@ -144,7 +144,8 @@ export class TaskService {
             }),
             ...(isVerified != undefined && {
                 isVerified
-            })
+            }),
+            ...(currentTaskId && { id: Not(currentTaskId) })
         };
 
         let current = null;
@@ -432,11 +433,14 @@ export class TaskService {
 
     async generateRandomVerifiedBySubjectTaskId(subjectTaskId: number) {
         return await this.taskRepository
-            .createQueryBuilder('task')
-            .where('task.subjectTask.id = :subjectTaskId', { subjectTaskId })
-            .andWhere('task.isVerified = true')
-            .andWhere('task.isArchived = false')
-            .orderBy('RANDOM()')
+            .createQueryBuilder('t')
+            .leftJoinAndSelect('tests_tasks_tasks', 'ttt', 'ttt.tasksId = t.id')
+            .where('t.subject_task_id = :subjectTaskId', {
+                subjectTaskId
+            })
+            .groupBy('t.id')
+            .orderBy('COUNT(ttt.testsId)')
+            .select(['t.id'])
             .limit(1)
             .getOne();
     }

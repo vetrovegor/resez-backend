@@ -19,7 +19,8 @@ export class TaskAnalysisService {
 
     async getById(id: number) {
         const taskAnalysis = await this.taskAnalysisRepository.findOne({
-            where: { id }
+            where: { id },
+            relations: ['subject', 'subjectTask']
         });
 
         if (!taskAnalysis) {
@@ -45,11 +46,13 @@ export class TaskAnalysisService {
 
         return this.taskAnalysisRepository.save({
             content,
+            subject: subjectTask.subject,
             subjectTask,
             userId
         });
     }
 
+    // TODO: сделать для админа
     async find(take: number, skip: number, isPublished?: boolean) {
         const where = {
             ...(isPublished != undefined && {
@@ -72,6 +75,29 @@ export class TaskAnalysisService {
             isLast: totalCount <= take + skip,
             elementsCount: tasksAnalysis.length
         };
+    }
+
+    async findById(id: number) {
+        const taskAnalysis = await this.getById(id);
+
+        return taskAnalysis;
+    }
+
+    async findBySubjectId(subjectId: number) {
+        const tasksAnalysisData = await this.taskAnalysisRepository.find({
+            where: {
+                isPublished: true,
+                subject: { id: subjectId }
+            },
+            relations: ['subjectTask']
+        });
+
+        const tasksAnalysis = tasksAnalysisData.map(({ id, subjectTask }) => ({
+            id,
+            number: subjectTask.number
+        }));
+
+        return { tasksAnalysis };
     }
 
     async toggleIsPublished(id: number) {

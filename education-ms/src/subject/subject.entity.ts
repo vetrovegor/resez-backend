@@ -1,5 +1,6 @@
 import { ScoreConversion } from '@score-conversion/score-conversion.entity';
 import { SubjectTask } from '@subject-task/subject-task.entity';
+import { TaskAnalysis } from '@task-analysis/task-analysis.entity';
 import { Task } from '@task/task.entity';
 import { Test } from '@test/test.entity';
 import {
@@ -50,6 +51,7 @@ export class Subject {
     })
     subjectTasks: SubjectTask[];
 
+    // TODO: сделать связь 1 к 1
     @OneToMany(
         () => ScoreConversion,
         scoreConversion => scoreConversion.subject,
@@ -68,4 +70,9 @@ export class Subject {
         cascade: true
     })
     tests: Test[];
+
+    @OneToMany(() => TaskAnalysis, taskAnalysis => taskAnalysis.subject, {
+        cascade: true
+    })
+    tasksAnalysis: TaskAnalysis;
 }

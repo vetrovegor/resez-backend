@@ -2,6 +2,7 @@ import {
     Controller,
     DefaultValuePipe,
     Get,
+    Param,
     ParseIntPipe,
     Query
 } from '@nestjs/common';
@@ -17,5 +18,10 @@ export class TaskAnalysisController {
         @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number
     ) {
         return await this.taskAnalysisService.find(limit, offset, true);
+    }
+
+    @Get(':id')
+    async findById(@Param('id', ParseIntPipe) id: number) {
+        return await this.taskAnalysisService.findById(id);
     }
 }

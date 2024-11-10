@@ -8,6 +8,7 @@ import {
     JoinColumn,
     ManyToOne,
     OneToMany,
+    OneToOne,
     PrimaryGeneratedColumn
 } from 'typeorm';
 
@@ -48,8 +49,8 @@ export class SubjectTask {
     })
     tasks: Task[];
 
-    @OneToMany(() => TaskAnalysis, taskAnalysis => taskAnalysis.subjectTask, {
+    @OneToOne(() => TaskAnalysis, taskAnalysis => taskAnalysis.subjectTask, {
         cascade: true
     })
-    tasksAnalysis: TaskAnalysis[];
+    tasksAnalysis: TaskAnalysis;
 }

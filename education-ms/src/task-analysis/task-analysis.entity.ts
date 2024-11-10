@@ -1,10 +1,12 @@
 import { SubjectTask } from '@subject-task/subject-task.entity';
+import { Subject } from '@subject/subject.entity';
 import {
     Column,
     CreateDateColumn,
     Entity,
     JoinColumn,
     ManyToOne,
+    OneToOne,
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from 'typeorm';
@@ -31,11 +33,15 @@ export class TaskAnalysis {
     @UpdateDateColumn({ name: 'updated_at' })
     updatedAt: Date;
 
-    @ManyToOne(() => SubjectTask, subjectTask => subjectTask.tasksAnalysis, {
+    @OneToOne(() => SubjectTask, subjectTask => subjectTask.tasksAnalysis)
+    @JoinColumn({ name: 'subject_task_id' })
+    subjectTask: SubjectTask;
+
+    @ManyToOne(() => Subject, subject => subject.tasksAnalysis, {
         onDelete: 'CASCADE'
     })
     @JoinColumn({
-        name: 'subject_task_id'
+        name: 'subject_id'
     })
-    subjectTask: SubjectTask;
+    subject: Subject;
 }

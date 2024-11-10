@@ -15,6 +15,7 @@ import { SubjectFullInfo } from './dto/subject-full-info.dto';
 import { TaskService } from '@task/task.service';
 import { LogService } from '@log/log.service';
 import { LogType } from '@log/log.entity';
+import { TaskAnalysisService } from '@task-analysis/task-analysis.service';
 
 @Injectable()
 export class SubjectService {
@@ -26,7 +27,8 @@ export class SubjectService {
         private readonly subjectTaskService: SubjectTaskService,
         @Inject(forwardRef(() => TaskService))
         private readonly taskService: TaskService,
-        private readonly logService: LogService
+        private readonly logService: LogService,
+        private readonly taskAnalysisService: TaskAnalysisService
     ) {}
 
     // попробовать сделать с помощью одного запроса через queryBuilder
@@ -377,5 +379,10 @@ export class SubjectService {
     async getTaskInfoBySlug(slug: string) {
         const { id } = await this.getBySlug(slug);
         return this.getTaskInfoById(id);
+    }
+
+    async getTaskAnalisysById(id: number) {
+        await this.getById(id);
+        return await this.taskAnalysisService.findBySubjectId(id);
     }
 }

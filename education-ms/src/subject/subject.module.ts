@@ -6,13 +6,15 @@ import { Subject } from './subject.entity';
 import { ScoreConversionModule } from '@score-conversion/score-conversion.module';
 import { SubjectTaskModule } from '@subject-task/subject-task.module';
 import { TaskModule } from '@task/task.module';
+import { TaskAnalysisModule } from '@task-analysis/task-analysis.module';
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([Subject]),
         forwardRef(() => ScoreConversionModule),
         forwardRef(() => TaskModule),
-        SubjectTaskModule
+        SubjectTaskModule,
+        TaskAnalysisModule
     ],
     controllers: [SubjectController],
     providers: [SubjectService],
