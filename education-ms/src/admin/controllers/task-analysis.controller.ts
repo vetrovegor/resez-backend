@@ -31,6 +31,13 @@ export class TaskAnalysisController {
         return await this.taskAnalysisService.create(dto, user.id);
     }
 
+    @Patch(':id/toggle-publish')
+    @Permission(Permissions.AnalysisTasks)
+    @UseGuards(PermissionGuard)
+    async toggleIsVerified(@Param('id', ParseIntPipe) id: number) {
+        return await this.taskAnalysisService.toggleIsPublished(id);
+    }
+
     @Get()
     @Permission(Permissions.AnalysisTasks)
     @UseGuards(PermissionGuard)
@@ -41,10 +48,10 @@ export class TaskAnalysisController {
         return await this.taskAnalysisService.find(limit, offset);
     }
 
-    @Patch(':id/toggle-publish')
+    @Get(':id')
     @Permission(Permissions.AnalysisTasks)
     @UseGuards(PermissionGuard)
-    async toggleIsVerified(@Param('id', ParseIntPipe) id: number) {
-        return await this.taskAnalysisService.toggleIsPublished(id);
+    async findFullInfoById(@Param('id', ParseIntPipe) id: number) {
+        return await this.taskAnalysisService.findFullInfoById(id);
     }
 }

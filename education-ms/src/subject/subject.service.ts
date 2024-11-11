@@ -381,8 +381,8 @@ export class SubjectService {
         return this.getTaskInfoById(id);
     }
 
-    async getTaskAnalisysById(id: number) {
-        await this.getById(id);
+    async getTaskAnalysisBySlug(slug: string) {
+        const { id } = await this.getBySlug(slug);
         return await this.taskAnalysisService.findBySubjectId(id);
     }
 }

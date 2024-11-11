@@ -8,18 +8,27 @@ import { TaskAnalysis } from './task-analysis.entity';
 import { Repository } from 'typeorm';
 import { TaskAnalysisDto } from './dto/task-analysis.dto';
 import { SubjectTaskService } from '@subject-task/subject-task.service';
+import { UserService } from '@user/user.service';
 
 @Injectable()
 export class TaskAnalysisService {
     constructor(
         @InjectRepository(TaskAnalysis)
         private readonly taskAnalysisRepository: Repository<TaskAnalysis>,
-        private readonly subjectTaskService: SubjectTaskService
+        private readonly subjectTaskService: SubjectTaskService,
+        private readonly userService: UserService
     ) {}
 
-    async getById(id: number) {
+    async getById(id: number, isPublished?: boolean) {
+        const where = {
+            id,
+            ...(isPublished != undefined && {
+                isPublished
+            })
+        };
+
         const taskAnalysis = await this.taskAnalysisRepository.findOne({
-            where: { id },
+            where,
             relations: ['subject', 'subjectTask']
         });
 
@@ -52,33 +61,25 @@ export class TaskAnalysisService {
         });
     }
 
-    // TODO: сделать для админа
-    async find(take: number, skip: number, isPublished?: boolean) {
-        const where = {
-            ...(isPublished != undefined && {
-                isPublished
-            })
-        };
+    async findBasicInfoById(id: number) {
+        const taskAnalysis = await this.getById(id, true);
 
-        const tasksAnalysis = await this.taskAnalysisRepository.find({
-            where,
-            order: { createdAt: 'DESC' },
-            take,
-            skip
-        });
+        delete taskAnalysis.isPublished;
+        delete taskAnalysis.userId;
+        delete taskAnalysis.createdAt;
+        delete taskAnalysis.updatedAt;
 
-        const totalCount = await this.taskAnalysisRepository.count({ where });
-
-        return {
-            tasksAnalysis,
-            totalCount,
-            isLast: totalCount <= take + skip,
-            elementsCount: tasksAnalysis.length
-        };
+        return taskAnalysis;
     }
 
-    async findById(id: number) {
+    async findFullInfoById(id: number) {
         const taskAnalysis = await this.getById(id);
+
+        taskAnalysis['user'] = await this.userService.getById(
+            taskAnalysis.userId
+        );
+
+        delete taskAnalysis.userId;
 
         return taskAnalysis;
     }
@@ -89,7 +90,8 @@ export class TaskAnalysisService {
                 isPublished: true,
                 subject: { id: subjectId }
             },
-            relations: ['subjectTask']
+            relations: ['subjectTask'],
+            order: { subjectTask: { number: 'ASC' } }
         });
 
         const tasksAnalysis = tasksAnalysisData.map(({ id, subjectTask }) => ({
@@ -98,6 +100,37 @@ export class TaskAnalysisService {
         }));
 
         return { tasksAnalysis };
+    }
+
+    async find(take: number, skip: number) {
+        const tasksAnalysisData = await this.taskAnalysisRepository.find({
+            order: { createdAt: 'DESC', subjectTask: { number: 'ASC' } },
+            relations: ['subject', 'subjectTask'],
+            take,
+            skip
+        });
+
+        const tasksAnalysis = await Promise.all(
+            tasksAnalysisData.map(async item => {
+                const user = await this.userService.getById(item.userId);
+
+                delete item.userId;
+
+                return {
+                    ...item,
+                    user
+                };
+            })
+        );
+
+        const totalCount = await this.taskAnalysisRepository.count();
+
+        return {
+            tasksAnalysis,
+            totalCount,
+            isLast: totalCount <= take + skip,
+            elementsCount: tasksAnalysis.length
+        };
     }
 
     async toggleIsPublished(id: number) {
