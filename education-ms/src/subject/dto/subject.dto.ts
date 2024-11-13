@@ -1,8 +1,10 @@
+import { ExamType } from '@subject/subject.entity';
 import { Transform, Type } from 'class-transformer';
 import {
     ArrayMinSize,
     IsArray,
     IsBoolean,
+    IsEnum,
     IsNotEmpty,
     IsNumber,
     IsOptional,
@@ -13,6 +15,9 @@ import {
 } from 'class-validator';
 
 export class SubjectDto {
+    @IsEnum(ExamType)
+    examType: ExamType;
+
     @IsString({ message: 'Предмет должен быть строкой' })
     @IsNotEmpty({ message: 'Поле предмет не должен быть пустым' })
     subject: string;

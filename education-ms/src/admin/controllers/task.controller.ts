@@ -10,6 +10,7 @@ import {
     Get,
     Param,
     ParseBoolPipe,
+    ParseEnumPipe,
     ParseIntPipe,
     Patch,
     Post,
@@ -19,6 +20,7 @@ import {
 import { MatchDto } from '@task/dto/match.dto';
 import { TaskDto } from '@task/dto/task.dto';
 import { TaskService } from '@task/task.service';
+import { ExamType } from '@subject/subject.entity';
 
 @Controller('admin/task')
 export class TaskController {
@@ -47,19 +49,22 @@ export class TaskController {
         @Query('is_verified', new ParseBoolPipe({ optional: true }))
         isVerified: boolean,
         @Query('current_task_id', new ParseIntPipe({ optional: true }))
-        currentTaskId: number
+        currentTaskId: number,
+        @Query('exam_type', new ParseEnumPipe(ExamType, { optional: true }))
+        examType: ExamType
     ) {
-        return await this.taskService.find(
+        return await this.taskService.find({
             limit,
             offset,
-            false,
+            isArchived: false,
             subjectId,
             subjectTaskId,
             subThemeId,
             userId,
             isVerified,
-            currentTaskId
-        );
+            currentTaskId,
+            examType
+        });
     }
 
     @Get('archived')
@@ -69,7 +74,11 @@ export class TaskController {
         @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
         @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number
     ) {
-        return await this.taskService.find(limit, offset, true);
+        return await this.taskService.find({
+            limit,
+            offset,
+            isArchived: true
+        });
     }
 
     @Get(':id')

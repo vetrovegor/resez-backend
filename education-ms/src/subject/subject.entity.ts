@@ -12,12 +12,26 @@ import {
     UpdateDateColumn
 } from 'typeorm';
 
+export enum ExamType {
+    EGE = 'ЕГЭ',
+    OGE = 'ОГЭ',
+    ENT = 'ЕНТ'
+}
+
 @Entity({
     name: 'subjects'
 })
 export class Subject {
     @PrimaryGeneratedColumn()
     id: number;
+
+    @Column({
+        name: 'exam_type',
+        type: 'enum',
+        enum: ExamType,
+        default: ExamType.EGE
+    })
+    examType: ExamType;
 
     @Column()
     subject: string;

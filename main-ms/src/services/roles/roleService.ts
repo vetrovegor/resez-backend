@@ -102,7 +102,7 @@ class RoleService {
 
         const roles = await Role.findAll({
             where,
-            order: [['id', 'DESC']],
+            order: [[isArchived ? 'updatedAt' : 'createdAt', 'DESC']],
             limit,
             offset
         });

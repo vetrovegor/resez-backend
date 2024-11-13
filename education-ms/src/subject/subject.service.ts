@@ -110,10 +110,11 @@ export class SubjectService {
 
     async find(take: number, skip: number, isArchived: boolean) {
         const where = { isArchived };
+        const order = { [isArchived ? 'updatedAt' : 'createdAt']: 'DESC' };
 
         const subjectsData = await this.subjectRepository.find({
             where,
-            order: { createdAt: 'DESC' },
+            order,
             take,
             skip,
             relations: ['subjectTasks']

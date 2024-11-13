@@ -16,6 +16,7 @@ import { JwtPayload, Permissions } from '@auth/interfaces/interfaces';
 import { LogService } from '@log/log.service';
 import { LogType } from '@log/log.entity';
 import { UserService } from '@user/user.service';
+import { ExamType } from '@subject/subject.entity';
 
 @Injectable()
 export class TaskService {
@@ -117,17 +118,29 @@ export class TaskService {
         };
     }
 
-    async find(
-        take: number,
-        skip: number,
-        isArchived: boolean,
-        subjectId?: number,
-        subjectTaskId?: number,
-        subThemeId?: number,
-        userId?: number,
-        isVerified?: boolean,
-        currentTaskId?: number
-    ) {
+    async find({
+        limit,
+        offset,
+        isArchived,
+        subjectId,
+        subjectTaskId,
+        subThemeId,
+        userId,
+        isVerified,
+        currentTaskId,
+        examType
+    }: {
+        limit: number;
+        offset: number;
+        isArchived: boolean;
+        subjectId?: number;
+        subjectTaskId?: number;
+        subThemeId?: number;
+        userId?: number;
+        isVerified?: boolean;
+        currentTaskId?: number;
+        examType?: ExamType;
+    }) {
         const where = {
             isArchived,
             ...(subjectId != undefined && {
@@ -145,8 +158,11 @@ export class TaskService {
             ...(isVerified != undefined && {
                 isVerified
             }),
-            ...(currentTaskId && { id: Not(currentTaskId) })
+            ...(currentTaskId && { id: Not(currentTaskId) }),
+            ...(examType && { subject: { examType } })
         };
+
+        const order = { [isArchived ? 'updatedAt' : 'createdAt']: 'DESC' };
 
         let current = null;
 
@@ -171,9 +187,9 @@ export class TaskService {
 
         const tasksData = await this.taskRepository.find({
             where,
-            order: { createdAt: 'DESC' },
-            take,
-            skip,
+            order,
+            take: limit,
+            skip: offset,
             relations: [
                 'subject',
                 'subjectTask',
@@ -193,7 +209,7 @@ export class TaskService {
             ...(current && { current }),
             tasks,
             totalCount,
-            isLast: totalCount <= take + skip,
+            isLast: totalCount <= limit + offset,
             elementsCount: tasksData.length
         };
     }
