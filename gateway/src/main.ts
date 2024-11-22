@@ -17,6 +17,16 @@ async function bootstrap() {
 
     app.use('/api/education-ms', proxy(configService.get('EDUCATION_MS_URL')));
 
+    app.use(
+        '/api/education-oge-ms',
+        proxy(configService.get('EDUCATION_OGE_MS_URL'))
+    );
+
+    app.use(
+        '/api/education-ent-ms',
+        proxy(configService.get('EDUCATION_ENT_MS_URL'))
+    );
+
     app.use('/api/battle-ms', proxy(configService.get('BATTLE_MS_URL')));
 
     app.use((req, res, next) => {

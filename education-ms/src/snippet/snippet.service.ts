@@ -4,14 +4,28 @@ import { Snippet } from './snippet.entity';
 import { Repository } from 'typeorm';
 import { SnippetDto } from './dto/snippet.dto';
 import { SubjectService } from '@subject/subject.service';
+import { UserService } from '@user/user.service';
 
 @Injectable()
 export class SnippetService {
     constructor(
         @InjectRepository(Snippet)
         private readonly snippetRepository: Repository<Snippet>,
-        private readonly subjectService: SubjectService
+        private readonly subjectService: SubjectService,
+        private readonly userService: UserService
     ) {}
+
+    async createDto(snippet: Snippet) {
+        const user = await this.userService.getById(snippet.userId);
+
+        delete snippet.userId;
+
+        return {
+            ...snippet,
+            subject: snippet.subject.subject,
+            user
+        };
+    }
 
     async getById(id: number) {
         const snippet = await this.snippetRepository.findOne({
@@ -37,6 +51,19 @@ export class SnippetService {
         });
     }
 
+    async findById(id: number) {
+        const snippet = await this.getById(id);
+
+        const user = await this.userService.getById(snippet.userId);
+
+        delete snippet.userId;
+
+        return {
+            ...snippet,
+            user
+        };
+    }
+
     async find({
         limit,
         offset,
@@ -52,13 +79,17 @@ export class SnippetService {
             })
         };
 
-        const snippets = await this.snippetRepository.find({
+        const snippetsData = await this.snippetRepository.find({
             where,
             order: { createdAt: 'DESC' },
             take: limit,
             skip: offset,
             relations: ['subject']
         });
+
+        const snippets = await Promise.all(
+            snippetsData.map(snippet => this.createDto(snippet))
+        );
 
         const totalCount = await this.snippetRepository.count({ where });
 
@@ -81,7 +112,7 @@ export class SnippetService {
             title
         });
 
-        return snippet;
+        return await this.createDto(snippet);
     }
 
     async delete(id: number) {
@@ -89,6 +120,6 @@ export class SnippetService {
 
         await this.snippetRepository.remove(snippet);
 
-        return snippet;
+        return await this.createDto(snippet);
     }
 }

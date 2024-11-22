@@ -29,6 +29,13 @@ export class SnippetController {
         return await this.snippetService.create(dto, user.id);
     }
 
+    @Get(':id')
+    @Permission(Permissions.CreateTasks)
+    @UseGuards(PermissionGuard)
+    async findById(@Param('id', ParseIntPipe) id: number) {
+        return await this.snippetService.findById(id);
+    }
+
     @Get()
     @Permission(Permissions.Tasks)
     @UseGuards(PermissionGuard)
