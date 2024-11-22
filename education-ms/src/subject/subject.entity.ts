@@ -1,4 +1,5 @@
 import { ScoreConversion } from '@score-conversion/score-conversion.entity';
+import { Snippet } from '@snippet/snippet.entity';
 import { SubjectTask } from '@subject-task/subject-task.entity';
 import { TaskAnalysis } from '@task-analysis/task-analysis.entity';
 import { Task } from '@task/task.entity';
@@ -12,26 +13,12 @@ import {
     UpdateDateColumn
 } from 'typeorm';
 
-export enum ExamType {
-    EGE = 'ЕГЭ',
-    OGE = 'ОГЭ',
-    ENT = 'ЕНТ'
-}
-
 @Entity({
     name: 'subjects'
 })
 export class Subject {
     @PrimaryGeneratedColumn()
     id: number;
-
-    @Column({
-        name: 'exam_type',
-        type: 'enum',
-        enum: ExamType,
-        default: ExamType.EGE
-    })
-    examType: ExamType;
 
     @Column()
     subject: string;
@@ -89,4 +76,9 @@ export class Subject {
         cascade: true
     })
     tasksAnalysis: TaskAnalysis;
+
+    @OneToMany(() => Snippet, snippet => snippet.subject, {
+        cascade: true
+    })
+    snippets: Snippet[];
 }

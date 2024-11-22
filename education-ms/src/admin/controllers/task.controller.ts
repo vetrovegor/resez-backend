@@ -10,7 +10,6 @@ import {
     Get,
     Param,
     ParseBoolPipe,
-    ParseEnumPipe,
     ParseIntPipe,
     Patch,
     Post,
@@ -20,7 +19,6 @@ import {
 import { MatchDto } from '@task/dto/match.dto';
 import { TaskDto } from '@task/dto/task.dto';
 import { TaskService } from '@task/task.service';
-import { ExamType } from '@subject/subject.entity';
 
 @Controller('admin/task')
 export class TaskController {
@@ -49,9 +47,7 @@ export class TaskController {
         @Query('is_verified', new ParseBoolPipe({ optional: true }))
         isVerified: boolean,
         @Query('current_task_id', new ParseIntPipe({ optional: true }))
-        currentTaskId: number,
-        @Query('exam_type', new ParseEnumPipe(ExamType, { optional: true }))
-        examType: ExamType
+        currentTaskId: number
     ) {
         return await this.taskService.find({
             limit,
@@ -62,8 +58,7 @@ export class TaskController {
             subThemeId,
             userId,
             isVerified,
-            currentTaskId,
-            examType
+            currentTaskId
         });
     }
 

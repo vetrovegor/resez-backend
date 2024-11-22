@@ -21,6 +21,7 @@ import { TestModule } from '@test/test.module';
 import { TestHistoryModule } from '@test-history/test-history.module';
 import { TaskAttemptModule } from '@task-attempt/task-attempt.module';
 import { TaskAnalysisModule } from '@task-analysis/task-analysis.module';
+import { SnippetModule } from '@snippet/snippet.module';
 
 @Module({
     imports: [
@@ -53,7 +54,8 @@ import { TaskAnalysisModule } from '@task-analysis/task-analysis.module';
         TaskAttemptModule,
         LogModule,
         UserModule,
-        TaskAnalysisModule
+        TaskAnalysisModule,
+        SnippetModule
     ],
     controllers: [],
     providers: []

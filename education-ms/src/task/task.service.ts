@@ -16,7 +16,6 @@ import { JwtPayload, Permissions } from '@auth/interfaces/interfaces';
 import { LogService } from '@log/log.service';
 import { LogType } from '@log/log.entity';
 import { UserService } from '@user/user.service';
-import { ExamType } from '@subject/subject.entity';
 
 @Injectable()
 export class TaskService {
@@ -127,8 +126,7 @@ export class TaskService {
         subThemeId,
         userId,
         isVerified,
-        currentTaskId,
-        examType
+        currentTaskId
     }: {
         limit: number;
         offset: number;
@@ -139,7 +137,6 @@ export class TaskService {
         userId?: number;
         isVerified?: boolean;
         currentTaskId?: number;
-        examType?: ExamType;
     }) {
         const where = {
             isArchived,
@@ -158,8 +155,7 @@ export class TaskService {
             ...(isVerified != undefined && {
                 isVerified
             }),
-            ...(currentTaskId && { id: Not(currentTaskId) }),
-            ...(examType && { subject: { examType } })
+            ...(currentTaskId && { id: Not(currentTaskId) })
         };
 
         const order = { [isArchived ? 'updatedAt' : 'createdAt']: 'DESC' };

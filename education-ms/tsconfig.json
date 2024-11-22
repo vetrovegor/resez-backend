@@ -47,7 +47,9 @@
             "@user": ["src/user/"],
             "@user/*": ["src/user/*"],
             "@task-analysis": ["src/task-analysis/"],
-            "@task-analysis/*": ["src/task-analysis/*"]
+            "@task-analysis/*": ["src/task-analysis/*"],
+            "@snippet": ["src/snippet/"],
+            "@snippet/*": ["src/snippet/*"]
         }
     }
 }

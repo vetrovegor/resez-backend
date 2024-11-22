@@ -17,6 +17,8 @@ import { LogModule } from '@log/log.module';
 import { LogController } from './controllers/log.controller';
 import { TaskAnalysisController } from './controllers/task-analysis.controller';
 import { TaskAnalysisModule } from '@task-analysis/task-analysis.module';
+import { SnippetController } from './controllers/snippet.controller';
+import { SnippetModule } from '@snippet/snippet.module';
 
 @Module({
     imports: [
@@ -28,7 +30,8 @@ import { TaskAnalysisModule } from '@task-analysis/task-analysis.module';
         UploadModule,
         TestModule,
         LogModule,
-        TaskAnalysisModule
+        TaskAnalysisModule,
+        SnippetModule
     ],
     controllers: [
         SubjectController,
@@ -37,7 +40,8 @@ import { TaskAnalysisModule } from '@task-analysis/task-analysis.module';
         UploadController,
         TestController,
         LogController,
-        TaskAnalysisController
+        TaskAnalysisController,
+        SnippetController
     ],
     providers: [
         {
