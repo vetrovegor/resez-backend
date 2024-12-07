@@ -27,6 +27,10 @@ model Notification {
   content          String             @db.Text
   author           String
   senderId         Int                @map("sender_id")
+  isDelayed        Boolean            @map("is_delayed")
+  sendAt           DateTime           @default(now())
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
   type             Type
   userNotification UserNotification[]
 
@@ -37,10 +41,10 @@ model UserNotification {
   notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
   notificationId Int          @map("notification_id")
   userId         Int          @map("user_id")
-  isRead         Boolean      @map("is_read")
-  isSent         Boolean      @map("is_sent")
-  date           DateTime     @default(now())
+  isRead         Boolean      @default(false) @map("is_read")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
 
-  @@id([notificationId])
+  @@id([notificationId, userId])
   @@map("user_notifications")
 }

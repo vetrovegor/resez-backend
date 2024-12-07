@@ -28,10 +28,10 @@ export const notificationSchema = Joi.object({
         'string.base': 'Поле author должно быть строкой.',
         'string.empty': 'Поле author не может быть пустым.'
     }),
-    date: Joi.string().isoDate().messages({
+    sendAt: Joi.string().isoDate().messages({
         'string.isoDate':
-            'Поле date должно быть в формате ISO 8601 (например, 2024-08-08T22:55:00.000+05:00)..',
-        'string.empty': 'Поле date не может быть пустым.'
+            'Поле sendAt должно быть в формате ISO 8601 (например, 2024-08-08T22:55:00.000+05:00)..',
+        'string.empty': 'Поле sendAt не может быть пустым.'
     }),
     userIds: Joi.array()
         .items(

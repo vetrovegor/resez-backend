@@ -5,7 +5,7 @@ export interface NotificationBody {
     title: string;
     content: string;
     author: string;
-    date: string;
+    sendAt: string;
     userIds: number[];
-    isdDelayed: boolean;
+    isDelayed: boolean;
 }

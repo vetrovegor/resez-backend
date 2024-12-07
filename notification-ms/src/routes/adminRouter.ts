@@ -1,9 +1,9 @@
 import Router from 'koa-router';
 
 import { notificationBodyMiddleware, validateBody } from '../middlewares';
-import { notificationSchema } from '../validators/notificationSchema';
 import { createNotification } from '../services';
 import { NotificationBody } from '../types/notification';
+import { notificationSchema } from '../validators';
 
 export const adminNotificationRouter = new Router({
     prefix: '/admin/notification'
