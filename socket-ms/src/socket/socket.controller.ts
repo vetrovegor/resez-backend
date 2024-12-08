@@ -15,7 +15,7 @@ export class SocketController {
 
     @EventPattern('emit-to-user')
     emitToUser(content: { userId: number; emitType: EmitTypes; data: any }) {
-        console.log(content);
+        console.log({ content });
         const { userId, emitType, data } = content;
         this.socketService.emitToUser(userId, emitType, data);
     }

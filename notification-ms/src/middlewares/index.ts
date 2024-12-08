@@ -6,3 +6,4 @@ export * from './validateParams';
 export * from './validateQuery';
 export * from './notificationBodyMiddleware';
 export * from './paginationMiddleware';
+export * from './permissionMiddleware';

@@ -19,7 +19,6 @@ export const paginationMiddleware = async (ctx: Context, next: Next) => {
 
     limit = limit > 100 ? 100 : limit;
 
-    // TODO
     ctx.query = {
         ...query,
         limit: limit.toString(),

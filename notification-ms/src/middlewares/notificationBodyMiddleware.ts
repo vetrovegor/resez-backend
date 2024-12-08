@@ -2,6 +2,7 @@ import { Context, Next } from 'koa';
 
 import { NotificationBody } from '../types/notification';
 import { HttpError } from '../HttpError';
+import { getAllUserIDs, validateUserIds } from '../services';
 
 export const notificationBodyMiddleware = async (ctx: Context, next: Next) => {
     const body = <NotificationBody>ctx.request.body;
@@ -19,9 +20,22 @@ export const notificationBodyMiddleware = async (ctx: Context, next: Next) => {
 
     const isDelayed = Number(new Date(sendAt)) - Number(currentDate) > 0;
 
-    // запросить все id пользователей если userIds пустой
+    const userIdsValid = await validateUserIds(userIds);
 
-    ctx.request.body = { ...body, date: sendAt, isDelayed, userIds: new Set(userIds) };
+    if (!userIdsValid) {
+        throw new HttpError(404, 'Пользователь не найден');
+    }
+
+    if (userIds.length == 0) {
+        userIds = await getAllUserIDs();
+    }
+
+    ctx.request.body = {
+        ...body,
+        date: sendAt,
+        isDelayed,
+        userIds: new Set(userIds)
+    };
 
     await next();
 };

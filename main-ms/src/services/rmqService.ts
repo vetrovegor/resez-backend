@@ -128,6 +128,8 @@ class RmqService {
                             achievementType,
                             value
                         );
+                    } else if (message.pattern == 'get-all-ids') {
+                        response = await userService.getAllUserIDs();
                     }
                 } catch (error) {
                     console.log(

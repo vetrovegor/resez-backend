@@ -2,20 +2,26 @@ import { Notification, UserNotification } from '@prisma/client';
 import { prisma } from '../prisma';
 import { NotificationBody } from '../types/notification';
 import { HttpError } from '../HttpError';
+import { getById } from './userService';
+import { emitToUser } from './socketService';
+
+const NOTIFICATION_EMIT_TYPE = 'notification';
 
 export const createUserNotification = async (
     notification: Notification,
     userId: number
 ) => {
-    await prisma.userNotification.create({
+    const userNotification = await prisma.userNotification.create({
         data: {
             notificationId: notification.id,
             userId
-        }
+        },
+        include: { notification: true }
     });
 
     if (!notification.isDelayed) {
-        // TODO: отправка в сокет
+        const dto = createUserNotificationDto(userNotification);
+        await emitToUser(userId, NOTIFICATION_EMIT_TYPE, dto);
     }
 };
 
@@ -48,7 +54,108 @@ export const createNotification = async (
     }
 };
 
-const createNotificationDto = ({
+export const getNotifications = async (
+    take: number,
+    skip: number,
+    delayed?: string,
+    senderId?: number
+) => {
+    const where = {
+        isDelayed: !!delayed && delayed.toLowerCase() == 'true',
+        ...(senderId && { senderId })
+    };
+
+    const notificationsData = await prisma.notification.findMany({
+        where,
+        orderBy: { sendAt: 'desc' },
+        take,
+        skip
+    });
+
+    const notifications = await Promise.all(
+        notificationsData.map(
+            async notification => await createNotificationDto(notification)
+        )
+    );
+
+    const totalCount = await prisma.notification.count({ where });
+
+    return {
+        notifications,
+        totalCount,
+        isLast: totalCount <= take + skip,
+        elementsCount: notifications.length
+    };
+};
+
+export const createNotificationDto = async (notification: Notification) => {
+    const {
+        id,
+        title,
+        content,
+        author,
+        senderId,
+        sendAt: date,
+        createdAt,
+        updatedAt,
+        type
+    } = notification;
+
+    const user = await getById(senderId);
+
+    return {
+        id,
+        title,
+        content,
+        author,
+        date,
+        updatedAt,
+        type,
+        user,
+        // TODO: добавить это поле в модель и вручную изменять его, когда кто-то реально редактирует
+        isEdited: createdAt.toString() != updatedAt.toString()
+    };
+};
+
+export const getNotificationById = async (id: number) => {
+    const notification = await prisma.notification.findFirst({ where: { id } });
+
+    if (!notification) {
+        throw new HttpError(404, 'Уведомление не найдено');
+    }
+
+    return await createNotificationDto(notification);
+};
+
+export const sendDelayedNotifications = async () => {
+    const where = {
+        isDelayed: true,
+        sendAt: {
+            lte: new Date()
+        }
+    };
+
+    const notificationsToSend = await prisma.notification.findMany({
+        where,
+        include: { userNotification: { include: { notification: true } } }
+    });
+
+    for (const notification of notificationsToSend) {
+        for (const userNotification of notification.userNotification) {
+            const dto = createUserNotificationDto(userNotification);
+            await emitToUser(userNotification.userId, NOTIFICATION_EMIT_TYPE, dto);
+        }
+    }
+
+    await prisma.notification.updateMany({
+        where,
+        data: {
+            isDelayed: false
+        }
+    });
+};
+
+const createUserNotificationDto = ({
     isRead,
     notification
 }: UserNotification & { notification: Notification }) => {
@@ -71,12 +178,13 @@ export const getUserNotifications = async (
     const notificationsData = await prisma.userNotification.findMany({
         where,
         include: { notification: true },
+        orderBy: { notification: { sendAt: 'desc' } },
         take,
         skip
     });
 
     const notifications = notificationsData.map(notification =>
-        createNotificationDto(notification)
+        createUserNotificationDto(notification)
     );
 
     const totalCount = await prisma.userNotification.count({ where });

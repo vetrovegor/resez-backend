@@ -5,7 +5,8 @@ import { HttpError } from '../HttpError';
 export const validateBody = (schema: Joi.ObjectSchema) => {
     return async (ctx: Context, next: Next) => {
         const { error } = schema.validate(ctx.request.body, {
-            abortEarly: false
+            abortEarly: false,
+            allowUnknown: true
         });
         if (error) {
             throw new HttpError(

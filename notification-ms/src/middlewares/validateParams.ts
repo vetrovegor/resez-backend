@@ -7,7 +7,8 @@ export const validateParams = (schema: Joi.ObjectSchema) => {
     // TODO: как-то более лаконично типизировать ctx
     return async (ctx: ParameterizedContext<any, Router.IRouterParamContext<any, {}>, any>, next: Next) => {
         const { error } = schema.validate(ctx.params, {
-            abortEarly: false
+            abortEarly: false,
+            allowUnknown: true
         });
         if (error) {
             throw new HttpError(

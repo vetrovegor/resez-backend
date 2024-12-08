@@ -20,6 +20,7 @@ const envVarsSchema = joi
                 return items;
             })
             .required(),
+        RMQ_URL: joi.string().uri().required(),
         JWT_ACCESS_SECRET: joi.string().required()
     })
     .unknown();
@@ -35,5 +36,6 @@ if (error) {
 export default {
     port: envVars.PORT,
     allowedOrigins: envVars.ALLOWED_ORIGINS,
-    jwtAccessSecret: envVars.JWT_ACCESS_SECRET,
+    rmqUrl: envVars.RMQ_URL,
+    jwtAccessSecret: envVars.JWT_ACCESS_SECRET
 };
