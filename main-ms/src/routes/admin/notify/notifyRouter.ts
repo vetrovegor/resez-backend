@@ -3,7 +3,6 @@ import { body } from "express-validator";
 
 import notifyController from "../../../controllers/notify/notifyController";
 import { accessTokenMiddleware } from "../../../middlewares/accessTokenMiddleware";
-import { blockedMiddleware } from "../../../middlewares/blockedMiddleware";
 import { permissionMiddleware } from "../../../middlewares/permissionMiddleware";
 import { validationMiddleware } from "../../../middlewares/validationMiddleware";
 import { notifyBodyMiddleware } from "../../../middlewares/notifyBodyMiddleware";

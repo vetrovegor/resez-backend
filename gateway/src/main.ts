@@ -13,21 +13,18 @@ async function bootstrap() {
         origin: configService.get('ALLOWED_ORIGINS').split(',')
     });
 
-    app.use('/api/memory-ms', proxy(configService.get('MEMORY_MS_URL')));
+    const routes = [
+        { path: '/api/memory-ms', urlKey: 'MEMORY_MS_URL' },
+        { path: '/api/education-ms', urlKey: 'EDUCATION_MS_URL' },
+        { path: '/api/education-oge-ms', urlKey: 'EDUCATION_OGE_MS_URL' },
+        { path: '/api/education-ent-ms', urlKey: 'EDUCATION_ENT_MS_URL' },
+        { path: '/api/battle-ms', urlKey: 'BATTLE_MS_URL' },
+        { path: '/api/notification-ms', urlKey: 'NOTIFICATION_MS_URL' }
+    ];
 
-    app.use('/api/education-ms', proxy(configService.get('EDUCATION_MS_URL')));
-
-    app.use(
-        '/api/education-oge-ms',
-        proxy(configService.get('EDUCATION_OGE_MS_URL'))
-    );
-
-    app.use(
-        '/api/education-ent-ms',
-        proxy(configService.get('EDUCATION_ENT_MS_URL'))
-    );
-
-    app.use('/api/battle-ms', proxy(configService.get('BATTLE_MS_URL')));
+    for (const route of routes) {
+        app.use(route.path, proxy(configService.get(route.urlKey)));
+    }
 
     app.use((req, res, next) => {
         proxy(configService.get('MAIN_MS_URL'))(req, res, next);

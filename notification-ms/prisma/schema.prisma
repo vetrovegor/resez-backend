@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Type {
+  INFO
+  ADD
+  SESSION
+  GIFT
+  VOTING
+}
+
+model Notification {
+  id               Int                @id @default(autoincrement())
+  title            String
+  content          String             @db.Text
+  author           String
+  senderId         Int                @map("sender_id")
+  isDelayed        Boolean            @map("is_delayed")
+  sendAt           DateTime           @default(now())
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+  type             Type
+  userNotification UserNotification[]
+
+  @@map("notifications")
+}
+
+model UserNotification {
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  notificationId Int          @map("notification_id")
+  userId         Int          @map("user_id")
+  isRead         Boolean      @default(false) @map("is_read")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  @@id([notificationId, userId])
+  @@map("user_notifications")
+}
