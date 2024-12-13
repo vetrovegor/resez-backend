@@ -19,7 +19,9 @@ import {
 } from '@nestjs/common';
 import { TestService } from '@test/test.service';
 import { CustomTestDto, ExamTestDto, TaskReplaceDto } from '@test/dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Admin Test')
 @Controller('admin/test')
 export class TestController {
     constructor(private readonly testService: TestService) {}

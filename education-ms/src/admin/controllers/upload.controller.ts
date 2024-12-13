@@ -17,6 +17,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ImageDto } from '@upload/dto/image.dto';
 import { SharpPipe } from '@upload/pipe/sharp.pipe';
 import { UploadService } from '@upload/upload.service';
+import { ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { FileUploadDto } from '@upload/dto/file-upload.dto';
 
 @Controller('admin/upload')
 export class UploadController {
@@ -26,6 +28,10 @@ export class UploadController {
     @Permission(Permissions.CreateTasks)
     @UseGuards(PermissionGuard)
     @UseInterceptors(FileInterceptor('file'))
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        type: FileUploadDto
+    })
     async uploadImage(
         @UploadedFile(
             new ParseFilePipe({
@@ -48,6 +54,10 @@ export class UploadController {
     @Permission(Permissions.CreateTasks)
     @UseGuards(PermissionGuard)
     @UseInterceptors(FileInterceptor('file'))
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        type: FileUploadDto
+    })
     async uploadFile(
         @UploadedFile(
             new ParseFilePipe({
