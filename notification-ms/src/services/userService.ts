@@ -1,9 +1,10 @@
+import { UserPreview } from '../types/user';
 import { sendToQueue } from './rmqService';
 
 const USER_QUEUE = 'user-queue';
 
-export const getById = async (userId: number) => {
-    return await sendToQueue(USER_QUEUE, 'preview', userId);
+export const getUserById = async (userId: number) => {
+    return (await sendToQueue(USER_QUEUE, 'preview', userId)) as UserPreview;
 };
 
 export const getAllUserIDs = async () => {

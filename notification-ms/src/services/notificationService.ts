@@ -2,7 +2,7 @@ import { Notification, UserNotification } from '@prisma/client';
 import { prisma } from '../prisma';
 import { NotificationBody } from '../types/notification';
 import { HttpError } from '../HttpError';
-import { getById } from './userService';
+import { getUserById } from './userService';
 import { emitToUser } from './socketService';
 
 const NOTIFICATION_EMIT_TYPE = 'notification';
@@ -101,7 +101,7 @@ export const createNotificationDto = async (notification: Notification) => {
         type
     } = notification;
 
-    const user = await getById(senderId);
+    const user = await getUserById(senderId);
 
     return {
         id,
@@ -127,6 +127,51 @@ export const getNotificationById = async (id: number) => {
     return await createNotificationDto(notification);
 };
 
+export const deleteNotificationById = async (id: number) => {
+    await getNotificationById(id);
+
+    return await prisma.notification.delete({ where: { id } });
+};
+
+export const getUserNotificationsForAdmin = async (
+    id: number,
+    take: number,
+    skip: number,
+    unread?: string
+) => {
+    const where = {
+        notification: { id },
+        ...(unread && { isRead: unread.toLowerCase() != 'true' })
+    };
+
+    const notificationsData = await prisma.userNotification.findMany({
+        where,
+        take,
+        skip
+    });
+
+    const users = await Promise.all(
+        notificationsData.map(async ({ userId, isRead, updatedAt }) => {
+            const user = await getUserById(userId);
+
+            return {
+                ...user,
+                isRead,
+                updatedAt
+            };
+        })
+    );
+
+    const totalCount = await prisma.userNotification.count({ where });
+
+    return {
+        users,
+        totalCount,
+        isLast: totalCount <= take + skip,
+        elementsCount: users.length
+    };
+};
+
 export const sendDelayedNotifications = async () => {
     const where = {
         isDelayed: true,
@@ -143,7 +188,11 @@ export const sendDelayedNotifications = async () => {
     for (const notification of notificationsToSend) {
         for (const userNotification of notification.userNotification) {
             const dto = createUserNotificationDto(userNotification);
-            await emitToUser(userNotification.userId, NOTIFICATION_EMIT_TYPE, dto);
+            await emitToUser(
+                userNotification.userId,
+                NOTIFICATION_EMIT_TYPE,
+                dto
+            );
         }
     }
 

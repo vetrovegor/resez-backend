@@ -10,14 +10,17 @@ import {
 } from '../middlewares';
 import {
     createNotification,
+    deleteNotificationById,
     getNotificationById,
-    getNotifications
+    getNotifications,
+    getUserNotificationsForAdmin
 } from '../services';
 import { NotificationBody } from '../types/notification';
 import {
     idSchema,
     notificationFilterSchema,
-    notificationSchema
+    notificationSchema,
+    unreadSchema
 } from '../validators';
 
 export const adminNotificationRouter = new Router({
@@ -56,18 +59,33 @@ adminNotificationRouter.get(
     }
 );
 
-adminNotificationRouter.get(
-    '/:id',
-    validateParams(idSchema),
-    async ctx => {
-        const notification = await getNotificationById(Number(ctx.params.id));
+adminNotificationRouter.get('/:id', validateParams(idSchema), async ctx => {
+    const notification = await getNotificationById(Number(ctx.params.id));
 
-        ctx.body = { notification };
+    ctx.body = { notification };
+});
+
+adminNotificationRouter.delete('/:id', validateParams(idSchema), async ctx => {
+    await deleteNotificationById(Number(ctx.params.id));
+
+    ctx.status = 200;
+});
+
+adminNotificationRouter.get(
+    '/:id/user',
+    validateParams(idSchema),
+    validateQuery(unreadSchema),
+    paginationMiddleware,
+    async ctx => {
+        const data = await getUserNotificationsForAdmin(
+            Number(ctx.params.id),
+            Number(ctx.query.limit),
+            Number(ctx.query.offset),
+            ctx.query.unread?.toString()
+        );
+
+        ctx.body = data;
     }
 );
 
 // TODO: запрос редактирования
-
-// TODO: запрос удаления
-
-// TODO: запрос пользователей, которым отправлено уведомление, а также показывать, кто прочитал
