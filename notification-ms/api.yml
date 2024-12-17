@@ -1,0 +1,180 @@
+openapi: 3.0.0
+
+info:
+    title: Notification microservice
+    version: 1.0.0
+    description: API Documentation for notification microservice
+
+components:
+    schemas:
+        User:
+            type: object
+            properties:
+                id:
+                    type: number
+                nickname:
+                    type: string
+                avatar:
+                    type: string
+        Unauthorized:
+            type: object
+            properties:
+                status:
+                    type: number
+                    example: 401
+                message:
+                    type: string
+                    example: 'Пользователь не авторизован'
+                errors:
+                    type: array
+        PaginationBodyFields:
+            type: object
+            properties:
+                totalCount:
+                    type: number
+                isLast:
+                    type: boolean
+                elementsCount:
+                    type: number
+        NotificationForUser:
+            type: object
+            properties:
+                id:
+                    type: number
+                type:
+                    type: string
+                title:
+                    type: string
+                content:
+                    type: string
+                author:
+                    type: string
+                date:
+                    type: string
+                    format: date-time
+                isRead:
+                    type: boolean
+        NotificationForAdmin:
+            type: object
+            properties:
+                id:
+                    type: number
+                type:
+                    type: string
+                title:
+                    type: string
+                content:
+                    type: string
+                author:
+                    type: string
+                date:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+                user:
+                    $ref: '#/components/schemas/User'
+                isEdited:
+                    type: boolean
+    parameters:
+        Limit:
+            name: limit
+            in: query
+            required: false
+            schema:
+                type: integer
+                default: 5
+        Offset:
+            name: offset
+            in: query
+            required: false
+            schema:
+                type: integer
+                default: 0
+
+paths:
+    /ping:
+        get:
+            summary: Health check
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    msg:
+                                        type: string
+                                        example: 'pong'
+    /notification:
+        get:
+            summary: Get notifications
+            parameters:
+                - $ref: '#/components/parameters/Limit'
+                - $ref: '#/components/parameters/Offset'
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                allOf:
+                                    - properties:
+                                          notifications:
+                                              type: array
+                                              items:
+                                                  $ref: '#/components/schemas/NotificationForUser'
+                                    - $ref: '#/components/schemas/PaginationBodyFields'
+    /unread-count:
+        get:
+            summary: Get unread notifications count
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    count:
+                                        type: number
+                                        example: 25
+    /notification/read/{notificationId}:
+        patch:
+            summary: Read notification by id
+            responses:
+                '200': {}
+    /notification/read-all:
+        patch:
+            summary: Read all notifications
+            responses:
+                '200': {}
+    /admin/notification:
+        get:
+            summary: Get notifications for admin
+            parameters:
+                - $ref: '#/components/parameters/Limit'
+                - $ref: '#/components/parameters/Offset'
+                - name: delayed
+                  in: query
+                  required: false
+                  schema:
+                    type: boolean
+                - name: sender_id
+                  in: query
+                  required: false
+                  schema:
+                    type: number
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                allOf:
+                                    - properties:
+                                          notifications:
+                                              type: array
+                                              items:
+                                                  $ref: '#/components/schemas/NotificationForAdmin'
+                                    - $ref: '#/components/schemas/PaginationBodyFields'

@@ -1,6 +1,7 @@
 import Router from 'koa-router';
 
 import {
+    authMiddleware,
     notificationBodyMiddleware,
     paginationMiddleware,
     permissionMiddleware,
@@ -27,6 +28,7 @@ export const adminNotificationRouter = new Router({
     prefix: '/admin/notification'
 });
 
+adminNotificationRouter.use(authMiddleware);
 adminNotificationRouter.use(permissionMiddleware('Отправка уведомлений'));
 
 adminNotificationRouter.post(

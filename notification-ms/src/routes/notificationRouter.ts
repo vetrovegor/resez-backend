@@ -7,6 +7,7 @@ import {
     readNotification
 } from '../services';
 import {
+    authMiddleware,
     paginationMiddleware,
     validateParams,
     validateQuery
@@ -14,6 +15,8 @@ import {
 import { idSchema, unreadSchema } from '../validators';
 
 export const notificationRouter = new Router({ prefix: '/notification' });
+
+notificationRouter.use(authMiddleware);
 
 notificationRouter.get(
     '/',
