@@ -11,3 +11,6 @@ npm start
 
 Сборка приложения:
 npm run build
+
+Swagger:
+http://localhost:8089/api-docs

@@ -14,7 +14,8 @@ import {
     deleteNotificationById,
     getNotificationById,
     getNotifications,
-    getUserNotificationsForAdmin
+    getUserNotificationsForAdmin,
+    updateNotificationById
 } from '../services';
 import { NotificationBody } from '../types/notification';
 import {
@@ -72,6 +73,18 @@ adminNotificationRouter.delete('/:id', validateParams(idSchema), async ctx => {
 
     ctx.status = 200;
 });
+
+adminNotificationRouter.patch(
+    '/:id',
+    validateParams(idSchema),
+    validateBody(notificationSchema),
+    notificationBodyMiddleware,
+    async ctx => {
+        await updateNotificationById(Number(ctx.params.id), <NotificationBody>ctx.request.body);
+
+        ctx.status = 200;
+    }
+);
 
 adminNotificationRouter.get(
     '/:id/user',
