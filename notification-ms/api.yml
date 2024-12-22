@@ -88,7 +88,7 @@ components:
           type: string
           format: date-time
         user:
-          $ref: '#/components/schemas/User'
+          $ref: "#/components/schemas/User"
         isEdited:
           type: boolean
           example: false
@@ -100,7 +100,7 @@ components:
         - userIds
       type: object
       properties:
-        type: 
+        type:
           type: string
           enum:
             - INFO
@@ -120,12 +120,11 @@ components:
         sendAt:
           type: string
           format: date-time
-          example: '2024-12-08T16:00:00.000+05:00'
+          example: "2024-12-08T16:00:00.000+05:00"
         userIds:
           type: array
           items:
-            type:
-              number
+            type: number
             example: 1
   parameters:
     Limit:
@@ -152,11 +151,10 @@ components:
     BearerAuth:
       type: http
       scheme: bearer
-      
 
 security:
   - BearerAuth: []
-        
+
 paths:
   /ping:
     get:
@@ -165,8 +163,8 @@ paths:
       summary: Health check
       security: []
       responses:
-        '200':
-          description: 'Success'
+        "200":
+          description: "Success"
           content:
             application/json:
               schema:
@@ -175,20 +173,20 @@ paths:
                   msg:
                     type: string
                     example: pong
-        '500':
-          description: 'Internal Server Error'
+        "500":
+          description: "Internal Server Error"
   /notification:
     get:
       tags:
         - Notification
       summary: Get notifications
       parameters:
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Unread'
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+        - $ref: "#/components/parameters/Unread"
       responses:
-        '200':
-          description: 'Success'
+        "200":
+          description: "Success"
           content:
             application/json:
               schema:
@@ -198,20 +196,20 @@ paths:
                       notifications:
                         type: array
                         items:
-                          $ref: '#/components/schemas/NotificationForUser'
-                  - $ref: '#/components/schemas/PaginationBodyFields'
-        '401':
-          description: 'Unauthorized'
-        '500':
-          description: 'Internal Server Error'
+                          $ref: "#/components/schemas/NotificationForUser"
+                  - $ref: "#/components/schemas/PaginationBodyFields"
+        "401":
+          description: "Unauthorized"
+        "500":
+          description: "Internal Server Error"
   /notification/unread-count:
     get:
       tags:
         - Notification
       summary: Get unread notifications count
       responses:
-        '200':
-          description: 'Success'
+        "200":
+          description: "Success"
           content:
             application/json:
               schema:
@@ -220,10 +218,10 @@ paths:
                   count:
                     type: number
                     example: 25
-        '401':
-          description: 'Unauthorized'
-        '500':
-          description: 'Internal Server Error'
+        "401":
+          description: "Unauthorized"
+        "500":
+          description: "Internal Server Error"
   /notification/read/{notificationId}:
     patch:
       tags:
@@ -236,26 +234,26 @@ paths:
           schema:
             type: number
       responses:
-        '200':
-          description: 'Success'
-        '401':
-          description: 'Unauthorized'
-        '404':
-          description: 'Not Found'
-        '500':
-          description: 'Internal Server Error'
+        "200":
+          description: "Success"
+        "401":
+          description: "Unauthorized"
+        "404":
+          description: "Not Found"
+        "500":
+          description: "Internal Server Error"
   /notification/read-all:
     patch:
       tags:
         - Notification
       summary: Read all notifications
       responses:
-        '200':
-          description: 'Success'
-        '401':
-          description: 'Unauthorized'
-        '500':
-          description: 'Internal Server Error'
+        "200":
+          description: "Success"
+        "401":
+          description: "Unauthorized"
+        "500":
+          description: "Internal Server Error"
   /admin/notification:
     post:
       tags:
@@ -264,27 +262,27 @@ paths:
       requestBody:
         content:
           application/json:
-            schema: 
-              $ref: '#/components/schemas/NotificationRequestBody'
+            schema:
+              $ref: "#/components/schemas/NotificationRequestBody"
       responses:
-        '200':
-          description: 'Success'
-        '400':
-          description: 'Validation Error'
-        '401':
-          description: 'Unauthorized'
-        '403':
-          description: 'Forbidden'
-        '500':
-          description: 'Internal Server Error'
-          
+        "200":
+          description: "Success"
+        "400":
+          description: "Validation Error"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "500":
+          description: "Internal Server Error"
+
     get:
       tags:
         - Admin
       summary: Get notifications for admin
       parameters:
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
         - name: delayed
           in: query
           required: false
@@ -296,8 +294,8 @@ paths:
           schema:
             type: number
       responses:
-        '200':
-          description: 'Success'
+        "200":
+          description: "Success"
           content:
             application/json:
               schema:
@@ -307,14 +305,14 @@ paths:
                       notifications:
                         type: array
                         items:
-                          $ref: '#/components/schemas/NotificationForAdmin'
-                  - $ref: '#/components/schemas/PaginationBodyFields'
-        '401':
-          description: 'Unauthorized'
-        '403':
-          description: 'Forbidden'
-        '500':
-          description: 'Internal Server Error'
+                          $ref: "#/components/schemas/NotificationForAdmin"
+                  - $ref: "#/components/schemas/PaginationBodyFields"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "500":
+          description: "Internal Server Error"
   /admin/notification/{notificationId}:
     get:
       tags:
@@ -327,23 +325,23 @@ paths:
           schema:
             type: number
       responses:
-        '200':
-          description: 'Success'
+        "200":
+          description: "Success"
           content:
             application/json:
               schema:
                 type: object
                 properties:
                   notification:
-                    $ref: '#/components/schemas/NotificationForAdmin'
-        '401':
-          description: 'Unauthorized'
-        '403':
-          description: 'Forbidden'
-        '404':
-          description: 'Not Found'
-        '500':
-          description: 'Internal Server Error'
+                    $ref: "#/components/schemas/NotificationForAdmin"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "404":
+          description: "Not Found"
+        "500":
+          description: "Internal Server Error"
     patch:
       tags:
         - Admin
@@ -357,21 +355,21 @@ paths:
       requestBody:
         content:
           application/json:
-            schema: 
-              $ref: '#/components/schemas/NotificationRequestBody'
+            schema:
+              $ref: "#/components/schemas/NotificationRequestBody"
       responses:
-        '200':
-          description: 'Success'
-        '400':
-          description: 'Validation Error'
-        '401':
-          description: 'Unauthorized'
-        '403':
-          description: 'Forbidden'
-        '404':
-          description: 'Not Found'
-        '500':
-          description: 'Internal Server Error'
+        "200":
+          description: "Success"
+        "400":
+          description: "Validation Error"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "404":
+          description: "Not Found"
+        "500":
+          description: "Internal Server Error"
     delete:
       tags:
         - Admin
@@ -383,14 +381,14 @@ paths:
           schema:
             type: number
       responses:
-        '200':
-          description: 'Success'
-        '401':
-          description: 'Unauthorized'
-        '403':
-          description: 'Forbidden'
-        '500':
-          description: 'Internal Server Error'
+        "200":
+          description: "Success"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "500":
+          description: "Internal Server Error"
   /admin/notification/{notificationId}/user:
     get:
       tags:
@@ -402,12 +400,12 @@ paths:
           required: true
           schema:
             type: number
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Unread'
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+        - $ref: "#/components/parameters/Unread"
       responses:
-        '200':
-          description: 'Success'
+        "200":
+          description: "Success"
           content:
             application/json:
               schema:
@@ -417,13 +415,13 @@ paths:
                       users:
                         type: array
                         items:
-                          $ref: '#/components/schemas/User'
-                  - $ref: '#/components/schemas/PaginationBodyFields'
-        '401':
-          description: 'Unauthorized'
-        '403':
-          description: 'Forbidden'
-        '404':
-          description: 'Not Found'
-        '500':
-          description: 'Internal Server Error'
+                          $ref: "#/components/schemas/User"
+                  - $ref: "#/components/schemas/PaginationBodyFields"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "404":
+          description: "Not Found"
+        "500":
+          description: "Internal Server Error"

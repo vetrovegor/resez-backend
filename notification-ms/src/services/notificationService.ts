@@ -21,7 +21,7 @@ export const createUserNotification = async (
 
     if (!notification.isDelayed) {
         const dto = createUserNotificationDto(userNotification);
-        await emitToUser(userId, NOTIFICATION_EMIT_TYPE, dto);
+        emitToUser(userId, NOTIFICATION_EMIT_TYPE, dto);
     }
 };
 
@@ -42,7 +42,7 @@ export const createNotification = async (
             type,
             title,
             content,
-            author: author ?? null,
+            author,
             senderId,
             isDelayed,
             sendAt

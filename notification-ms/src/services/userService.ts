@@ -13,5 +13,5 @@ export const getAllUserIDs = async () => {
 
 export const validateUserIds = async (userIds: number[]) => {
     const allUserIds = await getAllUserIDs();
-    return allUserIds && userIds.every(userId => allUserIds.includes(userId));
+    return allUserIds && userIds.every(userId => allUserIds.includes(Number(userId)));
 };

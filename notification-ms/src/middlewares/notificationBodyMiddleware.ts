@@ -32,7 +32,7 @@ export const notificationBodyMiddleware = async (ctx: Context, next: Next) => {
 
     ctx.request.body = {
         ...body,
-        date: sendAt,
+        sendAt,
         isDelayed,
         userIds: [...new Set(userIds)]
     };
