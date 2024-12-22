@@ -36,9 +36,7 @@ export default (fastify: FastifyInstance, options: FastifyPluginOptions) => {
         },
         async (request, reply) => {
             try {
-                const path = await saveFile('', request.body.file);
-
-                return new FileDto(`${process.env.STATIC_URL}${path}`);
+                return await saveFile('', request.body.file);
             } catch (err) {
                 throw new Error(err);
             }
@@ -62,9 +60,7 @@ export default (fastify: FastifyInstance, options: FastifyPluginOptions) => {
         },
         async (request, reply) => {
             try {
-                const path = await uploadImageByUrl(request.body.url);
-
-                return new FileDto(`${process.env.STATIC_URL}${path}`);
+                return await uploadImageByUrl(request.body.url);
             } catch (err) {
                 throw new Error(err);
             }

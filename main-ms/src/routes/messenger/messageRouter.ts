@@ -12,9 +12,15 @@ messageRouter.post(
     '/user/:id',
     param('id').isNumeric(),
     body('message').isLength({ min: 1 }),
+    body('files').isArray(),
+    // TODO: по хорошему должен быть isURL, но с localhost не проходит валидацию
+    body('files.*.url').isString(),
+    body('files.*.name').isString(),
+    body('files.*.type').isString(),
+    body('files.*.size').isNumeric(),
     validationMiddleware,
     accessTokenMiddleware(true),
-    messageFilesMiddleware,
+    // messageFilesMiddleware,
     messageController.sendMessageToUser
 );
 
@@ -22,9 +28,14 @@ messageRouter.post(
     '/chat/:id',
     param('id').isNumeric(),
     body('message').isLength({ min: 1 }),
+    body('files').isArray(),
+    // TODO: по хорошему должен быть isURL, но с localhost не проходит валидацию
+    body('files.*.url').isString(),
+    body('files.*.name').isString(),
+    body('files.*.type').isString(),
+    body('files.*.size').isNumeric(),
     validationMiddleware,
     accessTokenMiddleware(true),
-    messageFilesMiddleware,
     messageController.sendMessageToChat
 );
 

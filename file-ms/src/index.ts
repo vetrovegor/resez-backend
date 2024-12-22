@@ -26,7 +26,6 @@ const fastify = Fastify({
     ajv: { plugins: [require('@fastify/multipart').ajvFilePlugin] }
 });
 
-// register cors?
 fastify.register(cors, {
     credentials: true,
     origin: process.env.ALLOWED_ORIGINS.split(',')

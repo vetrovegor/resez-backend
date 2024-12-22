@@ -11,7 +11,7 @@ import {
 import User from '../User';
 import Chat from './Chat';
 import MessageType from './MessageType';
-import { MessageDTO, MessageReader } from 'types/messenger';
+import { MessageDTO, MessageFileDTO, MessageReader } from 'types/messenger';
 import UserMessage from './UserMessage';
 import MessageRead from './MessageRead';
 import MessageFile from './MessageFile';
@@ -82,13 +82,14 @@ class Message extends Model {
         const sender = messageData.get('sender');
         const readsCount = messageData.get('messageReads').length;
         const files = messageData.get('messageFiles').map(item => {
-            const { id, type, size, path } = item.toJSON();
+            const { id, type, size, url } = item.toJSON();
+            
             return {
                 id,
                 type,
                 size: formatFileSize(size),
-                path: process.env.STATIC_URL + path
-            };
+                url,
+            } as MessageFileDTO;
         });
 
         return {

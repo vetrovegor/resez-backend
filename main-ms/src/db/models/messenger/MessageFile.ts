@@ -17,6 +17,11 @@ class MessageFile extends Model {
     @Column({
         type: DataType.STRING
     })
+    url: string;
+
+    @Column({
+        type: DataType.STRING
+    })
     name: string;
 
     @Column({
@@ -28,11 +33,6 @@ class MessageFile extends Model {
         type: DataType.STRING
     })
     size: string;
-
-    @Column({
-        type: DataType.STRING
-    })
-    path: string;
 
     @ForeignKey(() => Message)
     @Column

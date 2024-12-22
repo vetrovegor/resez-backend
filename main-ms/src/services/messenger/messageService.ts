@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 import { UploadedFile } from 'express-fileupload';
 
-import { MessageDTO, MessageTypes } from 'types/messenger';
+import { MessageDTO, MessageFileRequestBodyDTO, MessageTypes } from 'types/messenger';
 import Message from '../../db/models/messenger/Message';
 import chatService from './chatService';
 import messageTypeService from './messageTypeService';
@@ -37,7 +37,7 @@ class MessageService {
         message: string,
         chatId: number,
         senderId: number = null,
-        files?: UploadedFile[]
+        files: MessageFileRequestBodyDTO[] = []
     ): Promise<Message> {
         const messageTypeId = await messageTypeService.getMessageTypeIdByType(
             messageType
@@ -82,7 +82,7 @@ class MessageService {
         senderId: number,
         recipientId: number,
         message: string,
-        files: UploadedFile[]
+        files: MessageFileRequestBodyDTO[]
     ): Promise<MessageDTO> {
         const chat = await chatService.createOrGetChatBetweenUsers(
             senderId,
@@ -104,7 +104,7 @@ class MessageService {
         senderId: number,
         chatId: number,
         message: string,
-        files: UploadedFile[]
+        files: MessageFileRequestBodyDTO[]
     ): Promise<MessageDTO> {
         const chat = await chatService.checkUserInChat(chatId, senderId);
 
@@ -245,7 +245,7 @@ class MessageService {
 
         for (const messageId of messageIDs) {
             if (forAll) {
-                await messageFileService.deleteMessageFilesByMessageId(messageId);
+                // await messageFileService.deleteMessageFilesByMessageId(messageId);
                 await Message.destroy({ where: { id: messageId } });
             } else {
                 UserMessage.destroy({

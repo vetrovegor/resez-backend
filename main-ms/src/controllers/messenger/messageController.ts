@@ -24,7 +24,7 @@ class MessageController {
                 req.user.id,
                 req.params.id,
                 req.body.message,
-                req.files.files as UploadedFile[]
+                req.body.files
             );
 
             res.json({ message });
@@ -43,7 +43,7 @@ class MessageController {
                 req.user.id,
                 req.params.id,
                 req.body.message,
-                req.files.files as UploadedFile[]
+                req.body.files
             );
 
             res.json({ message });

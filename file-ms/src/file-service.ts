@@ -22,7 +22,12 @@ export const saveFile = async (subPath: string, file: MultipartFile) => {
 
     fs.writeFileSync(path.join(directory, fileName), buffer);
 
-    return `${subPath}/${fileName}`;
+    return new FileDto(
+        `${process.env.STATIC_URL}${subPath}/${fileName}`,
+        file.filename,
+        file.mimetype,
+        file.file.bytesRead
+    );
 };
 
 export const deleteFile = (fileName: string) => {
@@ -59,5 +64,5 @@ export const uploadImageByUrl = async (url: string) => {
 
     fs.writeFileSync(filePath, response.data);
 
-    return `/${fileName}`;
+    return new FileDto(`${process.env.STATIC_URL}/${fileName}`);
 };

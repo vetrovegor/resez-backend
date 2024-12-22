@@ -9,19 +9,29 @@ export const enum MessageTypes {
     Video = 'Видео'
 }
 
-export type MessageRequestBodyDTO = {
-    message: string;
-};
+export type MessageFileRequestBodyDTO = {
+    url: string;
+    name: string;
+    type: string;
+    size: number;
+}
 
 export type MessageFileDTO = {
     id: number;
+    url: string;
+    name: string;
     type: string;
     size: string;
-    path: string;
 };
 
-export type MessageDTO = MessageRequestBodyDTO & {
+export type MessageRequestBodyDTO = {
+    message: string;
+    files: MessageFileRequestBodyDTO[];
+};
+
+export type MessageDTO = {
     id: number;
+    message: string,
     type: string;
     createdAt: Date;
     updatedAt: Date;
