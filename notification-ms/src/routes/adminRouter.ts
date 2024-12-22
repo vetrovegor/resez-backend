@@ -1,6 +1,7 @@
 import Router from 'koa-router';
 
 import {
+    authMiddleware,
     notificationBodyMiddleware,
     paginationMiddleware,
     permissionMiddleware,
@@ -13,7 +14,8 @@ import {
     deleteNotificationById,
     getNotificationById,
     getNotifications,
-    getUserNotificationsForAdmin
+    getUserNotificationsForAdmin,
+    updateNotificationById
 } from '../services';
 import { NotificationBody } from '../types/notification';
 import {
@@ -27,6 +29,7 @@ export const adminNotificationRouter = new Router({
     prefix: '/admin/notification'
 });
 
+adminNotificationRouter.use(authMiddleware);
 adminNotificationRouter.use(permissionMiddleware('Отправка уведомлений'));
 
 adminNotificationRouter.post(
@@ -70,6 +73,18 @@ adminNotificationRouter.delete('/:id', validateParams(idSchema), async ctx => {
 
     ctx.status = 200;
 });
+
+adminNotificationRouter.patch(
+    '/:id',
+    validateParams(idSchema),
+    validateBody(notificationSchema),
+    notificationBodyMiddleware,
+    async ctx => {
+        await updateNotificationById(Number(ctx.params.id), <NotificationBody>ctx.request.body);
+
+        ctx.status = 200;
+    }
+);
 
 adminNotificationRouter.get(
     '/:id/user',

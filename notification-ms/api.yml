@@ -1,0 +1,429 @@
+openapi: 3.0.0
+info:
+  title: Notification microservice
+  version: 1.0.0
+  description: API Documentation for notification microservice
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 1
+        nickname:
+          type: string
+          example: xw1nchester
+        avatar:
+          type: string
+          example: http://localhost:8080/api/static/avatars/1715447451335.jpeg
+    PaginationBodyFields:
+      type: object
+      properties:
+        totalCount:
+          type: number
+          example: 20
+        isLast:
+          type: boolean
+          example: false
+        elementsCount:
+          type: number
+          example: 5
+    NotificationForUser:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 1
+        type:
+          type: string
+          enum:
+            - INFO
+            - ADD
+            - SESSION
+            - GIFT
+            - VOTING
+        title:
+          type: string
+          example: Title
+        content:
+          type: string
+          example: Content
+        author:
+          type: string
+          example: Admin
+        date:
+          type: string
+          format: date-time
+        isRead:
+          type: boolean
+          example: false
+    NotificationForAdmin:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 1
+        type:
+          type: string
+          enum:
+            - INFO
+            - ADD
+            - SESSION
+            - GIFT
+            - VOTING
+        title:
+          type: string
+          example: Title
+        content:
+          type: string
+          example: Content
+        author:
+          type: string
+          example: Admin
+        date:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        user:
+          $ref: '#/components/schemas/User'
+        isEdited:
+          type: boolean
+          example: false
+    NotificationRequestBody:
+      required:
+        - type
+        - title
+        - content
+        - userIds
+      type: object
+      properties:
+        type: 
+          type: string
+          enum:
+            - INFO
+            - ADD
+            - SESSION
+            - GIFT
+            - VOTING
+        title:
+          type: string
+          example: INFO
+        content:
+          type: string
+          example: Content
+        author:
+          type: string
+          example: Admin
+        sendAt:
+          type: string
+          format: date-time
+          example: '2024-12-08T16:00:00.000+05:00'
+        userIds:
+          type: array
+          items:
+            type:
+              number
+            example: 1
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 5
+    Offset:
+      name: offset
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 0
+    Unread:
+      name: unread
+      in: query
+      required: false
+      schema:
+        type: boolean
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      
+
+security:
+  - BearerAuth: []
+        
+paths:
+  /ping:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      security: []
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    example: pong
+        '500':
+          description: 'Internal Server Error'
+  /notification:
+    get:
+      tags:
+        - Notification
+      summary: Get notifications
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Unread'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - properties:
+                      notifications:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/NotificationForUser'
+                  - $ref: '#/components/schemas/PaginationBodyFields'
+        '401':
+          description: 'Unauthorized'
+        '500':
+          description: 'Internal Server Error'
+  /notification/unread-count:
+    get:
+      tags:
+        - Notification
+      summary: Get unread notifications count
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: number
+                    example: 25
+        '401':
+          description: 'Unauthorized'
+        '500':
+          description: 'Internal Server Error'
+  /notification/read/{notificationId}:
+    patch:
+      tags:
+        - Notification
+      summary: Read notification by id
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: 'Success'
+        '401':
+          description: 'Unauthorized'
+        '404':
+          description: 'Not Found'
+        '500':
+          description: 'Internal Server Error'
+  /notification/read-all:
+    patch:
+      tags:
+        - Notification
+      summary: Read all notifications
+      responses:
+        '200':
+          description: 'Success'
+        '401':
+          description: 'Unauthorized'
+        '500':
+          description: 'Internal Server Error'
+  /admin/notification:
+    post:
+      tags:
+        - Admin
+      summary: Send notification
+      requestBody:
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/NotificationRequestBody'
+      responses:
+        '200':
+          description: 'Success'
+        '400':
+          description: 'Validation Error'
+        '401':
+          description: 'Unauthorized'
+        '403':
+          description: 'Forbidden'
+        '500':
+          description: 'Internal Server Error'
+          
+    get:
+      tags:
+        - Admin
+      summary: Get notifications for admin
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: delayed
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: sender_id
+          in: query
+          required: false
+          schema:
+            type: number
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - properties:
+                      notifications:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/NotificationForAdmin'
+                  - $ref: '#/components/schemas/PaginationBodyFields'
+        '401':
+          description: 'Unauthorized'
+        '403':
+          description: 'Forbidden'
+        '500':
+          description: 'Internal Server Error'
+  /admin/notification/{notificationId}:
+    get:
+      tags:
+        - Admin
+      summary: Get notification by id
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notification:
+                    $ref: '#/components/schemas/NotificationForAdmin'
+        '401':
+          description: 'Unauthorized'
+        '403':
+          description: 'Forbidden'
+        '404':
+          description: 'Not Found'
+        '500':
+          description: 'Internal Server Error'
+    patch:
+      tags:
+        - Admin
+      summary: Update notification by id
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/NotificationRequestBody'
+      responses:
+        '200':
+          description: 'Success'
+        '400':
+          description: 'Validation Error'
+        '401':
+          description: 'Unauthorized'
+        '403':
+          description: 'Forbidden'
+        '404':
+          description: 'Not Found'
+        '500':
+          description: 'Internal Server Error'
+    delete:
+      tags:
+        - Admin
+      summary: Delete notification by id
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: 'Success'
+        '401':
+          description: 'Unauthorized'
+        '403':
+          description: 'Forbidden'
+        '500':
+          description: 'Internal Server Error'
+  /admin/notification/{notificationId}/user:
+    get:
+      tags:
+        - Admin
+      summary: Get notification users
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: number
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Unread'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - properties:
+                      users:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/User'
+                  - $ref: '#/components/schemas/PaginationBodyFields'
+        '401':
+          description: 'Unauthorized'
+        '403':
+          description: 'Forbidden'
+        '404':
+          description: 'Not Found'
+        '500':
+          description: 'Internal Server Error'

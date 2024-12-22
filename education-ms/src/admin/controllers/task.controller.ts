@@ -19,7 +19,9 @@ import {
 import { MatchDto } from '@task/dto/match.dto';
 import { TaskDto } from '@task/dto/task.dto';
 import { TaskService } from '@task/task.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Admin Task')
 @Controller('admin/task')
 export class TaskController {
     constructor(private readonly taskService: TaskService) {}

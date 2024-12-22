@@ -9,7 +9,9 @@ import {
     UseGuards
 } from '@nestjs/common';
 import { SubjectTaskService } from '@subject-task/subject-task.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Admin Subject Task')
 @Controller('admin/subject-task')
 export class SubjectTaskController {
     constructor(private readonly subjectTaskService: SubjectTaskService) {}

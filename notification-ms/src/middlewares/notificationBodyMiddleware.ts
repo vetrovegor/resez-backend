@@ -34,7 +34,7 @@ export const notificationBodyMiddleware = async (ctx: Context, next: Next) => {
         ...body,
         date: sendAt,
         isDelayed,
-        userIds: new Set(userIds)
+        userIds: [...new Set(userIds)]
     };
 
     await next();

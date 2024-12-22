@@ -42,7 +42,7 @@ export const createNotification = async (
             type,
             title,
             content,
-            author,
+            author: author ?? null,
             senderId,
             isDelayed,
             sendAt
@@ -131,6 +131,53 @@ export const deleteNotificationById = async (id: number) => {
     await getNotificationById(id);
 
     return await prisma.notification.delete({ where: { id } });
+};
+
+export const updateNotificationById = async (
+    id: number,
+    { type, title, content, author, userIds }: NotificationBody
+) => {
+    const existingNotification = await prisma.notification.findFirst({
+        where: { id },
+        include: { userNotification: true }
+    });
+
+    if (!existingNotification) {
+        throw new HttpError(404, 'Уведомление не найдено');
+    }
+
+    const updatedNotification = await prisma.notification.update({
+        where: { id },
+        data: {
+            type,
+            title,
+            content,
+            author
+        }
+    });
+
+    const notificationUserIds = existingNotification.userNotification.map(
+        item => item.userId
+    );
+
+    const newUserIds = userIds.filter(
+        userId => !notificationUserIds.includes(userId)
+    );
+
+    const userIdsToRemove = notificationUserIds.filter(
+        userId => !userIds.includes(userId)
+    );
+
+    for (const userId of newUserIds) {
+        await createUserNotification(updatedNotification, userId);
+    }
+
+    await prisma.userNotification.deleteMany({
+        where: {
+            notificationId: id,
+            userId: { in: userIdsToRemove }
+        }
+    });
 };
 
 export const getUserNotificationsForAdmin = async (

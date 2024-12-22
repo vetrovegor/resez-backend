@@ -23,7 +23,15 @@ import { SubjectTaskPipe } from '@subject-task/pipe/subject-task.pipe';
 import { SubjectDto } from '@subject/dto/subject.dto';
 import { SubjectService } from '@subject/subject.service';
 import { CurrentUser } from '@auth/decorators/current-user.decorator';
+import {
+    ApiCreatedResponse,
+    ApiParam,
+    ApiQuery,
+    ApiTags
+} from '@nestjs/swagger';
+import { CreateSubjectResponseDto } from '@subject/dto/create-subject-response.dto';
 
+@ApiTags('Admin Subject')
 @Controller('admin/subject')
 export class SubjectController {
     constructor(
@@ -34,6 +42,10 @@ export class SubjectController {
     @Post()
     @Permission(Permissions.CreateSubjects)
     @UseGuards(PermissionGuard)
+    @ApiCreatedResponse({
+        description: 'The subject has been successfully created.',
+        type: () => CreateSubjectResponseDto
+    })
     async create(
         @Body(SubjectTaskPipe) dto: SubjectDto,
         @CurrentUser() user: JwtPayload
@@ -63,6 +75,16 @@ export class SubjectController {
     @Get()
     @Permission(Permissions.Education)
     @UseGuards(PermissionGuard)
+    @ApiQuery({
+        name: 'limit',
+        required: true,
+        example: 5
+    })
+    @ApiQuery({
+        name: 'offset',
+        required: true,
+        example: 0
+    })
     async find(
         @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
         @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number
@@ -90,6 +112,10 @@ export class SubjectController {
     @Patch(':id')
     @Permission(Permissions.UpdateSubjects)
     @UseGuards(PermissionGuard)
+    @ApiCreatedResponse({
+        description: 'The subject has been successfully updated.',
+        type: () => CreateSubjectResponseDto
+    })
     async update(
         @Param('id', ParseIntPipe) id: number,
         @Body(SubjectTaskPipe) dto: SubjectDto,
@@ -109,6 +135,10 @@ export class SubjectController {
     @Get(':id')
     @Permission(Permissions.Subjects)
     @UseGuards(PermissionGuard)
+    @ApiParam({
+        name: 'id',
+        example: 42
+    })
     async getFullInfoById(@Param('id', ParseIntPipe) id: number) {
         return await this.subjectService.getFullInfoById(id);
     }

@@ -14,9 +14,11 @@ import {
     Query,
     UseGuards
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { TaskAnalysisDto } from '@task-analysis/dto/task-analysis.dto';
 import { TaskAnalysisService } from '@task-analysis/task-analysis.service';
 
+@ApiTags('Admin Task analysis')
 @Controller('admin/task-analysis')
 export class TaskAnalysisController {
     constructor(private readonly taskAnalysisService: TaskAnalysisService) {}
