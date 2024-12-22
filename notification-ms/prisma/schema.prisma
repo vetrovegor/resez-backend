@@ -25,10 +25,10 @@ model Notification {
   id               Int                @id @default(autoincrement())
   title            String
   content          String             @db.Text
-  author           String
+  author           String?
   senderId         Int                @map("sender_id")
   isDelayed        Boolean            @map("is_delayed")
-  sendAt           DateTime           @default(now())
+  sendAt           DateTime           @default(now()) @map("send_at")
   createdAt        DateTime           @default(now()) @map("created_at")
   updatedAt        DateTime           @updatedAt @map("updated_at")
   type             Type

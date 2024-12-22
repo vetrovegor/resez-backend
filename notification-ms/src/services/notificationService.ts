@@ -42,7 +42,7 @@ export const createNotification = async (
             type,
             title,
             content,
-            author,
+            author: author ?? null,
             senderId,
             isDelayed,
             sendAt
