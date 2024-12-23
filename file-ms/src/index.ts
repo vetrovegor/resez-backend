@@ -1,7 +1,10 @@
+import path from 'path';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import fastifyMultipart from '@fastify/multipart';
 import fastifyStatic from '@fastify/static';
+import fastifySwagger from '@fastify/swagger';
+import fastifySwaggerUI from '@fastify/swagger-ui';
 import 'dotenv/config';
 
 import routes from './routes';
@@ -41,6 +44,34 @@ fastify.register(fastifyMultipart, {
 fastify.register(fastifyStatic, {
     root: STATIC_PATH,
     prefix: '/api/static/'
+});
+
+fastify.register(fastifySwagger, {
+    mode: 'static',
+    specification: {
+        path: path.join(__dirname, '..', 'api.yaml'),
+        baseDir: path.join(__dirname, '..'),
+        postProcessor: function (swaggerObject) {
+            return swaggerObject;
+        }
+    }
+    // exposeRoute: true
+});
+
+fastify.register(fastifySwaggerUI, {
+    routePrefix: '/api-docs',
+    staticCSP: true,
+    uiConfig: {
+        deepLinking: false
+    },
+    uiHooks: {
+        onRequest: function (request, reply, next) {
+            next();
+        },
+        preHandler: function (request, reply, next) {
+            next();
+        }
+    }
 });
 
 fastify.register(authenticate);
