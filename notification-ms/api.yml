@@ -415,7 +415,15 @@ paths:
                       users:
                         type: array
                         items:
-                          $ref: "#/components/schemas/User"
+                          allOf:
+                            - $ref: "#/components/schemas/User"
+                            - properties:
+                                isRead:
+                                  type: boolean
+                                  example: false
+                                updatedAt:
+                                  type: string
+                                  format: date-time
                   - $ref: "#/components/schemas/PaginationBodyFields"
         "401":
           description: "Unauthorized"

@@ -82,13 +82,14 @@ class Message extends Model {
         const sender = messageData.get('sender');
         const readsCount = messageData.get('messageReads').length;
         const files = messageData.get('messageFiles').map(item => {
-            const { id, type, size, url } = item.toJSON();
-            
+            const { id, url, name, type, size } = item.toJSON();
+
             return {
                 id,
-                type,
-                size: formatFileSize(size),
                 url,
+                name,
+                type,
+                size: formatFileSize(size)
             } as MessageFileDTO;
         });
 

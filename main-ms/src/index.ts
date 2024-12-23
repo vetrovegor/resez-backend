@@ -1,3 +1,4 @@
+import path from 'path';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import useragent from 'express-useragent';
@@ -6,13 +7,13 @@ import swaggerUi from 'swagger-ui-express';
 import cron from 'node-cron';
 import { collectDefaultMetrics, register } from 'prom-client';
 import 'dotenv/config';
+import yamljs from 'yamljs';
 
 import { router } from './routes/router';
 import { errorMiddleWare } from './middlewares/errorMiddleware';
 import { sequelize } from './db/connection';
 import { STATIC_PATH } from './consts/STATIC_PATH';
 import permissionService from './services/roles/permissionService';
-import swaggerDocument from './swagger.json';
 import messageTypeService from './services/messenger/messageTypeService';
 import notifyTypeService from './services/notifies/notifyTypeService';
 import notifyService from './services/notifies/notifyService';
@@ -33,6 +34,8 @@ app.get('/metrics', async (_req, res) => {
         res.status(500).end(err);
     }
 });
+
+const swaggerDocument = yamljs.load(path.join(__dirname, '..', 'api.yml'))
 
 app.use(express.json());
 app.use(cookieParser());
