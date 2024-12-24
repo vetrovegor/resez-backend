@@ -6,6 +6,7 @@ import {
     Body,
     Controller,
     DefaultValuePipe,
+    Delete,
     Get,
     Param,
     ParseIntPipe,
@@ -40,6 +41,20 @@ export class TaskAnalysisController {
         return await this.taskAnalysisService.toggleIsPublished(id);
     }
 
+    @Delete(':id/archive')
+    @Permission(Permissions.AnalysisTasks)
+    @UseGuards(PermissionGuard)
+    async archive(@Param('id', ParseIntPipe) id: number) {
+        return await this.taskAnalysisService.toggleIsArchived(id, true);
+    }
+
+    @Patch(':id/restore')
+    @Permission(Permissions.AnalysisTasks)
+    @UseGuards(PermissionGuard)
+    async restore(@Param('id', ParseIntPipe) id: number) {
+        return await this.taskAnalysisService.toggleIsArchived(id, false);
+    }
+
     @Get()
     @Permission(Permissions.AnalysisTasks)
     @UseGuards(PermissionGuard)
@@ -47,7 +62,17 @@ export class TaskAnalysisController {
         @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
         @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number
     ) {
-        return await this.taskAnalysisService.find(limit, offset);
+        return await this.taskAnalysisService.find(limit, offset, false);
+    }
+
+    @Get('archived')
+    @Permission(Permissions.Archive)
+    @UseGuards(PermissionGuard)
+    async findArchived(
+        @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
+        @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number
+    ) {
+        return await this.taskAnalysisService.find(limit, offset, true);
     }
 
     @Get(':id')
@@ -55,5 +80,15 @@ export class TaskAnalysisController {
     @UseGuards(PermissionGuard)
     async findFullInfoById(@Param('id', ParseIntPipe) id: number) {
         return await this.taskAnalysisService.findFullInfoById(id);
+    }
+
+    @Patch(':id')
+    @Permission(Permissions.AnalysisTasks)
+    @UseGuards(PermissionGuard)
+    async update(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() dto: TaskAnalysisDto
+    ) {
+        return await this.taskAnalysisService.update(id, dto);
     }
 }

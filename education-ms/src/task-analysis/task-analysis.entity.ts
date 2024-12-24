@@ -24,6 +24,9 @@ export class TaskAnalysis {
     @Column({ name: 'is_published', default: false })
     isPublished: boolean;
 
+    @Column({ name: 'is_archived', default: false })
+    isArchived: boolean;
+
     @Column({ name: 'user_id' })
     userId: number;
 

@@ -46,7 +46,7 @@ export class TaskAnalysisService {
 
         if (existingTaskAnalysis) {
             throw new BadRequestException(
-                'Разбор для этого задания уже создан'
+                `Разбор для этого задания уже создан${existingTaskAnalysis.isArchived ? ' (в архиве)' : ''}`
             );
         }
 
@@ -84,6 +84,33 @@ export class TaskAnalysisService {
         return taskAnalysis;
     }
 
+    async update(id: number, { subjectTaskId, content }: TaskAnalysisDto) {
+        const taskAnalysis = await this.getById(id);
+
+        if (taskAnalysis.subjectTask.id != subjectTaskId) {
+            const existingTaskAnalysis =
+                await this.taskAnalysisRepository.findOne({
+                    where: { subjectTask: { id: subjectTaskId } }
+                });
+
+            if (existingTaskAnalysis) {
+                throw new BadRequestException(
+                    `Разбор для этого задания уже создан${existingTaskAnalysis.isArchived ? ' (в архиве)' : ''}`
+                );
+            }
+        }
+
+        const subjectTask =
+            await this.subjectTaskService.getById(subjectTaskId);
+
+        return this.taskAnalysisRepository.save({
+            id,
+            content,
+            subject: subjectTask.subject,
+            subjectTask
+        });
+    }
+
     async findBySubjectId(subjectId: number) {
         const tasksAnalysisData = await this.taskAnalysisRepository.find({
             where: {
@@ -102,8 +129,11 @@ export class TaskAnalysisService {
         return { tasksAnalysis };
     }
 
-    async find(take: number, skip: number) {
+    async find(take: number, skip: number, isArchived: boolean) {
+        const where = { isArchived };
+
         const tasksAnalysisData = await this.taskAnalysisRepository.find({
+            where,
             order: { createdAt: 'DESC', subjectTask: { number: 'ASC' } },
             relations: ['subject', 'subjectTask'],
             take,
@@ -123,7 +153,7 @@ export class TaskAnalysisService {
             })
         );
 
-        const totalCount = await this.taskAnalysisRepository.count();
+        const totalCount = await this.taskAnalysisRepository.count({ where });
 
         return {
             tasksAnalysis,
@@ -143,5 +173,14 @@ export class TaskAnalysisService {
         });
 
         return { taskAnalysis: { ...taskAnalysis, isPublished } };
+    }
+
+    async toggleIsArchived(id: number, isArchived: boolean) {
+        await this.getById(id);
+
+        await this.taskAnalysisRepository.update(id, {
+            isArchived,
+            isPublished: false
+        });
     }
 }
