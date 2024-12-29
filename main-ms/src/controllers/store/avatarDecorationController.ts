@@ -125,6 +125,24 @@ class AvatarDecorationController {
         }
     }
 
+    async getAvatarDecorationDtoById(
+        req: RequestWithParamsAndUser<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const product =
+                await avatarDecorationService.getAvatarDecorationDtoById(
+                    req.params.id,
+                    req.user.id
+                );
+
+            res.json({ product });
+        } catch (error) {
+            next(error);
+        }
+    }
+
     async getUserAvatarDecorations(
         req: RequestWithQueryAndUser<PaginationQuery>,
         res: Response,

@@ -25,8 +25,6 @@ import Message from './messenger/Message';
 import Chat from './messenger/Chat';
 import UserChat from './messenger/UserChat';
 import { PermissionDTO } from 'types/permission';
-import Notify from './notifies/Notify';
-import UserNotify from './notifies/UserNotify';
 import { calculateLevelInfo } from '../../utils';
 import Activity from './Activity';
 import MessageRead from './messenger/MessageRead';
@@ -200,9 +198,6 @@ class User extends Model {
     @BelongsToMany(() => Role, () => UserRole)
     roles: Role[];
 
-    @BelongsToMany(() => Notify, () => UserNotify)
-    notifies: Notify[];
-
     @ForeignKey(() => Subscription)
     @Column
     subscriptionId: number;
@@ -225,16 +220,6 @@ class User extends Model {
         defaultValue: 0
     })
     balance: number;
-
-    @HasMany(() => Notify, {
-        onDelete: 'CASCADE'
-    })
-    sentNotifies: Notify[];
-
-    @HasMany(() => UserNotify, {
-        onDelete: 'CASCADE'
-    })
-    userNotifies: UserNotify[];
 
     @BelongsToMany(() => Chat, () => UserChat)
     chats: Chat[];
@@ -358,7 +343,10 @@ class User extends Model {
             isSubscriptionPermanent
         } = this.get();
 
-        if (!subscriptionId) {
+        if (
+            !subscriptionId ||
+            (!isSubscriptionPermanent && subscriptionExpiredDate < new Date())
+        ) {
             return null;
         }
 

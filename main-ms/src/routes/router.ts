@@ -6,7 +6,6 @@ import { userRouter } from "./userRouter";
 import { sessionRouter } from "./sessionRouter";
 import { adminRouter } from "./admin/adminRouter";
 import { messengerRouter } from "./messenger/mesengerRouter";
-import { notifyRouter } from "./notifyRouter";
 import { achievementRouter } from "./achievementRouter";
 import { storeRouter } from "./store/storeRouter";
 import { subscriptionRouter } from "./subscriptionRouter";
@@ -22,8 +21,6 @@ router.use('/auth', authRouter);
 router.use('/user', userRouter);
 
 router.use('/session', sessionRouter);
-
-router.use('/notify', notifyRouter);
 
 router.use('/admin', adminRouter);
 

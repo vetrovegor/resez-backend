@@ -3,7 +3,6 @@ import { param } from 'express-validator';
 
 import avatarDecorationController from '../../controllers/store/avatarDecorationController';
 import { accessTokenMiddleware } from '../../middlewares/accessTokenMiddleware';
-import { blockedMiddleware } from '../../middlewares/blockedMiddleware';
 import { paginationMiddleware } from '../../middlewares/paginationMiddleware';
 import { validationMiddleware } from '../../middlewares/validationMiddleware';
 import { optionalAuthMiddleware } from '../../middlewares/optionalAuthMiddleware';
@@ -23,4 +22,12 @@ avatarDecorationRouter.get(
     param('id').isNumeric(),
     validationMiddleware,
     avatarDecorationController.addAvatarDecorationToUser
+);
+
+avatarDecorationRouter.get(
+    '/:id',
+    optionalAuthMiddleware,
+    param('id').isNumeric(),
+    validationMiddleware,
+    avatarDecorationController.getAvatarDecorationDtoById
 );

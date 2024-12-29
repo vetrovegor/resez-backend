@@ -110,6 +110,23 @@ class ThemeController {
         }
     }
 
+    async getThemeDtoById(
+        req: RequestWithParamsAndUser<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const product = await themeService.getThemeDtoById(
+                req.params.id,
+                req.user.id
+            );
+
+            res.json({ product });
+        } catch (error) {
+            next(error);
+        }
+    }
+
     async getUserThemes(
         req: RequestWithQueryAndUser<PaginationQuery>,
         res: Response,

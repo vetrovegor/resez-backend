@@ -101,6 +101,7 @@ export const createNotificationDto = async (notification: Notification) => {
         sendAt: date,
         updatedAt,
         type,
+        isDelayed,
         isEdited
     } = notification;
 
@@ -115,6 +116,7 @@ export const createNotificationDto = async (notification: Notification) => {
         updatedAt,
         type,
         user,
+        isDelayed,
         isEdited
     };
 };

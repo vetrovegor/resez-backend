@@ -15,12 +15,11 @@ import { sequelize } from './db/connection';
 import { STATIC_PATH } from './consts/STATIC_PATH';
 import permissionService from './services/roles/permissionService';
 import messageTypeService from './services/messenger/messageTypeService';
-import notifyTypeService from './services/notifies/notifyTypeService';
-import notifyService from './services/notifies/notifyService';
 import rmqService from './services/rmqService';
 import { redisClient } from './redisClient';
 import subscriptionService from './services/subscribtionService';
 import achievementService from './services/achievementService';
+import userService from './services/userService';
 
 collectDefaultMetrics();
 
@@ -35,7 +34,7 @@ app.get('/metrics', async (_req, res) => {
     }
 });
 
-const swaggerDocument = yamljs.load(path.join(__dirname, '..', 'api.yml'))
+const swaggerDocument = yamljs.load(path.join(__dirname, '..', 'api.yml'));
 
 app.use(express.json());
 app.use(cookieParser());
@@ -59,8 +58,6 @@ const start = async () => {
 
         await messageTypeService.initMessageTypes();
 
-        await notifyTypeService.initNotifyTypes();
-
         await subscriptionService.initSubscriptions();
 
         await achievementService.initAchievements();
@@ -75,7 +72,10 @@ const start = async () => {
     // завершение сессий
 
     // отправка отложенных уведомлений
-    cron.schedule('* * * * *', notifyService.sendDelayedNotifies);
+    // cron.schedule('* * * * *', notifyService.sendDelayedNotifies);
+
+    // обнуление истекших подписок пользователей
+    cron.schedule('0 * * * *', userService.resetExpiredSubscriptions);
 
     app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 };

@@ -237,8 +237,12 @@ class AvatarDecorationService {
         await userService.takePaymentForTheProduct({
             userId,
             price: avatarDecoration.get('price'),
-            requiredSubscriptionId: avatarDecoration.get('requiredSubscriptionId'),
-            requiredAchievementId: avatarDecoration.get('requiredAchievementId'),
+            requiredSubscriptionId: avatarDecoration.get(
+                'requiredSubscriptionId'
+            ),
+            requiredAchievementId: avatarDecoration.get(
+                'requiredAchievementId'
+            ),
             seasonStartDate: avatarDecoration.get('seasonStartDate'),
             seasonEndDate: avatarDecoration.get('seasonEndDate')
         });
@@ -249,6 +253,26 @@ class AvatarDecorationService {
         });
 
         return this.createAvatarDecorationDto({ avatarDecoration });
+    }
+
+    async getAvatarDecorationDtoById(id: number, userId: number) {
+        const avatarDecoration = await this.getAvatarDecorationById(id, true);
+
+        const collectedIds = (
+            await UserAvatarDecoration.findAll({
+                where: { userId }
+            })
+        ).map(item => item.get('avatarDecorationId'));
+
+        const { avatarDecorationId: activeId } = (
+            await userService.getUserById(userId)
+        ).toJSON();
+
+        return this.createAvatarDecorationDto({
+            avatarDecoration,
+            activeId,
+            collectedIds
+        });
     }
 
     async getUserAvatarDecorations(

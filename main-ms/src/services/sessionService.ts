@@ -49,11 +49,6 @@ class SessionService {
 
             sessionId = newSession.id;
 
-            // if (shouldCreateNotify) {
-            //     await notifyService.createSessionNotify('В ваш аккаунт был выполнен вход с нового устройства', newSession);
-            //     await logService.createNewDeviceLoginLogEntry(userId, sessionId);
-            // }
-
             if (isLogin && telegramChatId) {
                 rmqService.sendToQueue('telegram', 'new-session', {
                     telegramChatId,

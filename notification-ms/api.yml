@@ -89,6 +89,9 @@ components:
           format: date-time
         user:
           $ref: "#/components/schemas/User"
+        isDelayed:
+          type: boolean
+          example: false
         isEdited:
           type: boolean
           example: false

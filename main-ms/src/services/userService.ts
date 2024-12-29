@@ -24,6 +24,7 @@ import achievementService from './achievementService';
 import { AchievementTypes } from '../enums/achievement';
 import { Queues } from '../enums/rmq';
 import { Subscriptions } from '../enums/subscriptions';
+import logger from '../logger';
 
 class UserService {
     async getUserById(id: number): Promise<User> {
@@ -597,8 +598,7 @@ class UserService {
 
     async getAdminUserBasicInfo(userId: number) {
         const user = await this.getUserById(userId);
-        const { xp, subscriptionExpiredDate, isSubscriptionPermanent } =
-            user.toJSON();
+        const { xp } = user.toJSON();
         const levelInfo = calculateLevelInfo(xp);
         const subscription = await user.getSubscription();
 
@@ -798,6 +798,28 @@ class UserService {
             { [productField]: null },
             { where: { [productField]: id } }
         );
+    }
+
+    async resetExpiredSubscriptions() {
+        const usersWithExpiredSubscriptions  = await User.findAll({
+            where: {
+                isSubscriptionPermanent: false,
+                subscriptionExpiredDate: {
+                    [Op.lt]: new Date()
+                }
+            }
+        });
+
+        for (const user of usersWithExpiredSubscriptions ) {
+            logger.info('Resetting a user expired subscription', {
+                user: { id: user.get('id'), nickname: user.get('nickname') }
+            });
+
+            user.set('subscriptionId', null);
+            user.set('subscriptionExpiredDate', null);
+
+            await user.save();
+        }
     }
 }
 

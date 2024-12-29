@@ -233,6 +233,26 @@ class AvatarDecorationService {
         return this.createThemeDto({ theme });
     }
 
+    async getThemeDtoById(id: number, userId: number) {
+        const theme = await this.getThemeById(id, true);
+
+        const collectedIds = (
+            await UserTheme.findAll({
+                where: { userId }
+            })
+        ).map(item => item.get('themeId'));
+
+        const { themeId: activeId } = (
+            await userService.getUserById(userId)
+        ).toJSON();
+
+        return this.createThemeDto({
+            theme,
+            activeId,
+            collectedIds
+        });
+    }
+
     async getUserThemes(userId: number, limit: number, offset: number) {
         const { themeId: activeId } = (
             await userService.getUserById(userId)

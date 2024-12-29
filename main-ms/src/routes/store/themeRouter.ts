@@ -24,3 +24,11 @@ themeRouter.get(
     validationMiddleware,
     themeController.addThemeToUser
 );
+
+themeRouter.get(
+    '/:id',
+    optionalAuthMiddleware,
+    param('id').isNumeric(),
+    validationMiddleware,
+    themeController.getThemeDtoById
+);
