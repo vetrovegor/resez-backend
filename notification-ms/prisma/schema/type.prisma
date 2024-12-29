@@ -1,0 +1,7 @@
+enum Type {
+  INFO
+  ADD
+  SESSION
+  GIFT
+  VOTING
+}

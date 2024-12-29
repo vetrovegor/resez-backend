@@ -15,6 +15,7 @@ import {
     getNotificationById,
     getNotifications,
     getUserNotificationsForAdmin,
+    sendNowDelayedNotification,
     updateNotificationById
 } from '../services';
 import { NotificationBody } from '../types/notification';
@@ -37,12 +38,12 @@ adminNotificationRouter.post(
     validateBody(notificationSchema),
     notificationBodyMiddleware,
     async ctx => {
-        await createNotification(
+        const notification = await createNotification(
             <NotificationBody>ctx.request.body,
             ctx.state.user.id
         );
 
-        ctx.status = 200;
+        ctx.body = { notification };
     }
 );
 
@@ -80,7 +81,20 @@ adminNotificationRouter.patch(
     validateBody(notificationSchema),
     notificationBodyMiddleware,
     async ctx => {
-        await updateNotificationById(Number(ctx.params.id), <NotificationBody>ctx.request.body);
+        const notification = await updateNotificationById(
+            Number(ctx.params.id),
+            <NotificationBody>ctx.request.body
+        );
+
+        ctx.body = { notification };
+    }
+);
+
+adminNotificationRouter.patch(
+    '/:id/send-now',
+    validateParams(idSchema),
+    async ctx => {
+        await sendNowDelayedNotification(Number(ctx.params.id));
 
         ctx.status = 200;
     }

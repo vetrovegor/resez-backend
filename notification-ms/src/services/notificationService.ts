@@ -4,6 +4,7 @@ import { NotificationBody } from '../types/notification';
 import { HttpError } from '../HttpError';
 import { getUserById } from './userService';
 import { emitToUser } from './socketService';
+import logger from '../logger';
 
 const NOTIFICATION_EMIT_TYPE = 'notification';
 
@@ -52,6 +53,8 @@ export const createNotification = async (
     for (const userId of userIds) {
         await createUserNotification(notification, Number(userId));
     }
+
+    return await createNotificationDto(notification);
 };
 
 export const getNotifications = async (
@@ -96,9 +99,9 @@ export const createNotificationDto = async (notification: Notification) => {
         author,
         senderId,
         sendAt: date,
-        createdAt,
         updatedAt,
-        type
+        type,
+        isEdited
     } = notification;
 
     const user = await getUserById(senderId);
@@ -112,8 +115,7 @@ export const createNotificationDto = async (notification: Notification) => {
         updatedAt,
         type,
         user,
-        // TODO: добавить это поле в модель и вручную изменять его, когда кто-то реально редактирует
-        isEdited: createdAt.toString() != updatedAt.toString()
+        isEdited
     };
 };
 
@@ -135,7 +137,7 @@ export const deleteNotificationById = async (id: number) => {
 
 export const updateNotificationById = async (
     id: number,
-    { type, title, content, author, userIds }: NotificationBody
+    { type, title, content, author, sendAt, userIds }: NotificationBody
 ) => {
     const existingNotification = await prisma.notification.findFirst({
         where: { id },
@@ -146,13 +148,19 @@ export const updateNotificationById = async (
         throw new HttpError(404, 'Уведомление не найдено');
     }
 
+    if (!existingNotification.isDelayed && sendAt) {
+        throw new HttpError(400, 'Уведомление не является отложенным');
+    }
+
     const updatedNotification = await prisma.notification.update({
         where: { id },
         data: {
             type,
             title,
             content,
-            author
+            author,
+            sendAt,
+            isEdited: true
         }
     });
 
@@ -176,6 +184,36 @@ export const updateNotificationById = async (
         where: {
             notificationId: id,
             userId: { in: userIdsToRemove }
+        }
+    });
+
+    return await createNotificationDto(updatedNotification);
+};
+
+export const sendNowDelayedNotification = async (id: number) => {
+    const where = {
+        id,
+        isDelayed: true
+    };
+
+    const existingNotification = await prisma.notification.findFirst({
+        where,
+        include: { userNotification: { include: { notification: true } } }
+    });
+
+    if (!existingNotification) {
+        throw new HttpError(404, 'Уведомление не найдено');
+    }
+
+    for (const userNotification of existingNotification.userNotification) {
+        const dto = createUserNotificationDto(userNotification);
+        emitToUser(userNotification.userId, NOTIFICATION_EMIT_TYPE, dto);
+    }
+
+    await prisma.notification.update({
+        where,
+        data: {
+            isDelayed: false
         }
     });
 };
@@ -233,9 +271,14 @@ export const sendDelayedNotifications = async () => {
     });
 
     for (const notification of notificationsToSend) {
+        logger.info('Sending a delayed notification', {
+            notificationId: notification.id.toString(),
+            sendAt: notification.sendAt.toISOString()
+        });
+
         for (const userNotification of notification.userNotification) {
             const dto = createUserNotificationDto(userNotification);
-            await emitToUser(
+            emitToUser(
                 userNotification.userId,
                 NOTIFICATION_EMIT_TYPE,
                 dto

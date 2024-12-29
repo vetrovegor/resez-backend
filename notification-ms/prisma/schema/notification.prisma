@@ -1,0 +1,16 @@
+model Notification {
+    id               Int                @id @default(autoincrement())
+    title            String
+    content          String
+    author           String?
+    senderId         Int                @map("sender_id")
+    type             Type
+    createdAt        DateTime           @default(now()) @map("created_at")
+    isDelayed        Boolean            @map("is_delayed")
+    isEdited         Boolean            @default(false) @map("is_edited")
+    updatedAt        DateTime           @updatedAt @map("updated_at")
+    sendAt           DateTime           @default(now()) @map("send_at")
+    userNotification UserNotification[]
+
+    @@map("notifications")
+}
