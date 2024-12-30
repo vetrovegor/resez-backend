@@ -49,7 +49,9 @@
             "@task-analysis": ["src/task-analysis/"],
             "@task-analysis/*": ["src/task-analysis/*"],
             "@snippet": ["src/snippet/"],
-            "@snippet/*": ["src/snippet/*"]
+            "@snippet/*": ["src/snippet/*"],
+            "@comment/*": ["src/comment/*"],
+            "@shared/*": ["src/shared/*"]
         }
     }
 }

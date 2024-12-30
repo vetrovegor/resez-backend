@@ -3,8 +3,8 @@ import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class SnippetDto {
     @Transform(({ value }) => Number(value))
-    @IsNumber({}, { message: 'Id предмета предмета должно быть числом' })
-    @IsNotEmpty({ message: 'Id предмета предмета не должно быть пустым' })
+    @IsNumber({}, { message: 'Id предмета должно быть числом' })
+    @IsNotEmpty({ message: 'Id предмета не должно быть пустым' })
     subjectId: number;
 
     @IsString({ message: 'Заголовок вставки должен быть строкой' })

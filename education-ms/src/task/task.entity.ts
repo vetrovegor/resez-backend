@@ -9,10 +9,12 @@ import {
     JoinColumn,
     ManyToMany,
     ManyToOne,
+    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
     ValueTransformer
 } from 'typeorm';
+import { Comment } from '@comment/comment.entity';
 
 class SemiColonArrayTransformer implements ValueTransformer {
     // Сериализация: из массива в строку
@@ -87,4 +89,7 @@ export class Task {
 
     @ManyToMany(() => Test, test => test.tasks)
     tests: Test[];
+
+    @OneToMany(() => Comment, comment => comment.task, { cascade: true })
+    comments: Comment[];
 }
