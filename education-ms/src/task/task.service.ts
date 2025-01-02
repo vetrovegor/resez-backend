@@ -118,6 +118,8 @@ export class TaskService {
         delete taskData.answers;
         delete taskData.subjectTask;
         delete taskData.userId;
+        delete taskData.comments;
+        delete taskData.snippets;
 
         return {
             ...taskData,
@@ -548,7 +550,8 @@ export class TaskService {
                 'subjectTask',
                 'subTheme',
                 'tests',
-                'tests.subject'
+                'tests.subject',
+                'snippets'
             ]
         });
 
@@ -556,10 +559,28 @@ export class TaskService {
             return { matches: [] };
         }
 
-        const tasksContent = tasksData.map(task => task.task);
+        const comparison: { taskId: number; convertedTask: string }[] = [];
+
+        const convertedTasksData = tasksData.map(taskData => {
+            const convertedTask = this.snippetService.removeSnippetsFromHtml(
+                taskData.task
+            );
+
+            comparison.push({
+                taskId: taskData.id,
+                convertedTask
+            });
+
+            return {
+                ...taskData,
+                task: convertedTask
+            };
+        });
+
+        const tasksContent = convertedTasksData.map(task => task.task);
 
         const matchesData = stringSimilarity.findBestMatch(
-            dto.task,
+            this.snippetService.removeSnippetsFromHtml(dto.task),
             tasksContent
         );
 
@@ -569,10 +590,14 @@ export class TaskService {
 
         const matches = await Promise.all(
             topMatches.map(async match => {
-                const taskData = tasksData.find(
-                    task => task.task == match.target
+                const { taskId } = comparison.find(
+                    item => item.convertedTask == match.target
                 );
+
+                const taskData = tasksData.find(task => task.id == taskId);
+
                 const taskShortInfo = await this.createShortInfo(taskData);
+
                 return {
                     task: taskShortInfo,
                     percent: Math.round(match.rating * 100)

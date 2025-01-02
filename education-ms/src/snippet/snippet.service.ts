@@ -166,4 +166,17 @@ export class SnippetService {
 
         return dom.window.document.body.innerHTML;
     }
+
+    removeSnippetsFromHtml(html: string) {
+        const dom = new JSDOM(html);
+        const document = dom.window.document;
+
+        const elements = document.querySelectorAll('.snippet');
+
+        elements.forEach(element => {
+            element.remove();
+        });
+
+        return dom.window.document.body.innerHTML;
+    }
 }
