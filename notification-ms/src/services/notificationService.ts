@@ -199,25 +199,26 @@ export const sendNowDelayedNotification = async (id: number) => {
     };
 
     const existingNotification = await prisma.notification.findFirst({
-        where,
-        include: { userNotification: { include: { notification: true } } }
+        where
     });
 
     if (!existingNotification) {
         throw new HttpError(404, 'Уведомление не найдено');
     }
 
-    for (const userNotification of existingNotification.userNotification) {
+    const updatedNotification = await prisma.notification.update({
+        where: { id },
+        data: {
+            isDelayed: false,
+            sendAt: new Date()
+        },
+        include: { userNotification: { include: { notification: true } } }
+    });
+
+    for (const userNotification of updatedNotification.userNotification) {
         const dto = createUserNotificationDto(userNotification);
         emitToUser(userNotification.userId, NOTIFICATION_EMIT_TYPE, dto);
     }
-
-    await prisma.notification.update({
-        where,
-        data: {
-            isDelayed: false
-        }
-    });
 };
 
 export const getUserNotificationsForAdmin = async (
@@ -280,11 +281,7 @@ export const sendDelayedNotifications = async () => {
 
         for (const userNotification of notification.userNotification) {
             const dto = createUserNotificationDto(userNotification);
-            emitToUser(
-                userNotification.userId,
-                NOTIFICATION_EMIT_TYPE,
-                dto
-            );
+            emitToUser(userNotification.userId, NOTIFICATION_EMIT_TYPE, dto);
         }
     }
 

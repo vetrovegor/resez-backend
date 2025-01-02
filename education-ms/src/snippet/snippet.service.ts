@@ -1,5 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+    BadRequestException,
+    forwardRef,
+    Inject,
+    Injectable,
+    NotFoundException
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { JSDOM } from 'jsdom';
 import { Snippet } from './snippet.entity';
 import { Repository } from 'typeorm';
 import { SnippetDto } from './dto/snippet.dto';
@@ -11,6 +18,7 @@ export class SnippetService {
     constructor(
         @InjectRepository(Snippet)
         private readonly snippetRepository: Repository<Snippet>,
+        @Inject(forwardRef(() => SubjectService))
         private readonly subjectService: SubjectService,
         private readonly userService: UserService
     ) {}
@@ -30,7 +38,7 @@ export class SnippetService {
     async getById(id: number) {
         const snippet = await this.snippetRepository.findOne({
             where: { id },
-            relations: ['subject']
+            relations: ['subject', 'tasks']
         });
 
         if (!snippet) {
@@ -118,8 +126,44 @@ export class SnippetService {
     async delete(id: number) {
         const snippet = await this.getById(id);
 
+        if (snippet.tasks.length > 0) {
+            throw new BadRequestException('Вставка используется в заданиях');
+        }
+
         await this.snippetRepository.remove(snippet);
 
         return await this.createDto(snippet);
+    }
+
+    async extractAndValidateSnippetsFromHtml(html: string) {
+        const dom = new JSDOM(html);
+        const document = dom.window.document;
+
+        const elements = document.querySelectorAll('.snippet');
+
+        const snippetIds = Array.from(elements).map(snippet =>
+            Number(snippet.id)
+        );
+
+        return await Promise.all(
+            snippetIds.map(async snippetId => await this.getById(snippetId))
+        );
+    }
+
+    addSnippetsContentToHtml(html: string, snippets: Snippet[]) {
+        const dom = new JSDOM(html);
+        const document = dom.window.document;
+
+        const elements = document.querySelectorAll('.snippet');
+
+        for (const element of Array.from(elements)) {
+            const { content } = snippets.find(
+                snippet => (snippet.id = Number(element.id))
+            );
+
+            element.innerHTML = content;
+        }
+
+        return dom.window.document.body.innerHTML;
     }
 }

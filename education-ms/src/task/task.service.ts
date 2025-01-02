@@ -16,6 +16,7 @@ import { JwtPayload, Permissions } from '@auth/interfaces/interfaces';
 import { LogService } from '@log/log.service';
 import { LogType } from '@log/log.entity';
 import { UserService } from '@user/user.service';
+import { SnippetService } from '@snippet/snippet.service';
 
 @Injectable()
 export class TaskService {
@@ -25,7 +26,8 @@ export class TaskService {
         @Inject(forwardRef(() => SubjectService))
         private readonly subjectService: SubjectService,
         private readonly logService: LogService,
-        private readonly userService: UserService
+        private readonly userService: UserService,
+        private readonly snippetService: SnippetService
     ) {}
 
     async create(dto: TaskDto, user: JwtPayload) {
@@ -60,20 +62,24 @@ export class TaskService {
             );
         }
 
+        const snippets =
+            await this.snippetService.extractAndValidateSnippetsFromHtml(
+                dto.task + dto.solution
+            );
+
         const hasVerifiedPermission = user.permissions.some(
             permission => permission.permission == Permissions.VerifyTasks
         );
 
-        const createdTask = this.taskRepository.create({
+        const savedTask = await this.taskRepository.save({
             ...dto,
             isVerified: hasVerifiedPermission ? dto.isVerified : false,
             subject: { id: dto.subjectId },
             subjectTask: { id: dto.subjectTaskId },
             subTheme: { id: dto.subThemeId },
-            userId: user.id
+            userId: user.id,
+            snippets
         });
-
-        const savedTask = await this.taskRepository.save(createdTask);
 
         const { task: fullInfo } = await this.getFullInfoById(
             savedTask.id,
@@ -90,23 +96,33 @@ export class TaskService {
         return { task: savedTask };
     }
 
-    async createShortInfo(task: Task) {
-        const { subject = null } = task.subject || {};
-        const { number = null, theme = null } = task.subjectTask || {};
-        const { subTheme = null } = task.subTheme || {};
-        const user = await this.userService.getById(task.userId);
-        const tests = task.tests.map(({ id, subject }) => ({
+    async createShortInfo(taskData: Task) {
+        const task = this.snippetService.addSnippetsContentToHtml(
+            taskData.task,
+            taskData.snippets
+        );
+        const solution = this.snippetService.addSnippetsContentToHtml(
+            taskData.solution,
+            taskData.snippets
+        );
+        const { subject = null } = taskData.subject || {};
+        const { number = null, theme = null } = taskData.subjectTask || {};
+        const { subTheme = null } = taskData.subTheme || {};
+        const user = await this.userService.getById(taskData.userId);
+        const tests = taskData.tests.map(({ id, subject }) => ({
             id,
             subject: subject.subject
         }));
 
-        delete task.solution;
-        delete task.answers;
-        delete task.subjectTask;
-        delete task.userId;
+        delete taskData.solution;
+        delete taskData.answers;
+        delete taskData.subjectTask;
+        delete taskData.userId;
 
         return {
-            ...task,
+            ...taskData,
+            task,
+            solution,
             number,
             subject,
             theme,
@@ -170,7 +186,8 @@ export class TaskService {
                     'subjectTask',
                     'subTheme',
                     'tests',
-                    'tests.subject'
+                    'tests.subject',
+                    'snippets'
                 ]
             });
 
@@ -191,7 +208,8 @@ export class TaskService {
                 'subjectTask',
                 'subTheme',
                 'tests',
-                'tests.subject'
+                'tests.subject',
+                'snippets'
             ]
         });
 
@@ -217,12 +235,34 @@ export class TaskService {
             subTheme: { id: subThemeId }
         };
 
-        const tasks = await this.taskRepository.find({
+        const tasksData = await this.taskRepository.find({
             where,
             order: { createdAt: 'DESC' },
             take,
             skip,
-            relations: ['subject', 'subjectTask', 'subTheme']
+            relations: [
+                'subject',
+                'subjectTask',
+                'subTheme',
+                'comments',
+                'snippets'
+            ]
+        });
+
+        const tasks = tasksData.map(task => {
+            task['commentsCount'] = task.comments.length;
+            task.task = this.snippetService.addSnippetsContentToHtml(
+                task.task,
+                task.snippets
+            );
+            task.solution = this.snippetService.addSnippetsContentToHtml(
+                task.solution,
+                task.snippets
+            );
+
+            delete task.comments;
+
+            return task;
         });
 
         const totalCount = await this.taskRepository.count({ where });
@@ -238,7 +278,13 @@ export class TaskService {
     async getById(id: number) {
         const task = await this.taskRepository.findOne({
             where: { id },
-            relations: ['subject', 'subjectTask', 'subTheme']
+            relations: [
+                'subject',
+                'subjectTask',
+                'subTheme',
+                'comments',
+                'snippets'
+            ]
         });
 
         if (!task) {
@@ -256,10 +302,19 @@ export class TaskService {
         }
 
         task.answers = task.answers.filter(answer => answer.length > 0);
-
+        task['commentsCount'] = task.comments.length;
         task['user'] = await this.userService.getById(task.userId);
+        task.task = this.snippetService.addSnippetsContentToHtml(
+            task.task,
+            task.snippets
+        );
+        task.solution = this.snippetService.addSnippetsContentToHtml(
+            task.solution,
+            task.snippets
+        );
 
         delete task.userId;
+        delete task.comments;
 
         return { task };
     }
@@ -304,6 +359,11 @@ export class TaskService {
             );
         }
 
+        const snippets =
+            await this.snippetService.extractAndValidateSnippetsFromHtml(
+                dto.task + dto.solution
+            );
+
         const hasVerifiedPermission = user.permissions.some(
             permission => permission.permission == Permissions.VerifyTasks
         );
@@ -314,7 +374,8 @@ export class TaskService {
             isVerified: hasVerifiedPermission ? dto.isVerified : false,
             subject: { id: dto.subjectId },
             subjectTask: { id: dto.subjectTaskId },
-            subTheme: { id: dto.subThemeId }
+            subTheme: { id: dto.subThemeId },
+            snippets
         });
 
         const { task: newFullInfo } = await this.getFullInfoById(id, false);

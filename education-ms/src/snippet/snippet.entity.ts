@@ -1,9 +1,11 @@
 import { Subject } from '@subject/subject.entity';
+import { Task } from '@task/task.entity';
 import {
     Column,
     CreateDateColumn,
     Entity,
     JoinColumn,
+    ManyToMany,
     ManyToOne,
     PrimaryGeneratedColumn,
     UpdateDateColumn
@@ -38,4 +40,7 @@ export class Snippet {
         name: 'subject_id'
     })
     subject: Subject;
+
+    @ManyToMany(() => Task, task => task.snippets)
+    tasks: Task[];
 }
