@@ -94,7 +94,7 @@ export class CommentService {
 
         const commentsData = await this.commentRepository.find({
             where,
-            order: { createdAt: 'DESC', replies: { createdAt: 'ASC' } },
+            order: { createdAt: 'ASC', replies: { createdAt: 'ASC' } },
             take,
             skip,
             relations: { replies: true }

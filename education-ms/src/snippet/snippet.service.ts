@@ -158,7 +158,7 @@ export class SnippetService {
 
         for (const element of Array.from(elements)) {
             const { content } = snippets.find(
-                snippet => (snippet.id = Number(element.id))
+                snippet => snippet.id == Number(element.id)
             );
 
             element.innerHTML = content;

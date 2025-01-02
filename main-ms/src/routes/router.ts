@@ -11,6 +11,7 @@ import { storeRouter } from "./store/storeRouter";
 import { subscriptionRouter } from "./subscriptionRouter";
 import { feedbackRouter } from "./feedbackRouter";
 import { promoCodeRouter } from "./promoCodeRouter";
+import { liveKitRouter } from "./liveKitRouter";
 
 export const router = Router();
 
@@ -35,3 +36,5 @@ router.use('/subscription', subscriptionRouter);
 router.use('/feedback', feedbackRouter);
 
 router.use('/promo-code', promoCodeRouter);
+
+router.use('/live-kit', liveKitRouter);
