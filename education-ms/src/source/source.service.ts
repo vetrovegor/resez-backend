@@ -78,6 +78,12 @@ export class SourceService {
     async delete(id: number) {
         const existingSource = await this.getById(id);
 
+        if (existingSource.tasks.length > 0) {
+            throw new BadRequestException(
+                'Нельзя удалить источник, так как есть задания с ним'
+            );
+        }
+
         await this.sourceRepository.remove(existingSource);
 
         return { source: existingSource };
