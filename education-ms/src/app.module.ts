@@ -23,6 +23,7 @@ import { TaskAttemptModule } from '@task-attempt/task-attempt.module';
 import { TaskAnalysisModule } from '@task-analysis/task-analysis.module';
 import { SnippetModule } from '@snippet/snippet.module';
 import { CommentModule } from '@comment/comment.module';
+import { SourceModule } from '@source/source.module';
 
 @Module({
     imports: [
@@ -57,7 +58,8 @@ import { CommentModule } from '@comment/comment.module';
         UserModule,
         TaskAnalysisModule,
         SnippetModule,
-        CommentModule
+        CommentModule,
+        SourceModule
     ],
     controllers: [],
     providers: []

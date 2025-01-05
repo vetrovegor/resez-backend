@@ -51,7 +51,8 @@
             "@snippet": ["src/snippet/"],
             "@snippet/*": ["src/snippet/*"],
             "@comment/*": ["src/comment/*"],
-            "@shared/*": ["src/shared/*"]
+            "@shared/*": ["src/shared/*"],
+            "@source/*": ["src/source/*"]
         }
     }
 }

@@ -42,4 +42,9 @@ export class TaskDto {
     @IsString({ message: 'Источник должен быть строкой' })
     @IsOptional()
     source: string;
+
+    @Transform(({ value }) => Number(value))
+    @IsNumber({}, { message: 'Id источника должно быть числом' })
+    @IsOptional()
+    sourceId: number;
 }

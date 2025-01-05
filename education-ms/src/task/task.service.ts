@@ -17,6 +17,7 @@ import { LogService } from '@log/log.service';
 import { LogType } from '@log/log.entity';
 import { UserService } from '@user/user.service';
 import { SnippetService } from '@snippet/snippet.service';
+import { SourceService } from '@source/source.service';
 
 @Injectable()
 export class TaskService {
@@ -27,7 +28,8 @@ export class TaskService {
         private readonly subjectService: SubjectService,
         private readonly logService: LogService,
         private readonly userService: UserService,
-        private readonly snippetService: SnippetService
+        private readonly snippetService: SnippetService,
+        private readonly sourceService: SourceService
     ) {}
 
     async create(dto: TaskDto, user: JwtPayload) {
@@ -67,6 +69,8 @@ export class TaskService {
                 dto.task + dto.solution
             );
 
+        await this.sourceService.getById(dto.sourceId);
+
         const hasVerifiedPermission = user.permissions.some(
             permission => permission.permission == Permissions.VerifyTasks
         );
@@ -78,7 +82,8 @@ export class TaskService {
             subjectTask: { id: dto.subjectTaskId },
             subTheme: { id: dto.subThemeId },
             userId: user.id,
-            snippets
+            snippets,
+            sourceRelation: { id: dto.sourceId }
         });
 
         const { task: fullInfo } = await this.getFullInfoById(
@@ -189,7 +194,8 @@ export class TaskService {
                     'subTheme',
                     'tests',
                     'tests.subject',
-                    'snippets'
+                    'snippets',
+                    'sourceRelation'
                 ]
             });
 
@@ -211,7 +217,8 @@ export class TaskService {
                 'subTheme',
                 'tests',
                 'tests.subject',
-                'snippets'
+                'snippets',
+                'sourceRelation'
             ]
         });
 
@@ -247,7 +254,8 @@ export class TaskService {
                 'subjectTask',
                 'subTheme',
                 'comments',
-                'snippets'
+                'snippets',
+                'sourceRelation'
             ]
         });
 
@@ -285,7 +293,8 @@ export class TaskService {
                 'subjectTask',
                 'subTheme',
                 'comments',
-                'snippets'
+                'snippets',
+                'sourceRelation'
             ]
         });
 
@@ -366,6 +375,8 @@ export class TaskService {
                 dto.task + dto.solution
             );
 
+        await this.sourceService.getById(dto.sourceId);
+
         const hasVerifiedPermission = user.permissions.some(
             permission => permission.permission == Permissions.VerifyTasks
         );
@@ -377,7 +388,8 @@ export class TaskService {
             subject: { id: dto.subjectId },
             subjectTask: { id: dto.subjectTaskId },
             subTheme: { id: dto.subThemeId },
-            snippets
+            snippets,
+            sourceRelation: { id: dto.sourceId }
         });
 
         const { task: newFullInfo } = await this.getFullInfoById(id, false);

@@ -17,6 +17,7 @@ import {
 } from 'typeorm';
 import { Comment } from '@comment/comment.entity';
 import { Snippet } from '@snippet/snippet.entity';
+import { Source } from '@source/source.entity';
 
 class SemiColonArrayTransformer implements ValueTransformer {
     // Сериализация: из массива в строку
@@ -98,4 +99,11 @@ export class Task {
     @ManyToMany(() => Snippet, snippet => snippet.tasks)
     @JoinTable()
     snippets: Snippet[];
+
+    @ManyToOne(() => Source, source => source.tasks)
+    @JoinColumn({
+        name: 'source_id'
+    })
+    // TODO: переименовать на source
+    sourceRelation: Source;
 }
