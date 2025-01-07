@@ -1,16 +1,18 @@
 import bcrypt from 'bcrypt';
 
-import userService from "./userService";
-import { ApiError } from "../ApiError";
+import userService from './userService';
+import { ApiError } from '../ApiError';
 import codeService from './codeService';
-import { AuthResponse } from 'types/user';
+import { AuthResponse } from 'src/types/user';
 
 class AuthService {
     async register(nickname: string, password: string): Promise<AuthResponse> {
         const existedUser = await userService.getUserByNickname(nickname);
 
         if (existedUser) {
-            throw ApiError.badRequest(`Пользователь с таким никнеймом уже существует`);
+            throw ApiError.badRequest(
+                `Пользователь с таким никнеймом уже существует`
+            );
         }
 
         const hashPassword = await bcrypt.hash(password, 3);
@@ -19,7 +21,9 @@ class AuthService {
         const { id, isVerified } = user.toJSON();
 
         if (!isVerified) {
-            var verificationCodeData = await codeService.createVerificationCode(id);
+            var verificationCodeData = await codeService.createVerificationCode(
+                id
+            );
         }
 
         return {
@@ -35,7 +39,10 @@ class AuthService {
             this.throwInvalidLoginOrPassword();
         }
 
-        const comparePassword = await bcrypt.compare(password, user.get('password'));
+        const comparePassword = await bcrypt.compare(
+            password,
+            user.get('password')
+        );
 
         if (!comparePassword) {
             this.throwInvalidLoginOrPassword();
@@ -44,7 +51,9 @@ class AuthService {
         const { id, isVerified } = user.toJSON();
 
         if (!isVerified) {
-            var verificationCodeData = await codeService.createVerificationCode(id);
+            var verificationCodeData = await codeService.createVerificationCode(
+                id
+            );
         }
 
         return {

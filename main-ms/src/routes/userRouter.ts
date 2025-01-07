@@ -1,15 +1,15 @@
-import { Router } from "express";
-import { body, param, query } from "express-validator";
+import { Router } from 'express';
+import { body, param, query } from 'express-validator';
 
-import { accessTokenMiddleware } from "../middlewares/accessTokenMiddleware";
-import userController from "../controllers/userController";
-import { userProfileMiddleware } from "../middlewares/userProfileMiddleware";
-import { fileMiddleware } from "../middlewares/fileMiddleware";
-import { imageMiddleware } from "../middlewares/imageMiddleware";
-import { validationMiddleware } from "../middlewares/validationMiddleware";
-import { paginationMiddleware } from "../middlewares/paginationMiddleware";
-import avatarDecorationController from "../controllers/store/avatarDecorationController";
-import themeController from "../controllers/store/themeController";
+import { accessTokenMiddleware } from '@middlewares/accessTokenMiddleware';
+import userController from '@controllers/userController';
+import { userProfileMiddleware } from '@middlewares/userProfileMiddleware';
+import { fileMiddleware } from '@middlewares/fileMiddleware';
+import { imageMiddleware } from '@middlewares/imageMiddleware';
+import { validationMiddleware } from '@middlewares/validationMiddleware';
+import { paginationMiddleware } from '@middlewares/paginationMiddleware';
+import avatarDecorationController from '@controllers/store/avatarDecorationController';
+import themeController from '@controllers/store/themeController';
 
 export const userRouter = Router();
 
@@ -144,7 +144,9 @@ userRouter.get(
 
 userRouter.get(
     '/',
-    query('search').isString().withMessage('Параметр search является обязательным.'),
+    query('search')
+        .isString()
+        .withMessage('Параметр search является обязательным.'),
     validationMiddleware,
     paginationMiddleware,
     accessTokenMiddleware(true),

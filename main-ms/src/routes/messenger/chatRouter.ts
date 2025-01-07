@@ -1,14 +1,13 @@
-import { Router } from "express";
-import { body, param, query } from "express-validator";
+import { Router } from 'express';
+import { body, param, query } from 'express-validator';
 
-import { accessTokenMiddleware } from "../../middlewares/accessTokenMiddleware";
-import { paginationMiddleware } from "../../middlewares/paginationMiddleware";
-import chatController from "../../controllers/messenger/chatController";
-import { fileMiddleware } from "../../middlewares/fileMiddleware";
-import { imageMiddleware } from "../../middlewares/imageMiddleware";
-import { validationMiddleware } from "../../middlewares/validationMiddleware";
-import { groupUsersMiddleware } from "../../middlewares/messenger/groupUsersMiddleware";
-
+import { accessTokenMiddleware } from '@middlewares/accessTokenMiddleware';
+import { paginationMiddleware } from '@middlewares/paginationMiddleware';
+import chatController from '@controllers/messenger/chatController';
+import { fileMiddleware } from '@middlewares/fileMiddleware';
+import { imageMiddleware } from '@middlewares/imageMiddleware';
+import { validationMiddleware } from '@middlewares/validationMiddleware';
+import { groupUsersMiddleware } from '@middlewares/messenger/groupUsersMiddleware';
 
 export const chatRouter = Router();
 
@@ -65,11 +64,7 @@ chatRouter.delete(
     chatController.removeUserFromChat
 );
 
-chatRouter.get(
-    '/:id',
-    accessTokenMiddleware(true),
-    chatController.getChatInfo
-);
+chatRouter.get('/:id', accessTokenMiddleware(true), chatController.getChatInfo);
 
 chatRouter.get(
     '/:id/user',

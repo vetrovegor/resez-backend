@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
 
-import { validationMiddleware } from '../../middlewares/validationMiddleware';
-import subscriptionController from '../../controllers/subscriptionController';
+import { validationMiddleware } from '@middlewares/validationMiddleware';
+import subscriptionController from '@controllers/subscriptionController';
 
 export const subscriptionRouter = Router();
 

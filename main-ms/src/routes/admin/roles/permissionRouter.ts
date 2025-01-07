@@ -1,10 +1,9 @@
-import { Router } from "express";
+import { Router } from 'express';
 
-import permissionController from "../../../controllers/roles/permissionController";
-import { accessTokenMiddleware } from "../../../middlewares/accessTokenMiddleware";
-import { blockedMiddleware } from "../../../middlewares/blockedMiddleware";
-import { permissionMiddleware } from "../../../middlewares/permissionMiddleware";
-import { Permissions } from "types/permission";
+import permissionController from '@controllers/roles/permissionController';
+import { accessTokenMiddleware } from '@middlewares/accessTokenMiddleware';
+import { permissionMiddleware } from '@middlewares/permissionMiddleware';
+import { Permissions } from 'src/types/permission';
 
 export const permissionRouter = Router();
 

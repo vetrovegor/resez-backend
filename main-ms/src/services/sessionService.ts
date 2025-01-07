@@ -3,15 +3,15 @@ import geoip from 'geoip-lite';
 import { Details } from 'express-useragent';
 import { Op } from 'sequelize';
 
-import { UserTokenInfo } from 'types/user';
+import { UserTokenInfo } from 'src/types/user';
 import {
     ReqInfo,
     SessionDTO,
     SessionPagination,
     SessionSaveResult
-} from 'types/session';
+} from 'src/types/session';
 import tokenService from './tokenService';
-import Session from '../db/models/Session';
+import Session from '@db/models/Session';
 import { PaginationDTO } from '../dto/PaginationDTO';
 import { ApiError } from '../ApiError';
 import rmqService from './rmqService';

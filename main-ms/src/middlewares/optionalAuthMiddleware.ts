@@ -1,7 +1,7 @@
 import { Response, NextFunction } from 'express';
 
-import { RequestWithUser } from 'types/request';
-import tokenService from '../services/tokenService';
+import { RequestWithUser } from 'src/types/request';
+import tokenService from '@services/tokenService';
 
 export const optionalAuthMiddleware = async (
     req: RequestWithUser,

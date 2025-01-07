@@ -1,8 +1,12 @@
-import { Op } from "sequelize";
+import { Op } from 'sequelize';
 
-import Permission from "../../db/models/roles/Permission";
-import { PermissionHierarchy, PermissionHierarchyItem, Permissions } from "types/permission";
-import { ApiError } from "../../ApiError";
+import Permission from '@db/models/roles/Permission';
+import {
+    PermissionHierarchy,
+    PermissionHierarchyItem,
+    Permissions
+} from 'src/types/permission';
+import { ApiError } from '../../ApiError';
 
 const permissionsHierarchy = [
     {
@@ -142,22 +146,27 @@ const permissionsHierarchy = [
     }
 ];
 
-
 class PermissionService {
     async initPermissions() {
         const permissions = [];
 
         for (const { permission, parent } of permissionsHierarchy) {
-            const existedPermission = await this.getPermissionByPermission(permission);
+            const existedPermission = await this.getPermissionByPermission(
+                permission
+            );
             let parentId = null;
 
-
             if (parent) {
-                const parentPermission = await this.getPermissionByPermission(parent);
+                const parentPermission = await this.getPermissionByPermission(
+                    parent
+                );
                 parentId = parentPermission.id;
             }
 
-            if (existedPermission && existedPermission.get('parentId') != parentId) {
+            if (
+                existedPermission &&
+                existedPermission.get('parentId') != parentId
+            ) {
                 existedPermission.set('parentId', parent ? parentId : null);
                 await existedPermission.save();
             }
@@ -202,13 +211,19 @@ class PermissionService {
 
         for (const permissionId of permissionIDs) {
             if (isNaN(permissionId)) {
-                throw ApiError.badRequest(`Некорректное значение id: ${permissionId}`);
+                throw ApiError.badRequest(
+                    `Некорректное значение id: ${permissionId}`
+                );
             }
 
-            const existedPermission = await this.getPermissionById(permissionId);
+            const existedPermission = await this.getPermissionById(
+                permissionId
+            );
 
             if (!existedPermission) {
-                throw ApiError.badRequest(`permission с id ${permissionId} не найден`);
+                throw ApiError.badRequest(
+                    `permission с id ${permissionId} не найден`
+                );
             }
         }
 
@@ -223,17 +238,17 @@ class PermissionService {
         const permissionsMap: PermissionHierarchy = {};
         const topLevelPermissions: PermissionHierarchyItem[] = [];
 
-        permissions.forEach((permissionItem) => {
+        permissions.forEach(permissionItem => {
             const { id, permission } = permissionItem;
 
             permissionsMap[id] = {
                 id,
                 permission,
-                childrens: [],
+                childrens: []
             };
         });
 
-        permissions.forEach((permissionItem) => {
+        permissions.forEach(permissionItem => {
             const { id, parentId } = permissionItem;
 
             if (parentId === null) {

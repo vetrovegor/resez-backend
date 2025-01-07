@@ -6,6 +6,7 @@ import fileUpload from 'express-fileupload';
 import swaggerUi from 'swagger-ui-express';
 import cron from 'node-cron';
 import { collectDefaultMetrics, register } from 'prom-client';
+import 'module-alias/register';
 import 'dotenv/config';
 import yamljs from 'yamljs';
 

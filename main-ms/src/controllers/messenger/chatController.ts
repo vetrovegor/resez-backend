@@ -11,9 +11,9 @@ import {
     RequestWithParamsAndQueryAndUser,
     RequestWithParamsAndUser,
     RequestWithQueryAndUser
-} from 'types/request';
-import { GroupCreateRequestDTO, UserChatParams } from 'types/messenger';
-import chatService from '../../services/messenger/chatService';
+} from 'src/types/request';
+import { GroupCreateRequestDTO, UserChatParams } from 'src/types/messenger';
+import chatService from '@services/messenger/chatService';
 
 class ChatController {
     async getUserChats(

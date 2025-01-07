@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { body, param, query } from 'express-validator';
 
-import { accessTokenMiddleware } from '../../middlewares/accessTokenMiddleware';
-import { permissionMiddleware } from '../../middlewares/permissionMiddleware';
-import promoCodeController from '../../controllers/promoCodeController';
-import { validationMiddleware } from '../../middlewares/validationMiddleware';
-import { paginationMiddleware } from '../../middlewares/paginationMiddleware';
-import { Permissions } from 'types/permission';
+import { accessTokenMiddleware } from '@middlewares/accessTokenMiddleware';
+import { permissionMiddleware } from '@middlewares/permissionMiddleware';
+import promoCodeController from '@controllers/promoCodeController';
+import { validationMiddleware } from '@middlewares/validationMiddleware';
+import { paginationMiddleware } from '@middlewares/paginationMiddleware';
+import { Permissions } from 'src/types/permission';
 
 export const promoCodeRouter = Router();
 

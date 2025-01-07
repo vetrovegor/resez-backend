@@ -1,7 +1,14 @@
-import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from "sequelize-typescript";
+import {
+    Table,
+    Column,
+    Model,
+    DataType,
+    ForeignKey,
+    BelongsTo
+} from 'sequelize-typescript';
 
-import User from "../User";
-import Chat from "./Chat";
+import User from '../User';
+import Chat from './Chat';
 
 @Table({
     timestamps: false,

@@ -1,8 +1,8 @@
 import { Response, NextFunction } from 'express';
 
 import { ApiError } from '../ApiError';
-import tokenService from '../services/tokenService';
-import { RequestWithUser } from 'types/request';
+import tokenService from '@services/tokenService';
+import { RequestWithUser } from 'src/types/request';
 
 export const refreshTokenMiddleware = async (
     req: RequestWithUser,

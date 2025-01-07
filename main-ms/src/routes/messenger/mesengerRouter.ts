@@ -1,7 +1,7 @@
-import { Router } from "express";
+import { Router } from 'express';
 
-import { chatRouter } from "./chatRouter";
-import { messageRouter } from "./messageRouter";
+import { chatRouter } from './chatRouter';
+import { messageRouter } from './messageRouter';
 
 export const messengerRouter = Router();
 

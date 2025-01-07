@@ -1,9 +1,9 @@
-import { Router } from "express";
+import { Router } from 'express';
 
-import achievementController from "../../controllers/achievementController";
-import { accessTokenMiddleware } from "../../middlewares/accessTokenMiddleware";
-import { permissionMiddleware } from "../../middlewares/permissionMiddleware";
-import { Permissions } from "types/permission";
+import achievementController from '@controllers/achievementController';
+import { accessTokenMiddleware } from '@middlewares/accessTokenMiddleware';
+import { permissionMiddleware } from '@middlewares/permissionMiddleware';
+import { Permissions } from 'src/types/permission';
 
 export const achievementRouter = Router();
 

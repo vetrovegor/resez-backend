@@ -1,9 +1,9 @@
-import User from 'db/models/User';
+import User from '@db/models/User';
 import { PermissionDTO } from './permission';
 import { VerificationCodeData } from './code';
 import { RolePreview } from './role';
-import { SubscriptionDTO, UserSubscription } from './subscription';
-import Subscription from 'db/models/subscription/Subscription';
+import { UserSubscription } from './subscription';
+import Subscription from '@db/models/subscription/Subscription';
 import { ThemeBasic } from './store';
 
 export type UserAuthDTO = {

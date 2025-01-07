@@ -1,14 +1,14 @@
-import { Router } from "express";
+import { Router } from 'express';
 
-import { roleRouter } from "./roles/roleRouter";
-import { archiveRouter } from "./archiveRouter";
-import { permissionRouter } from "./roles/permissionRouter";
-import { userRouter } from "./userRouter";
-import { subscriptionRouter } from "./subscriptionRouter";
-import { storeRouter } from "./store/storeRouter";
-import { feedbackRouter } from "./feedbackRouter";
-import { promoCodeRouter } from "./promoCodeRouter";
-import { achievementRouter } from "./achievementRouter";
+import { roleRouter } from './roles/roleRouter';
+import { archiveRouter } from './archiveRouter';
+import { permissionRouter } from './roles/permissionRouter';
+import { userRouter } from './userRouter';
+import { subscriptionRouter } from './subscriptionRouter';
+import { storeRouter } from './store/storeRouter';
+import { feedbackRouter } from './feedbackRouter';
+import { promoCodeRouter } from './promoCodeRouter';
+import { achievementRouter } from './achievementRouter';
 
 export const adminRouter = Router();
 

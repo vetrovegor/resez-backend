@@ -1,17 +1,17 @@
-import { Router } from "express";
+import { Router } from 'express';
 
-import { healthRouter } from "./healthRouter";
-import { authRouter } from "./authRouter";
-import { userRouter } from "./userRouter";
-import { sessionRouter } from "./sessionRouter";
-import { adminRouter } from "./admin/adminRouter";
-import { messengerRouter } from "./messenger/mesengerRouter";
-import { achievementRouter } from "./achievementRouter";
-import { storeRouter } from "./store/storeRouter";
-import { subscriptionRouter } from "./subscriptionRouter";
-import { feedbackRouter } from "./feedbackRouter";
-import { promoCodeRouter } from "./promoCodeRouter";
-import { liveKitRouter } from "./liveKitRouter";
+import { healthRouter } from './healthRouter';
+import { authRouter } from './authRouter';
+import { userRouter } from './userRouter';
+import { sessionRouter } from './sessionRouter';
+import { adminRouter } from './admin/adminRouter';
+import { messengerRouter } from './messenger/mesengerRouter';
+import { achievementRouter } from './achievementRouter';
+import { storeRouter } from './store/storeRouter';
+import { subscriptionRouter } from './subscriptionRouter';
+import { feedbackRouter } from './feedbackRouter';
+import { promoCodeRouter } from './promoCodeRouter';
+import { liveKitRouter } from './liveKitRouter';
 
 export const router = Router();
 

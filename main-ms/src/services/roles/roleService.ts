@@ -1,15 +1,15 @@
 import { Op } from 'sequelize';
 
-import Role from '../../db/models/roles/Role';
+import Role from '@db/models/roles/Role';
 import { ApiError } from '../../ApiError';
 import userService from '../userService';
 import permissionService from './permissionService';
-import RolePermission from '../../db/models/roles/RolePermission';
-import UserRole from '../../db/models/UserRole';
-import { RoleFullInfo, RoleShortInfo } from 'types/role';
+import RolePermission from '@db/models/roles/RolePermission';
+import UserRole from '@db/models/UserRole';
+import { RoleFullInfo, RoleShortInfo } from 'src/types/role';
 import { PaginationDTO } from '../../dto/PaginationDTO';
-import rmqService from '../../services/rmqService';
-import { EmitTypes } from 'enums/socket';
+import rmqService from '@services/rmqService';
+import { EmitTypes } from '../../enums/socket';
 import { Queues } from '../../enums/rmq';
 
 class RoleService {

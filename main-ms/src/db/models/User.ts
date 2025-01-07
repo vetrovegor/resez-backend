@@ -16,7 +16,7 @@ import {
     UserProfilePreview,
     UserShortInfo,
     UserTokenInfo
-} from 'types/user';
+} from 'src/types/user';
 import Session from './Session';
 import Code from './Code';
 import UserRole from './UserRole';
@@ -24,8 +24,8 @@ import Role from './roles/Role';
 import Message from './messenger/Message';
 import Chat from './messenger/Chat';
 import UserChat from './messenger/UserChat';
-import { PermissionDTO } from 'types/permission';
-import { calculateLevelInfo } from '../../utils';
+import { PermissionDTO } from 'src/types/permission';
+import { calculateLevelInfo } from '@utils';
 import Activity from './Activity';
 import MessageRead from './messenger/MessageRead';
 import Subscription from './subscription/Subscription';

@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import { UploadedFile } from 'express-fileupload';
 import { Op } from 'sequelize';
 
-import User from '../db/models/User';
+import User from '@db/models/User';
 import { ApiError } from '../ApiError';
 import {
     UserAdminInfo,
@@ -10,11 +10,11 @@ import {
     UserProfileInfo,
     UserSettingsInfo,
     UserShortInfo
-} from 'types/user';
+} from 'src/types/user';
 import { PaginationDTO } from '../dto/PaginationDTO';
 import { EmitTypes } from '../enums/socket';
-import { calculateLevelInfo, getArraysIntersection } from '../utils';
-import UserRole from '../db/models/UserRole';
+import { calculateLevelInfo, getArraysIntersection } from '@utils';
+import UserRole from '@db/models/UserRole';
 import fileService from './fileService';
 import rmqService from './rmqService';
 import { redisClient } from '../redisClient';

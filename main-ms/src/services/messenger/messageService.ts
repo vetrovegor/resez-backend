@@ -1,15 +1,15 @@
 import { Op } from 'sequelize';
 import { UploadedFile } from 'express-fileupload';
 
-import { MessageDTO, MessageFileRequestBodyDTO, MessageTypes } from 'types/messenger';
-import Message from '../../db/models/messenger/Message';
+import { MessageDTO, MessageFileRequestBodyDTO, MessageTypes } from 'src/types/messenger';
+import Message from '@db/models/messenger/Message';
 import chatService from './chatService';
 import messageTypeService from './messageTypeService';
 import { ApiError } from '../../ApiError';
 import { EmitTypes } from '../../enums/socket';
-import UserMessage from '../../db/models/messenger/UserMessage';
-import MessageRead from '../../db/models/messenger/MessageRead';
-import rmqService from '../../services/rmqService';
+import UserMessage from '@db/models/messenger/UserMessage';
+import MessageRead from '@db/models/messenger/MessageRead';
+import rmqService from '@services/rmqService';
 import { Queues } from '../../enums/rmq';
 import messageFileService from './messageFileService';
 

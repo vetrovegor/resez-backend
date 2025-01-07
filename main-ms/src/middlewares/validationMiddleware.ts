@@ -1,9 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 
-import { ApiError } from "../ApiError";
+import { ApiError } from '../ApiError';
 
-export const validationMiddleware = (req: Request, res: Response, next: NextFunction) => {
+export const validationMiddleware = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -11,4 +15,4 @@ export const validationMiddleware = (req: Request, res: Response, next: NextFunc
     }
 
     return next();
-}
+};

@@ -5,8 +5,8 @@ import {
     RequestWithParamsAndUser,
     RequestWithQueryAndUser,
     IdParam
-} from 'types/request';
-import sessionService from '../services/sessionService';
+} from 'src/types/request';
+import sessionService from '@services/sessionService';
 
 class SessionController {
     async getUserSessions(

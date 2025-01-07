@@ -1,16 +1,16 @@
 import { Router } from 'express';
 import { body, param } from 'express-validator';
 
-import avatarDecorationController from '../../../controllers/store/avatarDecorationController';
-import { fileMiddleware } from '../../../middlewares/fileMiddleware';
-import { accessTokenMiddleware } from '../../../middlewares/accessTokenMiddleware';
-import { blockedMiddleware } from '../../../middlewares/blockedMiddleware';
-import { avatarDecorationMiddleware } from '../../../middlewares/store/avatarDecorationMiddleware';
-import { permissionMiddleware } from '../../../middlewares/permissionMiddleware';
-import { Permissions } from 'types/permission';
-import { paginationMiddleware } from '../../../middlewares/paginationMiddleware';
-import { validationMiddleware } from '../../../middlewares/validationMiddleware';
-import { productMiddleware } from '../../../middlewares/store/productMiddleware';
+import avatarDecorationController from '@controllers/store/avatarDecorationController';
+import { fileMiddleware } from '@middlewares/fileMiddleware';
+import { accessTokenMiddleware } from '@middlewares/accessTokenMiddleware';
+import { blockedMiddleware } from '@middlewares/blockedMiddleware';
+import { avatarDecorationMiddleware } from '@middlewares/store/avatarDecorationMiddleware';
+import { permissionMiddleware } from '@middlewares/permissionMiddleware';
+import { Permissions } from 'src/types/permission';
+import { paginationMiddleware } from '@middlewares/paginationMiddleware';
+import { validationMiddleware } from '@middlewares/validationMiddleware';
+import { productMiddleware } from '@middlewares/store/productMiddleware';
 
 export const avatarDecorationRouter = Router();
 

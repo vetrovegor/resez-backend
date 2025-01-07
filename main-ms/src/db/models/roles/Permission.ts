@@ -1,8 +1,16 @@
-import { Table, Column, Model, DataType, ForeignKey, BelongsToMany, HasMany } from "sequelize-typescript";
+import {
+    Table,
+    Column,
+    Model,
+    DataType,
+    ForeignKey,
+    BelongsToMany,
+    HasMany
+} from 'sequelize-typescript';
 
-import Role from "./Role";
-import RolePermission from "./RolePermission";
-import { PermissionDTO } from "types/permission";
+import Role from './Role';
+import RolePermission from './RolePermission';
+import { PermissionDTO } from 'src/types/permission';
 
 @Table({
     timestamps: false,
@@ -35,7 +43,9 @@ class Permission extends Model {
             }
         });
 
-        let childPermissionIDs = childPermissions.map(permission => permission.id);
+        let childPermissionIDs = childPermissions.map(
+            permission => permission.id
+        );
 
         for (const permission of childPermissions) {
             const grandchildrenIDs = await permission.getChildPermissionIDs();

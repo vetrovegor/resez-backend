@@ -1,14 +1,25 @@
 {
     "compilerOptions": {
-        "module": "NodeNext",
-        "moduleResolution": "NodeNext",
+        "module": "commonjs",
+        "target": "ES2021",
+        // "moduleResolution": "node",
         "esModuleInterop": true,
-        "baseUrl": "./src",
+        "rootDir": "./src/",
+        "baseUrl": "./",
         "outDir": "./build",
         "noImplicitAny": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
-        "resolveJsonModule": true
+        "resolveJsonModule": true,
+        // "typeRoots": ["./node_modules/@types", "./src/types"],
+        "paths": {
+            "@middlewares/*": ["src/middlewares/*"],
+            "@controllers/*": ["src/controllers/*"],
+            "@services/*": ["src/services/*"],
+            "@db/*": ["src/db/*"],
+            "@utils/*": ["src/utils/*"]
+            // "@types/*": ["src/types/*"]
+        }
     },
     "include": ["src/**/*", "src/static", "seeders"]
 }

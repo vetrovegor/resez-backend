@@ -1,9 +1,9 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
-import { UserTokenInfo } from 'types/user';
-import Token from '../db/models/Token';
-import { Tokens } from 'types/session';
-import User from '../db/models/User';
+import { UserTokenInfo } from 'src/types/user';
+import Token from '@db/models/Token';
+import { Tokens } from 'src/types/session';
+import User from '@db/models/User';
 import { v4 } from 'uuid';
 
 class TokenService {

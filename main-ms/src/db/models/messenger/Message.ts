@@ -11,11 +11,11 @@ import {
 import User from '../User';
 import Chat from './Chat';
 import MessageType from './MessageType';
-import { MessageDTO, MessageFileDTO, MessageReader } from 'types/messenger';
+import { MessageDTO, MessageFileDTO, MessageReader } from 'src/types/messenger';
 import UserMessage from './UserMessage';
 import MessageRead from './MessageRead';
 import MessageFile from './MessageFile';
-import { formatFileSize } from '../../../utils';
+import { formatFileSize } from '@utils';
 
 @Table({
     timestamps: true,

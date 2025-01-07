@@ -1,4 +1,4 @@
-import { UserPreview } from "./user";
+import { UserPreview } from './user';
 
 export type PromoCodeBodyDTO = {
     code: string;
@@ -10,4 +10,4 @@ export type PromoCodeBodyDTO = {
 
 export type UserPromocodeUsage = UserPreview & {
     date: Date;
-}
+};

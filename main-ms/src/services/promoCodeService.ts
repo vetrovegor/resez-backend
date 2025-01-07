@@ -1,11 +1,11 @@
 import { Op } from 'sequelize';
 
-import PromoCode from '../db/models/promo/PromoCode';
-import UserPromocode from '../db/models/promo/UserPromoCode';
+import PromoCode from '@db/models/promo/PromoCode';
+import UserPromocode from '@db/models/promo/UserPromoCode';
 import { ApiError } from '../ApiError';
 import userService from './userService';
 import { PaginationDTO } from '../dto/PaginationDTO';
-import { UserPromocodeUsage } from 'types/promoCode';
+import { UserPromocodeUsage } from 'src/types/promoCode';
 
 class PromoCodeService {
     async createDto(promocode: PromoCode) {

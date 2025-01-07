@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from "express";
-import { UploadedFile } from "express-fileupload";
+import { Request, Response, NextFunction } from 'express';
+import { UploadedFile } from 'express-fileupload';
 
-import { ApiError } from "../ApiError";
+import { ApiError } from '../ApiError';
 
 export const fileMiddleware = (maxMb: number, required: boolean = true) => {
     return async (req: Request, res: Response, next: NextFunction) => {
@@ -17,7 +17,9 @@ export const fileMiddleware = (maxMb: number, required: boolean = true) => {
                 const fileName = file.name;
 
                 if (file.size > maxMb * 1024 * 1024) {
-                    throw ApiError.badRequest(`Размер файла ${fileName} превышает ${maxMb} МБ`);
+                    throw ApiError.badRequest(
+                        `Размер файла ${fileName} превышает ${maxMb} МБ`
+                    );
                 }
             }
 
@@ -25,5 +27,5 @@ export const fileMiddleware = (maxMb: number, required: boolean = true) => {
         } catch (error) {
             next(error);
         }
-    }
-}
+    };
+};

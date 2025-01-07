@@ -9,9 +9,9 @@ import {
     RequestWithParams,
     RequestWithQueryAndUser,
     IDsQuery
-} from 'types/request';
-import messageService from '../../services/messenger/messageService';
-import { MessageRequestBodyDTO } from 'types/messenger';
+} from 'src/types/request';
+import messageService from '@services/messenger/messageService';
+import { MessageRequestBodyDTO } from 'src/types/messenger';
 
 class MessageController {
     async sendMessageToUser(

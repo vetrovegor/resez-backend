@@ -1,8 +1,8 @@
-import { Router } from "express";
-import { body } from "express-validator";
+import { Router } from 'express';
+import { body } from 'express-validator';
 
-import { optionalAuthMiddleware } from "../middlewares/optionalAuthMiddleware";
-import feedbackController from "../controllers/feedbackController";
+import { optionalAuthMiddleware } from '@middlewares/optionalAuthMiddleware';
+import feedbackController from '@controllers/feedbackController';
 
 export const feedbackRouter = Router();
 

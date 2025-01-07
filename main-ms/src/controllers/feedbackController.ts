@@ -5,9 +5,9 @@ import {
     RequestWithBodyAndUser,
     RequestWithParams,
     RequestWithQuery
-} from 'types/request';
+} from 'src/types/request';
 
-import feedbackService from '../services/feedbackService';
+import feedbackService from '@services/feedbackService';
 
 class FeedbackController {
     async createFeedback(

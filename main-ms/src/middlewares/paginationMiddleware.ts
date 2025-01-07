@@ -1,6 +1,6 @@
 import { Response, NextFunction } from 'express';
 
-import { PaginationQuery, RequestWithQuery } from 'types/request.js';
+import { PaginationQuery, RequestWithQuery } from 'src/types/request.js';
 import { ApiError } from '../ApiError';
 
 export const paginationMiddleware = async (

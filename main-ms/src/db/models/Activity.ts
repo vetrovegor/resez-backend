@@ -1,9 +1,16 @@
-import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from "sequelize-typescript";
-import User from "./User";
+import {
+    Table,
+    Column,
+    Model,
+    DataType,
+    ForeignKey,
+    BelongsTo
+} from 'sequelize-typescript';
+import User from './User';
 
 @Table({
     timestamps: true,
-    tableName: "activity"
+    tableName: 'activity'
 })
 class Activity extends Model {
     @Column({

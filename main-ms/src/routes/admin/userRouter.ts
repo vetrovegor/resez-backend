@@ -1,12 +1,12 @@
-import { Router } from "express";
+import { Router } from 'express';
 
-import { paginationMiddleware } from "../../middlewares/paginationMiddleware";
-import { accessTokenMiddleware } from "../../middlewares/accessTokenMiddleware";
-import { permissionMiddleware } from "../../middlewares/permissionMiddleware";
-import { Permissions } from "types/permission";
-import userController from "../../controllers/userController";
-import { body, param, query } from "express-validator";
-import { validationMiddleware } from "../../middlewares/validationMiddleware";
+import { paginationMiddleware } from '@middlewares/paginationMiddleware';
+import { accessTokenMiddleware } from '@middlewares/accessTokenMiddleware';
+import { permissionMiddleware } from '@middlewares/permissionMiddleware';
+import { Permissions } from 'src/types/permission';
+import userController from '@controllers/userController';
+import { body, param, query } from 'express-validator';
+import { validationMiddleware } from '@middlewares/validationMiddleware';
 
 export const userRouter = Router();
 
@@ -14,7 +14,7 @@ userRouter.get(
     '/stats',
     accessTokenMiddleware(true),
     permissionMiddleware(Permissions.Admin),
-    userController.getStats   
+    userController.getStats
 );
 
 userRouter.get(
@@ -31,7 +31,7 @@ userRouter.get(
     paginationMiddleware,
     accessTokenMiddleware(true),
     permissionMiddleware(Permissions.Users),
-    userController.getUsers   
+    userController.getUsers
 );
 
 userRouter.get(
@@ -40,7 +40,7 @@ userRouter.get(
     validationMiddleware,
     accessTokenMiddleware(true),
     permissionMiddleware(Permissions.Users),
-    userController.getAdminUserProfileInfo   
+    userController.getAdminUserProfileInfo
 );
 
 userRouter.get(
@@ -49,7 +49,7 @@ userRouter.get(
     validationMiddleware,
     accessTokenMiddleware(true),
     permissionMiddleware(Permissions.Users),
-    userController.getAdminUserBasicInfo   
+    userController.getAdminUserBasicInfo
 );
 
 userRouter.get(
@@ -59,7 +59,7 @@ userRouter.get(
     validationMiddleware,
     accessTokenMiddleware(true),
     permissionMiddleware(Permissions.Users),
-    userController.getUserSessions   
+    userController.getUserSessions
 );
 
 userRouter.patch(
@@ -69,7 +69,7 @@ userRouter.patch(
     body('reason').isString().optional(),
     accessTokenMiddleware(true),
     permissionMiddleware(Permissions.BlockUsers),
-    userController.blockUser   
+    userController.blockUser
 );
 
 userRouter.patch(
@@ -78,7 +78,7 @@ userRouter.patch(
     validationMiddleware,
     accessTokenMiddleware(true),
     permissionMiddleware(Permissions.BlockUsers),
-    userController.unblockUser   
+    userController.unblockUser
 );
 
 // убрать
@@ -86,7 +86,7 @@ userRouter.patch(
     '/increase-xp',
     body('nickname').isString(),
     body('xp').isNumeric(),
-    userController.increaseXP   
+    userController.increaseXP
 );
 
 userRouter.patch(
@@ -97,7 +97,7 @@ userRouter.patch(
     validationMiddleware,
     accessTokenMiddleware(true),
     permissionMiddleware(Permissions.Users),
-    userController.addCoins   
+    userController.addCoins
 );
 
 userRouter.get(
@@ -107,7 +107,7 @@ userRouter.get(
     paginationMiddleware,
     accessTokenMiddleware(true),
     permissionMiddleware(Permissions.AssignRoles),
-    userController.getUserRoles   
+    userController.getUserRoles
 );
 
 userRouter.delete(
@@ -116,5 +116,5 @@ userRouter.delete(
     validationMiddleware,
     accessTokenMiddleware(true),
     permissionMiddleware(Permissions.Users),
-    userController.removeSubscriptionFromUser   
+    userController.removeSubscriptionFromUser
 );

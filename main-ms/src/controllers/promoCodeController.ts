@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 
-import promoCodeService from '../services/promoCodeService';
+import promoCodeService from '@services/promoCodeService';
 import {
     IdParam,
     PaginationQuery,
@@ -8,8 +8,8 @@ import {
     RequestWithParams,
     RequestWithParamsAndQuery,
     RequestWithQuery
-} from 'types/request';
-import { PromoCodeBodyDTO } from 'types/promoCode';
+} from 'src/types/request';
+import { PromoCodeBodyDTO } from 'src/types/promoCode';
 
 class PromoCodeController {
     async createPromoCode(

@@ -1,7 +1,7 @@
 import { Response, NextFunction } from 'express';
 
-import liveKitService from '../services/liveKitService';
-import { RequestWithQuery } from 'types/request';
+import liveKitService from '@services/liveKitService';
+import { RequestWithQuery } from 'src/types/request';
 
 class LiveKitController {
     async getToken(

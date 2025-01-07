@@ -1,12 +1,20 @@
-import { Table, Column, Model, DataType, HasMany, ForeignKey, BelongsTo } from "sequelize-typescript";
+import {
+    Table,
+    Column,
+    Model,
+    DataType,
+    HasMany,
+    ForeignKey,
+    BelongsTo
+} from 'sequelize-typescript';
 
-import Token from "./Token";
-import User from "./User";
-import { SessionDTO } from "types/session";
+import Token from './Token';
+import User from './User';
+import { SessionDTO } from 'src/typessession';
 
 @Table({
     timestamps: false,
-    tableName: "sessions"
+    tableName: 'sessions'
 })
 class Session extends Model {
     @Column({
@@ -78,7 +86,19 @@ class Session extends Model {
     tokens: Token[];
 
     toDTO(): SessionDTO {
-        const { id, isActive, date, ip, deviceType, country, city, browser, browserVersion, os, platform } = this.get();
+        const {
+            id,
+            isActive,
+            date,
+            ip,
+            deviceType,
+            country,
+            city,
+            browser,
+            browserVersion,
+            os,
+            platform
+        } = this.get();
 
         return {
             id,
@@ -91,7 +111,7 @@ class Session extends Model {
             browser,
             browserVersion,
             os,
-            platform,
+            platform
         };
     }
 }

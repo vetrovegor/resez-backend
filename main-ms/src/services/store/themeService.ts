@@ -1,9 +1,9 @@
 import { PaginationDTO } from '../../dto/PaginationDTO';
-import Theme from '../../db/models/store/theme/Theme';
-import { ThemeDTO } from 'types/store';
+import Theme from '@db/models/store/theme/Theme';
+import { ThemeDTO } from 'src/types/store';
 import { ApiError } from '../../ApiError';
-import UserTheme from '../../db/models/store/theme/UserTheme';
-import userService from '../../services/userService';
+import UserTheme from '@db/models/store/theme/UserTheme';
+import userService from '@services/userService';
 
 class AvatarDecorationService {
     async createTheme({

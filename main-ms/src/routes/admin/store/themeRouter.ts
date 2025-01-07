@@ -1,14 +1,14 @@
 import { Router } from 'express';
 import { body, param } from 'express-validator';
 
-import { accessTokenMiddleware } from '../../../middlewares/accessTokenMiddleware';
-import { blockedMiddleware } from '../../../middlewares/blockedMiddleware';
-import { permissionMiddleware } from '../../../middlewares/permissionMiddleware';
-import { productMiddleware } from '../../../middlewares/store/productMiddleware';
-import { validationMiddleware } from '../../../middlewares/validationMiddleware';
-import themeController from '../../../controllers/store/themeController';
-import { paginationMiddleware } from '../../../middlewares/paginationMiddleware';
-import { Permissions } from 'types/permission';
+import { accessTokenMiddleware } from '@middlewares/accessTokenMiddleware';
+import { blockedMiddleware } from '@middlewares/blockedMiddleware';
+import { permissionMiddleware } from '@middlewares/permissionMiddleware';
+import { productMiddleware } from '@middlewares/store/productMiddleware';
+import { validationMiddleware } from '@middlewares/validationMiddleware';
+import themeController from '@controllers/store/themeController';
+import { paginationMiddleware } from '@middlewares/paginationMiddleware';
+import { Permissions } from 'src/types/permission';
 
 export const themeRouter = Router();
 

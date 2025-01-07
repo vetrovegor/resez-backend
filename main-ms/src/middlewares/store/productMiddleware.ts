@@ -1,10 +1,10 @@
 import { NextFunction } from 'express';
 
-import { RequestWithBody } from 'types/request';
-import { ProductDTO } from 'types/store';
-import achievementService from '../../services/achievementService';
+import { RequestWithBody } from 'src/types/request';
+import { ProductDTO } from 'src/types/store';
+import achievementService from '@services/achievementService';
 import { ApiError } from '../../ApiError';
-import subscriptionService from '../../services/subscribtionService';
+import subscriptionService from '@services/subscribtionService';
 
 export const productMiddleware = async (
     req: RequestWithBody<ProductDTO>,

@@ -1,11 +1,11 @@
 import { UploadedFile } from 'express-fileupload';
 
-import fileService from '../../services/fileService';
-import AvatarDecoration from '../../db/models/store/avatarDecoration/AvatarDecoration';
+import fileService from '@services/fileService';
+import AvatarDecoration from '@db/models/store/avatarDecoration/AvatarDecoration';
 import { PaginationDTO } from '../../dto/PaginationDTO';
 import { ApiError } from '../../ApiError';
-import UserAvatarDecoration from '../../db/models/store/avatarDecoration/UserAvatarDecoration';
-import userService from '../../services/userService';
+import UserAvatarDecoration from '@db/models/store/avatarDecoration/UserAvatarDecoration';
+import userService from '@services/userService';
 
 class AvatarDecorationService {
     createAvatarDecorationDto({

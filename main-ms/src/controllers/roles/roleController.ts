@@ -9,10 +9,10 @@ import {
     IdParam,
     RequestWithParamsAndUser,
     RequestWithQueryAndUser
-} from 'types/request';
-import roleService from '../../services/roles/roleService';
-import { ToggleRoleBodyDTO, RoleBodyDTO } from 'types/role';
-import permissionService from '../../services/roles/permissionService';
+} from 'src/types/request';
+import roleService from '@services/roles/roleService';
+import { ToggleRoleBodyDTO, RoleBodyDTO } from 'src/types/role';
+import permissionService from '@services/roles/permissionService';
 
 class RoleController {
     // убрать в будущем

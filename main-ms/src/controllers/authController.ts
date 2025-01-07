@@ -1,16 +1,16 @@
 import { Response, NextFunction, Request } from 'express';
 
-import authService from '../services/authService';
+import authService from '@services/authService';
 import {
     RequestWithBody,
     RequestWithParams,
     RequestWithUser
-} from 'types/request';
-import { UserAuthDTO, UserRecoveryPasswordDTO } from 'types/user';
-import sessionService from '../services/sessionService';
-import codeService from '../services/codeService';
-import userService from '../services/userService';
-import { CodeAuthParam } from 'types/code';
+} from 'src/types/request';
+import { UserAuthDTO, UserRecoveryPasswordDTO } from 'src/types/user';
+import { CodeAuthParam } from 'src/types/code';
+import sessionService from '@services/sessionService';
+import codeService from '@services/codeService';
+import userService from '@services/userService';
 
 class AuthController {
     async register(

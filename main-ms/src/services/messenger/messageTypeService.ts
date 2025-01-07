@@ -1,7 +1,7 @@
-import { Op } from "sequelize";
+import { Op } from 'sequelize';
 
-import MessageType from "../../db/models/messenger/MessageType";
-import { MessageTypes } from "types/messenger";
+import MessageType from '@db/models/messenger/MessageType';
+import { MessageTypes } from 'src/types/messenger';
 
 const initialTypes: string[] = [
     MessageTypes.Default,
@@ -13,7 +13,7 @@ const initialTypes: string[] = [
 
 class MessageTypeService {
     async initMessageTypes() {
-        initialTypes.forEach(async (type) => {
+        initialTypes.forEach(async type => {
             const existedType = await MessageType.findOne({
                 where: {
                     type

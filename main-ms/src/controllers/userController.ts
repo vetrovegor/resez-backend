@@ -14,19 +14,19 @@ import {
     RequestWithParamsAndUser,
     RequestWithQueryAndUser,
     RequestWithUser
-} from 'types/request';
+} from 'src/types/request';
 import {
     UserChangePasswordDTO,
     UserFiltersQuery,
     UserProfileInfo,
     UserSearchQuery,
     UserSettingsInfo
-} from 'types/user';
-import codeService from '../services/codeService';
-import userService from '../services/userService';
-import sessionService from '../services/sessionService';
-import roleService from '../services/roles/roleService';
-import achievementService from '../services/achievementService';
+} from 'src/types/user';
+import codeService from '@services/codeService';
+import userService from '@services/userService';
+import sessionService from '@services/sessionService';
+import roleService from '@services/roles/roleService';
+import achievementService from '@services/achievementService';
 
 class UserhController {
     async getUserShortInfo(

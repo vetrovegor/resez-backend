@@ -1,9 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 
-import { ApiError } from "../ApiError";
+import { ApiError } from '../ApiError';
 import logger from '../logger';
 
-export const errorMiddleWare = (err: TypeError, req: Request, res: Response, next: NextFunction) => {
+export const errorMiddleWare = (
+    err: TypeError,
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
     if (err instanceof ApiError) {
         return res.status(err.status).json({
             statusCode: err.status,
@@ -18,4 +23,4 @@ export const errorMiddleWare = (err: TypeError, req: Request, res: Response, nex
         error: true,
         message: 'Непредвиденная ошибка'
     });
-}
+};

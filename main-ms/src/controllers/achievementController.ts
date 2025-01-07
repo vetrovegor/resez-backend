@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 
-import achievementService from '../services/achievementService';
-import { RequestWithUser } from 'types/request';
+import achievementService from '@services/achievementService';
+import { RequestWithUser } from 'src/types/request';
 
 class AchievementController {
     async getSecretAchievement(

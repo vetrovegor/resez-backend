@@ -1,6 +1,6 @@
 import { Response, NextFunction } from 'express';
 
-import themeService from '../../services/store/themeService';
+import themeService from '@services/store/themeService';
 import {
     IdParam,
     PaginationQuery,
@@ -10,8 +10,8 @@ import {
     RequestWithParamsAndUser,
     RequestWithQuery,
     RequestWithQueryAndUser
-} from 'types/request';
-import { ThemeDTO } from 'types/store';
+} from 'src/types/request';
+import { ThemeDTO } from 'src/types/store';
 
 class ThemeController {
     async createTheme(

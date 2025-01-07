@@ -2,17 +2,17 @@ import { Op } from 'sequelize';
 import { UploadedFile } from 'express-fileupload';
 
 import { ApiError } from '../../ApiError';
-import Chat from '../../db/models/messenger/Chat';
-import UserChat from '../../db/models/messenger/UserChat';
+import Chat from '@db/models/messenger/Chat';
+import UserChat from '@db/models/messenger/UserChat';
 import { PaginationDTO } from '../../dto/PaginationDTO';
 import messageService from './messageService';
-import userService from '../../services/userService';
-import { ChatDTO, MessageTypes } from 'types/messenger';
-import { UserChatPreview, UserPreview } from 'types/user';
-import fileService from '../../services/fileService';
-import { generateInviteLink } from '../../utils';
+import userService from '@services/userService';
+import { ChatDTO, MessageTypes } from 'src/types/messenger';
+import { UserChatPreview, UserPreview } from 'src/types/user';
+import fileService from '@services/fileService';
+import { generateInviteLink } from '@utils';
 import { redisClient } from '../../redisClient';
-import rmqService from '../../services/rmqService';
+import rmqService from '@services/rmqService';
 import { Queues } from '../../enums/rmq';
 
 class ChatService {

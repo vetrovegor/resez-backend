@@ -1,5 +1,5 @@
 import { Response, NextFunction } from 'express';
-import { RequestWithBodyAndUser } from 'types/request';
+import { RequestWithBodyAndUser } from 'src/types/request';
 
 export const groupUsersMiddleware = async (
     req: RequestWithBodyAndUser<{ users: any }>,

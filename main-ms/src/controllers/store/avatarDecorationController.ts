@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import avatarDecorationService from '../../services/store/avatarDecorationService';
+import avatarDecorationService from '@services/store/avatarDecorationService';
 import {
     IdParam,
     PaginationQuery,
@@ -8,8 +8,8 @@ import {
     RequestWithParamsAndUser,
     RequestWithQuery,
     RequestWithQueryAndUser
-} from 'types/request';
-import { AvatarDecorationDTO } from 'types/store';
+} from 'src/types/request';
+import { AvatarDecorationDTO } from 'src/types/store';
 import { UploadedFile } from 'express-fileupload';
 
 class AvatarDecorationController {

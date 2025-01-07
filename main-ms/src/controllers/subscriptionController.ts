@@ -1,12 +1,12 @@
 import { Response, NextFunction, Request } from 'express';
 
-import subscriptionService from '../services/subscribtionService';
+import subscriptionService from '@services/subscribtionService';
 import {
     IdParam,
     RequestWithBody,
     RequestWithParamsAndUser
-} from 'types/request';
-import { AssignsubscriptionDTO } from 'types/subscription';
+} from 'src/types/request';
+import { AssignsubscriptionDTO } from 'src/types/subscription';
 
 class SubscriptionController {
     async assignSubscription(

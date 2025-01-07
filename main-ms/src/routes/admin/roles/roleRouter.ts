@@ -1,14 +1,13 @@
 import { Router } from 'express';
 import { body, param, query } from 'express-validator';
 
-import roleController from '../../../controllers/roles/roleController';
-import { validationMiddleware } from '../../../middlewares/validationMiddleware';
-import { accessTokenMiddleware } from '../../../middlewares/accessTokenMiddleware';
-import { blockedMiddleware } from '../../../middlewares/blockedMiddleware';
-import { permissionMiddleware } from '../../../middlewares/permissionMiddleware';
-import { Permissions } from 'types/permission';
-import { paginationMiddleware } from '../../../middlewares/paginationMiddleware';
-import { roleBodyMiddleware } from '../../../middlewares/roleBodyMiddleware';
+import roleController from '@controllers/roles/roleController';
+import { validationMiddleware } from '@middlewares/validationMiddleware';
+import { accessTokenMiddleware } from '@middlewares/accessTokenMiddleware';
+import { permissionMiddleware } from '@middlewares/permissionMiddleware';
+import { Permissions } from '../../../types/permission';
+import { paginationMiddleware } from '@middlewares/paginationMiddleware';
+import { roleBodyMiddleware } from '@middlewares/roleBodyMiddleware';
 
 export const roleRouter = Router();
 

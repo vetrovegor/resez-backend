@@ -1,14 +1,21 @@
-import { Table, Column, Model, DataType, BelongsToMany, HasMany } from "sequelize-typescript";
+import {
+    Table,
+    Column,
+    Model,
+    DataType,
+    BelongsToMany,
+    HasMany
+} from 'sequelize-typescript';
 
-import RolePermission from "./RolePermission";
-import Permission from "./Permission";
-import User from "../User";
-import UserRole from "../UserRole";
-import { RoleFullInfo, RolePreview, RoleShortInfo } from "types/role";
+import RolePermission from './RolePermission';
+import Permission from './Permission';
+import User from '../User';
+import UserRole from '../UserRole';
+import { RoleFullInfo, RolePreview, RoleShortInfo } from 'src/typesrole';
 
 @Table({
     timestamps: true,
-    tableName: "roles"
+    tableName: 'roles'
 })
 class Role extends Model {
     @Column({
@@ -46,14 +53,13 @@ class Role extends Model {
     async getPermissions(): Promise<Permission[]> {
         const rolePermissions = await RolePermission.findAll({
             where: {
-                roleId: this.get('id'),
+                roleId: this.get('id')
             },
             attributes: [],
             include: [{ model: Permission }]
         });
 
-        return rolePermissions.map(permission =>
-            permission.get('permission'));
+        return rolePermissions.map(permission => permission.get('permission'));
     }
 
     toPreview(): RolePreview {
@@ -98,7 +104,8 @@ class Role extends Model {
 
         const extendedPermissions = await Promise.all(
             permissions.map(async permissionItem => {
-                const childPermissionIDs = await permissionItem.getChildPermissionIDs();
+                const childPermissionIDs =
+                    await permissionItem.getChildPermissionIDs();
 
                 const notFoundChildIDs = childPermissionIDs.filter(
                     permissionId => !permissionIDs.includes(permissionId)
@@ -109,8 +116,9 @@ class Role extends Model {
                 return {
                     id,
                     permission,
-                    isActive: !childPermissionIDs.length || !notFoundChildIDs.length
-                }
+                    isActive:
+                        !childPermissionIDs.length || !notFoundChildIDs.length
+                };
             })
         );
 

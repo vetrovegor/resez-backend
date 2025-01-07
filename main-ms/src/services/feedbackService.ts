@@ -1,7 +1,7 @@
-import { Op } from "sequelize";
+import { Op } from 'sequelize';
 
 import { PaginationDTO } from '../dto/PaginationDTO';
-import Feedback from '../db/models/Feedback';
+import Feedback from '@db/models/Feedback';
 import userService from './userService';
 import { ApiError } from '../ApiError';
 
@@ -20,7 +20,9 @@ class FeedbackService {
         });
 
         if (count > 4) {
-            throw ApiError.badRequest('Исчерпан лимит обратной связи на сегодня');
+            throw ApiError.badRequest(
+                'Исчерпан лимит обратной связи на сегодня'
+            );
         }
 
         return await Feedback.create({

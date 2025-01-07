@@ -1,9 +1,9 @@
 import { Response, NextFunction } from 'express';
 
-import { RequestWithUser } from 'types/request';
+import { RequestWithUser } from 'src/types/request';
 import { ApiError } from '../ApiError';
-import tokenService from '../services/tokenService';
-import userService from '../services/userService';
+import tokenService from '@services/tokenService';
+import userService from '@services/userService';
 
 export const accessTokenMiddleware =
     (checkBlocked: boolean = true) =>
