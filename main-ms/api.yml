@@ -221,7 +221,7 @@ paths:
           description: "Not Found"
         "500":
           description: "Internal Server Error"
-  /api/messenger/message/chat/unread-count:
+  /api/messenger/chat/unread-count:
     get:
       tags:
         - Messenger
