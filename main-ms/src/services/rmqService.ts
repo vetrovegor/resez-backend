@@ -4,7 +4,7 @@ import userService from './userService';
 import codeService from './codeService';
 import sessionService from './sessionService';
 import achievementService from './achievementService';
-import { Queues } from '../enums/rmq';
+import { Queues } from '@enums/rmq';
 
 class RmqService {
     private channel: amqp.Channel;

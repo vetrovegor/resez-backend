@@ -9,7 +9,7 @@ import {
     HasMany
 } from 'sequelize-typescript';
 import Subscription from '../../subscription/Subscription';
-import { StoreContentType } from '../../../../enums/store';
+import { StoreContentType } from '@enums/store';
 import Achievement from '../../achievement/Achievement';
 import User from '../../User';
 import UserAvatarDecoration from './UserAvatarDecoration';

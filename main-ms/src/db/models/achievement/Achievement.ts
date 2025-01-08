@@ -9,7 +9,7 @@ import {
 import AvatarDecoration from '../store/avatarDecoration/AvatarDecoration';
 import UserAchievement from './UserAchievement';
 import User from '../User';
-import { AchievementTypes } from '../../../enums/achievement';
+import { AchievementTypes } from '@enums/achievement';
 
 @Table({
     timestamps: false,

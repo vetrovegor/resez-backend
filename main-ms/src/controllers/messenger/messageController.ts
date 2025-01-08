@@ -101,23 +101,6 @@ class MessageController {
             next(error);
         }
     }
-
-    async getMessageReaders(
-        req: RequestWithParamsAndUser<IdParam>,
-        res: Response,
-        next: NextFunction
-    ) {
-        try {
-            const readers = await messageService.getMessageReaders(
-                req.params.id,
-                req.user.id
-            );
-
-            res.json({ readers });
-        } catch (error) {
-            next(error);
-        }
-    }
 }
 
 export default new MessageController();

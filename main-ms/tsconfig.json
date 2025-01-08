@@ -17,7 +17,10 @@
             "@controllers/*": ["src/controllers/*"],
             "@services/*": ["src/services/*"],
             "@db/*": ["src/db/*"],
-            "@utils/*": ["src/utils/*"]
+            "@utils": ["src/utils"],
+            "@utils/*": ["src/utils/*"],
+            "@consts/*": ["src/consts/*"],
+            "@enums/*": ["src/enums/*"]
             // "@types/*": ["src/types/*"]
         }
     },

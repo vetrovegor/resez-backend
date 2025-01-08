@@ -5,7 +5,7 @@ import roleController from '@controllers/roles/roleController';
 import { validationMiddleware } from '@middlewares/validationMiddleware';
 import { accessTokenMiddleware } from '@middlewares/accessTokenMiddleware';
 import { permissionMiddleware } from '@middlewares/permissionMiddleware';
-import { Permissions } from '../../../types/permission';
+import { Permissions } from 'src/types/permission';
 import { paginationMiddleware } from '@middlewares/paginationMiddleware';
 import { roleBodyMiddleware } from '@middlewares/roleBodyMiddleware';
 

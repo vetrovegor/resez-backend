@@ -27,7 +27,6 @@ import UserChat from './messenger/UserChat';
 import { PermissionDTO } from 'src/types/permission';
 import { calculateLevelInfo } from '@utils';
 import Activity from './Activity';
-import MessageRead from './messenger/MessageRead';
 import Subscription from './subscription/Subscription';
 import AvatarDecoration from './store/avatarDecoration/AvatarDecoration';
 import UserAvatarDecoration from './store/avatarDecoration/UserAvatarDecoration';
@@ -236,11 +235,6 @@ class User extends Model {
 
     @HasMany(() => Activity)
     activity: Activity[];
-
-    @HasMany(() => MessageRead, {
-        onDelete: 'CASCADE'
-    })
-    messageReads: MessageRead[];
 
     @BelongsToMany(() => AvatarDecoration, () => UserAvatarDecoration)
     avatarDecorations: AvatarDecoration[];

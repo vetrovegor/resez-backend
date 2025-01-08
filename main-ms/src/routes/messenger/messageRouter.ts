@@ -11,7 +11,12 @@ export const messageRouter = Router();
 messageRouter.post(
     '/user/:id',
     param('id').isNumeric(),
-    body('message').isLength({ min: 1 }),
+    body('message')
+        .if(
+            (value, { req }) =>
+                !Array.isArray(req.body.files) || req.body.files.length === 0
+        )
+        .isLength({ min: 1 }),
     body('files').isArray(),
     // TODO: по хорошему должен быть isURL, но с localhost не проходит валидацию
     body('files.*.url').isString(),
@@ -20,14 +25,18 @@ messageRouter.post(
     body('files.*.size').isNumeric(),
     validationMiddleware,
     accessTokenMiddleware(true),
-    // messageFilesMiddleware,
     messageController.sendMessageToUser
 );
 
 messageRouter.post(
     '/chat/:id',
     param('id').isNumeric(),
-    body('message').isLength({ min: 1 }),
+    body('message')
+        .if(
+            (value, { req }) =>
+                !Array.isArray(req.body.files) || req.body.files.length === 0
+        )
+        .isLength({ min: 1 }),
     body('files').isArray(),
     // TODO: по хорошему должен быть isURL, но с localhost не проходит валидацию
     body('files.*.url').isString(),
@@ -64,12 +73,4 @@ messageRouter.patch(
     validationMiddleware,
     accessTokenMiddleware(true),
     messageController.readMessage
-);
-
-messageRouter.get(
-    '/:id/readers',
-    param('id').isNumeric(),
-    validationMiddleware,
-    accessTokenMiddleware(true),
-    messageController.getMessageReaders
 );

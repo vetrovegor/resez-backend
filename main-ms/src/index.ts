@@ -11,16 +11,16 @@ import 'dotenv/config';
 import yamljs from 'yamljs';
 
 import { router } from './routes/router';
-import { errorMiddleWare } from './middlewares/errorMiddleware';
-import { sequelize } from './db/connection';
-import { STATIC_PATH } from './consts/STATIC_PATH';
-import permissionService from './services/roles/permissionService';
-import messageTypeService from './services/messenger/messageTypeService';
-import rmqService from './services/rmqService';
+import { errorMiddleWare } from '@middlewares/errorMiddleware';
+import { sequelize } from '@db/connection';
+import { STATIC_PATH } from '@consts/STATIC_PATH';
+import permissionService from '@services/roles/permissionService';
+import messageTypeService from '@services/messenger/messageTypeService';
+import rmqService from '@services/rmqService';
 import { redisClient } from './redisClient';
-import subscriptionService from './services/subscribtionService';
-import achievementService from './services/achievementService';
-import userService from './services/userService';
+import subscriptionService from '@services/subscribtionService';
+import achievementService from '@services/achievementService';
+import userService from '@services/userService';
 
 collectDefaultMetrics();
 
@@ -71,9 +71,6 @@ const start = async () => {
 
     // сделать очистку просроченных кодов кодов
     // завершение сессий
-
-    // отправка отложенных уведомлений
-    // cron.schedule('* * * * *', notifyService.sendDelayedNotifies);
 
     // обнуление истекших подписок пользователей
     cron.schedule('0 * * * *', userService.resetExpiredSubscriptions);

@@ -2,11 +2,11 @@ import { Op } from 'sequelize';
 
 import Achievement from '@db/models/achievement/Achievement';
 import UserAchievement from '@db/models/achievement/UserAchievement';
-import { AchievementNames, AchievementTypes } from '../enums/achievement';
+import { AchievementNames, AchievementTypes } from '@enums/achievement';
 import { ApiError } from '../ApiError';
 import rmqService from './rmqService';
 import userService from './userService';
-import { Queues } from '../enums/rmq';
+import { Queues } from '@enums/rmq';
 
 const initialAchievements: {
     type: AchievementTypes;

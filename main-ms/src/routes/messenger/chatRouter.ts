@@ -31,6 +31,8 @@ chatRouter.post(
 
 chatRouter.post(
     '/:id/picture',
+    param('id').isNumeric(),
+    validationMiddleware,
     fileMiddleware(2),
     imageMiddleware,
     accessTokenMiddleware(true),
@@ -39,6 +41,8 @@ chatRouter.post(
 
 chatRouter.delete(
     '/:id/picture',
+    param('id').isNumeric(),
+    validationMiddleware,
     accessTokenMiddleware(true),
     chatController.deletePicture
 );
@@ -64,10 +68,24 @@ chatRouter.delete(
     chatController.removeUserFromChat
 );
 
-chatRouter.get('/:id', accessTokenMiddleware(true), chatController.getChatInfo);
+chatRouter.get(
+    '/unread-count',
+    accessTokenMiddleware(true),
+    chatController.getUnreadChatsCount
+);
+
+chatRouter.get(
+    '/:id',
+    param('id').isNumeric(),
+    validationMiddleware,
+    accessTokenMiddleware(true),
+    chatController.getChatInfo
+);
 
 chatRouter.get(
     '/:id/user',
+    param('id').isNumeric(),
+    validationMiddleware,
     paginationMiddleware,
     accessTokenMiddleware(true),
     chatController.getChatUsers
@@ -75,6 +93,8 @@ chatRouter.get(
 
 chatRouter.get(
     '/:id/user',
+    param('id').isNumeric(),
+    validationMiddleware,
     paginationMiddleware,
     accessTokenMiddleware(true),
     chatController.getChatUsers
@@ -94,6 +114,7 @@ chatRouter.get(
 
 chatRouter.delete(
     '/:id/leave',
+    param('id').isNumeric(),
     query('clear_history').isBoolean().optional(),
     validationMiddleware,
     accessTokenMiddleware(true),
@@ -102,12 +123,16 @@ chatRouter.delete(
 
 chatRouter.get(
     '/:id/return',
+    param('id').isNumeric(),
+    validationMiddleware,
     accessTokenMiddleware(true),
     chatController.returnToChat
 );
 
 chatRouter.delete(
     '/:id/history',
+    param('id').isNumeric(),
+    validationMiddleware,
     accessTokenMiddleware(true),
     chatController.clearHistory
 );

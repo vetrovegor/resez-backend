@@ -9,8 +9,8 @@ import UserRole from '@db/models/UserRole';
 import { RoleFullInfo, RoleShortInfo } from 'src/types/role';
 import { PaginationDTO } from '../../dto/PaginationDTO';
 import rmqService from '@services/rmqService';
-import { EmitTypes } from '../../enums/socket';
-import { Queues } from '../../enums/rmq';
+import { EmitTypes } from '@enums/socket';
+import { Queues } from '@enums/rmq';
 
 class RoleService {
     async getRoleById(roleId: number): Promise<Role> {

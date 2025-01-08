@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { UploadedFile } from 'express-fileupload';
-import { STATIC_PATH } from '../consts/STATIC_PATH';
+import { STATIC_PATH } from '@consts/STATIC_PATH';
 
 class FileService {
     async saveFile(subPath: string, file: UploadedFile): Promise<string> {
@@ -13,7 +13,7 @@ class FileService {
 
         const fileName = Date.now() + path.extname(file.name);
 
-        fs.writeFileSync(path.join(directory, fileName), file.data.toString());
+        fs.writeFileSync(path.join(directory, fileName), file.data);
 
         return `${subPath}/${fileName}`;
     }

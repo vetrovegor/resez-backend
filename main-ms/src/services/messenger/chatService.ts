@@ -7,13 +7,15 @@ import UserChat from '@db/models/messenger/UserChat';
 import { PaginationDTO } from '../../dto/PaginationDTO';
 import messageService from './messageService';
 import userService from '@services/userService';
-import { ChatDTO, MessageTypes } from 'src/types/messenger';
-import { UserChatPreview, UserPreview } from 'src/types/user';
+import { ChatDTO } from 'src/types/messenger';
+import { UserPreview } from 'src/types/user';
 import fileService from '@services/fileService';
 import { generateInviteLink } from '@utils';
 import { redisClient } from '../../redisClient';
 import rmqService from '@services/rmqService';
-import { Queues } from '../../enums/rmq';
+import { Queues } from '@enums/rmq';
+import UserMessage from '@db/models/messenger/UserMessage';
+import { MessageTypes } from '@enums/messenger';
 
 class ChatService {
     async createUserChat(chatId: number, userId: number): Promise<UserChat> {
@@ -262,7 +264,7 @@ class ChatService {
         const admin = await userService.getUserById(adminId);
 
         await messageService.createMessage(
-            MessageTypes.System,
+            MessageTypes.SYSTEM,
             `${admin.get('nickname')} создал группу «${chat}»`,
             createdChat.get('id')
         );
@@ -279,7 +281,10 @@ class ChatService {
 
         await fileService.deleteFile(chat.get('picture'));
 
-        const picturePath = await fileService.saveFile('messenger/chats', picture);
+        const picturePath = await fileService.saveFile(
+            'messenger/chats',
+            picture
+        );
 
         chat.set('picture', picturePath);
         await chat.save();
@@ -342,7 +347,7 @@ class ChatService {
         const user = await userService.getUserById(userId);
 
         await messageService.createMessage(
-            MessageTypes.System,
+            MessageTypes.SYSTEM,
             `${admin.get('nickname')} пригласил ${user.get('nickname')}`,
             chatId
         );
@@ -383,7 +388,7 @@ class ChatService {
         const user = await userService.getUserById(userId);
 
         await messageService.createMessage(
-            MessageTypes.System,
+            MessageTypes.SYSTEM,
             `${admin.get('nickname')} исключил ${user.get('nickname')}`,
             chatId
         );
@@ -392,6 +397,17 @@ class ChatService {
         await userChat.save();
 
         return user.toPreview();
+    }
+
+    async getUnreadChatsCount(userId: number) {
+        return await UserMessage.count({
+            distinct: true,
+            col: 'chatId',
+            where: {
+                userId,
+                isRead: false
+            }
+        });
     }
 
     // тестовое кеширование
@@ -514,7 +530,7 @@ class ChatService {
         const user = (await userService.getUserById(userId)).toPreview();
 
         await messageService.createMessage(
-            MessageTypes.System,
+            MessageTypes.SYSTEM,
             `${user.nickname} вступил(а) в группу по ссылке-приглашению`,
             chatId
         );
@@ -542,7 +558,7 @@ class ChatService {
         const user = (await userService.getUserById(userId)).toPreview();
 
         await messageService.createMessage(
-            MessageTypes.System,
+            MessageTypes.SYSTEM,
             `${user.nickname} покинул чат`,
             chatId
         );
@@ -580,7 +596,7 @@ class ChatService {
         const user = (await userService.getUserById(userId)).toPreview();
 
         await messageService.createMessage(
-            MessageTypes.System,
+            MessageTypes.SYSTEM,
             `${user.nickname} вернулся чат`,
             chatId
         );

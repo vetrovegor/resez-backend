@@ -12,7 +12,7 @@ import {
     UserShortInfo
 } from 'src/types/user';
 import { PaginationDTO } from '../dto/PaginationDTO';
-import { EmitTypes } from '../enums/socket';
+import { EmitTypes } from '@enums/socket';
 import { calculateLevelInfo, getArraysIntersection } from '@utils';
 import UserRole from '@db/models/UserRole';
 import fileService from './fileService';
@@ -21,9 +21,9 @@ import { redisClient } from '../redisClient';
 import avatarDecorationService from './store/avatarDecorationService';
 import themeService from './store/themeService';
 import achievementService from './achievementService';
-import { AchievementTypes } from '../enums/achievement';
-import { Queues } from '../enums/rmq';
-import { Subscriptions } from '../enums/subscriptions';
+import { AchievementTypes } from '@enums/achievement';
+import { Queues } from '@enums/rmq';
+import { Subscriptions } from '@enums/subscriptions';
 import logger from '../logger';
 
 class UserService {
@@ -256,12 +256,6 @@ class UserService {
         avatar: UploadedFile
     ): Promise<UserShortInfo> {
         const user = await User.findByPk(userId);
-        // const oldAvatar = user.get('avatar');
-
-        // if (oldAvatar) {
-        //     const oldAvatarPath = path.resolve(STATIC_PATH, oldAvatar);
-        //     fs.existsSync(oldAvatarPath) && fs.unlinkSync(oldAvatarPath);
-        // }
 
         await fileService.deleteFile(user.get('avatar'));
 

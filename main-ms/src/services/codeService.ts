@@ -5,9 +5,9 @@ import { VerificationCodeData } from 'src/types/code';
 import userService from './userService';
 import { ApiError } from '../ApiError';
 import User from '@db/models/User';
-import { EmitTypes } from '../enums/socket';
+import { EmitTypes } from '@enums/socket';
 import rmqService from './rmqService';
-import { Queues } from '../enums/rmq';
+import { Queues } from '@enums/rmq';
 
 // подумать как сделать лучше, как вынести в файл с типами
 export const enum CodeTypes {

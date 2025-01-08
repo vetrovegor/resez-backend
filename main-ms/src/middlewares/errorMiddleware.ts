@@ -19,6 +19,8 @@ export const errorMiddleWare = (
 
     logger.error(`Error occurred: ${err.message}`, { stack: err.stack });
 
+    console.log(err.message, err.stack);
+
     return res.status(500).json({
         error: true,
         message: 'Непредвиденная ошибка'

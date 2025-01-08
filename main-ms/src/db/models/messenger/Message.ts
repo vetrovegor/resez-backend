@@ -11,11 +11,9 @@ import {
 import User from '../User';
 import Chat from './Chat';
 import MessageType from './MessageType';
-import { MessageDTO, MessageFileDTO, MessageReader } from 'src/types/messenger';
 import UserMessage from './UserMessage';
-import MessageRead from './MessageRead';
 import MessageFile from './MessageFile';
-import { formatFileSize } from '@utils';
+import { MessageTypes } from '@enums/messenger';
 
 @Table({
     timestamps: true,
@@ -26,12 +24,6 @@ class Message extends Model {
         type: DataType.TEXT
     })
     message: string;
-
-    @Column({
-        type: DataType.BOOLEAN,
-        defaultValue: false
-    })
-    isRead: boolean;
 
     @ForeignKey(() => User)
     @Column
@@ -47,6 +39,11 @@ class Message extends Model {
     @BelongsTo(() => Chat)
     chat: Chat;
 
+    @Column({
+        type: DataType.ENUM(...Object.values(MessageTypes))
+    })
+    type: MessageTypes;
+
     @ForeignKey(() => MessageType)
     @Column
     messageTypeId: number;
@@ -59,72 +56,10 @@ class Message extends Model {
     })
     userMessages: UserMessage[];
 
-    @HasMany(() => MessageRead, {
-        onDelete: 'CASCADE'
-    })
-    messageReads: MessageRead[];
-
     @HasMany(() => MessageFile, {
         onDelete: 'CASCADE'
     })
     messageFiles: MessageFile[];
-
-    async toDTO(): Promise<MessageDTO> {
-        const messageData = await Message.findByPk(this.get('id'), {
-            include: ['messageType', 'sender', 'messageReads', 'messageFiles']
-        });
-
-        const { id, message, createdAt, updatedAt, chatId } =
-            messageData.toJSON();
-
-        const type = messageData.get('messageType').get('type');
-        const isEdited = createdAt.toString() != updatedAt.toString();
-        const sender = messageData.get('sender');
-        const readsCount = messageData.get('messageReads').length;
-        const files = messageData.get('messageFiles').map(item => {
-            const { id, url, name, type, size } = item.toJSON();
-
-            return {
-                id,
-                url,
-                name,
-                type,
-                size: formatFileSize(size)
-            } as MessageFileDTO;
-        });
-
-        return {
-            id,
-            message,
-            type,
-            createdAt,
-            updatedAt,
-            isEdited,
-            sender: sender ? sender.toPreview() : null,
-            readsCount,
-            chatId,
-            files
-        };
-    }
-
-    async getReaders(): Promise<MessageReader[]> {
-        const messageReads = await MessageRead.findAll({
-            where: { messageId: this.get('id') }
-        });
-
-        return await Promise.all(
-            messageReads.map(async messageRead => {
-                const { userId, createdAt: date } = messageRead.toJSON();
-
-                const user = (await User.findByPk(userId)).toPreview();
-
-                return {
-                    user,
-                    date
-                };
-            })
-        );
-    }
 }
 
 export default Message;

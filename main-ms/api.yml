@@ -59,11 +59,11 @@ components:
         type:
           type: string
           enum:
-            - Обычное
-            - Удаленное
-            - Системное
-            - Голосовое
-            - Видео
+            - Default
+            - Deleted
+            - System
+            - Voice
+            - Video
         createdAt:
           type: string
           format: date-time
@@ -75,9 +75,20 @@ components:
           example: false
         sender:
             $ref: "#/components/schemas/User"
-        readsCount:
-          type: number
-          example: 2
+        isRead:
+          type: boolean
+          nullable: true
+          example: true
+        readers:
+          type: array
+          nullable: true
+          items:
+            allOf:
+              - $ref: "#/components/schemas/User"
+              - properties:
+                  readDate:
+                    type: string
+                    format: date-time
         chatId:
           type: number
           example: 1
@@ -184,6 +195,48 @@ paths:
                 $ref: "#/components/schemas/MessageResponseBody"
         "400":
           description: "Validation Error"
+        "401":
+          description: "Unauthorized"
+        "500":
+          description: "Internal Server Error"
+  /api/messenger/message/{messageId}/read:
+    patch:
+      tags:
+        - Messenger
+      summary: The current message and all previous messages are being read
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: "Success"
+        "400":
+          description: "Validation Error"
+        "401":
+          description: "Unauthorized"
+        "404":
+          description: "Not Found"
+        "500":
+          description: "Internal Server Error"
+  /api/messenger/message/chat/unread-count:
+    get:
+      tags:
+        - Messenger
+      summary: Getting the number of chats in which there are unread messages
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: number
+                    example: 5
         "401":
           description: "Unauthorized"
         "500":

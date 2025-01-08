@@ -2,8 +2,7 @@ import { Response, NextFunction } from 'express';
 
 import { ApiError } from '../../ApiError';
 import { RequestWithUser } from 'src/types/request';
-import { UploadedFile } from 'express-fileupload';
-import { Subscriptions } from '../enums/subscriptions';
+import { Subscriptions } from '@enums/subscriptions';
 
 export const messageFilesMiddleware = async (
     req: RequestWithUser,

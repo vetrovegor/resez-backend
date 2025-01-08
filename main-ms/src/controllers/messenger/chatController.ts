@@ -10,7 +10,8 @@ import {
     RequestWithParamsAndQuery,
     RequestWithParamsAndQueryAndUser,
     RequestWithParamsAndUser,
-    RequestWithQueryAndUser
+    RequestWithQueryAndUser,
+    RequestWithUser
 } from 'src/types/request';
 import { GroupCreateRequestDTO, UserChatParams } from 'src/types/messenger';
 import chatService from '@services/messenger/chatService';
@@ -130,6 +131,22 @@ class ChatController {
             await chatService.removeUserFromChat(chatId, userId, req.user.id);
 
             res.sendStatus(200);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getUnreadChatsCount(
+        req: RequestWithUser,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const count = await chatService.getUnreadChatsCount(
+                req.user.id
+            );
+
+            res.json({ count });
         } catch (error) {
             next(error);
         }

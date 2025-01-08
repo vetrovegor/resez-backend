@@ -15,7 +15,7 @@ import Session from '@db/models/Session';
 import { PaginationDTO } from '../dto/PaginationDTO';
 import { ApiError } from '../ApiError';
 import rmqService from './rmqService';
-import { Queues } from '../enums/rmq';
+import { Queues } from '@enums/rmq';
 
 class SessionService {
     async saveSession(

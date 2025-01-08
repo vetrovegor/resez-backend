@@ -1,4 +1,4 @@
-import { StoreContentType } from '../enums/store';
+import { StoreContentType } from '@enums/store';
 
 export type ProductDTO = {
     title: string;

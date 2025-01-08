@@ -14,7 +14,7 @@ export type MessageFileRequestBodyDTO = {
     name: string;
     type: string;
     size: number;
-}
+};
 
 export type MessageFileDTO = {
     id: number;
@@ -31,20 +31,16 @@ export type MessageRequestBodyDTO = {
 
 export type MessageDTO = {
     id: number;
-    message: string,
+    message: string;
     type: string;
     createdAt: Date;
     updatedAt: Date;
     isEdited: boolean;
     sender: UserPreview;
-    readsCount: number;
+    isRead: boolean;
+    readers: (UserPreview & { readDate: Date })[];
     chatId: number;
     files: MessageFileDTO[];
-};
-
-export type MessageReader = {
-    user: UserPreview;
-    date: Date;
 };
 
 export type ChatDTO = {

@@ -1,21 +1,36 @@
 import { Op } from 'sequelize';
 import { UploadedFile } from 'express-fileupload';
 
-import { MessageDTO, MessageFileRequestBodyDTO, MessageTypes } from 'src/types/messenger';
+import {
+    MessageDTO,
+    MessageFileDTO,
+    MessageFileRequestBodyDTO
+} from 'src/types/messenger';
 import Message from '@db/models/messenger/Message';
 import chatService from './chatService';
-import messageTypeService from './messageTypeService';
 import { ApiError } from '../../ApiError';
-import { EmitTypes } from '../../enums/socket';
+import { EmitTypes } from '@enums/socket';
 import UserMessage from '@db/models/messenger/UserMessage';
-import MessageRead from '@db/models/messenger/MessageRead';
 import rmqService from '@services/rmqService';
-import { Queues } from '../../enums/rmq';
+import { Queues } from '@enums/rmq';
 import messageFileService from './messageFileService';
+import { formatFileSize } from '@utils';
+import { MessageTypes } from '@enums/messenger';
 
 class MessageService {
+    private messageInclude = [
+        { association: 'sender' },
+        {
+            association: 'userMessages',
+            include: [{ association: 'user' }]
+        },
+        { association: 'messageFiles' }
+    ];
+
     async getMessageById(messageId: number): Promise<Message> {
-        const message = await Message.findByPk(messageId);
+        const message = await Message.findByPk(messageId, {
+            include: this.messageInclude
+        });
 
         if (!message) {
             this.throwMessageNotFoundError();
@@ -32,19 +47,63 @@ class MessageService {
         });
     }
 
+    createMessageDto(messageData: Message, forUserId: number): MessageDTO {
+        const { id, message, type, createdAt, updatedAt, chatId } =
+            messageData.toJSON();
+
+        const isEdited = createdAt.toString() != updatedAt.toString();
+        const sender = messageData.get('sender');
+        const isOwner = sender && sender.get('id') == forUserId;
+        const readers = isOwner
+            ? messageData
+                  .get('userMessages')
+                  .filter(
+                      userMessage =>
+                          userMessage.get('isRead') &&
+                          userMessage.get('userId') != forUserId
+                  )
+                  .map(userMessage => ({
+                      ...userMessage.get('user').toPreview(),
+                      readDate: userMessage.get('readDate')
+                  }))
+            : null;
+        const isRead = isOwner ? readers.length > 0 : null;
+        const files = messageData.get('messageFiles').map(item => {
+            const { id, url, name, type, size } = item.toJSON();
+
+            return {
+                id,
+                url,
+                name,
+                type,
+                size: formatFileSize(size)
+            } as MessageFileDTO;
+        });
+
+        return {
+            id,
+            message,
+            type,
+            createdAt,
+            updatedAt,
+            isEdited,
+            sender: sender?.toPreview() ?? null,
+            isRead,
+            readers,
+            chatId,
+            files
+        };
+    }
+
     async createMessage(
-        messageType: string,
+        type: MessageTypes,
         message: string,
         chatId: number,
         senderId: number = null,
         files: MessageFileRequestBodyDTO[] = []
-    ): Promise<Message> {
-        const messageTypeId = await messageTypeService.getMessageTypeIdByType(
-            messageType
-        );
-
+    ): Promise<MessageDTO> {
         const createdMessage = await Message.create({
-            messageTypeId,
+            type,
             message,
             chatId,
             senderId
@@ -55,7 +114,11 @@ class MessageService {
             files
         );
 
-        const messageDto = await createdMessage.toDTO();
+        const messageData = await Message.findByPk(createdMessage.get('id'), {
+            include: this.messageInclude
+        });
+
+        const messageDto = this.createMessageDto(messageData, senderId);
 
         const memberIDs = await (
             await chatService.getChatById(chatId)
@@ -75,7 +138,7 @@ class MessageService {
             });
         });
 
-        return createdMessage;
+        return messageDto;
     }
 
     async sendMessageToUser(
@@ -89,15 +152,13 @@ class MessageService {
             recipientId
         );
 
-        const createdMessage = await this.createMessage(
-            MessageTypes.Default,
+        return await this.createMessage(
+            MessageTypes.DEFAULT,
             message,
             chat.get('id'),
             senderId,
             files
         );
-
-        return await createdMessage.toDTO();
     }
 
     async sendMessageToChat(
@@ -122,15 +183,13 @@ class MessageService {
             await chatService.returnToChat(chatId, senderId);
         }
 
-        const createdMessage = await this.createMessage(
-            MessageTypes.Default,
+        return await this.createMessage(
+            MessageTypes.DEFAULT,
             message,
             chatId,
             senderId,
             files
         );
-
-        return await createdMessage.toDTO();
     }
 
     async getLastMessageByChatId(
@@ -139,18 +198,16 @@ class MessageService {
     ): Promise<MessageDTO> {
         const lastUserMessage = await UserMessage.findOne({
             where: { chatId, userId },
+            include: {
+                association: 'message',
+                include: this.messageInclude
+            },
             order: [['createdAt', 'DESC']]
         });
 
-        if (!lastUserMessage) {
-            return null;
-        }
-
-        const lastMessage = await Message.findByPk(
-            lastUserMessage.get('messageId')
-        );
-
-        return lastMessage ? await lastMessage.toDTO() : null;
+        return lastUserMessage
+            ? this.createMessageDto(lastUserMessage.get('message'), userId)
+            : null;
     }
 
     async editMessage(
@@ -178,7 +235,7 @@ class MessageService {
         messageData.set('message', message);
         await messageData.save();
 
-        const messageDto = await messageData.toDTO();
+        const messageDto = this.createMessageDto(messageData, userId);
 
         const memberIDs = await (
             await chatService.getChatById(messageData.get('chatId'))
@@ -280,12 +337,11 @@ class MessageService {
             where: {
                 id: { [Op.in]: messageIDs }
             },
+            include: this.messageInclude,
             order: [['createdAt', 'ASC']]
         });
 
-        return await Promise.all(
-            messages.map(async message => message.toDTO())
-        );
+        return messages.map(message => this.createMessageDto(message, userId));
     }
 
     async createMessagesHistory(chatId: number, userId: number): Promise<void> {
@@ -307,59 +363,40 @@ class MessageService {
     async readMessage(messageId: number, userId: number) {
         const message = await this.getMessageById(messageId);
 
-        if (message.get('senderId') == userId) {
-            throw ApiError.badRequest('Нельзя прочитать свое сообщение');
-        }
-
-        const messageRead = await MessageRead.findOne({
-            where: { messageId, userId }
+        const messagesToRead = await Message.findAll({
+            where: {
+                chatId: message.get('chatId'),
+                createdAt: {
+                    [Op.lte]: message.get('createdAt')
+                },
+                [Op.or]: [
+                    {
+                        senderId: {
+                            [Op.ne]: userId
+                        }
+                    },
+                    { senderId: null }
+                ]
+            }
         });
 
-        if (messageRead) {
-            throw ApiError.badRequest('Сообщение уже прочитано');
-        }
-
-        const userMessageReadIDs = (
-            await MessageRead.findAll({
-                where: { userId }
-            })
-        ).map(messageRead => messageRead.get('messageId'));
-
-        const unreadMessageIDs = (
-            await Message.findAll({
-                where: {
-                    id: {
-                        [Op.notIn]: userMessageReadIDs
-                    },
-                    createdAt: {
-                        [Op.lte]: message.get('createdAt')
-                    },
-                    senderId: {
-                        [Op.ne]: userId
-                    },
-                    chatId: message.get('chatId')
-                }
-            })
-        ).map(message => message.get('id'));
-
-        for (const messageId of unreadMessageIDs) {
-            await MessageRead.create({ messageId, userId });
-        }
-    }
-
-    async getMessageReaders(messageId: number, userId: number) {
-        const message = await this.getMessageById(messageId);
-
-        const isUserInChat = await chatService.checkUserInChat(
-            message.get('chatId'),
-            userId
+        const messagesToReadIds = messagesToRead.map(message =>
+            message.get('id')
         );
 
-        if (!isUserInChat) {
-            this.throwMessageNotFoundError();
-        }
-
-        return await message.getReaders();
+        await UserMessage.update(
+            {
+                isRead: true,
+                readDate: new Date()
+            },
+            {
+                where: {
+                    isRead: false,
+                    messageId: { [Op.in]: messagesToReadIds },
+                    userId
+                }
+            }
+        );
     }
 
     // довести до ума чтобы сразу же запросом отбирались нужные записи

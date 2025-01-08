@@ -5,9 +5,9 @@ import { ApiError } from '../ApiError';
 import userService from './userService';
 import { getSubscriptionExpiredhDate } from '@utils';
 import rmqService from './rmqService';
-import { EmitTypes } from '../enums/socket';
-import { Queues } from '../enums/rmq';
-import { Subscriptions } from '../enums/subscriptions';
+import { EmitTypes } from '@enums/socket';
+import { Queues } from '@enums/rmq';
+import { Subscriptions } from '@enums/subscriptions';
 
 const initialSubscriptions = [
     {
