@@ -49,7 +49,7 @@ export type ChatDTO = {
     chat: string;
     picture: string;
     membersCount: number;
-    lastMessage: MessageDTO;
+    latestMessage: MessageDTO;
 };
 
 export type GroupCreateRequestDTO = {

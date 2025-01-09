@@ -18,6 +18,17 @@ import UserMessage from '@db/models/messenger/UserMessage';
 import { MessageTypes } from '@enums/messenger';
 
 class ChatService {
+    private chatInclude = [
+        {
+            association: 'userChats',
+            include: [{ association: 'user' }]
+        },
+        {
+            association: 'userMessages',
+            include: [{ association: 'message' }]
+        }
+    ];
+
     async createUserChat(chatId: number, userId: number): Promise<UserChat> {
         return await UserChat.create({
             chatId,
@@ -50,7 +61,9 @@ class ChatService {
     }
 
     async getChatById(chatId: number): Promise<Chat> {
-        const chat = await Chat.findByPk(chatId);
+        const chat = await Chat.findByPk(chatId, {
+            include: this.chatInclude
+        });
 
         if (!chat) {
             this.throwChatNotFoundError();
@@ -68,14 +81,11 @@ class ChatService {
     async checkUserInChat(chatId: number, userId: number): Promise<Chat> {
         const chat = await this.getChatById(chatId);
 
-        const userChat = await UserChat.findOne({
-            where: {
-                userId,
-                chatId
-            }
-        });
+        const exists = chat
+            .get('userChats')
+            .some(item => item.userId == userId);
 
-        return userChat ? chat : null;
+        return exists ? chat : null;
     }
 
     async createOrGetChatBetweenUsers(senderId: number, recipientId: number) {
@@ -122,18 +132,51 @@ class ChatService {
 
         const isAdmin = forUserId == adminId;
 
-        const membersCount = await chatData.getMembersCount();
+        const userChats = chatData.get('userChats');
 
-        const { isLeft, isKicked } = (
-            await UserChat.findOne({
-                where: { chatId: id, userId: forUserId }
-            })
-        ).toJSON();
-
-        const lastMessage = await messageService.getLastMessageByChatId(
-            id,
-            forUserId
+        const activeMembers = userChats.filter(
+            userChat => !userChat.get('isLeft') && !userChat.get('isKicked')
         );
+
+        const membersCount = activeMembers.length;
+
+        // const { isLeft, isKicked } = (
+        //     await UserChat.findOne({
+        //         where: { chatId: id, userId: forUserId }
+        //     })
+        // ).toJSON();
+
+        const { isLeft, isKicked } = userChats
+            .find(userChat => userChat.userId == forUserId)
+            .toJSON();
+
+        const userMessages = chatData.get('userMessages');
+
+        const unreadMessagesCount = userMessages.filter(
+            userMessage =>
+                userMessage.get('message').get('senderId') != forUserId &&
+                userMessage.get('userId') == forUserId &&
+                !userMessage.get('isRead')
+        ).length;
+
+        const latestMessageData = userMessages
+            .map(userMessage => userMessage.get('message'))
+            .sort(
+                (a, b) =>
+                    b.get('createdAt').getTime() - a.get('createdAt').getTime()
+            )[0];
+
+        const latestMessage = latestMessageData
+            ? await messageService.createMessageDtoById(
+                  latestMessageData.get('id'),
+                  forUserId
+              )
+            : null;
+
+        // const lastMessage = await messageService.getLastMessageByChatId(
+        //     id,
+        //     forUserId
+        // );
 
         if (isGroup) {
             return {
@@ -151,14 +194,21 @@ class ChatService {
                 inviteLink,
                 isAdmin,
                 membersCount: isLeft || isKicked ? null : membersCount,
-                lastMessage
+                unreadMessagesCount,
+                latestMessage
             };
         }
-        const chatMemberIDs = await chatData.getChatMemberIDs();
 
-        const userId = chatMemberIDs.find(element => element !== forUserId);
+        // const chatMemberIDs = activeMembers.map(userChat =>
+        //     userChat.get('userId')
+        // );
 
-        const user = (await userService.getUserById(userId)).toPreview();
+        // const userId = chatMemberIDs.find(element => element !== forUserId);
+
+        const user = userChats
+            .find(userChat => userChat.get('userId') != forUserId)
+            .get('user')
+            .toPreview();
 
         const activity = await rmqService.sendToQueue(
             Queues.Socket,
@@ -169,14 +219,14 @@ class ChatService {
         return {
             id,
             isGroup,
-            userId,
+            userId: user.id,
             chat: user.nickname,
             picture: user.avatar,
             activity,
-            inviteLink,
             isAdmin,
             membersCount,
-            lastMessage
+            unreadMessagesCount,
+            latestMessage
         };
     }
 
@@ -203,6 +253,7 @@ class ChatService {
             where: {
                 id: { [Op.in]: userChatIDs }
             },
+            include: this.chatInclude,
             limit,
             offset
         });
@@ -215,8 +266,8 @@ class ChatService {
 
         chatDTOs.sort((a, b) => {
             return (
-                b.lastMessage.createdAt.getTime() -
-                a.lastMessage.createdAt.getTime()
+                b.latestMessage.createdAt.getTime() -
+                a.latestMessage.createdAt.getTime()
             );
         });
 
@@ -269,7 +320,9 @@ class ChatService {
             createdChat.get('id')
         );
 
-        return this.createChatDto(createdChat, adminId);
+        const chatData = await this.getChatById(createdChat.get('id'));
+
+        return this.createChatDto(chatData, adminId);
     }
 
     async setPicture(chatId: number, picture: UploadedFile, userId: number) {
@@ -406,6 +459,15 @@ class ChatService {
             where: {
                 userId,
                 isRead: false
+            },
+            include: {
+                association: 'message',
+                where: {
+                    [Op.or]: [
+                        { senderId: { [Op.ne]: userId } },
+                        { senderId: null }
+                    ]
+                }
             }
         });
     }
@@ -498,7 +560,8 @@ class ChatService {
 
     async getChatByInviteLink(userId: number, inviteLink: string) {
         const chat = await Chat.findOne({
-            where: { inviteLink }
+            where: { inviteLink },
+            include: this.chatInclude
         });
 
         if (!chat) {

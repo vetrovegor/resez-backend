@@ -6,7 +6,7 @@
     "scripts": {
         "start": "node build/index.js",
         "build": "rimraf build && tsc",
-        "dev": "NODE_PATH=build nodemon build/index.js",
+        "dev": "nodemon build/index.js",
         "test": "jest"
     },
     "_moduleAliases": {

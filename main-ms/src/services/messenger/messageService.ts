@@ -95,6 +95,12 @@ class MessageService {
         };
     }
 
+    async createMessageDtoById(id: number, forUserId: number) {
+        const messageData = await this.getMessageById(id);
+
+        return this.createMessageDto(messageData, forUserId);
+    }
+
     async createMessage(
         type: MessageTypes,
         message: string,

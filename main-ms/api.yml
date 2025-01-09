@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
-  title: Notification microservice
+  title: Main microservice
   version: 1.0.0
-  description: API Documentation for notification microservice
+  description: API Documentation for main microservice
 components:
   schemas:
     User:
@@ -101,6 +101,62 @@ components:
                     type: number
                     example: 1
               - $ref: "#/components/schemas/File"
+    ChatResponseBody:
+      type: object
+      properties:
+        id: 
+          type: number
+          example: 1
+        isGroup:
+          type: boolean
+          example: false
+        userId: 
+          type: number
+          example: 1
+        chat:
+          type: string
+          example: xw1nchester
+        isLeft:
+          type: boolean
+          example: false
+        isKicked:
+          type: boolean
+          example: false
+        picture:
+          type: string
+          example: http://localhost:8080/api/static/avatars/1715447451335.jpeg
+        inviteLink:
+          type: string
+          example: +cz2wNcjtuLiLZxtb
+        activity:
+          type: object
+          properties:
+            isOnline:
+              type: boolean
+              example: false
+            lastSeen:
+              type: string
+              format: date-time
+        isAdmin:
+          type: boolean
+          example: false
+        membersCount: 
+          type: number
+          example: 3
+        unreadMessagesCount: 
+          type: number
+          example: 5
+        latestMessage: 
+          $ref: "#/components/schemas/MessageResponseBody"
+      required:
+        - id
+        - isGroup
+        - chat
+        - picture
+        - isAdmin
+        - membersCount
+        - unreadMessagesCount
+        - latestMessage
     PaginationBodyFields:
       type: object
       properties:
@@ -237,6 +293,59 @@ paths:
                   count:
                     type: number
                     example: 5
+        "401":
+          description: "Unauthorized"
+        "500":
+          description: "Internal Server Error"
+  /api/messenger/chat:
+    get:
+      tags:
+        - Messenger
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - properties:
+                      chats:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ChatResponseBody"
+                  - $ref: "#/components/schemas/PaginationBodyFields"
+        "401":
+          description: "Unauthorized"
+        "500":
+          description: "Internal Server Error"
+  /api/messenger/chat/{chatId}:
+    get:
+      tags:
+        - Messenger
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  chat:
+                    $ref: "#/components/schemas/ChatResponseBody"
+                  messages:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MessageResponseBody"
         "401":
           description: "Unauthorized"
         "500":
