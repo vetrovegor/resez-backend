@@ -56,7 +56,7 @@ components:
     MessageResponseBody:
       type: object
       properties:
-        id: 
+        id:
           type: number
           example: 1
         message:
@@ -80,7 +80,7 @@ components:
           type: boolean
           example: false
         sender:
-            $ref: "#/components/schemas/User"
+          $ref: "#/components/schemas/User"
         isRead:
           type: boolean
           nullable: true
@@ -119,16 +119,36 @@ components:
                     type: number
                     example: 1
               - $ref: "#/components/schemas/File"
+        parentMessage:
+          type: object
+          properties:
+            id:
+              type: number
+              example: 1
+            message:
+              type: string
+              example: Киффлом
+            sender:
+              $ref: "#/components/schemas/User"
+            files:
+              type: array
+              items:
+                allOf:
+                  - properties:
+                      id:
+                        type: number
+                        example: 1
+                  - $ref: "#/components/schemas/File"
     ChatResponseBody:
       type: object
       properties:
-        id: 
+        id:
           type: number
           example: 1
         isGroup:
           type: boolean
           example: false
-        userId: 
+        userId:
           type: number
           example: 1
         chat:
@@ -158,13 +178,13 @@ components:
         isAdmin:
           type: boolean
           example: false
-        membersCount: 
+        membersCount:
           type: number
           example: 3
-        unreadMessagesCount: 
+        unreadMessagesCount:
           type: number
           example: 5
-        latestMessage: 
+        latestMessage:
           $ref: "#/components/schemas/MessageResponseBody"
       required:
         - id
@@ -213,7 +233,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/MessageRequestBody'
+            $ref: "#/components/schemas/MessageRequestBody"
   securitySchemes:
     BearerAuth:
       type: http
