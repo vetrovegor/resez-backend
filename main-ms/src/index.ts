@@ -38,10 +38,13 @@ app.get('/metrics', async (_req, res) => {
 const swaggerDocument = yamljs.load(path.join(__dirname, '..', 'api.yml'));
 
 app.use(express.json());
+// app.use(express.json({ limit: '10mb' }));
+// app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 app.use(useragent.express());
 app.set('trust proxy', true);
 app.use(fileUpload());
+// app.use(fileUpload({ limits: { fileSize: 10 * 1024 * 1024 } }));
 app.use('/api', router);
 app.use('/api/static', express.static(STATIC_PATH));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));

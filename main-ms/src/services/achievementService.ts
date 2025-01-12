@@ -272,11 +272,23 @@ class AchievementService {
 
         const { level } = await userService.getUserLevelInfoById(userId);
 
-        const testsCount = (await rmqService.sendToQueue(
-            Queues.Education,
-            'tests-count',
-            userId
-        )) as number;
+        let testsCount = 0;
+
+        for (const queue of [
+            Queues.EducationEGE,
+            Queues.EducationOGE,
+            Queues.EducationENT
+        ]) {
+            const value = (await rmqService.sendToQueue(
+                queue,
+                'tests-count',
+                userId
+            )) as number;
+
+            if (value) {
+                testsCount += value;
+            }
+        }
 
         const determineProgress = (
             achievement: Partial<Achievement> & { isCollected: boolean },

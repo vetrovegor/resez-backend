@@ -612,22 +612,24 @@ class ChatService {
             throw ApiError.badRequest('Можно покинуть только групповой чат');
         }
 
-        const userChat = await this.getUserChat(userId, chatId);
+        const userChat = chat
+            .get('userChats')
+            .find(userChat => userChat.userId == userId);
 
         if (userChat.get('isLeft')) {
             throw ApiError.badRequest('Вы уже покинули чат');
         }
 
-        const user = (await userService.getUserById(userId)).toPreview();
+        const user = userChat.get('user').toPreview();
+
+        userChat.set('isLeft', true);
+        await userChat.save();
 
         await messageService.createMessage(
             MessageTypes.SYSTEM,
             `${user.nickname} покинул чат`,
             chatId
         );
-
-        userChat.set('isLeft', true);
-        await userChat.save();
 
         if (clearHistory && clearHistory.toLowerCase() === 'true') {
             await messageService.clearMessageHistory(chatId, userId);
@@ -677,6 +679,10 @@ class ChatService {
         await messageService.clearMessageHistory(chatId, userId);
 
         return await this.createChatDto(chat, userId);
+    }
+
+    async readAllChat(chatId: number, userId: number) {
+        return await messageService.readMessage(chatId, userId, new Date());
     }
 
     throwChatNotFoundError() {

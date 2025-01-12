@@ -24,7 +24,14 @@ class MessageService {
             association: 'userMessages',
             include: [{ association: 'user' }]
         },
-        { association: 'messageFiles' }
+        { association: 'messageFiles' },
+        {
+            association: 'parentMessage',
+            include: [
+                { association: 'sender' },
+                { association: 'messageFiles' }
+            ]
+        }
     ];
 
     async getMessageById(messageId: number): Promise<Message> {
@@ -47,13 +54,42 @@ class MessageService {
         });
     }
 
+    createParentMessageDto(messageData: Message) {
+        const { id, message } = messageData.toJSON();
+
+        const sender = messageData.get('sender').toPreview();
+
+        const files = messageData
+            .get('messageFiles')
+            .map(messageFile =>
+                messageFileService.createMessageFileDto(messageFile)
+            );
+
+        return {
+            id,
+            message,
+            sender,
+            files
+        };
+    }
+
     createMessageDto(messageData: Message, forUserId: number): MessageDTO {
-        const { id, message, type, createdAt, updatedAt, chatId } =
-            messageData.toJSON();
+        const {
+            id,
+            message,
+            type,
+            createdAt,
+            updatedAt,
+            chatId,
+            parentMessageId
+        } = messageData.toJSON();
 
         const isEdited = createdAt.toString() != updatedAt.toString();
+
         const sender = messageData.get('sender');
+
         const isOwner = sender && sender.get('id') == forUserId;
+
         const readers = isOwner
             ? messageData
                   .get('userMessages')
@@ -67,18 +103,27 @@ class MessageService {
                       readDate: userMessage.get('readDate')
                   }))
             : null;
-        const isRead = isOwner ? readers.length > 0 : null;
-        const files = messageData.get('messageFiles').map(item => {
-            const { id, url, name, type, size } = item.toJSON();
 
-            return {
-                id,
-                url,
-                name,
-                type,
-                size: formatFileSize(size)
-            } as MessageFileDTO;
-        });
+        const isRead = isOwner ? readers.length > 0 : null;
+
+        const reactions = messageData
+            .get('userMessages')
+            .filter(userMessage => !!userMessage.get('reaction'))
+            .map(userMessage => ({
+                ...userMessage.get('user').toPreview(),
+                reaction: userMessage.get('reaction'),
+                reactionDate: userMessage.get('reactionDate')
+            }));
+
+        const files = messageData
+            .get('messageFiles')
+            .map(messageFile =>
+                messageFileService.createMessageFileDto(messageFile)
+            );
+
+        const parentMessage = parentMessageId
+            ? this.createParentMessageDto(messageData.get('parentMessage'))
+            : null;
 
         return {
             id,
@@ -90,8 +135,10 @@ class MessageService {
             sender: sender?.toPreview() ?? null,
             isRead,
             readers,
+            reactions,
             chatId,
-            files
+            files,
+            parentMessage
         };
     }
 
@@ -106,13 +153,15 @@ class MessageService {
         message: string,
         chatId: number,
         senderId: number = null,
-        files: MessageFileRequestBodyDTO[] = []
+        files: MessageFileRequestBodyDTO[] = [],
+        parentMessageId?: number
     ): Promise<MessageDTO> {
         const createdMessage = await Message.create({
             type,
             message,
             chatId,
-            senderId
+            senderId,
+            parentMessageId
         });
 
         await messageFileService.createMessageFiles(
@@ -171,7 +220,8 @@ class MessageService {
         senderId: number,
         chatId: number,
         message: string,
-        files: MessageFileRequestBodyDTO[]
+        files: MessageFileRequestBodyDTO[],
+        parentMessageId: number
     ): Promise<MessageDTO> {
         const chat = await chatService.checkUserInChat(chatId, senderId);
 
@@ -179,7 +229,13 @@ class MessageService {
             chatService.throwChatNotFoundError();
         }
 
-        const userChat = await chatService.getUserChat(senderId, chatId);
+        const userChat = chat
+            .get('userChats')
+            .find(
+                userChat =>
+                    userChat.get('userId') == senderId &&
+                    userChat.get('chatId') == chatId
+            );
 
         if (userChat.get('isKicked')) {
             throw ApiError.badRequest('Вы были исключены из чата');
@@ -189,12 +245,28 @@ class MessageService {
             await chatService.returnToChat(chatId, senderId);
         }
 
+        if (parentMessageId != undefined) {
+            // TODO: проверять что тип у сообщения не System
+            const userMessage = await UserMessage.findOne({
+                where: {
+                    userId: senderId,
+                    messageId: parentMessageId,
+                    chatId: chat.get('id')
+                }
+            });
+
+            if (!userMessage) {
+                this.throwMessageNotFoundError();
+            }
+        }
+
         return await this.createMessage(
             MessageTypes.DEFAULT,
             message,
             chatId,
             senderId,
-            files
+            files,
+            parentMessageId
         );
     }
 
@@ -366,14 +438,12 @@ class MessageService {
         });
     }
 
-    async readMessage(messageId: number, userId: number) {
-        const message = await this.getMessageById(messageId);
-
+    async readMessage(chatId: number, userId: number, date: Date) {
         const messagesToRead = await Message.findAll({
             where: {
-                chatId: message.get('chatId'),
+                chatId,
                 createdAt: {
-                    [Op.lte]: message.get('createdAt')
+                    [Op.lte]: date
                 },
                 [Op.or]: [
                     {
@@ -403,6 +473,55 @@ class MessageService {
                 }
             }
         );
+    }
+
+    async readPreviousMessages(messageId: number, userId: number) {
+        const message = await this.getMessageById(messageId);
+
+        return await this.readMessage(
+            message.get('chatId'),
+            userId,
+            message.get('createdAt')
+        );
+    }
+
+    async readAllMessages(messageId: number, userId: number) {
+        const message = await this.getMessageById(messageId);
+
+        return await this.readMessage(
+            message.get('chatId'),
+            userId,
+            new Date()
+        );
+    }
+
+    async setReactionToMessage(
+        messageId: number,
+        userId: number,
+        reaction: string
+    ) {
+        const userMessage = await UserMessage.findOne({
+            where: {
+                messageId,
+                userId
+            }
+        });
+
+        if (!userMessage) {
+            this.throwMessageNotFoundError();
+        }
+
+        const isEqual = userMessage.get('reaction') == reaction;
+
+        const finalReaction = isEqual ? null : reaction;
+        const reactionDate = isEqual ? null : new Date();
+
+        userMessage.set('reaction', finalReaction);
+        userMessage.set('reactionDate', reactionDate);
+
+        await userMessage.save();
+
+        // отправка в сокет
     }
 
     // довести до ума чтобы сразу же запросом отбирались нужные записи

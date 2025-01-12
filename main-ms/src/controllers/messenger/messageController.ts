@@ -43,7 +43,8 @@ class MessageController {
                 req.user.id,
                 req.params.id,
                 req.body.message,
-                req.body.files
+                req.body.files,
+                req.body.parentMessageId
             );
 
             res.json({ message });
@@ -94,7 +95,28 @@ class MessageController {
         next: NextFunction
     ) {
         try {
-            await messageService.readMessage(req.params.id, req.user.id);
+            await messageService.readPreviousMessages(
+                req.params.id,
+                req.user.id
+            );
+
+            res.sendStatus(200);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async setReactionToMessage(
+        req: RequestWithParamsAndBodyAndUser<IdParam, { reaction: string }>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            await messageService.setReactionToMessage(
+                req.params.id,
+                req.user.id,
+                req.body.reaction
+            );
 
             res.sendStatus(200);
         } catch (error) {

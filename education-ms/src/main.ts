@@ -21,7 +21,7 @@ async function bootstrap() {
         transport: Transport.RMQ,
         options: {
             urls: [`${configService.get('RMQ_URL')}`],
-            queue: 'education-queue',
+            queue: configService.get('RMQ_QUEUE_NAME'),
             queueOptions: { durable: false }
         }
     });

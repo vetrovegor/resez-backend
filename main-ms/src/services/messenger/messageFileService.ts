@@ -1,13 +1,28 @@
-import fileService from '../fileService';
 import MessageFile from '@db/models/messenger/MessageFile';
-import { MessageFileRequestBodyDTO } from 'src/types/messenger';
+import { formatFileSize } from '@utils';
+import { MessageFileDTO, MessageFileRequestBodyDTO } from 'src/types/messenger';
 
 class MessageFileService {
-    async createMessageFiles(messageId: number, files: MessageFileRequestBodyDTO[]) {
+    async createMessageFiles(
+        messageId: number,
+        files: MessageFileRequestBodyDTO[]
+    ) {
         for (const file of files) {
             const { url, name, type, size } = file;
             await MessageFile.create({ messageId, url, name, type, size });
         }
+    }
+
+    createMessageFileDto(messageFile: MessageFile): MessageFileDTO {
+        const { id, url, name, type, size } = messageFile.toJSON();
+
+        return {
+            id,
+            url,
+            name,
+            type,
+            size: formatFileSize(size)
+        };
     }
 
     // async deleteMessageFilesByMessageId(messageId: number) {

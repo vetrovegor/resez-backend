@@ -142,9 +142,7 @@ class ChatController {
         next: NextFunction
     ) {
         try {
-            const count = await chatService.getUnreadChatsCount(
-                req.user.id
-            );
+            const count = await chatService.getUnreadChatsCount(req.user.id);
 
             res.json({ count });
         } catch (error) {
@@ -271,6 +269,22 @@ class ChatController {
             );
 
             res.json({ chat });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async readAllChat(
+        req: RequestWithParamsAndUser<IdParam>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            console.log('read all chat');
+
+            await chatService.readAllChat(req.params.id, req.user.id);
+
+            res.sendStatus(200);
         } catch (error) {
             next(error);
         }

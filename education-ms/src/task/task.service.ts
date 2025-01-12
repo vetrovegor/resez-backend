@@ -69,7 +69,9 @@ export class TaskService {
                 dto.task + dto.solution
             );
 
-        await this.sourceService.getById(dto.sourceId);
+        if (dto.sourceId) {
+            await this.sourceService.getById(dto.sourceId);
+        }
 
         const hasVerifiedPermission = user.permissions.some(
             permission => permission.permission == Permissions.VerifyTasks
@@ -106,10 +108,12 @@ export class TaskService {
             taskData.task,
             taskData.snippets
         );
-        const solution = this.snippetService.addSnippetsContentToHtml(
-            taskData.solution,
-            taskData.snippets
-        );
+        const solution = taskData.solution
+            ? this.snippetService.addSnippetsContentToHtml(
+                  taskData.solution,
+                  taskData.snippets
+              )
+            : null;
         const { subject = null } = taskData.subject || {};
         const { number = null, theme = null } = taskData.subjectTask || {};
         const { subTheme = null } = taskData.subTheme || {};
@@ -571,28 +575,10 @@ export class TaskService {
             return { matches: [] };
         }
 
-        const comparison: { taskId: number; convertedTask: string }[] = [];
-
-        const convertedTasksData = tasksData.map(taskData => {
-            const convertedTask = this.snippetService.removeSnippetsFromHtml(
-                taskData.task
-            );
-
-            comparison.push({
-                taskId: taskData.id,
-                convertedTask
-            });
-
-            return {
-                ...taskData,
-                task: convertedTask
-            };
-        });
-
-        const tasksContent = convertedTasksData.map(task => task.task);
+        const tasksContent = tasksData.map(task => task.task);
 
         const matchesData = stringSimilarity.findBestMatch(
-            this.snippetService.removeSnippetsFromHtml(dto.task),
+            dto.task,
             tasksContent
         );
 
@@ -602,11 +588,9 @@ export class TaskService {
 
         const matches = await Promise.all(
             topMatches.map(async match => {
-                const { taskId } = comparison.find(
-                    item => item.convertedTask == match.target
+                const taskData = tasksData.find(
+                    task => task.task == match.target
                 );
-
-                const taskData = tasksData.find(task => task.id == taskId);
 
                 const taskShortInfo = await this.createShortInfo(taskData);
 

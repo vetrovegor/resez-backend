@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import * as proxy from 'express-http-proxy';
 import { ConfigService } from '@nestjs/config';
+// import { json, urlencoded } from 'express';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -12,6 +13,9 @@ async function bootstrap() {
         credentials: true,
         origin: configService.get('ALLOWED_ORIGINS').split(',')
     });
+
+    // app.use(json({ limit: '10mb' }));
+    // app.use(urlencoded({ extended: true, limit: '10mb' }));
 
     const routes = [
         { path: '/api/memory-ms', urlKey: 'MEMORY_MS_URL' },

@@ -43,6 +43,7 @@ messageRouter.post(
     body('files.*.name').isString(),
     body('files.*.type').isString(),
     body('files.*.size').isNumeric(),
+    body('parentMessageId').isNumeric().optional(),
     validationMiddleware,
     accessTokenMiddleware(true),
     messageController.sendMessageToChat
@@ -73,4 +74,13 @@ messageRouter.patch(
     validationMiddleware,
     accessTokenMiddleware(true),
     messageController.readMessage
+);
+
+messageRouter.patch(
+    '/:id/reaction',
+    param('id').isNumeric(),
+    body('reaction').isLength({ min: 1, max: 1 }),
+    validationMiddleware,
+    accessTokenMiddleware(true),
+    messageController.setReactionToMessage
 );

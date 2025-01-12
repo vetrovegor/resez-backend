@@ -45,6 +45,16 @@ class UserMessage extends Model {
         type: DataType.DATE
     })
     readDate: Date;
+    
+    @Column({
+        type: DataType.CHAR(1)
+    })
+    reaction: string;
+    
+    @Column({
+        type: DataType.DATE
+    })
+    reactionDate: Date;
 }
 
 export default UserMessage;

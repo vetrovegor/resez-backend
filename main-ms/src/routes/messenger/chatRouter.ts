@@ -136,3 +136,11 @@ chatRouter.delete(
     accessTokenMiddleware(true),
     chatController.clearHistory
 );
+
+chatRouter.patch(
+    '/:id/read',
+    param('id').isNumeric(),
+    validationMiddleware,
+    accessTokenMiddleware(true),
+    chatController.readAllChat
+);

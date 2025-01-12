@@ -60,6 +60,18 @@ class Message extends Model {
         onDelete: 'CASCADE'
     })
     messageFiles: MessageFile[];
+
+    @ForeignKey(() => Message)
+    @Column({
+        type: DataType.INTEGER
+    })
+    parentMessageId: number;
+
+    @BelongsTo(() => Message)
+    parentMessage: Message;
+
+    @HasMany(() => Message)
+    replies: Message[];
 }
 
 export default Message;

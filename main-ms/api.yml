@@ -47,6 +47,12 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/File"
+        parentMessageId:
+          type: number
+          example: 400
+      required:
+        - message
+        - files
     MessageResponseBody:
       type: object
       properties:
@@ -81,12 +87,24 @@ components:
           example: true
         readers:
           type: array
-          nullable: true
           items:
             allOf:
               - $ref: "#/components/schemas/User"
               - properties:
                   readDate:
+                    type: string
+                    format: date-time
+        reactions:
+          type: array
+          nullable: true
+          items:
+            allOf:
+              - $ref: "#/components/schemas/User"
+              - properties:
+                  reaction:
+                    type: string
+                    example: 🥴
+                  reactionDate:
                     type: string
                     format: date-time
         chatId:
@@ -262,6 +280,28 @@ paths:
       summary: The current message and all previous messages are being read
       parameters:
         - name: messageId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: "Success"
+        "400":
+          description: "Validation Error"
+        "401":
+          description: "Unauthorized"
+        "404":
+          description: "Not Found"
+        "500":
+          description: "Internal Server Error"
+  /api/messenger/chat/{chatId}/read:
+    patch:
+      tags:
+        - Messenger
+      summary: Reading all chat messages
+      parameters:
+        - name: chatId
           in: path
           required: true
           schema:

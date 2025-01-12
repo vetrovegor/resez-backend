@@ -27,7 +27,15 @@ export type MessageFileDTO = {
 export type MessageRequestBodyDTO = {
     message: string;
     files: MessageFileRequestBodyDTO[];
+    parentMessageId: number;
 };
+
+export type ParentMessageDTO = {
+    id: number;
+    message: string;
+    sender: UserPreview;
+    files: MessageFileDTO[];
+}
 
 export type MessageDTO = {
     id: number;
@@ -39,8 +47,10 @@ export type MessageDTO = {
     sender: UserPreview;
     isRead: boolean;
     readers: (UserPreview & { readDate: Date })[];
+    reactions: (UserPreview & { reaction: string, reactionDate: Date })[];
     chatId: number;
     files: MessageFileDTO[];
+    parentMessage: ParentMessageDTO;
 };
 
 export type ChatDTO = {
