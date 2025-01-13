@@ -144,3 +144,12 @@ chatRouter.patch(
     accessTokenMiddleware(true),
     chatController.readAllChat
 );
+
+chatRouter.post(
+    '/:id/typing',
+    param('id').isNumeric(),
+    body('isTyping').isBoolean(),
+    validationMiddleware,
+    accessTokenMiddleware(true),
+    chatController.handleTyping
+);

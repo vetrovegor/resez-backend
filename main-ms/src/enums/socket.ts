@@ -7,6 +7,8 @@ export const enum EmitTypes {
     Unblocked = 'unblocked',
     Message = 'message',
     MessagesDeleting = 'messages-deleting',
+    Typing = 'typing',
+    ChatUpdated = 'chat-updated',
     Refresh = 'refresh',
     Auth = 'auth',
     NewLevel = 'new-level',

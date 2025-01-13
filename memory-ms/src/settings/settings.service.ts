@@ -12,11 +12,11 @@ import { SettingsDto } from './dto/settings.dto';
 export class SettingsService {
     constructor(
         @InjectRepository(Settings)
-        private readonly collectionRepository: Repository<Settings>
+        private readonly settingsRepository: Repository<Settings>
     ) {}
 
     async get(userId: number) {
-        const settings = await this.collectionRepository.findOne({
+        const settings = await this.settingsRepository.findOne({
             where: { userId }
         });
 
@@ -58,7 +58,7 @@ export class SettingsService {
     }
 
     async update(userId: number, dto: SettingsDto) {
-        const existedSettings = await this.collectionRepository.findOne({
+        const existedSettings = await this.settingsRepository.findOne({
             where: { userId }
         });
 
@@ -68,9 +68,9 @@ export class SettingsService {
 
         this.validateUpdatingTestSettings(existedSettings, dto);
 
-        await this.collectionRepository.update({ userId }, { ...dto });
+        await this.settingsRepository.update({ userId }, { ...dto });
 
-        const updatedSettings = await this.collectionRepository.findOne({
+        const updatedSettings = await this.settingsRepository.findOne({
             where: { userId }
         });
 
@@ -80,7 +80,7 @@ export class SettingsService {
     }
 
     async create(userId: number) {
-        const settings = this.collectionRepository.create({ userId });
-        return await this.collectionRepository.save(settings);
+        const settings = this.settingsRepository.create({ userId });
+        return await this.settingsRepository.save(settings);
     }
 }

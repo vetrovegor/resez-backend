@@ -460,7 +460,7 @@ class MessageService {
             message.get('id')
         );
 
-        await UserMessage.update(
+        const [affectedCount] = await UserMessage.update(
             {
                 isRead: true,
                 readDate: new Date()
@@ -473,6 +473,11 @@ class MessageService {
                 }
             }
         );
+
+        if (affectedCount > 0) {
+            // TODO: возможно стоит уведомлять всех кроме пользователя который прочитал
+            await chatService.notifyChatUpdate(chatId);
+        }
     }
 
     async readPreviousMessages(messageId: number, userId: number) {
@@ -521,7 +526,7 @@ class MessageService {
 
         await userMessage.save();
 
-        // отправка в сокет
+        await chatService.notifyChatUpdate(userMessage.get('chatId'));
     }
 
     // довести до ума чтобы сразу же запросом отбирались нужные записи

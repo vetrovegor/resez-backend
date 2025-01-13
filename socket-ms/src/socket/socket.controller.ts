@@ -15,9 +15,20 @@ export class SocketController {
 
     @EventPattern('emit-to-user')
     emitToUser(content: { userId: number; emitType: EmitTypes; data: any }) {
-        console.log({ content });
+        console.log({ event: 'emit-to-user', content });
         const { userId, emitType, data } = content;
         this.socketService.emitToUser(userId, emitType, data);
+    }
+
+    @EventPattern('emit-to-users')
+    emitToUsers(content: {
+        userIds: number[];
+        emitType: EmitTypes;
+        data: any;
+    }) {
+        console.log({ event: 'emit-to-users', content });
+        const { userIds, emitType, data } = content;
+        this.socketService.emitToUsers(userIds, emitType, data);
     }
 
     @EventPattern('emit-end-session')

@@ -16,6 +16,7 @@ import rmqService from '@services/rmqService';
 import { Queues } from '@enums/rmq';
 import UserMessage from '@db/models/messenger/UserMessage';
 import { MessageTypes } from '@enums/messenger';
+import { EmitTypes } from '@enums/socket';
 
 class ChatService {
     private chatInclude = [
@@ -683,6 +684,45 @@ class ChatService {
 
     async readAllChat(chatId: number, userId: number) {
         return await messageService.readMessage(chatId, userId, new Date());
+    }
+
+    async getChatUserIds(chatId: number) {
+        // TODO: кешировать получение id пользователей чата
+        const userChats = await UserChat.findAll({ where: { chatId } });
+
+        return userChats.map(userChat => userChat.get('userId'));
+    }
+
+    async handleTyping(
+        chatId: number,
+        user: Partial<UserPreview>,
+        isTyping: boolean
+    ) {
+        const chatUserIds = await this.getChatUserIds(chatId);
+        const userIds = chatUserIds.filter(userId => userId != user.id);
+
+        rmqService.sendToQueue(Queues.Socket, 'emit-to-users', {
+            userIds,
+            emitType: EmitTypes.Typing,
+            data: {
+                chatId,
+                user,
+                isTyping
+            }
+        });
+    }
+
+    // TODO: возможно нужен параметр excludeUserId
+    async notifyChatUpdate(chatId: number) {
+        const userIds = await this.getChatUserIds(chatId);
+
+        rmqService.sendToQueue(Queues.Socket, 'emit-to-users', {
+            userIds,
+            emitType: EmitTypes.ChatUpdated,
+            data: {
+                chatId
+            }
+        });
     }
 
     throwChatNotFoundError() {

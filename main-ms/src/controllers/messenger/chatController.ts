@@ -280,9 +280,27 @@ class ChatController {
         next: NextFunction
     ) {
         try {
-            console.log('read all chat');
-
             await chatService.readAllChat(req.params.id, req.user.id);
+
+            res.sendStatus(200);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async handleTyping(
+        req: RequestWithParamsAndBodyAndUser<IdParam, { isTyping: boolean }>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const { id, nickname } = req.user;
+            
+            await chatService.handleTyping(
+                req.params.id,
+                { id, nickname },
+                req.body.isTyping
+            );
 
             res.sendStatus(200);
         } catch (error) {

@@ -116,6 +116,18 @@ export class SocketService implements OnGatewayConnection {
         }
     }
 
+    emitToUsers(userIds: number[], emitType: EmitTypes, data?: any) {
+        const userIdSet = new Set(userIds.map(id => id.toString()));
+        const targetUsers = this.authUsers.filter(user =>
+            userIdSet.has(user.userId)
+        );
+
+        for (const user of targetUsers) {
+            console.log({ user: data.user });
+            this.emitToRoom(user.socketId, emitType, data);
+        }
+    }
+
     emitEndSession(sessionId: number): void {
         const user = this.authUsers.find(
             u => u.sessionId === sessionId.toString()
