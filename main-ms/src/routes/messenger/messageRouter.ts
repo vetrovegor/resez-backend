@@ -3,7 +3,6 @@ import { body, param, query } from 'express-validator';
 
 import messageController from '@controllers/messenger/messageController';
 import { validationMiddleware } from '@middlewares/validationMiddleware';
-import { messageFilesMiddleware } from '@middlewares/messenger/messageFilesMiddleware';
 import { accessTokenMiddleware } from '@middlewares/accessTokenMiddleware';
 
 export const messageRouter = Router();

@@ -170,28 +170,25 @@ class MessageService {
             files
         );
 
-        const messageData = await Message.findByPk(createdMessage.get('id'), {
-            include: this.messageInclude
-        });
+        const chatUserIds = await chatService.getChatUserIds(chatId);
 
-        const messageDto = this.createMessageDto(messageData, senderId);
-
-        const memberIDs = await (
-            await chatService.getChatById(chatId)
-        ).getChatMemberIDs();
-
-        memberIDs.forEach(async userId => {
+        chatUserIds.forEach(async userId => {
             await this.createUserMessage(
                 userId,
                 createdMessage.get('id'),
                 chatId
             );
+        });
 
-            rmqService.sendToQueue(Queues.Socket, 'emit-to-user', {
-                userId,
-                emitType: EmitTypes.Message,
-                data: messageDto
-            });
+        const messageDto = await this.createMessageDtoById(
+            createdMessage.get('id'),
+            senderId
+        );
+
+        rmqService.sendToQueue(Queues.Socket, 'emit-to-users', {
+            userIds: chatUserIds.filter(userId => userId != senderId),
+            emitType: EmitTypes.Message,
+            messageDto
         });
 
         return messageDto;
@@ -309,42 +306,36 @@ class MessageService {
         if (!isUserInChat) {
             this.throwMessageNotFoundError();
         }
-        // вынести в функцию принадлежит ли сообщение пользователю или в мидлвейр
 
         messageData.set('message', message);
         await messageData.save();
 
         const messageDto = this.createMessageDto(messageData, userId);
 
-        const memberIDs = await (
-            await chatService.getChatById(messageData.get('chatId'))
-        ).getChatMemberIDs();
-
-        memberIDs.forEach(async userId => {
-            rmqService.sendToQueue(Queues.Socket, 'emit-to-user', {
-                userId,
-                emitType: EmitTypes.Message,
-                data: messageDto
-            });
-        });
+        chatService.notifyChatUsers(
+            messageData.get('chatId'),
+            userId,
+            EmitTypes.MessageUpdating,
+            messageDto
+        );
 
         return messageDto;
     }
 
     async deleteMessage(
         userId: number,
-        messageIDs: number[],
+        messageIds: number[],
         forAll: any
     ): Promise<void> {
-        if (!Array.isArray(messageIDs)) {
-            messageIDs = [messageIDs];
+        if (!Array.isArray(messageIds)) {
+            messageIds = [messageIds];
         }
 
         let chatId: number = null;
 
         forAll = forAll && forAll.toLowerCase() === 'true';
 
-        for (const messageId of messageIDs) {
+        for (const messageId of messageIds) {
             const messageData = await this.getMessageById(messageId);
 
             if (messageData.get('senderId') != userId) {
@@ -379,7 +370,7 @@ class MessageService {
             }
         }
 
-        for (const messageId of messageIDs) {
+        for (const messageId of messageIds) {
             if (forAll) {
                 // await messageFileService.deleteMessageFilesByMessageId(messageId);
                 await Message.destroy({ where: { id: messageId } });
@@ -390,17 +381,14 @@ class MessageService {
             }
         }
 
-        const memberIDs = await (
-            await chatService.getChatById(chatId)
-        ).getChatMemberIDs();
-
-        memberIDs.forEach(async userId => {
-            rmqService.sendToQueue(Queues.Socket, 'emit-to-user', {
+        if (forAll) {
+            chatService.notifyChatUsers(
+                chatId,
                 userId,
-                emitType: EmitTypes.Message,
-                data: messageIDs
-            });
-        });
+                EmitTypes.MessagesDeleting,
+                { messageIds }
+            );
+        }
     }
 
     async getChatMessages(chatId: number, userId: number) {
@@ -454,7 +442,8 @@ class MessageService {
                     },
                     { senderId: null }
                 ]
-            }
+            },
+            order: [['createdAt', 'DESC']]
         });
 
         const messagesToReadIds = messagesToRead.map(message =>
@@ -476,8 +465,12 @@ class MessageService {
         );
 
         if (affectedCount > 0) {
-            // TODO: возможно стоит уведомлять всех кроме пользователя который прочитал
-            await chatService.notifyChatUpdate(chatId);
+            chatService.notifyChatUsers(
+                chatId,
+                userId,
+                EmitTypes.MessageReading,
+                { messageId: messagesToRead[0].get('id') }
+            );
         }
     }
 
@@ -527,7 +520,14 @@ class MessageService {
 
         await userMessage.save();
 
-        await chatService.notifyChatUpdate(userMessage.get('chatId'));
+        const messageDto = await this.createMessageDtoById(messageId, userId);
+
+        chatService.notifyChatUsers(
+            messageDto.chatId,
+            userId,
+            EmitTypes.MessageUpdating,
+            messageDto
+        );
     }
 
     // довести до ума чтобы сразу же запросом отбирались нужные записи

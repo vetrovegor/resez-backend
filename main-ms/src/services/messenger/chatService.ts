@@ -450,6 +450,8 @@ class ChatService {
         userChat.set('isKicked', true);
         await userChat.save();
 
+        await redisClient.del(`chat:${chatId}:userIds`);
+
         return user.toPreview();
     }
 
@@ -599,6 +601,8 @@ class ChatService {
             chatId
         );
 
+        await redisClient.del(`chat:${chatId}:userIds`);
+
         return await this.getChatInfo(chatId, userId);
     }
 
@@ -636,6 +640,8 @@ class ChatService {
             await messageService.clearMessageHistory(chatId, userId);
         }
 
+        await redisClient.del(`chat:${chatId}:userIds`);
+
         return this.createChatDto(chat, userId);
     }
 
@@ -667,6 +673,8 @@ class ChatService {
             chatId
         );
 
+        await redisClient.del(`chat:${chatId}:userIds`);
+
         return this.createChatDto(chat, userId);
     }
 
@@ -687,10 +695,29 @@ class ChatService {
     }
 
     async getChatUserIds(chatId: number) {
-        // TODO: кешировать получение id пользователей чата
         const userChats = await UserChat.findAll({ where: { chatId } });
 
         return userChats.map(userChat => userChat.get('userId'));
+    }
+
+    async getChatUserIdsExcept(chatId: number, excludeUserId: number) {
+        const cacheKey = `chat:${chatId}:userIds`;
+
+        const cache = await redisClient.get(cacheKey);
+
+        let chatUserIds: number[];
+
+        if (cache) {
+            chatUserIds = JSON.parse(cache);
+        } else {
+            chatUserIds = await this.getChatUserIds(chatId);
+
+            await redisClient.set(cacheKey, JSON.stringify(chatUserIds), {
+                EX: 600
+            });
+        }
+
+        return chatUserIds.filter(userId => userId != excludeUserId);
     }
 
     async handleTyping(
@@ -698,8 +725,7 @@ class ChatService {
         user: Partial<UserPreview>,
         isTyping: boolean
     ) {
-        const chatUserIds = await this.getChatUserIds(chatId);
-        const userIds = chatUserIds.filter(userId => userId != user.id);
+        const userIds = await this.getChatUserIdsExcept(chatId, user.id);
 
         rmqService.sendToQueue(Queues.Socket, 'emit-to-users', {
             userIds,
@@ -712,16 +738,18 @@ class ChatService {
         });
     }
 
-    // TODO: возможно нужен параметр excludeUserId
-    async notifyChatUpdate(chatId: number) {
-        const userIds = await this.getChatUserIds(chatId);
+    async notifyChatUsers(
+        chatId: number,
+        excludeUserId: number,
+        emitType: EmitTypes,
+        data: any
+    ) {
+        const userIds = await this.getChatUserIdsExcept(chatId, excludeUserId);
 
         rmqService.sendToQueue(Queues.Socket, 'emit-to-users', {
             userIds,
-            emitType: EmitTypes.ChatUpdated,
-            data: {
-                chatId
-            }
+            emitType,
+            data
         });
     }
 
