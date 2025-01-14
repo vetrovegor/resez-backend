@@ -153,3 +153,12 @@ chatRouter.post(
     accessTokenMiddleware(true),
     chatController.handleTyping
 );
+
+chatRouter.get(
+    '/:id/message',
+    param('id').isNumeric(),
+    validationMiddleware,
+    paginationMiddleware,
+    accessTokenMiddleware(true),
+    chatController.getMessagesByChatId
+);

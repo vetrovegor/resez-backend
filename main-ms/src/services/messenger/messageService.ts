@@ -16,6 +16,7 @@ import { Queues } from '@enums/rmq';
 import messageFileService from './messageFileService';
 import { formatFileSize } from '@utils';
 import { MessageTypes } from '@enums/messenger';
+import { PaginationDTO } from '../../dto/PaginationDTO';
 
 class MessageService {
     private messageInclude = [
@@ -270,23 +271,23 @@ class MessageService {
         );
     }
 
-    async getLastMessageByChatId(
-        chatId: number,
-        userId: number
-    ): Promise<MessageDTO> {
-        const lastUserMessage = await UserMessage.findOne({
-            where: { chatId, userId },
-            include: {
-                association: 'message',
-                include: this.messageInclude
-            },
-            order: [['createdAt', 'DESC']]
-        });
+    // async getLastMessageByChatId(
+    //     chatId: number,
+    //     userId: number
+    // ): Promise<MessageDTO> {
+    //     const lastUserMessage = await UserMessage.findOne({
+    //         where: { chatId, userId },
+    //         include: {
+    //             association: 'message',
+    //             include: this.messageInclude
+    //         },
+    //         order: [['createdAt', 'DESC']]
+    //     });
 
-        return lastUserMessage
-            ? this.createMessageDto(lastUserMessage.get('message'), userId)
-            : null;
-    }
+    //     return lastUserMessage
+    //         ? this.createMessageDto(lastUserMessage.get('message'), userId)
+    //         : null;
+    // }
 
     async editMessage(
         messageId: number,
@@ -541,6 +542,40 @@ class MessageService {
         const uniqueChatIDs = [...new Set(chatIDs)];
 
         return uniqueChatIDs.slice(0, limit);
+    }
+
+    async getMessagesByChatId(
+        chatId: number,
+        userId: number,
+        limit: number,
+        offset: number
+    ) {
+        const { rows: messagesData, count: totalCount } =
+            await Message.findAndCountAll({
+                include: [
+                    ...this.messageInclude,
+                    {
+                        association: 'userMessages',
+                        include: [{ association: 'user' }],
+                        where: { chatId, userId }
+                    }
+                ],
+                order: [['createdAt', 'DESC']],
+                limit,
+                offset
+            });
+
+        const messages = messagesData
+            .reverse()
+            .map(messageData => this.createMessageDto(messageData, userId));
+
+        return new PaginationDTO(
+            'messages',
+            messages,
+            totalCount,
+            limit,
+            offset
+        );
     }
 
     throwMessageNotFoundError() {

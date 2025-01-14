@@ -295,7 +295,7 @@ class ChatController {
     ) {
         try {
             const { id, nickname } = req.user;
-            
+
             await chatService.handleTyping(
                 req.params.id,
                 { id, nickname },
@@ -303,6 +303,25 @@ class ChatController {
             );
 
             res.sendStatus(200);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getMessagesByChatId(
+        req: RequestWithParamsAndQueryAndUser<IdParam, PaginationQuery>,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const data = await chatService.getMessagesByChatId(
+                req.params.id,
+                req.user.id,
+                req.query.limit,
+                req.query.offset
+            );
+
+            res.json(data);
         } catch (error) {
             next(error);
         }

@@ -725,6 +725,26 @@ class ChatService {
         });
     }
 
+    async getMessagesByChatId(
+        chatId: number,
+        userId: number,
+        limit: number,
+        offset: number
+    ) {
+        const userChat = await UserChat.findOne({ where: { chatId, userId } });
+
+        if (!userChat) {
+            this.throwChatNotFoundError();
+        }
+
+        return await messageService.getMessagesByChatId(
+            chatId,
+            userId,
+            limit,
+            offset
+        );
+    }
+
     throwChatNotFoundError() {
         throw ApiError.notFound('Чат не найден');
     }
