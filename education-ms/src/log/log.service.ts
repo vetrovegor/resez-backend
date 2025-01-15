@@ -35,7 +35,7 @@ export class LogService {
             })
         };
 
-        const logsData = await this.logRepository.find({
+        const [logsData, totalCount] = await this.logRepository.findAndCount({
             where,
             order: { createdAt: 'DESC' },
             take,
@@ -57,8 +57,6 @@ export class LogService {
                 };
             })
         );
-
-        const totalCount = await this.logRepository.count({ where });
 
         return {
             logs,

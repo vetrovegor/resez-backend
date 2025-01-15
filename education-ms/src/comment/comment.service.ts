@@ -92,13 +92,14 @@ export class CommentService {
     async find(take: number, skip: number, taskId: number) {
         const where = { task: { id: taskId }, parentComment: IsNull() };
 
-        const commentsData = await this.commentRepository.find({
-            where,
-            order: { createdAt: 'ASC', replies: { createdAt: 'ASC' } },
-            take,
-            skip,
-            relations: { replies: true }
-        });
+        const [commentsData, totalCount] =
+            await this.commentRepository.findAndCount({
+                where,
+                order: { createdAt: 'ASC', replies: { createdAt: 'ASC' } },
+                take,
+                skip,
+                relations: { replies: true }
+            });
 
         const comments = await Promise.all(
             commentsData.map(async comment => {
@@ -117,10 +118,6 @@ export class CommentService {
                 };
             })
         );
-
-        const totalCount = await this.commentRepository.count({
-            where
-        });
 
         return {
             comments,

@@ -10,7 +10,6 @@ import {
 
 import User from '../User';
 import Chat from './Chat';
-import MessageType from './MessageType';
 import UserMessage from './UserMessage';
 import MessageFile from './MessageFile';
 import { MessageTypes } from '@enums/messenger';
@@ -43,13 +42,6 @@ class Message extends Model {
         type: DataType.ENUM(...Object.values(MessageTypes))
     })
     type: MessageTypes;
-
-    @ForeignKey(() => MessageType)
-    @Column
-    messageTypeId: number;
-
-    @BelongsTo(() => MessageType)
-    messageType: MessageType;
 
     @HasMany(() => UserMessage, {
         onDelete: 'CASCADE'

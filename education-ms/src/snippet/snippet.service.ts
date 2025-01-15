@@ -87,19 +87,18 @@ export class SnippetService {
             })
         };
 
-        const snippetsData = await this.snippetRepository.find({
-            where,
-            order: { createdAt: 'DESC' },
-            take: limit,
-            skip: offset,
-            relations: ['subject']
-        });
+        const [snippetsData, totalCount] =
+            await this.snippetRepository.findAndCount({
+                where,
+                order: { createdAt: 'DESC' },
+                take: limit,
+                skip: offset,
+                relations: ['subject']
+            });
 
         const snippets = await Promise.all(
             snippetsData.map(snippet => this.createDto(snippet))
         );
-
-        const totalCount = await this.snippetRepository.count({ where });
 
         return {
             snippets,

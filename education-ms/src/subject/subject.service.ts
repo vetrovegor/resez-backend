@@ -112,21 +112,20 @@ export class SubjectService {
         const where = { isArchived };
         const order = { [isArchived ? 'updatedAt' : 'createdAt']: 'DESC' };
 
-        const subjectsData = await this.subjectRepository.find({
-            where,
-            order,
-            take,
-            skip,
-            relations: ['subjectTasks']
-        });
+        const [subjectsData, totalCount] =
+            await this.subjectRepository.findAndCount({
+                where,
+                order,
+                take,
+                skip,
+                relations: ['subjectTasks']
+            });
 
         const subjects = await Promise.all(
             subjectsData.map(
                 async subject => await this.createShortInfo(subject)
             )
         );
-
-        const totalCount = await this.subjectRepository.count({ where });
 
         return {
             subjects,

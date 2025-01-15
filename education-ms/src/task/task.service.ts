@@ -210,7 +210,7 @@ export class TaskService {
             current = await this.createShortInfo(currentTaskData);
         }
 
-        const tasksData = await this.taskRepository.find({
+        const [tasksData, totalCount] = await this.taskRepository.findAndCount({
             where,
             order,
             take: limit,
@@ -230,8 +230,6 @@ export class TaskService {
             tasksData.map(async task => await this.createShortInfo(task))
         );
 
-        const totalCount = await this.taskRepository.count({ where });
-
         return {
             ...(current && { current }),
             tasks,
@@ -248,7 +246,7 @@ export class TaskService {
             subTheme: { id: subThemeId }
         };
 
-        const tasksData = await this.taskRepository.find({
+        const [tasksData, totalCount] = await this.taskRepository.findAndCount({
             where,
             order: { createdAt: 'DESC' },
             take,
@@ -278,8 +276,6 @@ export class TaskService {
 
             return task;
         });
-
-        const totalCount = await this.taskRepository.count({ where });
 
         return {
             tasks,

@@ -132,13 +132,14 @@ export class TaskAnalysisService {
     async find(take: number, skip: number, isArchived: boolean) {
         const where = { isArchived };
 
-        const tasksAnalysisData = await this.taskAnalysisRepository.find({
-            where,
-            order: { createdAt: 'DESC', subjectTask: { number: 'ASC' } },
-            relations: ['subject', 'subjectTask'],
-            take,
-            skip
-        });
+        const [tasksAnalysisData, totalCount] =
+            await this.taskAnalysisRepository.findAndCount({
+                where,
+                order: { createdAt: 'DESC', subjectTask: { number: 'ASC' } },
+                relations: ['subject', 'subjectTask'],
+                take,
+                skip
+            });
 
         const tasksAnalysis = await Promise.all(
             tasksAnalysisData.map(async item => {
@@ -152,8 +153,6 @@ export class TaskAnalysisService {
                 };
             })
         );
-
-        const totalCount = await this.taskAnalysisRepository.count({ where });
 
         return {
             tasksAnalysis,

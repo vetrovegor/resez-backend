@@ -79,16 +79,6 @@ class ChatService {
         });
     }
 
-    async checkUserInChat(chatId: number, userId: number): Promise<Chat> {
-        const chat = await this.getChatById(chatId);
-
-        const exists = chat
-            .get('userChats')
-            .some(item => item.userId == userId);
-
-        return exists ? chat : null;
-    }
-
     async createOrGetChatBetweenUsers(senderId: number, recipientId: number) {
         // обработать senderId == recipientId
         // // у чата 1 участник, adminId == userId, isFavorites == true
@@ -485,9 +475,17 @@ class ChatService {
         //     return JSON.parse(cache);
         // }
 
-        const chatData = await this.checkUserInChat(chatId, userId);
+        const chatData = await this.getChatById(chatId);
 
         if (!chatData) {
+            this.throwChatNotFoundError();
+        }
+
+        const exists = chatData
+            .get('userChats')
+            .some(userChat => userChat.userId == userId);
+
+        if (!exists) {
             this.throwChatNotFoundError();
         }
 
@@ -574,9 +572,20 @@ class ChatService {
         return await this.createChatDto(chat, userId);
     }
 
-    async joinChatViaLink(userId: number, inviteLink: string) {
+    async joinChatViaLink(
+        userId: number,
+        nickname: string,
+        inviteLink: string
+    ) {
         const existedChat = await Chat.findOne({
-            where: { inviteLink }
+            where: { inviteLink },
+            attributes: ['id'],
+            include: [
+                {
+                    association: 'userChats',
+                    attributes: ['userId']
+                }
+            ]
         });
 
         if (!existedChat) {
@@ -585,19 +594,19 @@ class ChatService {
 
         const chatId = existedChat.get('id');
 
-        const isUserInChat = await this.checkUserInChat(chatId, userId);
+        const exists = existedChat
+            .get('userChats')
+            .some(userChat => userChat.userId == userId);
 
-        if (isUserInChat) {
+        if (exists) {
             return await this.getChatInfo(chatId, userId);
         }
 
         await this.createUserChat(chatId, userId);
 
-        const user = (await userService.getUserById(userId)).toPreview();
-
         await messageService.createMessage(
             MessageTypes.SYSTEM,
-            `${user.nickname} вступил(а) в группу по ссылке-приглашению`,
+            `${nickname} вступил(а) в группу по ссылке-приглашению`,
             chatId
         );
 
@@ -606,12 +615,8 @@ class ChatService {
         return await this.getChatInfo(chatId, userId);
     }
 
-    async leaveChat(chatId: number, userId: number, clearHistory: string) {
-        const chat = await this.checkUserInChat(chatId, userId);
-
-        if (!chat) {
-            throw ApiError.badRequest('Пользователь не состоит в чате');
-        }
+    async leaveChat(chatId: number, userId: number, nickname: string, clearHistory: string) {
+        const chat = await this.getChatById(chatId);
 
         if (!chat.get('isGroup')) {
             throw ApiError.badRequest('Можно покинуть только групповой чат');
@@ -621,18 +626,20 @@ class ChatService {
             .get('userChats')
             .find(userChat => userChat.userId == userId);
 
+        if (!userChat) {
+            throw ApiError.badRequest('Пользователь не состоит в чате');
+        }
+
         if (userChat.get('isLeft')) {
             throw ApiError.badRequest('Вы уже покинули чат');
         }
-
-        const user = userChat.get('user').toPreview();
 
         userChat.set('isLeft', true);
         await userChat.save();
 
         await messageService.createMessage(
             MessageTypes.SYSTEM,
-            `${user.nickname} покинул чат`,
+            `${nickname} покинул чат`,
             chatId
         );
 
@@ -645,18 +652,16 @@ class ChatService {
         return this.createChatDto(chat, userId);
     }
 
-    async returnToChat(chatId: number, userId: number) {
-        const chat = await this.checkUserInChat(chatId, userId);
-
-        if (!chat) {
-            throw ApiError.badRequest('Пользователь не состоит в чате');
-        }
+    async returnToChat(chatId: number, userId: number, nickname: string) {
+        const chat = await this.getChatById(chatId);
 
         if (!chat.get('isGroup')) {
             throw ApiError.badRequest('Можно вернуться только групповой чат');
         }
 
-        const userChat = await this.getUserChat(userId, chatId);
+        const userChat = chat
+            .get('userChats')
+            .find(userChat => userChat.userId == userId);
 
         if (!userChat.get('isLeft')) {
             throw ApiError.badRequest('Вы состоите в чате');
@@ -665,11 +670,9 @@ class ChatService {
         userChat.set('isLeft', false);
         await userChat.save();
 
-        const user = (await userService.getUserById(userId)).toPreview();
-
         await messageService.createMessage(
             MessageTypes.SYSTEM,
-            `${user.nickname} вернулся чат`,
+            `${nickname} вернулся чат`,
             chatId
         );
 
@@ -679,9 +682,13 @@ class ChatService {
     }
 
     async clearHistory(chatId: number, userId: number) {
-        const chat = await this.checkUserInChat(chatId, userId);
+        const chat = await this.getChatById(chatId);
 
-        if (!chat) {
+        const exists = chat
+            .get('userChats')
+            .some(item => item.userId == userId);
+
+        if (!exists) {
             throw ApiError.badRequest('Пользователь не состоит в чате');
         }
 

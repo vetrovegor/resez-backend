@@ -15,7 +15,6 @@ import { errorMiddleWare } from '@middlewares/errorMiddleware';
 import { sequelize } from '@db/connection';
 import { STATIC_PATH } from '@consts/STATIC_PATH';
 import permissionService from '@services/roles/permissionService';
-import messageTypeService from '@services/messenger/messageTypeService';
 import rmqService from '@services/rmqService';
 import { redisClient } from './redisClient';
 import subscriptionService from '@services/subscribtionService';
@@ -59,8 +58,6 @@ const start = async () => {
         await sequelize.sync({ alter: true });
 
         await permissionService.initPermissions();
-
-        await messageTypeService.initMessageTypes();
 
         await subscriptionService.initSubscriptions();
 

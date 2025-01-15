@@ -210,6 +210,7 @@ class ChatController {
         try {
             const response = await chatService.joinChatViaLink(
                 req.user.id,
+                req.user.nickname,
                 req.params.inviteLink
             );
 
@@ -231,6 +232,7 @@ class ChatController {
             const chat = await chatService.leaveChat(
                 req.params.id,
                 req.user.id,
+                req.user.nickname,
                 req.query.clear_history
             );
 
@@ -248,7 +250,8 @@ class ChatController {
         try {
             const chat = await chatService.returnToChat(
                 req.params.id,
-                req.user.id
+                req.user.id,
+                req.user.nickname
             );
 
             res.json({ chat });

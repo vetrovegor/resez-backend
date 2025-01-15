@@ -65,18 +65,15 @@ export class TestHistoryService {
             ...(subjectId && { subjectId })
         };
 
-        const testHistoryData = await this.testHistoryRepository.find({
-            where,
-            order: { createdAt: 'DESC' },
-            take,
-            skip
-        });
+        const [testHistoryData, totalCount] =
+            await this.testHistoryRepository.findAndCount({
+                where,
+                order: { createdAt: 'DESC' },
+                take,
+                skip
+            });
 
         const history = testHistoryData.map(({ userId, ...item }) => item); // eslint-disable-line
-
-        const totalCount = await this.testHistoryRepository.count({
-            where
-        });
 
         return {
             history,

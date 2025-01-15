@@ -147,7 +147,7 @@ export class TestService {
             ...(isOfficial != undefined && { isOfficial })
         };
 
-        const testsData = await this.testRepository.find({
+        const [testsData, totalCount] = await this.testRepository.findAndCount({
             where,
             order: { createdAt: 'DESC' },
             relations: ['subject', 'tasks'],
@@ -156,10 +156,6 @@ export class TestService {
         });
 
         const tests = testsData.map(test => this.createShortInfo(test));
-
-        const totalCount = await this.testRepository.count({
-            where
-        });
 
         return {
             tests,
@@ -181,7 +177,7 @@ export class TestService {
             subject: { id }
         };
 
-        const testsData = await this.testRepository.find({
+        const [testsData, totalCount] = await this.testRepository.findAndCount({
             where,
             order: { createdAt: 'DESC' },
             relations: ['subject', 'tasks'],
@@ -190,10 +186,6 @@ export class TestService {
         });
 
         const tests = testsData.map(test => this.createShortInfo(test));
-
-        const totalCount = await this.testRepository.count({
-            where
-        });
 
         return {
             tests,

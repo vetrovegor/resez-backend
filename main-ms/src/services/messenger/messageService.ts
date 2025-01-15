@@ -23,12 +23,7 @@ class MessageService {
         { association: 'sender', attributes: ['id', 'nickname', 'avatar'] },
         {
             association: 'userMessages',
-            attributes: [
-                'isRead',
-                'userId',
-                'readDate',
-                'reactionDate'
-            ],
+            attributes: ['isRead', 'userId', 'readDate', 'reactionDate'],
             include: [
                 {
                     association: 'user',
@@ -237,6 +232,7 @@ class MessageService {
 
     async sendMessageToChat(
         senderId: number,
+        nickname: string,
         chatId: number,
         message: string,
         files: MessageFileRequestBodyDTO[],
@@ -253,7 +249,7 @@ class MessageService {
         }
 
         if (userChat.get('isLeft')) {
-            await chatService.returnToChat(chatId, senderId);
+            await chatService.returnToChat(chatId, senderId, nickname);
         }
 
         if (parentMessageId != undefined) {
@@ -308,15 +304,6 @@ class MessageService {
         const messageData = await this.getMessageById(messageId);
 
         if (messageData.get('senderId') != userId) {
-            this.throwMessageNotFoundError();
-        }
-
-        const isUserInChat = await chatService.checkUserInChat(
-            messageData.get('chatId'),
-            userId
-        );
-
-        if (!isUserInChat) {
             this.throwMessageNotFoundError();
         }
 

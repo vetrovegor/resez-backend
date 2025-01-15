@@ -41,6 +41,7 @@ class MessageController {
         try {
             const message = await messageService.sendMessageToChat(
                 req.user.id,
+                req.user.nickname,
                 req.params.id,
                 req.body.message,
                 req.body.files,
