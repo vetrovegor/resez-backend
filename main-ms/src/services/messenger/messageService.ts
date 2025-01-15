@@ -20,17 +20,38 @@ import { PaginationDTO } from '../../dto/PaginationDTO';
 
 class MessageService {
     private messageInclude = [
-        { association: 'sender' },
+        { association: 'sender', attributes: ['id', 'nickname', 'avatar'] },
         {
             association: 'userMessages',
-            include: [{ association: 'user' }]
+            attributes: [
+                'isRead',
+                'userId',
+                'readDate',
+                'reactionDate'
+            ],
+            include: [
+                {
+                    association: 'user',
+                    attributes: ['id', 'nickname', 'avatar']
+                }
+            ]
         },
-        { association: 'messageFiles' },
+        {
+            association: 'messageFiles',
+            attributes: ['id', 'url', 'name', 'type', 'size']
+        },
         {
             association: 'parentMessage',
+            attributes: ['id', 'message'],
             include: [
-                { association: 'sender' },
-                { association: 'messageFiles' }
+                {
+                    association: 'sender',
+                    attributes: ['id', 'nickname', 'avatar']
+                },
+                {
+                    association: 'messageFiles',
+                    attributes: ['id', 'url', 'name', 'type', 'size']
+                }
             ]
         }
     ];
@@ -221,19 +242,11 @@ class MessageService {
         files: MessageFileRequestBodyDTO[],
         parentMessageId: number
     ): Promise<MessageDTO> {
-        const chat = await chatService.checkUserInChat(chatId, senderId);
+        const userChat = await chatService.getUserChat(senderId, chatId);
 
-        if (!chat) {
+        if (!userChat) {
             chatService.throwChatNotFoundError();
         }
-
-        const userChat = chat
-            .get('userChats')
-            .find(
-                userChat =>
-                    userChat.get('userId') == senderId &&
-                    userChat.get('chatId') == chatId
-            );
 
         if (userChat.get('isKicked')) {
             throw ApiError.badRequest('Вы были исключены из чата');
@@ -249,7 +262,7 @@ class MessageService {
                 where: {
                     userId: senderId,
                     messageId: parentMessageId,
-                    chatId: chat.get('id')
+                    chatId: userChat.get('id')
                 }
             });
 
