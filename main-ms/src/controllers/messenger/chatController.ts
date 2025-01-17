@@ -156,12 +156,12 @@ class ChatController {
         next: NextFunction
     ) {
         try {
-            const response = await chatService.getChatInfo(
+            const chat = await chatService.getChatInfo(
                 req.params.id,
                 req.user.id
             );
 
-            res.json(response);
+            res.json({ chat });
         } catch (error) {
             next(error);
         }

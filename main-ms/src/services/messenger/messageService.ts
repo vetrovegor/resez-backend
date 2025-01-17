@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+import { Sequelize } from 'sequelize-typescript';
 import { UploadedFile } from 'express-fileupload';
 
 import {
@@ -530,18 +531,15 @@ class MessageService {
         );
     }
 
-    // довести до ума чтобы сразу же запросом отбирались нужные записи
-    async getUniqueChatIds(userId: number, limit: number): Promise<number[]> {
-        const userMessages = await UserMessage.findAll({
+    async getOrderedChatsData(userId: number, limit: number, offset: number) {
+        return await UserMessage.findAndCountAll({
+            attributes: ['chatId'],
+            group: ['chatId'],
+            order: [[Sequelize.fn('MAX', 'createdAt'), 'DESC']],
             where: { userId },
-            order: [['createdAt', 'DESC']]
+            limit,
+            offset
         });
-
-        const chatIDs = userMessages.map(message => message.get('chatId'));
-
-        const uniqueChatIDs = [...new Set(chatIDs)];
-
-        return uniqueChatIDs.slice(0, limit);
     }
 
     async getMessagesByChatId(

@@ -221,68 +221,48 @@ class ChatService {
         };
     }
 
-    // тестовое кеширование
+    // TODO: оптимизировать
     async getUserChats(
         userId: number,
         limit: number,
         offset: number
     ): Promise<PaginationDTO<ChatDTO>> {
-        // const cache = await redisClient.get(
-        //     JSON.stringify({ req: 'user_chats', userId, limit, offset })
-        // );
-
-        // if (cache) {
-        //     return JSON.parse(cache);
-        // }
-
-        const userChatIDs = await messageService.getUniqueChatIds(
-            userId,
-            limit
-        );
-
-        const chats = await Chat.findAll({
-            where: {
-                id: { [Op.in]: userChatIDs }
-            },
-            include: this.chatInclude,
-            limit,
-            offset
+        const userChatsData = await UserChat.findAll({
+            where: { userId },
+            attributes: ['chatId']
         });
 
-        const chatDTOs = await Promise.all(
-            chats.map(
-                async chatItem => await this.createChatDto(chatItem, userId)
-            )
+        const chatIds = userChatsData.map(userChat => userChat.get('chatId'));
+
+        const chatsData = await Chat.findAll({
+            where: {
+                id: { [Op.in]: chatIds }
+            },
+            include: this.chatInclude
+        });
+
+        let chats = await Promise.all(
+            chatsData.map(async chat => {
+                return await this.createChatDto(chat, userId);
+            })
         );
 
-        chatDTOs.sort((a, b) => {
+        chats.sort((a, b) => {
             return (
                 b.latestMessage.createdAt.getTime() -
                 a.latestMessage.createdAt.getTime()
             );
         });
 
-        const totalCount = await Chat.count({
-            where: {
-                id: { [Op.in]: userChatIDs }
-            }
-        });
+        chats = chats.slice(offset).splice(0, limit);
 
-        const result = new PaginationDTO<ChatDTO>(
+        return new PaginationDTO<ChatDTO>(
             'chats',
-            chatDTOs,
-            totalCount,
+            chats,
+            userChatsData.length,
             limit,
             offset
         );
-
-        // await redisClient.set(
-        //     JSON.stringify({ req: 'user_chats', userId, limit, offset }),
-        //     JSON.stringify(result),
-        //     { EX: 5 }
-        // );
-
-        return result;
     }
 
     async createGroup(
@@ -477,10 +457,6 @@ class ChatService {
 
         const chatData = await this.getChatById(chatId);
 
-        if (!chatData) {
-            this.throwChatNotFoundError();
-        }
-
         const exists = chatData
             .get('userChats')
             .some(userChat => userChat.userId == userId);
@@ -489,20 +465,13 @@ class ChatService {
             this.throwChatNotFoundError();
         }
 
-        const messages = await messageService.getChatMessages(chatId, userId);
-
-        const result = {
-            chat: await this.createChatDto(chatData, userId),
-            messages
-        };
-
         // await redisClient.set(
         //     JSON.stringify({ req: 'chat_info', chatId, userId }),
         //     JSON.stringify(result),
         //     { EX: 5 }
         // );
 
-        return result;
+        return this.createChatDto(chatData, userId);
     }
 
     async getChatUsers(chatId: number, limit: number, offset: number) {
@@ -615,7 +584,12 @@ class ChatService {
         return await this.getChatInfo(chatId, userId);
     }
 
-    async leaveChat(chatId: number, userId: number, nickname: string, clearHistory: string) {
+    async leaveChat(
+        chatId: number,
+        userId: number,
+        nickname: string,
+        clearHistory: string
+    ) {
         const chat = await this.getChatById(chatId);
 
         if (!chat.get('isGroup')) {

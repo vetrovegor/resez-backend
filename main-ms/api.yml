@@ -431,10 +431,6 @@ paths:
                 properties:
                   chat:
                     $ref: "#/components/schemas/ChatResponseBody"
-                  messages:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/MessageResponseBody"
         "401":
           description: "Unauthorized"
         "500":
