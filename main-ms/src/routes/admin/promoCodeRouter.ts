@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { body, param, query } from 'express-validator';
 
-import { accessTokenMiddleware } from '@middlewares/accessTokenMiddleware';
 import { permissionMiddleware } from '@middlewares/permissionMiddleware';
 import promoCodeController from '@controllers/promoCodeController';
 import { validationMiddleware } from '@middlewares/validationMiddleware';
@@ -12,7 +11,6 @@ export const promoCodeRouter = Router();
 
 promoCodeRouter.post(
     '/',
-    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.PromoCodes),
     body('code')
         .notEmpty()
@@ -30,7 +28,6 @@ promoCodeRouter.post(
 
 promoCodeRouter.get(
     '/',
-    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.PromoCodes),
     query('active').isBoolean().optional(),
     validationMiddleware,
@@ -40,7 +37,6 @@ promoCodeRouter.get(
 
 promoCodeRouter.get(
     '/:id',
-    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.PromoCodes),
     param('id').isNumeric(),
     validationMiddleware,
@@ -49,7 +45,6 @@ promoCodeRouter.get(
 
 promoCodeRouter.get(
     '/:id/user',
-    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.PromoCodes),
     param('id').isNumeric(),
     paginationMiddleware,
@@ -59,7 +54,6 @@ promoCodeRouter.get(
 
 promoCodeRouter.delete(
     '/:id/finish',
-    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.PromoCodes),
     param('id').isNumeric(),
     validationMiddleware,

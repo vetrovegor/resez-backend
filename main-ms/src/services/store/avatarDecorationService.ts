@@ -3,9 +3,10 @@ import { UploadedFile } from 'express-fileupload';
 import fileService from '@services/fileService';
 import AvatarDecoration from '@db/models/store/avatarDecoration/AvatarDecoration';
 import { PaginationDTO } from '../../dto/PaginationDTO';
-import { ApiError } from '../../ApiError';
+import { ApiError } from '@ApiError';
 import UserAvatarDecoration from '@db/models/store/avatarDecoration/UserAvatarDecoration';
 import userService from '@services/userService';
+import categoryService from './categoryService';
 
 class AvatarDecorationService {
     createAvatarDecorationDto({
@@ -23,6 +24,10 @@ class AvatarDecorationService {
 
         const id = avatarDecoration.id;
         const usersCount = avatarDecoration?.userAvatarDecorations?.length;
+
+        const categories = avatarDecoration.categories.map(category =>
+            categoryService.createCategoryDto(category)
+        );
 
         delete avatarDecoration.requiredSubscriptionId;
         delete avatarDecoration.requiredAchievementId;
@@ -65,7 +70,8 @@ class AvatarDecorationService {
             isCollected: collectedIds.includes(id),
             type: 'avatar_decoration',
             contentUrl: process.env.STATIC_URL + avatarDecoration.contentUrl,
-            options: JSON.parse(avatarDecoration.options.toString())
+            options: JSON.parse(avatarDecoration.options.toString()),
+            categories
         };
     }
 
@@ -78,7 +84,8 @@ class AvatarDecorationService {
         requiredSubscriptionId: number,
         requiredAchievementId: number,
         options: string,
-        content: UploadedFile
+        content: UploadedFile,
+        categories: number[]
     ) {
         const contentUrl = await fileService.saveFile('store', content);
 
@@ -94,9 +101,12 @@ class AvatarDecorationService {
             contentUrl
         });
 
-        return this.createAvatarDecorationDto({
-            avatarDecoration: createdAvatarDecoration
-        });
+        await categoryService.createAvatarDecorationCategories(
+            categories,
+            createdAvatarDecoration.get('id')
+        );
+
+        return createdAvatarDecoration;
     }
 
     async getAvatarDecorations(limit: number, offset: number) {
@@ -104,7 +114,8 @@ class AvatarDecorationService {
             include: [
                 'requiredSubscription',
                 'requiredAchievement',
-                'userAvatarDecorations'
+                'userAvatarDecorations',
+                'categories'
             ],
             order: [['createdAt', 'DESC']],
             limit,
@@ -181,7 +192,8 @@ class AvatarDecorationService {
             include: [
                 'requiredSubscription',
                 'requiredAchievement',
-                'userAvatarDecorations'
+                'userAvatarDecorations',
+                'categories'
             ],
             where,
             order: [['createdAt', 'DESC']],
@@ -293,7 +305,8 @@ class AvatarDecorationService {
                     include: [
                         'requiredSubscription',
                         'requiredAchievement',
-                        'userAvatarDecorations'
+                        'userAvatarDecorations',
+                        'categories'
                     ]
                 }
             ],

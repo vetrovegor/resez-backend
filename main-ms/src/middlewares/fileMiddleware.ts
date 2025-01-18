@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { UploadedFile } from 'express-fileupload';
 
-import { ApiError } from '../ApiError';
+import { ApiError } from '@ApiError';
 
 export const fileMiddleware = (maxMb: number, required: boolean = true) => {
     return async (req: Request, res: Response, next: NextFunction) => {

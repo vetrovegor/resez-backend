@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 
 import userService from './userService';
-import { ApiError } from '../ApiError';
+import { ApiError } from '@ApiError';
 import codeService from './codeService';
 import { AuthResponse } from 'src/types/user';
 

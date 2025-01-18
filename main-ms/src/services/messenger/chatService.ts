@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 import { UploadedFile } from 'express-fileupload';
 
-import { ApiError } from '../../ApiError';
+import { ApiError } from '@ApiError';
 import Chat from '@db/models/messenger/Chat';
 import UserChat from '@db/models/messenger/UserChat';
 import { PaginationDTO } from '../../dto/PaginationDTO';
@@ -262,7 +262,7 @@ class ChatService {
         return new PaginationDTO<ChatDTO>(
             'chats',
             chats,
-            userChatsData.length,
+            chats.length,
             limit,
             offset
         );

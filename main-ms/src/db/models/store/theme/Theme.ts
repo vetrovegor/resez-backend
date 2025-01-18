@@ -12,6 +12,8 @@ import Subscription from '../../subscription/Subscription';
 import Achievement from '../../achievement/Achievement';
 import User from '../../User';
 import UserTheme from './UserTheme';
+import Category from '../Category';
+import ProductCategory from '../ProductCategory';
 
 @Table({
     timestamps: true,
@@ -78,6 +80,12 @@ class Theme extends Model {
         onDelete: 'CASCADE'
     })
     userThemes: UserTheme[];
+
+    @BelongsToMany(() => Category, () => ProductCategory)
+    categories: Category[];
+
+    @HasMany(() => ProductCategory)
+    productCategories: ProductCategory[];
 }
 
 export default Theme;

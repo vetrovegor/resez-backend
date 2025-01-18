@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 
 import Subscription from '@db/models/subscription/Subscription';
-import { ApiError } from '../ApiError';
+import { ApiError } from '@ApiError';
 import userService from './userService';
 import { getSubscriptionExpiredhDate } from '@utils';
 import rmqService from './rmqService';

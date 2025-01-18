@@ -9,8 +9,11 @@ import { storeRouter } from './store/storeRouter';
 import { feedbackRouter } from './feedbackRouter';
 import { promoCodeRouter } from './promoCodeRouter';
 import { achievementRouter } from './achievementRouter';
+import { accessTokenMiddleware } from '@middlewares/accessTokenMiddleware';
 
 export const adminRouter = Router();
+
+adminRouter.use(accessTokenMiddleware(true));
 
 adminRouter.use('/user', userRouter);
 

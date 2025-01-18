@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 
-import { ApiError } from '../ApiError';
+import { ApiError } from '@ApiError';
 
 export const validationMiddleware = (
     req: Request,

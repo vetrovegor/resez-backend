@@ -3,7 +3,6 @@ import { body, param } from 'express-validator';
 
 import avatarDecorationController from '@controllers/store/avatarDecorationController';
 import { fileMiddleware } from '@middlewares/fileMiddleware';
-import { accessTokenMiddleware } from '@middlewares/accessTokenMiddleware';
 import { avatarDecorationMiddleware } from '@middlewares/store/avatarDecorationMiddleware';
 import { permissionMiddleware } from '@middlewares/permissionMiddleware';
 import { Permissions } from 'src/types/permission';
@@ -15,7 +14,6 @@ export const avatarDecorationRouter = Router();
 
 avatarDecorationRouter.post(
     '/',
-    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.CreateProducts),
     body('title').isString().notEmpty(),
     body('price').isFloat({ gt: 0 }).optional(),
@@ -24,6 +22,8 @@ avatarDecorationRouter.post(
     body('seasonStartDate').isISO8601().optional(),
     body('seasonEndDate').isISO8601().optional(),
     body('options').isJSON().notEmpty(),
+    body('categories').isArray(),
+    body('categories.*').isInt().toInt(),
     validationMiddleware,
     fileMiddleware(10),
     productMiddleware,
@@ -33,7 +33,6 @@ avatarDecorationRouter.post(
 
 avatarDecorationRouter.get(
     '/',
-    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.Store),
     paginationMiddleware,
     avatarDecorationController.getAvatarDecorations
@@ -41,7 +40,6 @@ avatarDecorationRouter.get(
 
 avatarDecorationRouter.patch(
     '/:id/toggle-publish',
-    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.PublishProducts),
     param('id').isNumeric(),
     validationMiddleware,
@@ -51,7 +49,6 @@ avatarDecorationRouter.patch(
 
 avatarDecorationRouter.delete(
     '/:id',
-    accessTokenMiddleware(true),
     permissionMiddleware(Permissions.PublishProducts),
     param('id').isNumeric(),
     validationMiddleware,

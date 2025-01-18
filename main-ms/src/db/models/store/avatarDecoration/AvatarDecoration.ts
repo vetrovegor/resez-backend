@@ -13,6 +13,8 @@ import { StoreContentType } from '@enums/store';
 import Achievement from '../../achievement/Achievement';
 import User from '../../User';
 import UserAvatarDecoration from './UserAvatarDecoration';
+import Category from '../Category';
+import ProductCategory from '../ProductCategory';
 
 @Table({
     timestamps: true,
@@ -84,6 +86,12 @@ class AvatarDecoration extends Model {
         onDelete: 'CASCADE'
     })
     userAvatarDecorations: UserAvatarDecoration[];
+
+    @BelongsToMany(() => Category, () => ProductCategory)
+    categories: Category[];
+
+    @HasMany(() => ProductCategory)
+    productCategories: ProductCategory[];
 }
 
 export default AvatarDecoration;

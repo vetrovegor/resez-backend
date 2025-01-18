@@ -3,7 +3,7 @@ import { Op } from 'sequelize';
 import { PaginationDTO } from '../dto/PaginationDTO';
 import Feedback from '@db/models/Feedback';
 import userService from './userService';
-import { ApiError } from '../ApiError';
+import { ApiError } from '@ApiError';
 
 class FeedbackService {
     async createFeedback(ip: string, userId: number, text: string) {

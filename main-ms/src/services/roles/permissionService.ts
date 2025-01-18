@@ -6,7 +6,7 @@ import {
     PermissionHierarchyItem,
     Permissions
 } from 'src/types/permission';
-import { ApiError } from '../../ApiError';
+import { ApiError } from '@ApiError';
 
 const permissionsHierarchy = [
     {

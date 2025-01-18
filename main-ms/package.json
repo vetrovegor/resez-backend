@@ -16,7 +16,8 @@
         "@db": "build/db",
         "@utils": "build/utils",
         "@consts": "build/consts",
-        "@enums": "build/enums"
+        "@enums": "build/enums",
+        "@ApiError": "build/ApiError"
     },
     "keywords": [],
     "author": "",

@@ -3,7 +3,7 @@ import { NextFunction } from 'express';
 import { RequestWithBody } from 'src/types/request';
 import { AvatarDecorationDTO } from 'src/types/store';
 import { StoreContentType } from '@enums/store';
-import { ApiError } from '../../ApiError';
+import { ApiError } from '@ApiError';
 import { UploadedFile } from 'express-fileupload';
 
 export const avatarDecorationMiddleware = async (

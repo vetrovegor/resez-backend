@@ -7,6 +7,7 @@ export type ProductDTO = {
     requiredAchievementId: number;
     seasonStartDate: Date;
     seasonEndDate: Date;
+    categories: number[];
 };
 
 export type AvatarDecorationDTO = ProductDTO & {
@@ -23,4 +24,9 @@ export type ThemeBasic = {
     id: number;
     primary: string;
     light: string;
+}
+
+export type CategoryDTO = {
+    category: string;
+    slug: string;
 }

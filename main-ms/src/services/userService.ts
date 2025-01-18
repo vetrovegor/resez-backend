@@ -3,7 +3,7 @@ import { UploadedFile } from 'express-fileupload';
 import { Op } from 'sequelize';
 
 import User from '@db/models/User';
-import { ApiError } from '../ApiError';
+import { ApiError } from '@ApiError';
 import {
     UserAdminInfo,
     UserPreview,

@@ -27,7 +27,8 @@ class AvatarDecorationController {
                 seasonEndDate,
                 requiredSubscriptionId,
                 requiredAchievementId,
-                options
+                options,
+                categories
             } = req.body;
             const { content } = req.files;
 
@@ -41,7 +42,8 @@ class AvatarDecorationController {
                     requiredSubscriptionId,
                     requiredAchievementId,
                     options,
-                    content as UploadedFile
+                    content as UploadedFile,
+                    categories
                 );
 
             res.json({ product });

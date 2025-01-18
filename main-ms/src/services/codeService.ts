@@ -3,7 +3,7 @@ import { Op } from 'sequelize';
 import Code from '@db/models/Code';
 import { VerificationCodeData } from 'src/types/code';
 import userService from './userService';
-import { ApiError } from '../ApiError';
+import { ApiError } from '@ApiError';
 import User from '@db/models/User';
 import { EmitTypes } from '@enums/socket';
 import rmqService from './rmqService';

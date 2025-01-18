@@ -3,8 +3,9 @@ import { NextFunction } from 'express';
 import { RequestWithBody } from 'src/types/request';
 import { ProductDTO } from 'src/types/store';
 import achievementService from '@services/achievementService';
-import { ApiError } from '../../ApiError';
+import { ApiError } from '@ApiError';
 import subscriptionService from '@services/subscribtionService';
+import categoryService from '@services/store/categoryService';
 
 export const productMiddleware = async (
     req: RequestWithBody<ProductDTO>,
@@ -83,6 +84,22 @@ export const productMiddleware = async (
 
             req.body.seasonStartDate = seasonStartDate;
             req.body.seasonEndDate = seasonEndDate;
+        }
+
+        // валидация категорий
+        if (req.body.categories.length > 0) {
+            const uniqueCategoryIds = [...new Set(req.body.categories)];
+
+            const isCategoryIdsValid =
+                await categoryService.validateCategoryIds(uniqueCategoryIds);
+
+            if (!isCategoryIdsValid) {
+                throw ApiError.notFound(
+                    'Некоторые из указанных категорий не существуют'
+                );
+            }
+
+            req.body.categories = uniqueCategoryIds;
         }
 
         next();

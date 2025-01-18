@@ -20,7 +20,8 @@
             "@utils": ["src/utils"],
             "@utils/*": ["src/utils/*"],
             "@consts/*": ["src/consts/*"],
-            "@enums/*": ["src/enums/*"]
+            "@enums/*": ["src/enums/*"],
+            "@ApiError": ["src/ApiError"],
             // "@types/*": ["src/types/*"]
         }
     },

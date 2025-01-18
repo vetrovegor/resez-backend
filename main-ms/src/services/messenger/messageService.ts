@@ -9,7 +9,7 @@ import {
 } from 'src/types/messenger';
 import Message from '@db/models/messenger/Message';
 import chatService from './chatService';
-import { ApiError } from '../../ApiError';
+import { ApiError } from '@ApiError';
 import { EmitTypes } from '@enums/socket';
 import UserMessage from '@db/models/messenger/UserMessage';
 import rmqService from '@services/rmqService';
@@ -187,6 +187,7 @@ class MessageService {
             files
         );
 
+        // TODO: отфильтравить isLeft, isKicked = false
         const chatUserIds = await chatService.getChatUserIds(chatId);
 
         chatUserIds.forEach(async userId => {
@@ -564,7 +565,6 @@ class MessageService {
             });
 
         const messages = messagesData
-            .reverse()
             .map(messageData => this.createMessageDto(messageData, userId));
 
         return new PaginationDTO(

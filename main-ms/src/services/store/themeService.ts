@@ -1,9 +1,10 @@
 import { PaginationDTO } from '../../dto/PaginationDTO';
 import Theme from '@db/models/store/theme/Theme';
 import { ThemeDTO } from 'src/types/store';
-import { ApiError } from '../../ApiError';
+import { ApiError } from '@ApiError';
 import UserTheme from '@db/models/store/theme/UserTheme';
 import userService from '@services/userService';
+import categoryService from './categoryService';
 
 class AvatarDecorationService {
     async createTheme({
@@ -14,9 +15,10 @@ class AvatarDecorationService {
         seasonStartDate,
         seasonEndDate,
         primary,
-        light
+        light,
+        categories
     }: ThemeDTO) {
-        return await Theme.create({
+        const createdTheme = await Theme.create({
             title,
             price,
             requiredSubscriptionId,
@@ -26,6 +28,13 @@ class AvatarDecorationService {
             primary,
             light
         });
+
+        await categoryService.createThemeCategories(
+            categories,
+            createdTheme.get('id')
+        );
+
+        return createdTheme;
     }
 
     createThemeDto({
@@ -43,6 +52,10 @@ class AvatarDecorationService {
 
         const id = theme.id;
         const usersCount = theme?.userThemes?.length;
+
+        const categories = theme.categories.map(category =>
+            categoryService.createCategoryDto(category)
+        );
 
         delete theme.requiredSubscriptionId;
         delete theme.requiredAchievementId;
@@ -80,7 +93,8 @@ class AvatarDecorationService {
             usersCount,
             isActive: id == activeId,
             isCollected: collectedIds.includes(id),
-            type: 'theme'
+            type: 'theme',
+            categories
         };
     }
 
@@ -89,7 +103,8 @@ class AvatarDecorationService {
             include: [
                 'requiredSubscription',
                 'requiredAchievement',
-                'userThemes'
+                'userThemes',
+                'categories'
             ],
             order: [['createdAt', 'DESC']],
             limit,
@@ -170,7 +185,8 @@ class AvatarDecorationService {
             include: [
                 'requiredSubscription',
                 'requiredAchievement',
-                'userThemes'
+                'userThemes',
+                'categories'
             ],
             where,
             order: [['createdAt', 'DESC']],
@@ -267,7 +283,8 @@ class AvatarDecorationService {
                     include: [
                         'requiredSubscription',
                         'requiredAchievement',
-                        'userThemes'
+                        'userThemes',
+                        'categories'
                     ]
                 }
             ],

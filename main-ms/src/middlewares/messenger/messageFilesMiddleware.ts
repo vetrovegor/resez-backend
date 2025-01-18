@@ -1,6 +1,6 @@
 import { Response, NextFunction } from 'express';
 
-import { ApiError } from '../../ApiError';
+import { ApiError } from '@ApiError';
 import { RequestWithUser } from 'src/types/request';
 import { Subscriptions } from '@enums/subscriptions';
 
