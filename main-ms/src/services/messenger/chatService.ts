@@ -141,12 +141,13 @@ class ChatService {
             .find(userChat => userChat.userId == forUserId)
             .toJSON();
 
-        const userMessages = chatData.get('userMessages');
+        const userMessages = chatData
+            .get('userMessages')
+            .filter(userMessage => userMessage.get('userId') == forUserId);
 
         const unreadMessagesCount = userMessages.filter(
             userMessage =>
                 userMessage.get('message').get('senderId') != forUserId &&
-                userMessage.get('userId') == forUserId &&
                 !userMessage.get('isRead')
         ).length;
 
@@ -246,6 +247,8 @@ class ChatService {
                 return await this.createChatDto(chat, userId);
             })
         );
+
+        chats = chats.filter(chat => !!chat.latestMessage);
 
         chats.sort((a, b) => {
             return (
