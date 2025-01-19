@@ -187,7 +187,6 @@ class MessageService {
             files
         );
 
-        // TODO: отфильтравить isLeft, isKicked = false
         const chatUserIds = await chatService.getChatUserIds(chatId);
 
         chatUserIds.forEach(async userId => {
@@ -203,6 +202,7 @@ class MessageService {
             senderId
         );
 
+        // TODO: отфильтравить chatUserIds isLeft, isKicked = false
         rmqService.sendToQueue(Queues.Socket, 'emit-to-users', {
             userIds: chatUserIds.filter(userId => userId != senderId),
             emitType: EmitTypes.Message,
@@ -565,6 +565,7 @@ class MessageService {
             });
 
         const messages = messagesData
+            .reverse()
             .map(messageData => this.createMessageDto(messageData, userId));
 
         return new PaginationDTO(

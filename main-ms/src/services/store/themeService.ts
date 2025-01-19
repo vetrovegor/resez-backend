@@ -53,10 +53,6 @@ class AvatarDecorationService {
         const id = theme.id;
         const usersCount = theme?.userThemes?.length;
 
-        const categories = theme.categories.map(category =>
-            categoryService.createCategoryDto(category)
-        );
-
         delete theme.requiredSubscriptionId;
         delete theme.requiredAchievementId;
         delete theme.userThemes;
@@ -93,8 +89,7 @@ class AvatarDecorationService {
             usersCount,
             isActive: id == activeId,
             isCollected: collectedIds.includes(id),
-            type: 'theme',
-            categories
+            type: 'theme'
         };
     }
 

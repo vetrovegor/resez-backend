@@ -25,10 +25,6 @@ class AvatarDecorationService {
         const id = avatarDecoration.id;
         const usersCount = avatarDecoration?.userAvatarDecorations?.length;
 
-        const categories = avatarDecoration.categories.map(category =>
-            categoryService.createCategoryDto(category)
-        );
-
         delete avatarDecoration.requiredSubscriptionId;
         delete avatarDecoration.requiredAchievementId;
         delete avatarDecoration.userAvatarDecorations;
@@ -70,8 +66,7 @@ class AvatarDecorationService {
             isCollected: collectedIds.includes(id),
             type: 'avatar_decoration',
             contentUrl: process.env.STATIC_URL + avatarDecoration.contentUrl,
-            options: JSON.parse(avatarDecoration.options.toString()),
-            categories
+            options: JSON.parse(avatarDecoration.options.toString())
         };
     }
 

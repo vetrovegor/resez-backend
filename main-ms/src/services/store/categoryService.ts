@@ -22,13 +22,19 @@ class CategoryService {
         return category;
     }
 
-    createCategoryDto(categoryData: Category) {
-        const { id, category, slug } = categoryData;
+    async createCategoryDto(categoryData: Category) {
+        const { id, category, slug } = categoryData.toJSON();
+
+        // TODO: подумать как получать правильное количество через include
+        const productsCount = await ProductCategory.count({
+            where: { categoryId: id }
+        });
 
         return {
             id,
             category,
-            slug
+            slug,
+            productsCount
         };
     }
 
@@ -50,23 +56,23 @@ class CategoryService {
             slug
         });
 
-        return this.createCategoryDto(createdCategory);
+        return await this.createCategoryDto(createdCategory);
     }
 
     async getCategoriesForAdmin(limit: number, offset: number) {
         const { rows: categoriesData, count: totalCount } =
             await Category.findAndCountAll({
-                include: ['productCategories'],
                 order: [['createdAt', 'DESC']],
                 distinct: true,
                 limit,
                 offset
             });
 
-        const categories = categoriesData.map(categoryData => ({
-            ...this.createCategoryDto(categoryData),
-            productsCount: categoryData.get('productCategories').length
-        }));
+        const categories = await Promise.all(
+            categoriesData.map(
+                async categoryData => await this.createCategoryDto(categoryData)
+            )
+        );
 
         return new PaginationDTO(
             'categories',
@@ -80,7 +86,7 @@ class CategoryService {
     async getCategoryInfo(id: number) {
         const existingCategory = await this.getCategoryById(id);
 
-        return this.createCategoryDto(existingCategory);
+        return await this.createCategoryDto(existingCategory);
     }
 
     async updateCategory(id: number, { category, slug }: CategoryDTO) {
@@ -106,7 +112,7 @@ class CategoryService {
 
         await existingCategory.save();
 
-        return this.createCategoryDto(existingCategory);
+        return await this.createCategoryDto(existingCategory);
     }
 
     async deleteCategory(id: number) {
@@ -120,7 +126,7 @@ class CategoryService {
 
         await existingCategory.destroy();
 
-        return this.createCategoryDto(existingCategory);
+        return await this.createCategoryDto(existingCategory);
     }
 
     async validateCategoryIds(categoryIds: number[]) {
@@ -184,33 +190,36 @@ class CategoryService {
                 offset
             });
 
-        const categories = categoriesData.map(categoryData => {
-            const avatarDecorations = categoryData
-                .get('avatarDecorations')
-                .map(avatarDecoration =>
-                    avatarDecorationService.createAvatarDecorationDto({
-                        avatarDecoration
+        const categories = await Promise.all(
+            categoriesData.map(async categoryData => {
+                const categoryDto = await this.createCategoryDto(categoryData);
+
+                const avatarDecorations = categoryData
+                    .get('avatarDecorations')
+                    .map(avatarDecoration =>
+                        avatarDecorationService.createAvatarDecorationDto({
+                            avatarDecoration
+                        })
+                    );
+
+                const themes = categoryData.get('themes').map(theme =>
+                    themeService.createThemeDto({
+                        theme
                     })
                 );
 
-            const themes = categoryData.get('themes').map(theme =>
-                themeService.createThemeDto({
-                    theme
-                })
-            );
+                const products = [...themes, ...avatarDecorations];
 
-            const products = [...themes, ...avatarDecorations];
+                shuffleArray(products);
 
-            shuffleArray(products);
+                products.splice(3);
 
-            products.splice(3);
-
-            return {
-                ...this.createCategoryDto(categoryData),
-                productsCount: categoryData.get('productCategories').length,
-                products
-            };
-        });
+                return {
+                    ...categoryDto,
+                    products
+                };
+            })
+        );
 
         return new PaginationDTO(
             'categories',

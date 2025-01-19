@@ -257,12 +257,14 @@ class ChatService {
             );
         });
 
+        const totalCount = chats.length;
+
         chats = chats.slice(offset).splice(0, limit);
 
         return new PaginationDTO<ChatDTO>(
             'chats',
             chats,
-            chats.length,
+            totalCount,
             limit,
             offset
         );
