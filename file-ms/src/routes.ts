@@ -1,7 +1,7 @@
 import { MultipartFile } from '@fastify/multipart';
 import { FastifyInstance, FastifyPluginOptions } from 'fastify';
 
-import { saveFile, uploadImageByUrl } from './file-service';
+import { saveFile, saveFiles, uploadImageByUrl } from './file-service';
 import { validateFileSize } from './validate-file-size';
 import { FileDto } from './FileDto';
 
@@ -18,7 +18,7 @@ declare module 'fastify' {
 export default (fastify: FastifyInstance, options: FastifyPluginOptions) => {
     // const client = fastify.db.client;
 
-    fastify.post<{ Body: { file: MultipartFile } }>(
+    fastify.post<{ Body: { files: MultipartFile[] } }>(
         '/upload',
         {
             onRequest: [fastify.authenticate],
@@ -26,9 +26,12 @@ export default (fastify: FastifyInstance, options: FastifyPluginOptions) => {
             schema: {
                 body: {
                     type: 'object',
-                    required: ['file'],
+                    required: ['files'],
                     properties: {
-                        file: { isFile: true }
+                        files: {
+                            type: 'array',
+                            items: { isFile: true }
+                        }
                     }
                 }
             },
@@ -36,7 +39,8 @@ export default (fastify: FastifyInstance, options: FastifyPluginOptions) => {
         },
         async (request, reply) => {
             try {
-                return await saveFile('', request.body.file);
+                // return await saveFile('', request.body.file);
+                return await saveFiles(request.body.files);
             } catch (err) {
                 throw new Error(err);
             }

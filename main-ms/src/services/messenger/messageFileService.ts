@@ -8,20 +8,31 @@ class MessageFileService {
         files: MessageFileRequestBodyDTO[]
     ) {
         for (const file of files) {
-            const { url, name, type, size } = file;
-            await MessageFile.create({ messageId, url, name, type, size });
+            const { url, name, type, size, width, height } = file;
+
+            await MessageFile.create({
+                messageId,
+                url,
+                name,
+                type,
+                size,
+                width,
+                height
+            });
         }
     }
 
     createMessageFileDto(messageFile: MessageFile): MessageFileDTO {
-        const { id, url, name, type, size } = messageFile.toJSON();
+        const { id, url, name, type, size, width, height } = messageFile.toJSON();
 
         return {
             id,
             url,
             name,
             type,
-            size: formatFileSize(size)
+            size: formatFileSize(size),
+            width,
+            height
         };
     }
 

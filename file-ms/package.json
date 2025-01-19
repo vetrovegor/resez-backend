@@ -25,6 +25,8 @@
     "dotenv": "^16.4.5",
     "fastify": "^5.1.0",
     "fastify-plugin": "^5.0.1",
+    "sharp": "^0.33.5",
+    "uuid": "^11.0.5",
     "yamljs": "^0.3.0"
   },
   "devDependencies": {

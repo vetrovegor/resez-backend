@@ -677,7 +677,7 @@ class ChatService {
     }
 
     async readAllChat(chatId: number, userId: number) {
-        return await messageService.readMessage(chatId, userId, new Date());
+        return await messageService.readMessages(chatId, userId, new Date());
     }
 
     async getChatUserIds(chatId: number) {
@@ -724,7 +724,7 @@ class ChatService {
         });
     }
 
-    async notifyChatUsers(
+    async notifyOtherChatUsers(
         chatId: number,
         excludeUserId: number,
         emitType: EmitTypes,

@@ -37,6 +37,12 @@ components:
         size:
           type: number
           example: 100500
+        width:
+          type: number
+          example: 1280
+        height:
+          type: number
+          example: 720
     MessageRequestBody:
       type: object
       properties:

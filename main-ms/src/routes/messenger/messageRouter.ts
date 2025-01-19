@@ -22,6 +22,8 @@ messageRouter.post(
     body('files.*.name').isString(),
     body('files.*.type').isString(),
     body('files.*.size').isNumeric(),
+    body('files.*.width').isNumeric().optional(),
+    body('files.*.height').isNumeric().optional(),
     validationMiddleware,
     accessTokenMiddleware(true),
     messageController.sendMessageToUser
@@ -42,6 +44,8 @@ messageRouter.post(
     body('files.*.name').isString(),
     body('files.*.type').isString(),
     body('files.*.size').isNumeric(),
+    body('files.*.width').isNumeric().optional(),
+    body('files.*.height').isNumeric().optional(),
     body('parentMessageId').isNumeric().optional(),
     validationMiddleware,
     accessTokenMiddleware(true),
@@ -72,7 +76,7 @@ messageRouter.patch(
     param('id').isNumeric(),
     validationMiddleware,
     accessTokenMiddleware(true),
-    messageController.readMessage
+    messageController.readMessages
 );
 
 messageRouter.patch(

@@ -6,6 +6,8 @@ export type MessageFileRequestBodyDTO = {
     name: string;
     type: string;
     size: number;
+    width?: number;
+    height?: number;
 };
 
 export type MessageFileDTO = {
@@ -14,6 +16,8 @@ export type MessageFileDTO = {
     name: string;
     type: string;
     size: string;
+    width?: number;
+    height?: number;
 };
 
 export type MessageRequestBodyDTO = {

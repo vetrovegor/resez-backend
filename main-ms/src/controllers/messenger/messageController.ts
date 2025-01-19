@@ -90,7 +90,7 @@ class MessageController {
         }
     }
 
-    async readMessage(
+    async readMessages(
         req: RequestWithParamsAndUser<IdParam>,
         res: Response,
         next: NextFunction

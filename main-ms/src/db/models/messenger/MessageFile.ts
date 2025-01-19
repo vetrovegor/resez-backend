@@ -29,10 +29,21 @@ class MessageFile extends Model {
     })
     type: string;
 
+    // TODO: должен быть integer?
     @Column({
         type: DataType.STRING
     })
     size: string;
+
+    @Column({
+        type: DataType.INTEGER
+    })
+    width: number;
+
+    @Column({
+        type: DataType.INTEGER
+    })
+    height: number;
 
     @ForeignKey(() => Message)
     @Column

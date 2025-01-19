@@ -34,7 +34,7 @@ class MessageService {
         },
         {
             association: 'messageFiles',
-            attributes: ['id', 'url', 'name', 'type', 'size']
+            attributes: ['id', 'url', 'name', 'type', 'size', 'width', 'height']
         },
         {
             association: 'parentMessage',
@@ -46,7 +46,7 @@ class MessageService {
                 },
                 {
                     association: 'messageFiles',
-                    attributes: ['id', 'url', 'name', 'type', 'size']
+                    attributes: ['id', 'url', 'name', 'type', 'size', 'width', 'height']
                 }
             ]
         }
@@ -202,12 +202,14 @@ class MessageService {
             senderId
         );
 
-        // TODO: отфильтравить chatUserIds isLeft, isKicked = false
+        // TODO: отфильтровать chatUserIds isLeft, isKicked = false
         rmqService.sendToQueue(Queues.Socket, 'emit-to-users', {
             userIds: chatUserIds.filter(userId => userId != senderId),
             emitType: EmitTypes.Message,
             data: messageDto
         });
+
+        this.readMessages(chatId, senderId, new Date());
 
         return messageDto;
     }
@@ -314,7 +316,7 @@ class MessageService {
 
         const messageDto = this.createMessageDto(messageData, userId);
 
-        chatService.notifyChatUsers(
+        chatService.notifyOtherChatUsers(
             messageData.get('chatId'),
             userId,
             EmitTypes.MessageUpdating,
@@ -384,7 +386,7 @@ class MessageService {
         }
 
         if (forAll) {
-            chatService.notifyChatUsers(
+            chatService.notifyOtherChatUsers(
                 chatId,
                 userId,
                 EmitTypes.MessagesDeleting,
@@ -393,25 +395,25 @@ class MessageService {
         }
     }
 
-    async getChatMessages(chatId: number, userId: number) {
-        const userMessages = await UserMessage.findAll({
-            where: { chatId, userId }
-        });
+    // async getChatMessages(chatId: number, userId: number) {
+    //     const userMessages = await UserMessage.findAll({
+    //         where: { chatId, userId }
+    //     });
 
-        const messageIDs = userMessages.map(userMessage =>
-            userMessage.get('messageId')
-        );
+    //     const messageIDs = userMessages.map(userMessage =>
+    //         userMessage.get('messageId')
+    //     );
 
-        const messages = await Message.findAll({
-            where: {
-                id: { [Op.in]: messageIDs }
-            },
-            include: this.messageInclude,
-            order: [['createdAt', 'ASC']]
-        });
+    //     const messages = await Message.findAll({
+    //         where: {
+    //             id: { [Op.in]: messageIDs }
+    //         },
+    //         include: this.messageInclude,
+    //         order: [['createdAt', 'ASC']]
+    //     });
 
-        return messages.map(message => this.createMessageDto(message, userId));
-    }
+    //     return messages.map(message => this.createMessageDto(message, userId));
+    // }
 
     async createMessagesHistory(chatId: number, userId: number): Promise<void> {
         const lastMessages = await Message.findAll({
@@ -429,7 +431,7 @@ class MessageService {
         });
     }
 
-    async readMessage(chatId: number, userId: number, date: Date) {
+    async readMessages(chatId: number, userId: number, date: Date) {
         const messagesToRead = await Message.findAll({
             where: {
                 chatId,
@@ -467,7 +469,7 @@ class MessageService {
         );
 
         if (affectedCount > 0) {
-            chatService.notifyChatUsers(
+            chatService.notifyOtherChatUsers(
                 chatId,
                 userId,
                 EmitTypes.MessageReading,
@@ -479,7 +481,7 @@ class MessageService {
     async readPreviousMessages(messageId: number, userId: number) {
         const message = await this.getMessageById(messageId);
 
-        return await this.readMessage(
+        return await this.readMessages(
             message.get('chatId'),
             userId,
             message.get('createdAt')
@@ -489,7 +491,7 @@ class MessageService {
     async readAllMessages(messageId: number, userId: number) {
         const message = await this.getMessageById(messageId);
 
-        return await this.readMessage(
+        return await this.readMessages(
             message.get('chatId'),
             userId,
             new Date()
@@ -524,7 +526,7 @@ class MessageService {
 
         const messageDto = await this.createMessageDtoById(messageId, userId);
 
-        chatService.notifyChatUsers(
+        chatService.notifyOtherChatUsers(
             messageDto.chatId,
             userId,
             EmitTypes.MessageUpdating,
