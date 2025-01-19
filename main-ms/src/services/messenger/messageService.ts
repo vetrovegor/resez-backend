@@ -206,7 +206,7 @@ class MessageService {
         rmqService.sendToQueue(Queues.Socket, 'emit-to-users', {
             userIds: chatUserIds.filter(userId => userId != senderId),
             emitType: EmitTypes.Message,
-            messageDto
+            data: messageDto
         });
 
         return messageDto;
