@@ -122,8 +122,6 @@ export class SocketService implements OnGatewayConnection {
             userIdSet.has(user.userId)
         );
 
-        console.log({ data });
-
         for (const user of targetUsers) {
             this.emitToRoom(user.socketId, emitType, data);
         }

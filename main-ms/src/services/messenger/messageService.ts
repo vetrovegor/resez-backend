@@ -260,7 +260,7 @@ class MessageService {
                 where: {
                     userId: senderId,
                     messageId: parentMessageId,
-                    chatId: userChat.get('id')
+                    chatId: userChat.get('chatId')
                 }
             });
 
@@ -549,24 +549,27 @@ class MessageService {
         limit: number,
         offset: number
     ) {
-        const { rows: messagesData, count: totalCount } =
-            await Message.findAndCountAll({
-                include: [
-                    ...this.messageInclude,
-                    {
-                        association: 'userMessages',
-                        include: [{ association: 'user' }],
-                        where: { chatId, userId }
-                    }
-                ],
-                order: [['createdAt', 'DESC']],
-                limit,
-                offset
-            });
+        const messagesData = await Message.findAll({
+            include: [
+                ...this.messageInclude,
+                {
+                    association: 'userMessages',
+                    include: [{ association: 'user' }],
+                    where: { chatId }
+                }
+            ],
+            order: [['createdAt', 'DESC']],
+            limit,
+            offset
+        });
 
         const messages = messagesData
             .reverse()
             .map(messageData => this.createMessageDto(messageData, userId));
+
+        const totalCount = await UserMessage.count({
+            where: { chatId, userId }
+        });
 
         return new PaginationDTO(
             'messages',
